@@ -73,7 +73,11 @@ def get_parameter_df(parameter_file_name):
     """Read the provided parameter file into a `pandas.Dataframe`"""
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
-    parameter_df.set_index(['parameterId'])
+
+    try:
+        parameter_df.set_index(['parameterId'], inplace=True)
+    except KeyError:
+        raise KeyError('Parameter table missing mandatory field `parameterId`.')
 
     return parameter_df
 
