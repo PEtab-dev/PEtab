@@ -210,13 +210,12 @@ def get_simulation_to_optimization_parameter_mapping(
 
     # Number of simulation conditions will be number of unique preequilibrationCondition-simulationCondition pairs
     # Can be improved by checking for identical condition vectors
-    # (cannot group by NaNs)
-    simulation_conditions = measurement_df.groupby(
-        [measurement_df['preequilibrationConditionId'].fillna('#####'),
-         measurement_df['simulationConditionId'].fillna('#####')]) \
-        .size().reset_index() \
-        .replace({'preequilibrationConditionId': {'#####': np.nan}}) \
-        .replace({'simulationConditionId': {'#####': np.nan}})
+
+    grouping_cols = get_notnull_columns(measurement_df,
+                                        ['simulationConditionId',
+                                         'preequilibrationConditionId'])
+    simulation_conditions = measurement_df.groupby(grouping_cols) \
+        .size().reset_index()
 
     num_simulation_parameters = len(sbml_parameter_ids)
     num_conditions = simulation_conditions.shape[0]
@@ -337,3 +336,10 @@ def get_dynamic_parameters_from_sbml(sbml_model):
     """Get list of non-constant parameters in sbml model"""
 
     return [p.getId() for p in sbml_model.getListOfParameters() if not p.getConstant()]
+
+
+def get_notnull_columns(df, candidates):
+    """"Return list of df-columns in candidates which are not all null/nan
+
+    The output can e.g. be used as input for pandas.DataFrame.groupby"""
+    return [col for col in candidates if not np.all(df[col].isnull())]
