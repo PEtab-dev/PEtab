@@ -29,12 +29,20 @@ def condition_table_is_parameter_free(condition_df):
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
     """Are there time-point or replicate specific parameter assignments in the measurement table"""
 
-    measurement_df.loc[measurement_df.noiseParameters.apply(isinstance, args=(numbers.Number,)), 'noiseParameters'] = np.nan
+    measurement_df.loc[
+        measurement_df.noiseParameters.apply(isinstance, args=(numbers.Number,)), 'noiseParameters'] = np.nan
+
+    print(measurement_df.columns)
     grouped_df = measurement_df.groupby(['observableId',
                                          'simulationConditionId',
-                                         'preequilibrationConditionId',
-                                         'observableParameters',
-                                         'noiseParameters']).size().reset_index()
+                                         measurement_df['preequilibrationConditionId'].fillna('#####'),
+                                         measurement_df['observableParameters'].fillna('#####'),
+                                         measurement_df['noiseParameters'].fillna('#####'),
+                                         ]).size().reset_index() \
+        .replace({'preequilibrationConditionId': {'#####': np.nan}}) \
+        .replace({'observableParameters': {'#####': np.nan}}) \
+        .replace({'noiseParameters': {'#####': np.nan}})
+
     grouped_df2 = grouped_df.groupby(['observableId',
                                       'simulationConditionId',
                                       'preequilibrationConditionId']).size().reset_index()

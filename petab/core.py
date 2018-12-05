@@ -227,7 +227,7 @@ def get_simulation_to_optimization_parameter_mapping(
                         axis=1, repeats=num_conditions)
 
     # optimization parameters are model parameters + condition specific parameters
-    optimization_parameter_ids = sbml_parameter_ids + get_measurement_parameter_ids(measurement_df)
+    optimization_parameter_ids = list(sbml_parameter_ids) + get_measurement_parameter_ids(measurement_df)
 
     condition_ids = [condition_id for condition_id in condition_df.conditionId.values if
                      condition_id in measurement_df.simulationConditionId.values]
@@ -243,14 +243,16 @@ def get_simulation_to_optimization_parameter_mapping(
         name: idx for idx, name in enumerate(sbml_parameter_ids)
     }
 
-    def _apply_overrides(overrides, condition_id, observable_id):
-        """Apply parameter-overrides to mapping matrix"""
+    def _apply_overrides(overrides, condition_id, observable_id, override_type):
+        """Apply parameter-overrides to mapping matrix
+        override_type: observable / noise
+        """
         for i, override in enumerate(overrides):
             if isinstance(override, numbers.Number):
                 # absence of float observable parameter overrides has been asserted above
                 # float noise parameter overrides are ignored here
                 continue
-            model_parameter_idx = model_parameter_id_to_idx[f'observableParameter{i + 1}_{observable_id}']
+            model_parameter_idx = model_parameter_id_to_idx[f'{override_type}Parameter{i + 1}_{observable_id}']
             condition_idx = condition_id_to_idx[condition_id]
             optimization_parameter_idx = optimization_parameter_name_to_index[override]
             mapping[model_parameter_idx, condition_idx] = optimization_parameter_idx
@@ -258,10 +260,10 @@ def get_simulation_to_optimization_parameter_mapping(
     for _, row in measurement_df.iterrows():
         # We trust that number of overrides matches (see above)
         overrides = split_parameter_replacement_list(row.observableParameters)
-        _apply_overrides(overrides, row.simulationConditionId, row.observableId)
+        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='observable')
 
         overrides = split_parameter_replacement_list(row.noiseParameters)
-        _apply_overrides(overrides, row.simulationConditionId, row.observableId)
+        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='noise')
 
     # Some model parameters might always be overwritten by measurements.observableIds, they can be removed
     unused_optimization_parameter_idxs = set(range(len(optimization_parameter_ids))) - set(np.unique(mapping))
