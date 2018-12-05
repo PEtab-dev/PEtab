@@ -33,16 +33,14 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
         measurement_df.noiseParameters.apply(isinstance, args=(numbers.Number,)), 'noiseParameters'] = np.nan
 
     print(measurement_df.columns)
-    grouped_df = measurement_df.groupby(['observableId',
-                                         'simulationConditionId',
-                                         measurement_df['preequilibrationConditionId'].fillna('#####'),
-                                         measurement_df['observableParameters'].fillna('#####'),
-                                         measurement_df['noiseParameters'].fillna('#####'),
-                                         ]).size().reset_index() \
-        .replace({'preequilibrationConditionId': {'#####': np.nan}}) \
-        .replace({'observableParameters': {'#####': np.nan}}) \
-        .replace({'noiseParameters': {'#####': np.nan}})
 
+    grouping_cols = core.get_notnull_columns(measurement_df, ['observableId',
+                                                              'simulationConditionId',
+                                                              'preequilibrationConditionId',
+                                                              'observableParameters',
+                                                              'noiseParameters'
+                                                              ])
+    grouped_df = measurement_df.groupby(grouping_cols).size().reset_index()
     grouped_df2 = grouped_df.groupby(['observableId',
                                       'simulationConditionId',
                                       'preequilibrationConditionId']).size().reset_index()
