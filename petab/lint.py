@@ -1,5 +1,6 @@
 import numpy as np
 from . import core
+import numbers
 
 """Integrity checks and tests for specific features used"""
 
@@ -20,7 +21,7 @@ def condition_table_is_parameter_free(condition_df):
     constant_parameters = list(set(condition_df.columns.values.tolist()) - {'conditionId', 'conditionName'})
 
     for column in constant_parameters:
-        if np.any(np.invert(condition_df.loc[:, column].apply(isinstance, args=(float,)))):
+        if np.any(np.invert(condition_df.loc[:, column].apply(isinstance, args=(numbers.Number,)))):
             return False
     return True
 
@@ -28,7 +29,7 @@ def condition_table_is_parameter_free(condition_df):
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
     """Are there time-point or replicate specific parameter assignments in the measurement table"""
 
-    measurement_df.loc[measurement_df.noiseParameters.apply(isinstance, args=(float,)), 'noiseParameters'] = np.nan
+    measurement_df.loc[measurement_df.noiseParameters.apply(isinstance, args=(numbers.Number,)), 'noiseParameters'] = np.nan
     grouped_df = measurement_df.groupby(['observableId',
                                          'simulationConditionId',
                                          'preequilibrationConditionId',
@@ -46,12 +47,12 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     return False
 
 
-def measurement_table_has_observable_parameter_float_overrides(measurement_df):
-    """Are there any floats to override observable parameters?"""
+def measurement_table_has_observable_parameter_numeric_overrides(measurement_df):
+    """Are there any numbers to override observable parameters?"""
 
     for i, row in measurement_df.iterrows():
         for override in core.split_parameter_replacement_list(row.observableParameters):
-            if isinstance(override, float):
+            if isinstance(override, numbers.Number):
                 return True
     return False
 

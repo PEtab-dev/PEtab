@@ -6,7 +6,7 @@ import re
 import itertools
 
 from . import lint
-
+import numbers
 
 class OptimizationProblem:
 
@@ -200,7 +200,7 @@ def get_simulation_to_optimization_parameter_mapping(
         # We could allow that for floats, since they don't matter in this function and
         # would be simply ignored
         raise ValueError('Timepoint-specific parameter overrides currently unsupported.')
-    if lint.measurement_table_has_observable_parameter_float_overrides(measurement_df):
+    if lint.measurement_table_has_observable_parameter_numeric_overrides(measurement_df):
         # I guess we could simply ignore them, since they should not go into the optimization parameter vector
         raise ValueError('Numeric observable parameter overrides currently unsupported.')
 
@@ -246,7 +246,7 @@ def get_simulation_to_optimization_parameter_mapping(
     def _apply_overrides(overrides, condition_id, observable_id):
         """Apply parameter-overrides to mapping matrix"""
         for i, override in enumerate(overrides):
-            if isinstance(override, float):
+            if isinstance(override, numbers.Number):
                 # absence of float observable parameter overrides has been asserted above
                 # float noise parameter overrides are ignored here
                 continue
@@ -308,7 +308,7 @@ def split_parameter_replacement_list(list_string):
         except ValueError:
             return x
 
-    if isinstance(list_string, float):
+    if isinstance(list_string, numbers.Number):
         # Empty cells in pandas might be turned into nan
         # We might want to allow nan as replacement...
         if np.isnan(list_string):
