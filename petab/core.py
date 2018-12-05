@@ -342,4 +342,4 @@ def get_notnull_columns(df, candidates):
     """"Return list of df-columns in candidates which are not all null/nan
 
     The output can e.g. be used as input for pandas.DataFrame.groupby"""
-    return [col for col in candidates if not np.all(df[col].isnull())]
+    return [col for col in candidates if col in df and not np.all(df[col].isnull())]
