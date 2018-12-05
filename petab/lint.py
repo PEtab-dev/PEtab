@@ -32,8 +32,6 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(numbers.Number,)), 'noiseParameters'] = np.nan
 
-    print(measurement_df.columns)
-
     grouping_cols = core.get_notnull_columns(measurement_df, ['observableId',
                                                               'simulationConditionId',
                                                               'preequilibrationConditionId',
@@ -41,13 +39,12 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
                                                               'noiseParameters'
                                                               ])
     grouped_df = measurement_df.groupby(grouping_cols).size().reset_index()
-    grouped_df2 = grouped_df.groupby(['observableId',
-                                      'simulationConditionId',
-                                      'preequilibrationConditionId']).size().reset_index()
+    grouping_cols = core.get_notnull_columns(grouped_df,
+                                             ['observableId',
+                                              'simulationConditionId',
+                                              'preequilibrationConditionId'])
+    grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
-    print(grouped_df)
-    print(grouped_df2)
-    print(len(grouped_df.index), len(grouped_df2.index))
     if len(grouped_df.index) != len(grouped_df2.index):
         return True
     return False
