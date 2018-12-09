@@ -4,63 +4,126 @@ import libsbml
 import sympy as sp
 import re
 import itertools
-
-from . import lint
+import os
 import numbers
 
-class OptimizationProblem:
+from . import lint
 
-    def __init__(self, sbml_file_name, measurement_file_name, condition_file_name, parameter_file_name):
-        self.measurement_file_name = measurement_file_name
-        self.condition_file_name = condition_file_name
-        self.parameter_file_name = parameter_file_name
-        self.sbml_file = sbml_file_name
 
-        self.condition_df = get_condition_df(condition_file_name)
-        self.parameter_df = get_parameter_df(parameter_file_name)
-        self.measurement_df = get_measurement_df(measurement_file_name)
+class Importer:
 
+    def __init__(self,
+            condition_file,
+            measurement_file,
+            parameter_file,
+            sbml_file,
+            name = None):
+
+        if name is None:
+            name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
+        self.name = name
+
+        self.measurement_file = measurement_file
+        self.condition_file = condition_file
+        self.parameter_file = parameter_file
+        self.sbml_file = sbml_file
+
+        self.condition_df = get_condition_df(self.condition_file)
+        self.measurement_df = get_measurement_df(self.measurement_file)
+        self.parameter_df = get_parameter_df(self.parameter_file)
+
+        self.sbml_reader = None
+        self.sbml_document = None
+        self.sbml_model = None
         self._load_sbml()
 
-    def _load_sbml(self):
-        """Load SBML model"""
+    @staticmethod
+    def from_folder(folder):
+        """
+        Factory method to use the standard folder structure
+        and file names.
+        """
 
-        # sbml_reader and sbml_document must be kept alive. Otherwise operations on sbml_model will segfault
+        folder = os.path.abspath(folder)
+        name = os.path.split(folder)[-1]
+        
+        condition_file = os.path.join(folder,
+            "experimentalCondition_" + name + ".tsv")
+        measurement_file = os.path.join(folder,
+            "measurementData_" + name + ".tsv")
+        parameter_file = os.path.join(folder,
+            "parameters_" + name + ".tsv")
+        sbml_file = os.path.join(folder,
+            "model_" + name + ".xml")
+
+        return Importer(
+            condition_file = condition_file,
+            measurement_file = measurement_file,
+            parameter_file = parameter_file,
+            sbml_file = sbml_file,
+            name = name
+        )
+
+    def _load_sbml(self):
+        """
+        Load SBML model.
+        """
+
+        # sbml_reader and sbml_document must be kept alive.
+        # Otherwise operations on sbml_model will segfault
         self.sbml_reader = libsbml.SBMLReader()
         self.sbml_document = self.sbml_reader.readSBML(self.sbml_file)
         self.sbml_model = self.sbml_document.getModel()
 
     def get_constant_parameters(self):
-        """Provide list of IDs of parameters which are fixed (i.e. not subject to optimization, no sensitivities w.r.t. these parameters are required)"""
+        """
+        Provide list of IDs of parameters which are fixed (i.e. not subject
+        to optimization, no sensitivities w.r.t. these parameters are
+        required).
+        """
+        columns_set = set(self.condition_df.columns.values)
+        return list(columns_set - {'conditionId', 'conditionName'})
 
-        return list(set(self.condition_df.columns.values.tolist()) - {'conditionId', 'conditionName'})
+    def get_dynamic_parameters_from_sbml(self):
+        """
+        Provide list of IDS of parameters which are dynamic, i.e. not
+        fixed.
+        See get_dynamic_parameters_from_sbml.
+        """
+        return get_dynamic_parameters_from_sbml(self.sbml_model)
 
     def get_observables(self):
-        """Returns dictionary of observables definitions
-
-        see `assignment_rules_to_dict` for details"""
+        """
+        Returns dictionary of observables definitions
+        See `assignment_rules_to_dict` for details.
+        """
 
         return get_observables(self.sbml_model)
 
     def get_sbml_sigmas(self):
-        """Return dictionary of observableId => sigma as defined in the SBML model
-
-        This does not include parameter mappings defined in the measurement table.
+        """
+        Return dictionary of observableId => sigma as defined in the SBML
+        model.
+        This does not include parameter mappings defined in the measurement
+        table.
         """
 
         return get_sigmas(sbml_model=self.sbml_model)
 
     def get_simulation_to_optimization_parameter_mapping(self):
-        """See get_simulation_to_optimization_parameter_mapping"""
-        return get_simulation_to_optimization_parameter_mapping(self.measurement_df,
-                                                                self.condition_df,
-                                                                get_dynamic_parameters_from_sbml(self.sbml_model))
+        """
+        See get_simulation_to_optimization_parameter_mapping.
+        """
+        return get_simulation_to_optimization_parameter_mapping(
+            self.measurement_df,
+            self.condition_df,
+            self.get_dynamic_parameters_from_sbml())
 
 
 def get_condition_df(condition_file_name):
-    """Read the provided condition file into a `pandas.Dataframe`
-
-    Conditions are rows, parameters are columns, conditionId is index
+    """
+    Read the provided condition file into a `pandas.Dataframe`.
+    Conditions are rows, parameters are columns, conditionId is index.
     """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
@@ -70,7 +133,9 @@ def get_condition_df(condition_file_name):
 
 
 def get_parameter_df(parameter_file_name):
-    """Read the provided parameter file into a `pandas.Dataframe`"""
+    """
+    Read the provided parameter file into a `pandas.Dataframe`.
+    """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
 
@@ -83,15 +148,19 @@ def get_parameter_df(parameter_file_name):
 
 
 def get_measurement_df(measurement_file_name):
-    """Read the provided measurement file into a `pandas.Dataframe`"""
+    """
+    Read the provided measurement file into a `pandas.Dataframe`.
+    """
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
 
     return measurement_df
 
 
-def assignment_rules_to_dict(sbml_model, filter_function=lambda *_: True, remove=False):
-    """Turn assignment rules into dictionary.
+def assignment_rules_to_dict(
+        sbml_model, filter_function=lambda *_: True, remove=False):
+    """
+    Turn assignment rules into dictionary.
 
     Arguments:
     sbml_model: an sbml Model instance
@@ -241,7 +310,7 @@ def get_simulation_to_optimization_parameter_mapping(
     model_parameter_id_to_idx = {
         name: idx for idx, name in enumerate(sbml_parameter_ids)
     }
-
+    print("HUHU", model_parameter_id_to_idx)
     def _apply_overrides(overrides, condition_id, observable_id, override_type):
         """Apply parameter-overrides to mapping matrix
         override_type: observable / noise
