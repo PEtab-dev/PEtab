@@ -10,7 +10,7 @@ import numbers
 from . import lint
 
 
-class Importer:
+class Manager:
 
     def __init__(self,
             condition_file,
@@ -56,7 +56,7 @@ class Importer:
         sbml_file = os.path.join(folder,
             "model_" + name + ".xml")
 
-        return Importer(
+        return Manager(
             condition_file = condition_file,
             measurement_file = measurement_file,
             parameter_file = parameter_file,
@@ -90,6 +90,9 @@ class Importer:
         """
         return get_optimization_parameters(self.parameter_df)
 
+    def get_dynamic_simulation_parameters(self):
+        return get_dynamic_simulation_parameters(self.sbml_model, self.parameter_df)
+
     def get_dynamic_parameters_from_sbml(self):
         """
         Provide list of IDS of parameters which are dynamic, i.e. not
@@ -98,15 +101,15 @@ class Importer:
         """
         return get_dynamic_parameters_from_sbml(self.sbml_model)
 
-    def get_observables(self):
+    def get_observables(self, remove=False):
         """
         Returns dictionary of observables definitions
         See `assignment_rules_to_dict` for details.
         """
 
-        return get_observables(self.sbml_model)
+        return get_observables(sbml_model=self.sbml_model, remove=remove)
 
-    def get_sbml_sigmas(self):
+    def get_sigmas(self, remove=False):
         """
         Return dictionary of observableId => sigma as defined in the SBML
         model.
@@ -114,7 +117,10 @@ class Importer:
         table.
         """
 
-        return get_sigmas(sbml_model=self.sbml_model)
+        return get_sigmas(sbml_model=self.sbml_model, remove=remove)
+
+    def get_simulation_conditions_from_measurement_df(self):
+        return get_simulation_conditions_from_measurement_df(self.measurement_df)
 
     def map_par_sim_to_par_opt(self):
         return map_par_sim_to_par_opt(
@@ -294,7 +300,9 @@ def map_par_sim_to_par_opt(
         condition_df,
         measurement_df,
         parameter_df,
-        sbml_model):
+        sbml_model,
+        par_opt_ids=None,
+        par_sim_ids=None):
 
     # some checks. TODO: move to separate function
     if not lint.condition_table_is_parameter_free(condition_df):
@@ -306,8 +314,10 @@ def map_par_sim_to_par_opt(
     condition_ids = [condition_id for condition_id in condition_df.conditionId.values
                      if condition_id in measurement_df.simulationConditionId.values]
 
-    par_opt_ids = get_optimization_parameters(parameter_df)
-    par_sim_ids = get_dynamic_simulation_parameters(sbml_model, parameter_df)
+    if par_opt_ids is None:
+        par_opt_ids = get_optimization_parameters(parameter_df)
+    if par_sim_ids is None:
+        par_sim_ids = get_dynamic_simulation_parameters(sbml_model, parameter_df)
     
     n_conditions = simulation_conditions.shape[0]
     n_par_sim_ids = len(par_sim_ids)
@@ -340,7 +350,7 @@ def map_par_sim_to_par_opt(
         _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='noise')
     
     # print(par_opt_ids, "\nHi\n", par_sim_ids)
-    # print("Mapping", mapping)
+    print("Mapping", mapping)
 
     return mapping
 
