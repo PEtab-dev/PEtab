@@ -350,7 +350,7 @@ def map_par_sim_to_par_opt(
         _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='noise')
     
     # print(par_opt_ids, "\nHi\n", par_sim_ids)
-    print("Mapping", mapping)
+    # print("Mapping", mapping)
 
     return mapping
 

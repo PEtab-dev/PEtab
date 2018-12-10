@@ -4,6 +4,34 @@ import numbers
 
 """Integrity checks and tests for specific features used"""
 
+def _check_df(df, req_cols, name):
+    cols_set = df.columns.values
+    missing_cols = set(req_cols) - set(cols_set)
+    if missing_cols:
+        raise AssertionError(
+            f"Dataframe {name} requires the columns {missing_cols}.")
+
+def check_condition_df(df):
+    req_cols = [
+        "conditionId", "conditionName"
+    ]
+    _check_df(df, req_cols, "condition")
+
+def check_measurement_df(df):
+    req_cols =  [
+        "observableId", "preequilibrationConditionId", "simulationConditionId",
+        "measurement", "time", "observableParameters", "noiseParameters",
+        "observableTransformation"
+    ]
+    _check_df(df, req_cols, "measurement")
+
+def check_parameter_df(df):
+    req_cols = [
+        "parameterId", "parameterName", "parameterScale",
+        "lowerBound", "upperBound", "nominalValue", "estimate"
+    ]
+    _check_df(df, req_cols, "parameter")
+
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
     """Check if all observables in measurement files have been specified in the model"""
     measurement_observables = [f'observable_{x}' for x in measurement_df.observableId.values]
