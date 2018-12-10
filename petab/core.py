@@ -83,6 +83,12 @@ class Importer:
         """
         columns_set = set(self.condition_df.columns.values)
         return list(columns_set - {'conditionId', 'conditionName'})
+    
+    def get_optimization_parameters(self):
+        """
+        Return list of optimization parameter ids.
+        """
+        return get_optimization_parameters(self.parameter_df)
 
     def get_dynamic_parameters_from_sbml(self):
         """
@@ -110,13 +116,20 @@ class Importer:
 
         return get_sigmas(sbml_model=self.sbml_model)
 
+    def map_par_sim_to_par_opt(self):
+        return map_par_sim_to_par_opt(
+            self.condition_df, 
+            self.measurement_df, 
+            self.parameter_df, 
+            self.sbml_model)
+
     def get_simulation_to_optimization_parameter_mapping(self):
         """
         See get_simulation_to_optimization_parameter_mapping.
         """
         return get_simulation_to_optimization_parameter_mapping(
-            self.measurement_df,
             self.condition_df,
+            self.measurement_df,
             self.get_dynamic_parameters_from_sbml())
 
 
@@ -162,25 +175,30 @@ def assignment_rules_to_dict(
     """
     Turn assignment rules into dictionary.
 
-    Arguments:
-    sbml_model: an sbml Model instance
+    Parameters
+    ----------
+    
+    sbml_model: 
+        an sbml model instance.
+    filter_function:
+        callback function taking assignment variable as input
+        and returning True/False to indicate if the respective rule should be
+        turned into an observable.
 
-    filter_function: callback function taking assignment variable as input
-    and returning True/False to indicate if the respective rule should be
-    turned into an observable
-
-    Returns:
+    Returns
+    -------
+    
     A dictionary(assigneeId:{
         'name': assigneeName,
         'formula': formulaString
     })
-
-    Raises:
-
     """
     result = {}
+
+    # iterate over all parameters
     for p in sbml_model.getListOfParameters():
         parameter_id = p.getId()
+        # filter
         if filter_function(p):
             result[parameter_id] = {
                 'name': p.getName(),
@@ -189,6 +207,7 @@ def assignment_rules_to_dict(
                 ).getFormula()
             }
 
+    # remove from model?
     if remove:
         for parameter_id in result:
             sbml_model.removeRuleByVariable(parameter_id)
@@ -198,20 +217,26 @@ def assignment_rules_to_dict(
 
 
 def sbml_parameter_is_observable(sbml_parameter):
-    """If the `libsbml.Parameter` `sbml_parameter` is target of an assignment rule, this function returns True
-    if the ID matches the defined format"""
+    """
+    Returns whether the `libsbml.Parameter` `sbml_parameter` 
+    matches the defined observable format.
+    """
     return sbml_parameter.getId().startswith('observable_')
 
 
 def sbml_parameter_is_sigma(sbml_parameter):
+    """
+    Returns whether the `libsbml.Parameter` `sbml_parameter`
+    matches the defined sigma format.
+    """
     return sbml_parameter.getId().startswith('sigma_')
 
 
 def get_observables(sbml_model, remove=False):
-    """Returns dictionary of observables definitions
-
-    see `assignment_rules_to_dict` for details"""
-
+    """
+    Returns dictionary of observable definitions.
+    See `assignment_rules_to_dict` for details.
+    """
     observables = assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_observable,
@@ -221,10 +246,10 @@ def get_observables(sbml_model, remove=False):
 
 
 def get_sigmas(sbml_model, remove=False):
-    """Returns dictionary of sigmas definitions
-
-    see `assignment_rules_to_dict` for details"""
-
+    """
+    Returns dictionary of sigma definitions.
+    See `assignment_rules_to_dict` for details.
+    """
     sigmas = assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_sigma,
@@ -234,7 +259,10 @@ def get_sigmas(sbml_model, remove=False):
 
 
 def parameter_is_scaling_parameter(parameter, formula):
-    """Returns true if parameter `parameter` is a scaling parameter in formula `formula`"""
+    """
+    Returns true if parameter `parameter` is a scaling
+    parameter in formula `formula`.
+    """
 
     sym_parameter = sp.sympify(parameter)
     sym_formula = sp.sympify(formula)
@@ -243,7 +271,10 @@ def parameter_is_scaling_parameter(parameter, formula):
 
 
 def parameter_is_offset_parameter(parameter, formula):
-    """Returns true if parameter `parameter` is an offset parameter with positive sign in formula `formula`"""
+    """
+    Returns true if parameter `parameter` is an offset
+    parameter with positive sign in formula `formula`.
+    """
 
     sym_parameter = sp.sympify(parameter)
     sym_formula = sp.sympify(formula)
@@ -251,15 +282,82 @@ def parameter_is_offset_parameter(parameter, formula):
     return sym_parameter not in (sym_formula - sym_parameter).free_symbols
 
 
+def get_simulation_conditions_from_measurement_df(measurement_df):
+    grouping_cols = get_notnull_columns(measurement_df,
+        ['simulationConditionId', 'preequilibrationConditionId'])
+    simulation_conditions = measurement_df.groupby(grouping_cols).size().reset_index()
+    
+    return simulation_conditions
+
+
+def map_par_sim_to_par_opt(
+        condition_df,
+        measurement_df,
+        parameter_df,
+        sbml_model):
+
+    # some checks. TODO: move to separate function
+    if not lint.condition_table_is_parameter_free(condition_df):
+        raise ValueError("Parameterized condition table currently unsupported.")
+    if lint.measurement_table_has_timepoint_specific_mappings(measurement_df):
+        raise ValueError("Timepoint-specific parameter overrides currently unsupported.")
+
+    simulation_conditions = get_simulation_conditions_from_measurement_df(measurement_df)
+    condition_ids = [condition_id for condition_id in condition_df.conditionId.values
+                     if condition_id in measurement_df.simulationConditionId.values]
+
+    par_opt_ids = get_optimization_parameters(parameter_df)
+    par_sim_ids = get_dynamic_simulation_parameters(sbml_model, parameter_df)
+    
+    n_conditions = simulation_conditions.shape[0]
+    n_par_sim_ids = len(par_sim_ids)
+
+    # initialize mapping matrix of shape n_par_dyn_sim_ids x n_conditions
+    # for the case of matching simulation and optimization parameter vector
+    mapping = [par_sim_ids for _ in range(0, n_conditions)]
+
+    sim_condition_id_to_idx = {
+        name: idx for idx, name in enumerate(condition_ids)
+    }
+    par_sim_id_to_idx = {
+        name: idx for idx, name in enumerate(par_sim_ids)
+    }
+
+    def _apply_overrides(overrides, condition_id, observable_id, override_type):
+        """
+        Apply parameter-overrides to mapping matrix.
+        """
+        condition_idx = sim_condition_id_to_idx[condition_id]
+        for i, override in enumerate(overrides):
+            par_sim_idx = par_sim_id_to_idx[f'{override_type}Parameter{i+1}_{observable_id}']
+            mapping[condition_idx][par_sim_idx] = override
+
+    for _, row in measurement_df.iterrows():
+        # we trust that number of overrides matches (see above)
+        overrides = split_parameter_replacement_list(row.observableParameters)
+        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='observable')
+        overrides = split_parameter_replacement_list(row.noiseParameters)
+        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='noise')
+    
+    # print(par_opt_ids, "\nHi\n", par_sim_ids)
+    # print("Mapping", mapping)
+
+    return mapping
+
+
+
 def get_simulation_to_optimization_parameter_mapping(
-        measurement_df, condition_df, sbml_parameter_ids,
+        condition_df, measurement_df, sbml_parameter_ids,
         observables=None, noise=None):
     """
-    Create `np.array` n_parameters_simulation x n_conditions with indices of respective parameters in parameters_optimization
+    Create `np.array` n_parameters_simulation x n_conditions with indices
+    of respective parameters in parameters_optimization.
 
-    If `observables` and `noise` arguments (as obtained from `get_observables`, `get_sbml_sigmas`)
-    are provided, we check for correct numbers of parameter overrides. Otherwise it is
-    the users responsibility to ensure to ensure correctness.
+    If `observables` and `noise` arguments (as obtained from 
+    `get_observables`, `get_sbml_sigmas`)
+    are provided, we check for correct numbers of parameter overrides.
+    Otherwise it is the user's responsibility to ensure to ensure
+    correctness.
     """
 
     # We cannot handle those cases yet:
@@ -277,22 +375,24 @@ def get_simulation_to_optimization_parameter_mapping(
     if observables is not None and noise is not None:
         lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
 
-    # Number of simulation conditions will be number of unique preequilibrationCondition-simulationCondition pairs
-    # Can be improved by checking for identical condition vectors
+    # Number of simulation conditions will be number of unique 
+    # preequilibrationCondition-simulationCondition pairs.
+    # Can be improved by checking for identical condition vectors.
 
     grouping_cols = get_notnull_columns(measurement_df,
-                                        ['simulationConditionId',
-                                         'preequilibrationConditionId'])
+        ['simulationConditionId', 'preequilibrationConditionId'])
     simulation_conditions = measurement_df.groupby(grouping_cols) \
         .size().reset_index()
 
+    # numbers of simulation parameters and conditions
     num_simulation_parameters = len(sbml_parameter_ids)
     num_conditions = simulation_conditions.shape[0]
 
-    # initialize mapping matrix (num_simulation_parameters x num_conditions) for the case of matching
-    # simulation and optimization parameter vector
-    mapping = np.repeat(np.transpose([np.arange(0, num_simulation_parameters)]),
-                        axis=1, repeats=num_conditions)
+    # initialize mapping matrix (num_simulation_parameters x num_conditions)
+    # for the case of matching simulation and optimization parameter vector
+    mapping = np.repeat(
+        np.transpose([np.arange(0, num_simulation_parameters)]),
+        axis=1, repeats=num_conditions)
 
     # optimization parameters are model parameters + condition specific parameters
     optimization_parameter_ids = list(sbml_parameter_ids) + get_measurement_parameter_ids(measurement_df)
@@ -301,7 +401,7 @@ def get_simulation_to_optimization_parameter_mapping(
                      condition_id in measurement_df.simulationConditionId.values]
 
     # create inverse mappings
-    optimization_parameter_name_to_index = {
+    optimization_parameter_id_to_index = {
         name: idx for idx, name in enumerate(optimization_parameter_ids)
     }
     condition_id_to_idx = {
@@ -310,10 +410,11 @@ def get_simulation_to_optimization_parameter_mapping(
     model_parameter_id_to_idx = {
         name: idx for idx, name in enumerate(sbml_parameter_ids)
     }
-    print("HUHU", model_parameter_id_to_idx)
+
     def _apply_overrides(overrides, condition_id, observable_id, override_type):
-        """Apply parameter-overrides to mapping matrix
-        override_type: observable / noise
+        """
+        Apply parameter-overrides to mapping matrix.
+        override_type: observable / noise.
         """
         for i, override in enumerate(overrides):
             if isinstance(override, numbers.Number):
@@ -322,7 +423,7 @@ def get_simulation_to_optimization_parameter_mapping(
                 continue
             model_parameter_idx = model_parameter_id_to_idx[f'{override_type}Parameter{i + 1}_{observable_id}']
             condition_idx = condition_id_to_idx[condition_id]
-            optimization_parameter_idx = optimization_parameter_name_to_index[override]
+            optimization_parameter_idx = optimization_parameter_id_to_index[override]
             mapping[model_parameter_idx, condition_idx] = optimization_parameter_idx
 
     for _, row in measurement_df.iterrows():
@@ -340,19 +441,22 @@ def get_simulation_to_optimization_parameter_mapping(
     old_optimization_parameter_ids = optimization_parameter_ids
     optimization_parameter_ids = [pid for i, pid in enumerate(old_optimization_parameter_ids) if
                                   not i in unused_optimization_parameter_idxs]
-    optimization_parameter_name_to_index = {
+    optimization_parameter_id_to_index = {
         name: idx for idx, name in enumerate(optimization_parameter_ids)
     }
     # This can probably be done more efficiently
     for i in range(mapping.shape[0]):
         for j in range(mapping.shape[1]):
-            mapping[i, j] = optimization_parameter_name_to_index[old_optimization_parameter_ids[mapping[i, j]]]
+            mapping[i, j] = optimization_parameter_id_to_index[old_optimization_parameter_ids[mapping[i, j]]]
 
     return optimization_parameter_ids, mapping
 
 
 def get_measurement_parameter_ids(measurement_df):
-    """Return list of ID of parameters which occur in measurement table as observable or noise parameter"""
+    """
+    Return list of ID of parameters which occur in measurement table as
+    observable or noise parameter.
+    """
 
     def unique_preserve_order(seq):
         seen = set()
@@ -370,7 +474,10 @@ def get_measurement_parameter_ids(measurement_df):
 
 
 def split_parameter_replacement_list(list_string):
-    """Split values in observableParameters and noiseParameters in measurement table"""
+    """
+    Split values in observableParameters and noiseParameters in measurement
+    table.
+    """
 
     def to_float_if_float(x):
         try:
@@ -390,25 +497,52 @@ def split_parameter_replacement_list(list_string):
 
 
 def get_num_placeholders(formula_string, observable_id, override_type):
-    """Get number of unique placeholder variables in noise or observable definition"""
-
+    """
+    Get number of unique placeholder variables in noise or observable
+    definition.
+    """
+    
     pattern = re.compile(re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
     placeholders = set()
     for free_sym in sp.sympify(formula_string).free_symbols:
         free_sym = str(free_sym)
         if pattern.match(free_sym):
             placeholders.add(free_sym)
+    
     return len(placeholders)
 
 
 def get_dynamic_parameters_from_sbml(sbml_model):
-    """Get list of non-constant parameters in sbml model"""
-
+    """
+    Get list of non-constant parameters in sbml model.
+    TODO: This is not what Y would expect. Remove?
+    """
     return [p.getId() for p in sbml_model.getListOfParameters() if not p.getConstant()]
 
 
-def get_notnull_columns(df, candidates):
-    """"Return list of df-columns in candidates which are not all null/nan
+def get_dynamic_simulation_parameters(sbml_model, parameter_df):
+    par_opt_ids = get_optimization_parameters(parameter_df)
+    sbml_pars = sbml_model.getListOfParameters()
+    par_ids = [
+        p.getId() for p in sbml_pars
+        if p.getId() in par_opt_ids
+        or p.getId().startswith("noiseParameter")
+        or p.getId().startswith("observableParameter")
+    ]
+    return par_ids
 
-    The output can e.g. be used as input for pandas.DataFrame.groupby"""
+
+def get_optimization_parameters(parameter_df):
+    """
+    Get list of optimization parameter ids from parameter
+    dataframe.
+    """
+    return list(parameter_df.reset_index()['parameterId'])
+
+
+def get_notnull_columns(df, candidates):
+    """
+    Return list of df-columns in candidates which are not all null/nan.
+    The output can e.g. be used as input for pandas.DataFrame.groupby.
+    """
     return [col for col in candidates if not np.all(df[col].isnull())]
