@@ -75,7 +75,7 @@ def get_parameter_df(parameter_file_name):
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
 
     try:
-        parameter_df.set_index(['parameterId'], inplace=True)
+        parameter_df.set_index(['parameterId'])
     except KeyError:
         raise KeyError('Parameter table missing mandatory field `parameterId`.')
 
