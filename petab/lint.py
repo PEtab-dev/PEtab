@@ -101,6 +101,12 @@ def parameterBounds_are_numeric(parameter_df):
 
     return True
 
+def check_parameterBounds(parameter_df):
+    for element in range(len(parameter_df['lowerBound'])):
+        if not parameter_df['lowerBound'][element] <= parameter_df['upperBound'][element]:
+            raise AssertionError(f'lowerbound larger than upperBound in {parameter_df["parameterId"][element]}')
+
+
 def parameterEstimate_is_boolean(parameter_df):
     """Check if all entries in the estimate column of the parameter table are boolean """
 
