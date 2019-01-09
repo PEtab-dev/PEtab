@@ -65,6 +65,14 @@ def parameterId_is_string(parameter_df):
 
     return True
 
+def parameterId_is_unique(parameter_df):
+    """Check if all entries in the parameterId column of the parameter table are unique"""
+    if len(parameter_df['parameterId']) == len(set(parameter_df['parameterId'])):
+        return True
+    else:
+        raise AssertionError('parameterId column in parameter table is not unique')
+
+
 def parameterScale_is_valid(parameter_df):
     """Check if all entries in the parameterScale column of the parameter table are
     'lin' for linear, 'log' for natural logarithm or 'log10' for base 10 logarithm """
