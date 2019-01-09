@@ -4,7 +4,7 @@ python:
 
 install:
   - pip install -U pytest pytest-cov codecov
-  - pip install .
+  - pip install -e .
 
 script:
   - pytest --cov
