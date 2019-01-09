@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.6"
+
+install:
+  - pip3 install pytest
+  - pip3 install .
+
+script:
+  - pytest
