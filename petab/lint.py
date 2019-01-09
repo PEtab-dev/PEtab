@@ -54,11 +54,14 @@ def condition_table_is_parameter_free(condition_df):
     return True
 
 def parameterId_is_string(parameter_df):
-    """Check if all entries in the parameterId column of the parameter table are string"""
+    """Check if all entries in the parameterId column of the parameter table are string and not empty"""
 
     for parameterId in parameter_df['parameterId']:
-        if parameterId[0].isdigit():
-            raise ValueError('Parameter '+parameterId+' starts with integer')
+        if isinstance(parameterId, str):
+            if parameterId[0].isdigit():
+                raise ValueError('parameterId ' + parameterId + ' starts with integer')
+        else:
+            raise ValueError('Empty parameterId found')
 
     return True
 
