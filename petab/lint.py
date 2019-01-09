@@ -57,11 +57,20 @@ def parameterId_is_string(parameter_df):
     """Check if all entries in the parameterId column of the parameter table are string"""
 
     for parameterId in parameter_df['parameterId']:
-        if isinstance(parameterId, str) is False:
-            return False
+        if parameterId[0].isdigit():
+            raise ValueError('Parameter '+parameterId+' starts with integer')
 
     return True
 
+def parameterScale_is_valid(parameter_df):
+    """Check if all entries in the parameterScale column of the parameter table are
+    'lin' for linear, 'log' for natural logarithm or 'log10' for base 10 logarithm """
+
+    for parameterScale in parameter_df['parameterScale']:
+        if parameterScale not in ['lin', 'log', 'log10']:
+            raise AssertionError('Expected "lin", "log" or "log10" but got "'+parameterScale+'"')
+
+    return True
 
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
     """Are there time-point or replicate specific parameter assignments in the measurement table"""
