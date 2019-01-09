@@ -118,6 +118,31 @@ class Manager:
         """
 
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
+    
+    @property
+    def x_ids(self):
+        return list(self.parameter_df.reset_index()['parameterId'])
+
+    @property
+    def x_nominal(self):
+        return list(self.parameter_df['nominalValue'])
+
+    @property
+    def lb(self):
+        return list(self.parameter_df['lowerBound'])
+
+    @property
+    def ub(self):
+        return list(self.parameter_df['upperBound'])
+
+    @property
+    def x_fixed_indices(self):
+        estimated = list(parameter_df['estimate'])
+        return [j for j, val in enumerate(estimated) if val == 0]
+
+    @property
+    def x_fixed_vals(self):
+        return [self.x_nominal[val] for val in self.x_fixed_indices]
 
     def get_simulation_conditions_from_measurement_df(self):
         return get_simulation_conditions_from_measurement_df(self.measurement_df)
