@@ -137,7 +137,7 @@ class Manager:
 
     @property
     def x_fixed_indices(self):
-        estimated = list(parameter_df['estimate'])
+        estimated = list(self.parameter_df['estimate'])
         return [j for j, val in enumerate(estimated) if val == 0]
 
     @property
