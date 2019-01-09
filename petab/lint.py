@@ -138,8 +138,9 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
         # No overrides are also allowed
         if not (actual == 0 or actual == expected):
             raise AssertionError(
-                f'Mismatch of observable parameter overrides for {observables[
-                    f"observable_{row.observableId}"]} in:\n{row}\n'
+                f'Mismatch of observable parameter overrides for '
+                f'{observables[f"observable_{row.observableId}"]} '
+                f'in:\n{row}\n'
                 f'Expected 0 or {expected} but got {actual}')
 
         expected = noise_parameters_count[row.observableId]

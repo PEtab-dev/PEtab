@@ -12,5 +12,3 @@ Where PEtab is used:
 
 - Systems biology optimization [benchmark problem collection](https://github.com/LoosC/Benchmark-Models/issues)
 - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
-
-
