@@ -160,7 +160,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      'dynamicParameter3']]
 
 
-        actual = petab.get_simulation_to_optimization_parameter_mapping(
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
             par_sim_ids=['dynamicParameter1',
@@ -198,7 +198,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      'obs2par1cond2override'
                      ]]
 
-        actual = petab.get_simulation_to_optimization_parameter_mapping(
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
             par_sim_ids=['dynamicParameter1',
@@ -238,7 +238,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      'obs2par1cond2override'
                      ]]
 
-        actual = petab.get_simulation_to_optimization_parameter_mapping(
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
             par_sim_ids=['dynamicParameter1',
