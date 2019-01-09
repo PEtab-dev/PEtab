@@ -223,19 +223,18 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
-                     'observableParameter1_obs2',
                      'obs1par1override',
                      'obs1par2cond1override',
+                     'observableParameter1_obs2',
+                     ],
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'obs1par1override',
                      'obs1par2cond2override',
                      'obs2par1cond2override'
-                     ],
-                    np.array([[0, 0],
-                              [1, 1],
-                              [3, 3],
-                              [4, 5],
-                              [2, 6]]))
+                     ]]
 
         actual = petab.get_simulation_to_optimization_parameter_mapping(
             measurement_df=measurement_df,
