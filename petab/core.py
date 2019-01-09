@@ -58,13 +58,9 @@ class OptimizationProblem:
 
 
 def get_condition_df(condition_file_name):
-    """Read the provided condition file into a `pandas.Dataframe`
-
-    Conditions are rows, parameters are columns, conditionId is index
-    """
+    """Read the provided condition file into a `pandas.Dataframe`"""
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
-    condition_df.set_index(['conditionId'])
 
     return condition_df
 
@@ -73,8 +69,7 @@ def get_parameter_df(parameter_file_name):
     """Read the provided parameter file into a `pandas.Dataframe`"""
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
-    parameter_df.set_index(['parameterId'])
-    
+
     return parameter_df
 
 
