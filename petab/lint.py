@@ -53,6 +53,15 @@ def condition_table_is_parameter_free(condition_df):
             return False
     return True
 
+def parameterId_is_string(parameter_df):
+    """Check if all entries in the parameterId column of the parameter table are string"""
+
+    for parameterId in parameter_df['parameterId']:
+        if isinstance(parameterId, str) is False:
+            return False
+
+    return True
+
 
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
     """Are there time-point or replicate specific parameter assignments in the measurement table"""
