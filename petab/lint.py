@@ -66,7 +66,7 @@ def parameterId_is_string(parameter_df):
     return True
 
 def parameterId_is_unique(parameter_df):
-    """Check if all entries in the parameterId column of the parameter table are unique"""
+    """Check if the parameterId column of the parameter table is unique"""
     if len(parameter_df['parameterId']) == len(set(parameter_df['parameterId'])):
         return True
     else:
