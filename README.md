@@ -10,5 +10,5 @@ This repository describes *PEtab* --- a data format for specifying parameter est
 
 Where PEtab is used:
 
-- Systems biology optimization [benchmark problem collection](https://github.com/LoosC/Benchmark-Models/issues)
+- Systems biology optimization [benchmark problem collection](https://github.com/LoosC/Benchmark-Models)
 - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
