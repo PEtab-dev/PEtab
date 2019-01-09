@@ -369,7 +369,7 @@ def map_par_opt_to_par_sim(
 
     # initialize mapping matrix of shape n_par_dyn_sim_ids x n_conditions
     # for the case of matching simulation and optimization parameter vector
-    mapping = [par_sim_ids for _ in range(0, n_conditions)]
+    mapping = [par_sim_ids[:] for _ in range(0, n_conditions)]
 
     sim_condition_id_to_idx = {
         name: idx for idx, name in enumerate(condition_ids)
