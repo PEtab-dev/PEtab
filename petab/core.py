@@ -472,7 +472,6 @@ def get_dynamic_simulation_parameters(sbml_model, parameter_df):
     ]
     return par_ids
 
-
 def get_optimization_parameters(parameter_df):
     """
     Get list of optimization parameter ids from parameter
@@ -486,4 +485,5 @@ def get_notnull_columns(df, candidates):
     Return list of df-columns in candidates which are not all null/nan.
     The output can e.g. be used as input for pandas.DataFrame.groupby.
     """
-    return [col for col in candidates if not np.all(df[col].isnull())]
+    return [col for col in candidates 
+            if col in df and not np.all(df[col].isnull())]
