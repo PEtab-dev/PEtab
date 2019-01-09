@@ -183,19 +183,18 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
                      'obs1par1override',
                      'obs1par2cond1override',
                      'obs2par1cond1override',
+                     ],
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'obs1par1override',
                      'obs1par2cond2override',
                      'obs2par1cond2override'
-                     ],
-                    np.array([[0, 0],
-                              [1, 1],
-                              [2, 2],
-                              [3, 5],
-                              [4, 6]]))
+                     ]]
 
         actual = petab.get_simulation_to_optimization_parameter_mapping(
             measurement_df=measurement_df,
@@ -207,8 +206,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                                 'observableParameter1_obs2']
         )
 
-        assert actual[0] == expected[0]
-        assert np.all(np.equal(actual[1], expected[1]))
+        assert actual == expected
 
     def test_partial_override(self, condition_df_2_conditions):
         # Condition-specific parameters, keeping original parameters
