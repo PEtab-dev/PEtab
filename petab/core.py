@@ -147,8 +147,8 @@ class Manager:
     def get_simulation_conditions_from_measurement_df(self):
         return get_simulation_conditions_from_measurement_df(self.measurement_df)
 
-    def map_par_sim_to_par_opt(self):
-        return map_par_sim_to_par_opt(
+    def map_par_opt_to_par_sim(self):
+        return map_par_opt_to_par_sim(
             self.condition_df, 
             self.measurement_df, 
             self.parameter_df, 
@@ -321,7 +321,7 @@ def get_simulation_conditions_from_measurement_df(measurement_df):
     return simulation_conditions
 
 
-def map_par_sim_to_par_opt(
+def map_par_opt_to_par_sim(
         condition_df,
         measurement_df,
         parameter_df,
@@ -416,6 +416,45 @@ def perform_mapping_checks(condition_df, measurement_df):
         # function and would be simply ignored
         raise ValueError(
             "Timepoint-specific parameter overrides currently unsupported.")
+
+
+def map_scale_opt_to_scale_sim(
+        parameter_df,
+        mapping_par_opt_to_par_sim):
+
+    n_condition = len(mapping_par_opt_to_par_sim)
+    n_par_sim = len(mapping_par_opt_to_par_sim[0])
+
+    par_opt_ids_from_df = list(parameter_df.reset_index()['parameterId'])
+    par_opt_scales_from_df =list(parameter_df.reset_index()['parameterScale'])
+
+    mapping_scale_opt_to_scale_sim = []
+
+    # iterate over conditions
+    for j_condition in range(0, n_condition):
+        
+        # prepare vector of scales for j_condition
+        scales_for_j_condition = []
+
+        # iterate over simulation parameters
+        for j_par_sim in range(n_par_sim):
+            # extract entry in mapping table for j_par_sim
+            val = mapping_par_opt_to_par_sim[j_condition][j_par_sim]
+            
+            if isinstance(val, numbers.Number):
+                # fixed value assignment
+                scale = 'lin'
+            else:
+                # is par opt id, thus extract its scale
+                scale = par_opt_scales_from_df[par_opt_ids_from_df.index(val)]
+
+            # append to scales for condition j
+            scales_for_j_condition.append(scale)
+
+    # append to mapping
+    mapping_scale_opt_to_scale_sim.append(scales_for_j_condition)
+
+    return mapping_scale_opt_to_scale_sim
 
 
 def get_measurement_parameter_ids(measurement_df):
