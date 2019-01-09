@@ -53,6 +53,16 @@ def condition_table_is_parameter_free(condition_df):
             return False
     return True
 
+def check_parameter_sheet(problem):
+    check_parameter_df(problem.parameter_df)
+    parameterId_is_string(problem.parameter_df)
+    parameterScale_is_valid(problem.parameter_df)
+    parameterBounds_are_numeric(problem.parameter_df)
+    parameterEstimate_is_boolean(problem.parameter_df)
+    parameterId_is_unique(problem.parameter_df)
+    check_parameterBounds(problem.parameter_df)
+    return True
+
 def parameterId_is_string(parameter_df):
     """Check if all entries in the parameterId column of the parameter table are string and not empty"""
 
