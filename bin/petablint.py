@@ -37,21 +37,9 @@ def main():
                                         args.condition_file_name,
                                         args.parameter_file_name)
 
-    mandatory_measurement_fields = {'observableId',
-                                    # 'preequilibrationConditionId',
-                                    'simulationConditionId',
-                                    'measurement',
-                                    'time',
-                                    # 'observableParameters',
-                                    # 'noiseParameters',
-                                    # 'observableTransformation',
-                                    }
-    missing_fields = mandatory_measurement_fields - set(problem.measurement_df.columns.values)
-    if missing_fields:
-        raise AssertionError(f'Missing measurements table fields {missing_fields}')
 
     # TODO: extend
-
+    petab.lint.check_measurement_df(problem.measurement_df)
     petab.lint.assert_measured_observables_present_in_model(problem.measurement_df, problem.sbml_model)
     petab.lint.assert_overrides_match_parameter_count(problem.measurement_df,
                                                       petab.get_observables(problem.sbml_model, remove=False),
