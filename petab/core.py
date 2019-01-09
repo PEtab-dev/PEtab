@@ -46,7 +46,7 @@ class Manager:
 
         folder = os.path.abspath(folder)
         name = os.path.split(folder)[-1]
-        
+
         condition_file = os.path.join(folder,
             "experimentalCondition_" + name + ".tsv")
         measurement_file = os.path.join(folder,
@@ -83,7 +83,7 @@ class Manager:
         """
         columns_set = set(self.condition_df.columns.values)
         return list(columns_set - {'conditionId', 'conditionName'})
-    
+
     def get_optimization_parameters(self):
         """
         Return list of optimization parameter ids.
@@ -118,7 +118,7 @@ class Manager:
         """
 
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
-    
+
     @property
     def x_ids(self):
         return list(self.parameter_df.reset_index()['parameterId'])
@@ -147,13 +147,6 @@ class Manager:
     def get_simulation_conditions_from_measurement_df(self):
         return get_simulation_conditions_from_measurement_df(self.measurement_df)
 
-    def map_par_opt_to_par_sim(self):
-        return map_par_opt_to_par_sim(
-            self.condition_df, 
-            self.measurement_df, 
-            self.parameter_df, 
-            self.sbml_model)
-
     def get_simulation_to_optimization_parameter_mapping(self):
         """
         See get_simulation_to_optimization_parameter_mapping.
@@ -161,7 +154,8 @@ class Manager:
         return get_simulation_to_optimization_parameter_mapping(
             self.condition_df,
             self.measurement_df,
-            self.get_dynamic_parameters_from_sbml())
+            self.parameter_df,
+            self.sbml_model)
 
 
 def get_condition_df(condition_file_name):
@@ -208,8 +202,8 @@ def assignment_rules_to_dict(
 
     Parameters
     ----------
-    
-    sbml_model: 
+
+    sbml_model:
         an sbml model instance.
     filter_function:
         callback function taking assignment variable as input
@@ -218,7 +212,7 @@ def assignment_rules_to_dict(
 
     Returns
     -------
-    
+
     A dictionary(assigneeId:{
         'name': assigneeName,
         'formula': formulaString
@@ -249,7 +243,7 @@ def assignment_rules_to_dict(
 
 def sbml_parameter_is_observable(sbml_parameter):
     """
-    Returns whether the `libsbml.Parameter` `sbml_parameter` 
+    Returns whether the `libsbml.Parameter` `sbml_parameter`
     matches the defined observable format.
     """
     return sbml_parameter.getId().startswith('observable_')
@@ -317,15 +311,15 @@ def get_simulation_conditions_from_measurement_df(measurement_df):
     grouping_cols = get_notnull_columns(measurement_df,
         ['simulationConditionId', 'preequilibrationConditionId'])
     simulation_conditions = measurement_df.groupby(grouping_cols).size().reset_index()
-    
+
     return simulation_conditions
 
 
-def map_par_opt_to_par_sim(
+def get_simulation_to_optimization_parameter_mapping(
         condition_df,
         measurement_df,
-        parameter_df,
-        sbml_model,
+        parameter_df=None,
+        sbml_model=None,
         par_opt_ids=None,
         par_sim_ids=None):
     """
@@ -339,10 +333,12 @@ def map_par_opt_to_par_sim(
     condition_df, measurement_df, parameter_df:
         The dataframes in the petab format.
 
+        parameter_df is optional if par_sim_ids is provided
+
     sbml_model:
         The sbml model with observables and noise specified according to the
-        petab format.
-    
+        petab format. Optional if par_sim_ids is provided.
+
     par_opt_ids, par_sim_ids: list of str, optional
         Ids of the optimization and simulation parameters. If not passed,
         these are generated from the files automatically. However, passing
@@ -358,14 +354,13 @@ def map_par_opt_to_par_sim(
         if condition_id in measurement_df.simulationConditionId.values
     ]
 
-    if par_opt_ids is None:
-        par_opt_ids = get_optimization_parameters(parameter_df)
+    #if par_opt_ids is None:
+    #    par_opt_ids = get_optimization_parameters(parameter_df)
     if par_sim_ids is None:
         par_sim_ids = get_dynamic_simulation_parameters(sbml_model,
                                                         parameter_df)
-    
+
     n_conditions = simulation_conditions.shape[0]
-    n_par_sim_ids = len(par_sim_ids)
 
     # initialize mapping matrix of shape n_par_dyn_sim_ids x n_conditions
     # for the case of matching simulation and optimization parameter vector
@@ -399,14 +394,14 @@ def map_par_opt_to_par_sim(
         _apply_overrides(
             overrides, row.simulationConditionId,
             row.observableId, override_type='noise')
-    
+
     # print("Mapping: ", mapping)
 
     return mapping
 
 
 def perform_mapping_checks(condition_df, measurement_df):
-    
+
     # we cannot handle those cases yet
     if not lint.condition_table_is_parameter_free(condition_df):
         raise ValueError(
@@ -432,7 +427,7 @@ def map_scale_opt_to_scale_sim(
 
     # iterate over conditions
     for j_condition in range(0, n_condition):
-        
+
         # prepare vector of scales for j_condition
         scales_for_j_condition = []
 
@@ -440,7 +435,7 @@ def map_scale_opt_to_scale_sim(
         for j_par_sim in range(n_par_sim):
             # extract entry in mapping table for j_par_sim
             val = mapping_par_opt_to_par_sim[j_condition][j_par_sim]
-            
+
             if isinstance(val, numbers.Number):
                 # fixed value assignment
                 scale = 'lin'
@@ -506,14 +501,14 @@ def get_num_placeholders(formula_string, observable_id, override_type):
     Get number of unique placeholder variables in noise or observable
     definition.
     """
-    
+
     pattern = re.compile(re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
     placeholders = set()
     for free_sym in sp.sympify(formula_string).free_symbols:
         free_sym = str(free_sym)
         if pattern.match(free_sym):
             placeholders.add(free_sym)
-    
+
     return len(placeholders)
 
 
@@ -549,5 +544,5 @@ def get_notnull_columns(df, candidates):
     Return list of df-columns in candidates which are not all null/nan.
     The output can e.g. be used as input for pandas.DataFrame.groupby.
     """
-    return [col for col in candidates 
+    return [col for col in candidates
             if col in df and not np.all(df[col].isnull())]
