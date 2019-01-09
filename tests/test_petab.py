@@ -127,12 +127,12 @@ def test_optimization_problem(condition_df_2_conditions):
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
         parameter_file_name = fh.name
-        parameter_df.to_csv(fh, sep='\t', index=False)
+        parameter_df.to_csv(fh, sep='\t', index=True)
 
-    problem = petab.OptimizationProblem(sbml_file_name,
-                                        measurement_file_name,
-                                        condition_file_name,
-                                        parameter_file_name)
+        problem = petab.Manager(sbml_file_name,
+                                            measurement_file_name,
+                                            condition_file_name,
+                                            parameter_file_name)
 
     assert problem.get_constant_parameters() == ['fixedParameter1']
 
@@ -160,7 +160,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         actual = petab.get_simulation_to_optimization_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_parameter_ids=['dynamicParameter1',
+            par_sim_ids=['dynamicParameter1',
                                 'dynamicParameter2',
                                 'dynamicParameter3']
         )
@@ -183,32 +183,30 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
                      'obs1par1override',
                      'obs1par2cond1override',
                      'obs2par1cond1override',
+                     ],
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'obs1par1override',
                      'obs1par2cond2override',
                      'obs2par1cond2override'
-                     ],
-                    np.array([[0, 0],
-                              [1, 1],
-                              [2, 2],
-                              [3, 5],
-                              [4, 6]]))
+                     ]]
 
         actual = petab.get_simulation_to_optimization_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_parameter_ids=['dynamicParameter1',
+            par_sim_ids=['dynamicParameter1',
                                 'dynamicParameter2',
                                 'observableParameter1_obs1',
                                 'observableParameter2_obs1',
                                 'observableParameter1_obs2']
         )
 
-        assert actual[0] == expected[0]
-        assert np.all(np.equal(actual[1], expected[1]))
+        assert actual == expected
 
     def test_partial_override(self, condition_df_2_conditions):
         # Condition-specific parameters, keeping original parameters
@@ -225,24 +223,23 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
-                     'observableParameter1_obs2',
                      'obs1par1override',
                      'obs1par2cond1override',
+                     'observableParameter1_obs2',
+                     ],
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'obs1par1override',
                      'obs1par2cond2override',
                      'obs2par1cond2override'
-                     ],
-                    np.array([[0, 0],
-                              [1, 1],
-                              [3, 3],
-                              [4, 5],
-                              [2, 6]]))
+                     ]]
 
         actual = petab.get_simulation_to_optimization_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_parameter_ids=['dynamicParameter1',
+            par_sim_ids=['dynamicParameter1',
                                 'dynamicParameter2',
                                 'observableParameter1_obs1',
                                 'observableParameter2_obs1',
