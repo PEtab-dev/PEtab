@@ -315,7 +315,7 @@ def get_simulation_conditions_from_measurement_df(measurement_df):
     return simulation_conditions
 
 
-def get_simulation_to_optimization_parameter_mapping(
+def get_optimization_to_simulation_parameter_mapping(
         condition_df,
         measurement_df,
         parameter_df=None,
@@ -413,7 +413,7 @@ def perform_mapping_checks(condition_df, measurement_df):
             "Timepoint-specific parameter overrides currently unsupported.")
 
 
-def map_scale_opt_to_scale_sim(
+def get_optimization_to_simulation_scale_mapping(
         parameter_df,
         mapping_par_opt_to_par_sim):
 
