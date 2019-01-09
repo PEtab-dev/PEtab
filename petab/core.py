@@ -10,7 +10,7 @@ import numbers
 from . import lint
 
 
-class Manager:
+class Problem:
 
     def __init__(self,
             condition_file,
@@ -56,7 +56,7 @@ class Manager:
         sbml_file = os.path.join(folder,
             "model_" + name + ".xml")
 
-        return Manager(
+        return Problem(
             condition_file = condition_file,
             measurement_file = measurement_file,
             parameter_file = parameter_file,
@@ -525,9 +525,9 @@ def get_dynamic_simulation_parameters(sbml_model, parameter_df):
     sbml_pars = sbml_model.getListOfParameters()
     par_ids = [
         p.getId() for p in sbml_pars
-        if p.getId() in par_opt_ids
-        or p.getId().startswith("noiseParameter")
+        if p.getId().startswith("noiseParameter")
         or p.getId().startswith("observableParameter")
+        or p.getId() in par_opt_ids
     ]
     return par_ids
 
