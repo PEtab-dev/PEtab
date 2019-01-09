@@ -147,11 +147,11 @@ class Manager:
     def get_simulation_conditions_from_measurement_df(self):
         return get_simulation_conditions_from_measurement_df(self.measurement_df)
 
-    def get_simulation_to_optimization_parameter_mapping(self):
+    def get_optimization_to_simulation_parameter_mapping(self):
         """
         See get_simulation_to_optimization_parameter_mapping.
         """
-        return get_simulation_to_optimization_parameter_mapping(
+        return get_optimization_to_simulation_parameter_mapping(
             self.condition_df,
             self.measurement_df,
             self.parameter_df,
