@@ -40,6 +40,8 @@ def main():
 
     # TODO: extend
     petab.lint.check_measurement_df(problem.measurement_df)
+    petab.lint.check_condition_df(problem.condition_df)
+    petab.lint.check_parameter_df(problem.parameter_df)
     petab.lint.assert_measured_observables_present_in_model(problem.measurement_df, problem.sbml_model)
     petab.lint.assert_overrides_match_parameter_count(problem.measurement_df,
                                                       petab.get_observables(problem.sbml_model, remove=False),
