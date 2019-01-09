@@ -90,6 +90,15 @@ def parameterBounds_are_numeric(parameter_df):
 
     return True
 
+def parameterEstimate_is_boolean(parameter_df):
+    """Check if all entries in the estimate column of the parameter table are boolean """
+
+    for estimate in parameter_df['estimate']:
+        if not int(estimate) in [True, False]:
+            raise AssertionError(f'Expected boolean but got {estimate, type(estimate)} in estimate')
+
+    return True
+
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
     """Are there time-point or replicate specific parameter assignments in the measurement table"""
 
