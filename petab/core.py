@@ -303,21 +303,41 @@ def map_par_sim_to_par_opt(
         sbml_model,
         par_opt_ids=None,
         par_sim_ids=None):
+    """
+    Create array of mappings. The length of the array is n_conditions, each
+    entry is an array of length n_par_sim, listing the optimization parameters
+    or constants to be mapped to the simulation parameters.
 
-    # some checks. TODO: move to separate function
-    if not lint.condition_table_is_parameter_free(condition_df):
-        raise ValueError("Parameterized condition table currently unsupported.")
-    if lint.measurement_table_has_timepoint_specific_mappings(measurement_df):
-        raise ValueError("Timepoint-specific parameter overrides currently unsupported.")
+    Parameters
+    ----------
 
-    simulation_conditions = get_simulation_conditions_from_measurement_df(measurement_df)
-    condition_ids = [condition_id for condition_id in condition_df.conditionId.values
-                     if condition_id in measurement_df.simulationConditionId.values]
+    condition_df, measurement_df, parameter_df:
+        The dataframes in the petab format.
+
+    sbml_model:
+        The sbml model with observables and noise specified according to the
+        petab format.
+    
+    par_opt_ids, par_sim_ids: list of str, optional
+        Ids of the optimization and simulation parameters. If not passed,
+        these are generated from the files automatically. However, passing
+        them can ensure having the correct order.
+    """
+
+    perform_mapping_checks(condition_df, measurement_df)
+
+    simulation_conditions = \
+        get_simulation_conditions_from_measurement_df(measurement_df)
+    condition_ids = [
+        condition_id for condition_id in condition_df.conditionId.values
+        if condition_id in measurement_df.simulationConditionId.values
+    ]
 
     if par_opt_ids is None:
         par_opt_ids = get_optimization_parameters(parameter_df)
     if par_sim_ids is None:
-        par_sim_ids = get_dynamic_simulation_parameters(sbml_model, parameter_df)
+        par_sim_ids = get_dynamic_simulation_parameters(sbml_model,
+                                                        parameter_df)
     
     n_conditions = simulation_conditions.shape[0]
     n_par_sim_ids = len(par_sim_ids)
@@ -333,9 +353,11 @@ def map_par_sim_to_par_opt(
         name: idx for idx, name in enumerate(par_sim_ids)
     }
 
-    def _apply_overrides(overrides, condition_id, observable_id, override_type):
+    def _apply_overrides(
+            overrides, condition_id, observable_id, override_type):
         """
-        Apply parameter-overrides to mapping matrix.
+        Apply parameter-overrides for observables and noises to mapping
+        matrix.
         """
         condition_idx = sim_condition_id_to_idx[condition_id]
         for i, override in enumerate(overrides):
@@ -343,123 +365,32 @@ def map_par_sim_to_par_opt(
             mapping[condition_idx][par_sim_idx] = override
 
     for _, row in measurement_df.iterrows():
-        # we trust that number of overrides matches (see above)
+        # we trust that the number of overrides matches (see above)
         overrides = split_parameter_replacement_list(row.observableParameters)
-        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='observable')
+        _apply_overrides(
+            overrides, row.simulationConditionId,
+            row.observableId, override_type='observable')
         overrides = split_parameter_replacement_list(row.noiseParameters)
-        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='noise')
+        _apply_overrides(
+            overrides, row.simulationConditionId,
+            row.observableId, override_type='noise')
     
-    # print(par_opt_ids, "\nHi\n", par_sim_ids)
-    # print("Mapping", mapping)
+    # print("Mapping: ", mapping)
 
     return mapping
 
 
-
-def get_simulation_to_optimization_parameter_mapping(
-        condition_df, measurement_df, sbml_parameter_ids,
-        observables=None, noise=None):
-    """
-    Create `np.array` n_parameters_simulation x n_conditions with indices
-    of respective parameters in parameters_optimization.
-
-    If `observables` and `noise` arguments (as obtained from 
-    `get_observables`, `get_sbml_sigmas`)
-    are provided, we check for correct numbers of parameter overrides.
-    Otherwise it is the user's responsibility to ensure to ensure
-    correctness.
-    """
-
-    # We cannot handle those cases yet:
+def perform_mapping_checks(condition_df, measurement_df):
+    
+    # we cannot handle those cases yet
     if not lint.condition_table_is_parameter_free(condition_df):
-        raise ValueError('Parameterized condition table currently unsupported.')
+        raise ValueError(
+            "Parameterized condition table currently unsupported.")
     if lint.measurement_table_has_timepoint_specific_mappings(measurement_df):
-        # We could allow that for floats, since they don't matter in this function and
-        # would be simply ignored
-        raise ValueError('Timepoint-specific parameter overrides currently unsupported.')
-    if lint.measurement_table_has_observable_parameter_numeric_overrides(measurement_df):
-        # I guess we could simply ignore them, since they should not go into the optimization parameter vector
-        raise ValueError('Numeric observable parameter overrides currently unsupported.')
-
-    # We rely on that:
-    if observables is not None and noise is not None:
-        lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
-
-    # Number of simulation conditions will be number of unique 
-    # preequilibrationCondition-simulationCondition pairs.
-    # Can be improved by checking for identical condition vectors.
-
-    grouping_cols = get_notnull_columns(measurement_df,
-        ['simulationConditionId', 'preequilibrationConditionId'])
-    simulation_conditions = measurement_df.groupby(grouping_cols) \
-        .size().reset_index()
-
-    # numbers of simulation parameters and conditions
-    num_simulation_parameters = len(sbml_parameter_ids)
-    num_conditions = simulation_conditions.shape[0]
-
-    # initialize mapping matrix (num_simulation_parameters x num_conditions)
-    # for the case of matching simulation and optimization parameter vector
-    mapping = np.repeat(
-        np.transpose([np.arange(0, num_simulation_parameters)]),
-        axis=1, repeats=num_conditions)
-
-    # optimization parameters are model parameters + condition specific parameters
-    optimization_parameter_ids = list(sbml_parameter_ids) + get_measurement_parameter_ids(measurement_df)
-
-    condition_ids = [condition_id for condition_id in condition_df.conditionId.values if
-                     condition_id in measurement_df.simulationConditionId.values]
-
-    # create inverse mappings
-    optimization_parameter_id_to_index = {
-        name: idx for idx, name in enumerate(optimization_parameter_ids)
-    }
-    condition_id_to_idx = {
-        name: idx for idx, name in enumerate(condition_ids)
-    }
-    model_parameter_id_to_idx = {
-        name: idx for idx, name in enumerate(sbml_parameter_ids)
-    }
-
-    def _apply_overrides(overrides, condition_id, observable_id, override_type):
-        """
-        Apply parameter-overrides to mapping matrix.
-        override_type: observable / noise.
-        """
-        for i, override in enumerate(overrides):
-            if isinstance(override, numbers.Number):
-                # absence of float observable parameter overrides has been asserted above
-                # float noise parameter overrides are ignored here
-                continue
-            model_parameter_idx = model_parameter_id_to_idx[f'{override_type}Parameter{i + 1}_{observable_id}']
-            condition_idx = condition_id_to_idx[condition_id]
-            optimization_parameter_idx = optimization_parameter_id_to_index[override]
-            mapping[model_parameter_idx, condition_idx] = optimization_parameter_idx
-
-    for _, row in measurement_df.iterrows():
-        # We trust that number of overrides matches (see above)
-        overrides = split_parameter_replacement_list(row.observableParameters)
-        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='observable')
-
-        overrides = split_parameter_replacement_list(row.noiseParameters)
-        _apply_overrides(overrides, row.simulationConditionId, row.observableId, override_type='noise')
-
-    # Some model parameters might always be overwritten by measurements.observableIds, they can be removed
-    unused_optimization_parameter_idxs = set(range(len(optimization_parameter_ids))) - set(np.unique(mapping))
-
-    # update index mapping
-    old_optimization_parameter_ids = optimization_parameter_ids
-    optimization_parameter_ids = [pid for i, pid in enumerate(old_optimization_parameter_ids) if
-                                  not i in unused_optimization_parameter_idxs]
-    optimization_parameter_id_to_index = {
-        name: idx for idx, name in enumerate(optimization_parameter_ids)
-    }
-    # This can probably be done more efficiently
-    for i in range(mapping.shape[0]):
-        for j in range(mapping.shape[1]):
-            mapping[i, j] = optimization_parameter_id_to_index[old_optimization_parameter_ids[mapping[i, j]]]
-
-    return optimization_parameter_ids, mapping
+        # we could allow that for floats, since they don't matter in this
+        # function and would be simply ignored
+        raise ValueError(
+            "Timepoint-specific parameter overrides currently unsupported.")
 
 
 def get_measurement_parameter_ids(measurement_df):
