@@ -129,7 +129,7 @@ def test_optimization_problem(condition_df_2_conditions):
         parameter_file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
-    problem = petab.Manager(sbml_file=sbml_file_name,
+    problem = petab.Problem(sbml_file=sbml_file_name,
                             measurement_file=measurement_file_name,
                             condition_file=condition_file_name,
                             parameter_file=parameter_file_name)
