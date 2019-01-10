@@ -10,7 +10,7 @@ import petab
 
 
 def parse_cli_args():
-    """Parse command line argumentss"""
+    """Parse command line arguments"""
 
     parser = argparse.ArgumentParser(
         description='Check if a set of files adheres to the PEtab format.')
