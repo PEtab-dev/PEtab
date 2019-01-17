@@ -116,17 +116,17 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
 
     # sympify only once and save number of parameters
     observable_parameters_count = {oid[len('observable_'):]:
-                                       core.get_num_placeholders(
+                                       len(core.get_placeholders(
                                            value['formula'],
                                            oid[len('observable_'):],
-                                           'observable')
+                                           'observable'))
                                    for oid, value in observables.items()}
 
     noise_parameters_count = {oid[len('sigma_'):]:
-                                  core.get_num_placeholders(value['formula'],
+                                  len(core.get_placeholders(value['formula'],
                                                             oid[
                                                             len('sigma_'):],
-                                                            'noise')
+                                                            'noise'))
                               for oid, value in noise.items()}
 
     for _, row in measurement_df.iterrows():
