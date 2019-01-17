@@ -220,16 +220,17 @@ def assignment_rules_to_dict(
     """
     result = {}
 
-    # iterate over all parameters
-    for p in sbml_model.getListOfParameters():
-        parameter_id = p.getId()
+    # iterate over rules
+    for rule in sbml_model.getListOfRules():
+        if rule.getTypeCode() != libsbml.SBML_ASSIGNMENT_RULE:
+            continue
+        assignee = rule.getVariable()
+        parameter = sbml_model.getParameter(assignee)
         # filter
-        if filter_function(p):
-            result[parameter_id] = {
-                'name': p.getName(),
-                'formula': sbml_model.getAssignmentRuleByVariable(
-                    parameter_id
-                ).getFormula()
+        if parameter and filter_function(parameter):
+            result[assignee] = {
+                'name': parameter.getName(),
+                'formula': rule.getFormula()
             }
 
     # remove from model?
@@ -280,6 +281,9 @@ def get_sigmas(sbml_model, remove=False):
         filter_function=sbml_parameter_is_sigma,
         remove=remove
     )
+    # set correct observable name
+    sigmas = {re.sub(f'^sigma_', 'observable_', key): value['formula']
+              for key, value in sigmas.items()}
     return sigmas
 
 
@@ -546,3 +550,48 @@ def get_notnull_columns(df, candidates):
     """
     return [col for col in candidates
             if col in df and not np.all(df[col].isnull())]
+
+
+def create_condition_df(parameter_ids, condition_ids=None):
+    """Create empty condition dataframe
+
+    Arguments:
+        parameter_ids: the columns
+        condition_ids: the rows
+    Returns:
+        An pandas.DataFrame with empty given rows and columns and all nan
+        values
+    """
+
+    data = {'conditionId': []}
+    for p in parameter_ids:
+        data[p] = []
+
+    df = pd.DataFrame(data)
+    df.set_index(['conditionId'], inplace=True)
+
+    if not condition_ids:
+        return df
+
+    for c in condition_ids:
+        df[c] = np.nan
+
+    return df
+
+
+def create_measurement_df():
+    """Create empty measurement dataframe"""
+
+    df = pd.DataFrame(data={
+        'observableId': [],
+        'preequilibrationConditionId': [],
+        'simulationConditionId': [],
+        'measurement': [],
+        'time': [],
+        'observableParameters': [],
+        'noiseParameters': [],
+        'observableTransformation': [],
+        'noiseDistribution': [],
+    })
+
+    return df
