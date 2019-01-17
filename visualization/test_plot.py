@@ -4,6 +4,7 @@ import plot_measurement
 import plot_simulation
 import matplotlib.pyplot as plt
 
+# file path should be adapted
 DataFilePath = "measurementData_Fujita_SciSignal2010.tsv"
 ConditionFilePath = "experimentalCondition_Fujita_SciSignal2010.tsv"
 

@@ -42,9 +42,9 @@ def plot_measurementdata(DataFilePath, ConditionFilePath):
         condition_uniobs = simulationCondition[ind_uniobs]
 
         uni_condition = np.unique(condition_uniobs)
-        fig, ax = plt.subplots()
+        _, ax = plt.subplots()
         # measurement value for each unique condition
-        for i_unicon, val_unicon in enumerate(uni_condition):
+        for val_unicon in uni_condition:
             ind_unicon = np.where(condition_uniobs == val_unicon)
             time_unicon = time_uniobs[ind_unicon]
             measurement_unicon = measurement_uniobs[ind_unicon]

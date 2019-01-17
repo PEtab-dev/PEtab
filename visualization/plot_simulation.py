@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 def plot_simulationdata(DataFilePath, ConditionFilePath, ax):
 
@@ -43,7 +42,7 @@ def plot_simulationdata(DataFilePath, ConditionFilePath, ax):
 
         uni_condition = np.unique(condition_uniobs)
         # measurement value for each unique condition
-        for i_unicon, val_unicon in enumerate(uni_condition):
+        for val_unicon in uni_condition:
             ind_unicon = np.where(condition_uniobs == val_unicon)
             time_unicon = time_uniobs[ind_unicon]
             measurement_unicon = measurement_uniobs[ind_unicon]
