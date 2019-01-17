@@ -14,9 +14,10 @@ def read(fname):
 
 # project metadata
 setup(name='petab',
-      version='0.0.0a3',
+      version='0.0.0a4',
       description='Parameter estimation tabular data',
       long_description=read('README.md'),
+      long_description_content_type="text/markdown",
       author='The PEtab developers',
       author_email='daniel.weindl@helmholtz-muenchen.de',
       url='https://github.com/icb-dcm/petab',

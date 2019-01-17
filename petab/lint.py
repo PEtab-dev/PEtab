@@ -1,8 +1,10 @@
 """Integrity checks and tests for specific features used"""
 
-import numpy as np
 from . import core
+
+import numpy as np
 import numbers
+import libsbml
 
 
 def _check_df(df, req_cols, name):
@@ -252,3 +254,20 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
                 f'Mismatch of noise parameter overrides in:\n{row}'
                 f'Expected 0 or {expected} but got {actual}')
 
+
+def print_sbml_errors(sbml_document, minimum_severity=libsbml.LIBSBML_SEV_WARNING):
+    """Print libsbml errors
+
+    Arguments:
+        sbml_document: libsbml.Document
+        minimum_severity: minimum severity level to print
+        (see libsbml.LIBSBML_SEV_*)
+    """
+
+    for error_idx in range(sbml_document.getNumErrors()):
+        error = sbml_document.getError(error_idx)
+        if error.getSeverity() >= minimum_severity:
+            category = error.getCategoryAsString()
+            severity = error.getSeverityAsString()
+            message = error.getMessage()
+            print(f'libSBML {severity} ({category}): {message}')
