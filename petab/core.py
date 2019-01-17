@@ -562,17 +562,19 @@ def create_condition_df(parameter_ids, condition_ids=None):
         An pandas.DataFrame with empty given rows and columns and all nan
         values
     """
-    df = pd.DataFrame(
-        data={
-            'conditionId': condition_ids,
-        })
+
+    data = {'conditionId': []}
+    for p in parameter_ids:
+        data[p] = []
+
+    df = pd.DataFrame(data)
     df.set_index(['conditionId'], inplace=True)
 
     if not condition_ids:
         return df
 
-    for f in parameter_ids:
-        df[f] = np.nan
+    for c in condition_ids:
+        df[c] = np.nan
 
     return df
 
