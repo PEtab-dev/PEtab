@@ -207,7 +207,9 @@ def measurement_table_has_observable_parameter_numeric_overrides(
 
 
 def assert_overrides_match_parameter_count(measurement_df, observables, noise):
-    """Ensure that number of parameters in the observable definition matches the number of overrides in `measurement_df`
+    """Ensure that number of parameters in the observable definition matches
+    the number of overrides in `measurement_df`
+
     Arguments:
         :param measurement_df:
         :param observables: dict: obsId => {obsFormula}
@@ -221,13 +223,11 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
                                            oid[len('observable_'):],
                                            'observable'))
                                    for oid, value in observables.items()}
-
-    noise_parameters_count = {oid[len('sigma_'):]:
-                                  len(core.get_placeholders(value['formula'],
-                                                            oid[
-                                                            len('sigma_'):],
-                                                            'noise'))
-                              for oid, value in noise.items()}
+    noise_parameters_count = {
+        oid[len('observable_'):]: len(core.get_placeholders(
+            value, oid[len('observable_'):], 'noise'))
+        for oid, value in noise.items()
+    }
 
     for _, row in measurement_df.iterrows():
         try:
@@ -251,7 +251,7 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
         # No overrides are also allowed
         if not (actual == 0 or actual == expected):
             raise AssertionError(
-                f'Mismatch of noise parameter overrides in:\n{row}'
+                f'Mismatch of noise parameter overrides in:\n{row}\n'
                 f'Expected 0 or {expected} but got {actual}')
 
 
@@ -271,3 +271,22 @@ def print_sbml_errors(sbml_document, minimum_severity=libsbml.LIBSBML_SEV_WARNIN
             severity = error.getSeverityAsString()
             message = error.getMessage()
             print(f'libSBML {severity} ({category}): {message}')
+
+
+def lint_problem(problem):
+    """Run PEtab validation on problem
+
+    Arguments:
+        problem: petab.Problem
+    """
+
+    check_measurement_df(problem.measurement_df)
+    check_condition_df(problem.condition_df)
+    check_parameter_sheet(problem)
+    assert_measured_observables_present_in_model(
+        problem.measurement_df, problem.sbml_model)
+    assert_overrides_match_parameter_count(
+        problem.measurement_df,
+        core.get_observables(problem.sbml_model, remove=False),
+        core.get_sigmas(problem.sbml_model, remove=False)
+    )
