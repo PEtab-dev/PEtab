@@ -5,8 +5,6 @@ import os
 import pandas as pd
 
 sys.path.append(os.getcwd())
-import petab
-
 from petab import lint
 
 
@@ -73,12 +71,8 @@ def test_assert_overrides_match_parameter_count():
         }
     }
     noise = {
-        'sigma_0obsPar1noisePar': {
-            'formula': 'noiseParameter1_0obsPar1noisePar'
-        },
-        'sigma_2obsPar0noisePar': {
-            'formula': '1.0'
-        }
+        'observable_0obsPar1noisePar': 'noiseParameter1_0obsPar1noisePar',
+        'observable_2obsPar0noisePar': '1.0'
     }
     measurement_df_orig = pd.DataFrame(data={
         'observableId': ['0obsPar1noisePar',
@@ -91,7 +85,8 @@ def test_assert_overrides_match_parameter_count():
     })
 
     # No overrides
-    lint.assert_overrides_match_parameter_count(measurement_df_orig, observables, noise)
+    lint.assert_overrides_match_parameter_count(measurement_df_orig,
+                                                observables, noise)
 
     # Sigma override
     measurement_df = measurement_df_orig.copy()
