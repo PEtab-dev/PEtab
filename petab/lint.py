@@ -81,38 +81,35 @@ def condition_table_is_parameter_free(condition_df):
 
 def check_parameter_sheet(problem):
     check_parameter_df(problem.parameter_df)
-    parameterId_is_string(problem.parameter_df)
-    parameterScale_is_valid(problem.parameter_df)
-    parameterBounds_are_numeric(problem.parameter_df)
-    parameterEstimate_is_boolean(problem.parameter_df)
-    parameterId_is_unique(problem.parameter_df)
+    assert_parameter_id_is_string(problem.parameter_df)
+    assert_parameter_scale_is_valid(problem.parameter_df)
+    assert_parameter_bounds_are_numeric(problem.parameter_df)
+    assert_parameter_estimate_is_boolean(problem.parameter_df)
+    assert_parameter_id_is_unique(problem.parameter_df)
     check_parameterBounds(problem.parameter_df)
 
 
-def parameterId_is_string(parameter_df):
+def assert_parameter_id_is_string(parameter_df):
     """Check if all entries in the parameterId column of the parameter table
     are string and not empty"""
 
     for parameterId in parameter_df:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
-                raise ValueError('parameterId ' + parameterId
+                raise AssertionError('parameterId ' + parameterId
                                  + ' starts with integer')
         else:
-            raise ValueError('Empty parameterId found')
-
-    return True
+            raise AssertionError('Empty parameterId found')
 
 
-def parameterId_is_unique(parameter_df):
+def assert_parameter_id_is_unique(parameter_df):
     """Check if the parameterId column of the parameter table is unique"""
-    if len(parameter_df.index) == len(set(parameter_df.index)):
-        return True
-    else:
+
+    if len(parameter_df.index) != len(set(parameter_df.index)):
         raise AssertionError('parameterId column in parameter table is not unique')
 
 
-def parameterScale_is_valid(parameter_df):
+def assert_parameter_scale_is_valid(parameter_df):
     """Check if all entries in the parameterScale column of the parameter table
     are 'lin' for linear, 'log' for natural logarithm or 'log10' for base 10
     logarithm """
@@ -121,10 +118,8 @@ def parameterScale_is_valid(parameter_df):
         if parameterScale not in ['lin', 'log', 'log10']:
             raise AssertionError('Expected "lin", "log" or "log10" but got "'+parameterScale+'"')
 
-    return True
 
-
-def parameterBounds_are_numeric(parameter_df):
+def assert_parameter_bounds_are_numeric(parameter_df):
     """Check if all entries in the lowerBound and upperBound column of the parameter table are
     numeric """
 
@@ -140,24 +135,20 @@ def parameterBounds_are_numeric(parameter_df):
         except:
             raise AssertionError(f'Expected float but got {upBound, type(upBound)} as upper bound')
 
-    return True
-
 
 def check_parameterBounds(parameter_df):
     """Check if all entries in the lowerBound are smaller than upperBound column in the parameter table"""
     for element in range(len(parameter_df['lowerBound'])):
         if not parameter_df['lowerBound'][element] <= parameter_df['upperBound'][element]:
-            raise AssertionError(f'lowerbound larger than upperBound in {parameter_df["parameterId"][element]}')
+            raise AssertionError(f'lowerbound larger than upperBound in parameterId {parameter_df.index[element]}')
 
 
-def parameterEstimate_is_boolean(parameter_df):
+def assert_parameter_estimate_is_boolean(parameter_df):
     """Check if all entries in the estimate column of the parameter table are 0 or 1 """
 
     for estimate in parameter_df['estimate']:
         if not int(estimate) in [True, False]:
-            raise AssertionError(f'Expected 0 or 1 but got {estimate} in estimate')
-
-    return True
+            raise AssertionError(f'Expected 0 or 1 but got {estimate} in estimate column')
 
 
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
