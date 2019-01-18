@@ -176,7 +176,7 @@ class Problem:
         return create_parameter_df(self.sbml_model,
                                    self.condition_df,
                                    self.measurement_df,
-                                   *args, *kwargs)
+                                   *args, **kwargs)
 
 
 def get_default_condition_file_name(model_name, folder=''):
@@ -200,13 +200,17 @@ def get_default_sbml_file_name(model_name, folder=''):
 
 
 def get_condition_df(condition_file_name):
-    """
-    Read the provided condition file into a `pandas.Dataframe`.
+    """Read the provided condition file into a `pandas.Dataframe`
+
     Conditions are rows, parameters are columns, conditionId is index.
     """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
-    condition_df.set_index(['conditionId'])
+
+    try:
+        condition_df.set_index(['conditionId'], inplace=True)
+    except KeyError:
+        raise KeyError('Condition table missing mandatory field `conditionId`.')
 
     return condition_df
 
@@ -217,7 +221,6 @@ def get_parameter_df(parameter_file_name):
     """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
-
     try:
         parameter_df.set_index(['parameterId'], inplace=True)
     except KeyError:
