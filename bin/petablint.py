@@ -32,10 +32,10 @@ def parse_cli_args():
 def main():
     args = parse_cli_args()
 
-    problem = petab.OptimizationProblem(args.sbml_file_name,
-                                        args.measurement_file_name,
-                                        args.condition_file_name,
-                                        args.parameter_file_name)
+    problem = petab.Problem(args.sbml_file_name,
+                            args.condition_file_name,
+                            args.measurement_file_name,
+                            args.parameter_file_name)
 
 
     # TODO: extend
