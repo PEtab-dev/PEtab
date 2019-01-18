@@ -151,11 +151,11 @@ def check_parameterBounds(parameter_df):
 
 
 def parameterEstimate_is_boolean(parameter_df):
-    """Check if all entries in the estimate column of the parameter table are boolean """
+    """Check if all entries in the estimate column of the parameter table are 0 or 1 """
 
     for estimate in parameter_df['estimate']:
         if not int(estimate) in [True, False]:
-            raise AssertionError(f'Expected boolean but got {estimate, type(estimate)} in estimate')
+            raise AssertionError(f'Expected 0 or 1 but got {estimate} in estimate')
 
     return True
 
