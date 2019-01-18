@@ -171,13 +171,12 @@ class Problem:
             self.parameter_df,
             self.sbml_model)
 
-
     def create_parameter_df(self, *args, **kwargs):
         """Create a new PEtab parameter table"""
         return create_parameter_df(self.sbml_model,
                                    self.condition_df,
                                    self.measurement_df,
-                                   *args, *kwargs)
+                                   *args, **kwargs)
 
 
 def get_default_condition_file_name(model_name, folder=''):
