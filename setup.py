@@ -14,7 +14,7 @@ def read(fname):
 
 # project metadata
 setup(name='petab',
-      version='0.0.0a4',
+      version='0.0.0a5',
       description='Parameter estimation tabular data',
       long_description=read('README.md'),
       long_description_content_type="text/markdown",
