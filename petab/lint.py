@@ -39,16 +39,9 @@ def check_parameter_df(df):
     _check_df(df, req_cols, "parameter")
 
 
-def _check_df(df, req_cols, name):
-    cols_set = df.columns.values
-    missing_cols = set(req_cols) - set(cols_set)
-    if missing_cols:
-        raise AssertionError(
-            f"Dataframe {name} requires the columns {missing_cols}.")
-
-
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
-    """Check if all observables in measurement files have been specified in the model"""
+    """Check if all observables in measurement files have been specified in
+    the model"""
     measurement_observables = [f'observable_{x}' for x in
                                measurement_df.observableId.values]
 
@@ -62,7 +55,8 @@ def assert_measured_observables_present_in_model(measurement_df, sbml_model):
 
 
 def condition_table_is_parameter_free(condition_df):
-    """Check if all entries in the condition table are numeric (no parameter IDs)"""
+    """Check if all entries in the condition table are numeric
+    (no parameter IDs)"""
 
     constant_parameters = list(
         set(condition_df.columns.values.tolist()) - {'conditionId',
@@ -75,6 +69,7 @@ def condition_table_is_parameter_free(condition_df):
             return False
     return True
 
+
 def check_parameter_sheet(problem):
     check_parameter_df(problem.parameter_df)
     parameterId_is_string(problem.parameter_df)
@@ -83,19 +78,22 @@ def check_parameter_sheet(problem):
     parameterEstimate_is_boolean(problem.parameter_df)
     parameterId_is_unique(problem.parameter_df)
     check_parameterBounds(problem.parameter_df)
-    return True
+
 
 def parameterId_is_string(parameter_df):
-    """Check if all entries in the parameterId column of the parameter table are string and not empty"""
+    """Check if all entries in the parameterId column of the parameter table
+    are string and not empty"""
 
     for parameterId in parameter_df['parameterId']:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
-                raise ValueError('parameterId ' + parameterId + ' starts with integer')
+                raise ValueError('parameterId ' + parameterId
+                                 + ' starts with integer')
         else:
             raise ValueError('Empty parameterId found')
 
     return True
+
 
 def parameterId_is_unique(parameter_df):
     """Check if the parameterId column of the parameter table is unique"""
@@ -106,14 +104,16 @@ def parameterId_is_unique(parameter_df):
 
 
 def parameterScale_is_valid(parameter_df):
-    """Check if all entries in the parameterScale column of the parameter table are
-    'lin' for linear, 'log' for natural logarithm or 'log10' for base 10 logarithm """
+    """Check if all entries in the parameterScale column of the parameter table
+    are 'lin' for linear, 'log' for natural logarithm or 'log10' for base 10
+    logarithm """
 
     for parameterScale in parameter_df['parameterScale']:
         if parameterScale not in ['lin', 'log', 'log10']:
             raise AssertionError('Expected "lin", "log" or "log10" but got "'+parameterScale+'"')
 
     return True
+
 
 def parameterBounds_are_numeric(parameter_df):
     """Check if all entries in the lowerBound and upperBound column of the parameter table are
@@ -133,6 +133,7 @@ def parameterBounds_are_numeric(parameter_df):
 
     return True
 
+
 def check_parameterBounds(parameter_df):
     """Check if all entries in the lowerBound are smaller than upperBound column in the parameter table"""
     for element in range(len(parameter_df['lowerBound'])):
@@ -149,8 +150,10 @@ def parameterEstimate_is_boolean(parameter_df):
 
     return True
 
+
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
-    """Are there time-point or replicate specific parameter assignments in the measurement table"""
+    """Are there time-point or replicate specific parameter assignments in the
+    measurement table"""
 
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(
