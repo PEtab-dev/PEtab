@@ -658,7 +658,7 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
 
     # We do not handle that yet, once we do, we need to add those parameters
     # as well
-    lint.condition_table_is_parameter_free(condition_df)
+    assert lint.condition_table_is_parameter_free(condition_df)
 
     observables = get_observables(sbml_model)
     sigmas = get_sigmas(sbml_model)
@@ -671,22 +671,23 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
     for k, v in sigmas.items():
         placeholders |= get_placeholders(v, get_observable_id(k), 'noise')
 
-    # collect assignment targets
-    observables = observables.keys()
-    sigmas = ['sigma_' + get_observable_id(k) for k in sigmas.keys()]
-
     # grab all from model and measurement table
     # without condition table parameters
     # and observables assigment targets
     # and sigma assignment targets
     # and placeholder parameters (only partial overrides are not supported)
+
+    # should not go into parameter table
+    blackset = set()
+    # collect assignment targets
+    blackset |= set(observables.keys())
+    blackset |= {'sigma_' + get_observable_id(k) for k in sigmas.keys()}
+    blackset |= placeholders
+    blackset |= set(condition_df.columns.values) - {'parameterName'}
     # use ordered dict as proxy for ordered set
     parameter_ids = OrderedDict.fromkeys(
         p.getId() for p in sbml_model.getListOfParameters()
-        if p.getId() not in condition_df.columns
-        and p.getId() not in observables
-        and p.getId() not in sigmas
-        and p.getId() not in placeholders)
+        if p.getId() not in blackset)
 
     # Append parameters from measurement table,
     # unless they are fixed parameters
