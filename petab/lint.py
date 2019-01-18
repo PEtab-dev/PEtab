@@ -16,10 +16,13 @@ def _check_df(df, req_cols, name):
 
 
 def check_condition_df(df):
-    req_cols = [
-        "conditionId",
-    ]
+    req_cols = []
     _check_df(df, req_cols, "condition")
+
+    if not df.index.name == 'conditionId':
+        raise AssertionError(
+            f"Condition table has wrong index {df.index.name}."
+            "expected 'conditionId'.")
 
 
 def check_measurement_df(df):
@@ -33,10 +36,16 @@ def check_measurement_df(df):
 
 def check_parameter_df(df):
     req_cols = [
-        "parameterId", "parameterName", "parameterScale",
+        "parameterName", "parameterScale",
         "lowerBound", "upperBound", "nominalValue", "estimate"
     ]
     _check_df(df, req_cols, "parameter")
+
+    if not df.index.name == 'parameterId':
+        raise AssertionError(
+            f"Parameter table has wrong index {df.index.name}."
+            "expected 'parameterId'.")
+
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):

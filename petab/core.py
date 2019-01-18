@@ -200,7 +200,10 @@ def get_default_sbml_file_name(model_name, folder=''):
 
 
 def get_condition_df(condition_file_name):
-    """Read the provided condition file into a `pandas.Dataframe`"""
+    """Read the provided condition file into a `pandas.Dataframe`
+
+    Conditions are rows, parameters are columns, conditionId is index.
+    """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
 
