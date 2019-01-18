@@ -123,18 +123,8 @@ def assert_parameter_bounds_are_numeric(parameter_df):
     """Check if all entries in the lowerBound and upperBound column of the parameter table are
     numeric """
 
-    for lowBound in parameter_df['lowerBound']:
-        try:
-            float(lowBound)
-        except:
-            raise AssertionError(f'Expected float but got {lowBound, type(lowBound)} as lower bound')
-
-    for upBound in parameter_df['upperBound']:
-        try:
-            float(upBound)
-        except:
-            raise AssertionError(f'Expected float but got {upBound, type(upBound)} as upper bound')
-
+    parameter_df["lowerBound"].apply(float).all()
+    parameter_df["upperBound"].apply(float).all()
 
 def check_parameterBounds(parameter_df):
     """Check if all entries in the lowerBound are smaller than upperBound column in the parameter table"""
