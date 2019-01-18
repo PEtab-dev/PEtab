@@ -17,7 +17,7 @@ def _check_df(df, req_cols, name):
 
 def check_condition_df(df):
     req_cols = [
-        "conditionId", "conditionName"
+        "conditionId",
     ]
     _check_df(df, req_cols, "condition")
 
