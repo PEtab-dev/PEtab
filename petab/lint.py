@@ -213,6 +213,7 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
     }
 
     for _, row in measurement_df.iterrows():
+        # check observable parameters
         try:
             expected = observable_parameters_count[row.observableId]
         except KeyError:
@@ -228,14 +229,24 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
                 f'in:\n{row}\n'
                 f'Expected 0 or {expected} but got {actual}')
 
-        expected = noise_parameters_count[row.observableId]
-        actual = len(
-            core.split_parameter_replacement_list(row.noiseParameters))
-        # No overrides are also allowed
-        if not (actual == 0 or actual == expected):
-            raise AssertionError(
-                f'Mismatch of noise parameter overrides in:\n{row}\n'
-                f'Expected 0 or {expected} but got {actual}')
+        # check noise parameters
+        replacements = core.split_parameter_replacement_list(row.noiseParameters)
+        try:
+            expected = noise_parameters_count[row.observableId]
+
+            # No overrides are also allowed
+            if not (len(replacements) == 0 or len(replacements) == expected):
+                raise AssertionError(
+                    f'Mismatch of noise parameter overrides in:\n{row}\n'
+                    f'Expected 0 or {expected} but got {actual}')
+        except KeyError:
+            # no overrides defined, but a numerical sigma can be provided
+            # anyways
+            if not len(replacements) == 1 \
+                    or not isinstance(replacements[0], numbers.Number):
+                raise AssertionError(
+                    f'No place holders specified in model for:\n{row}\n'
+                    f'But parameter name or multiple overrides provided.')
 
 
 def print_sbml_errors(sbml_document, minimum_severity=libsbml.LIBSBML_SEV_WARNING):
