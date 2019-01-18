@@ -704,12 +704,6 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
 
     parameter_ids = list(parameter_ids.keys())
 
-    if lower_bound is None:
-        lower_bound = [-3] * len(parameter_ids)
-
-    if upper_bound is None:
-        upper_bound = [-5] * len(parameter_ids)
-
     df = pd.DataFrame(
         data={
             'parameterId': parameter_ids,
