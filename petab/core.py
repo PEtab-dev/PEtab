@@ -203,7 +203,11 @@ def get_condition_df(condition_file_name):
     """Read the provided condition file into a `pandas.Dataframe`"""
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
-    condition_df.set_index(['conditionId'], inplace=True)
+
+    try:
+        condition_df.set_index(['conditionId'], inplace=True)
+    except KeyError:
+        raise KeyError('Condition table missing mandatory field `conditionId`.')
 
     return condition_df
 
@@ -214,7 +218,10 @@ def get_parameter_df(parameter_file_name):
     """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
-    parameter_df.set_index(['parameterId'], inplace=True)
+    try:
+        parameter_df.set_index(['parameterId'], inplace=True)
+    except KeyError:
+        raise KeyError('Parameter table missing mandatory field `parameterId`.')
 
     return parameter_df
 
