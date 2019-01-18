@@ -93,7 +93,7 @@ def parameterId_is_string(parameter_df):
     """Check if all entries in the parameterId column of the parameter table
     are string and not empty"""
 
-    for parameterId in parameter_df['parameterId']:
+    for parameterId in parameter_df:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
                 raise ValueError('parameterId ' + parameterId
@@ -106,7 +106,7 @@ def parameterId_is_string(parameter_df):
 
 def parameterId_is_unique(parameter_df):
     """Check if the parameterId column of the parameter table is unique"""
-    if len(parameter_df['parameterId']) == len(set(parameter_df['parameterId'])):
+    if len(parameter_df.index) == len(set(parameter_df.index)):
         return True
     else:
         raise AssertionError('parameterId column in parameter table is not unique')
