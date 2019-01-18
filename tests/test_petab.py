@@ -17,6 +17,7 @@ def condition_df_2_conditions():
         'conditionName': ['', 'Condition 2'],
         'fixedParameter1': [1.0, 2.0]
     })
+    condition_df.set_index('conditionId', inplace=True)
     return condition_df
 
 
@@ -118,21 +119,21 @@ def test_optimization_problem(condition_df_2_conditions):
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
         condition_file_name = fh.name
-        condition_df.to_csv(fh, sep='\t', index=False)
+        condition_df.to_csv(fh, sep='\t', index=True)
 
-        parameter_df = pd.DataFrame(data={
-            'parameterId': ['dynamicParameter1', 'dynamicParameter2'],
-            'parameterName': ['', '...'],  # ...
-        })
+    parameter_df = pd.DataFrame(data={
+        'parameterId': ['dynamicParameter1', 'dynamicParameter2'],
+        'parameterName': ['', '...'],  # ...
+    })
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
         parameter_file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
-    problem = petab.OptimizationProblem(sbml_file_name,
-                                        measurement_file_name,
-                                        condition_file_name,
-                                        parameter_file_name)
+    problem = petab.Problem(sbml_file=sbml_file_name,
+                            measurement_file=measurement_file_name,
+                            condition_file=condition_file_name,
+                            parameter_file=parameter_file_name)
 
     assert problem.get_constant_parameters() == ['fixedParameter1']
 
@@ -152,21 +153,23 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
                      'dynamicParameter3'],
-                    np.array([[0, 0], [1, 1], [2, 2]]))
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'dynamicParameter3']]
 
-        actual = petab.get_simulation_to_optimization_parameter_mapping(
+
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_parameter_ids=['dynamicParameter1',
+            par_sim_ids=['dynamicParameter1',
                                 'dynamicParameter2',
                                 'dynamicParameter3']
         )
 
-        assert actual[0] == expected[0]
-        assert np.all(np.equal(actual[1], expected[1]))
+        assert actual == expected
 
     def test_all_override(self, condition_df_2_conditions):
         # Condition-specific parameters overriding original parameters
@@ -183,32 +186,30 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
                      'obs1par1override',
                      'obs1par2cond1override',
                      'obs2par1cond1override',
+                     ],
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'obs1par1override',
                      'obs1par2cond2override',
                      'obs2par1cond2override'
-                     ],
-                    np.array([[0, 0],
-                              [1, 1],
-                              [2, 2],
-                              [3, 5],
-                              [4, 6]]))
+                     ]]
 
-        actual = petab.get_simulation_to_optimization_parameter_mapping(
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_parameter_ids=['dynamicParameter1',
+            par_sim_ids=['dynamicParameter1',
                                 'dynamicParameter2',
                                 'observableParameter1_obs1',
                                 'observableParameter2_obs1',
                                 'observableParameter1_obs2']
         )
 
-        assert actual[0] == expected[0]
-        assert np.all(np.equal(actual[1], expected[1]))
+        assert actual == expected
 
     def test_partial_override(self, condition_df_2_conditions):
         # Condition-specific parameters, keeping original parameters
@@ -225,42 +226,30 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = (['dynamicParameter1',
+        expected = [['dynamicParameter1',
                      'dynamicParameter2',
-                     'observableParameter1_obs2',
                      'obs1par1override',
                      'obs1par2cond1override',
+                     'observableParameter1_obs2',
+                     ],
+                    ['dynamicParameter1',
+                     'dynamicParameter2',
+                     'obs1par1override',
                      'obs1par2cond2override',
                      'obs2par1cond2override'
-                     ],
-                    np.array([[0, 0],
-                              [1, 1],
-                              [3, 3],
-                              [4, 5],
-                              [2, 6]]))
+                     ]]
 
-        actual = petab.get_simulation_to_optimization_parameter_mapping(
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_parameter_ids=['dynamicParameter1',
+            par_sim_ids=['dynamicParameter1',
                                 'dynamicParameter2',
                                 'observableParameter1_obs1',
                                 'observableParameter2_obs1',
                                 'observableParameter1_obs2']
         )
 
-        assert actual[0] == expected[0]
-        assert np.all(np.equal(actual[1], expected[1]))
-
-
-def test_get_num_placeholders():
-    assert petab.get_num_placeholders('1.0', 'any', 'observable') == 0
-
-    assert petab.get_num_placeholders(
-        'observableParameter1_twoParams * observableParameter2_twoParams + otherParam',
-        'twoParams', 'observable') == 2
-
-    assert petab.get_num_placeholders('3.0 * noiseParameter1_oneParam', 'oneParam', 'noise') == 1
+        assert actual == expected
 
 
 def test_get_dynamic_parameters_from_sbml():
@@ -274,3 +263,78 @@ def test_get_dynamic_parameters_from_sbml():
     p.setConstant(True)
 
     assert petab.get_dynamic_parameters_from_sbml(model) == ['dynamicParameter1']
+
+
+def test_get_observable_id():
+    assert petab.get_observable_id('observable_obs1') == 'obs1'
+    assert petab.get_observable_id('sigma_obs1') == 'obs1'
+
+
+def test_get_placeholders():
+    assert petab.get_placeholders('1.0', 'any', 'observable') == set()
+
+    assert petab.get_placeholders(
+        'observableParameter1_twoParams * observableParameter2_twoParams + otherParam',
+        'twoParams', 'observable') \
+           == {'observableParameter1_twoParams', 'observableParameter2_twoParams'}
+
+    assert petab.get_placeholders(
+        '3.0 * noiseParameter1_oneParam', 'oneParam', 'noise') \
+           == {'noiseParameter1_oneParam'}
+
+
+def test_create_parameter_df(condition_df_2_conditions):
+    document = libsbml.SBMLDocument(3, 1)
+    model = document.createModel()
+    model.setTimeUnits("second")
+    model.setExtentUnits("mole")
+    model.setSubstanceUnits('mole')
+
+    s = model.createSpecies()
+    s.setId('x1')
+
+    p = model.createParameter()
+    p.setId('fixedParameter1')
+    p.setName('FixedParameter1')
+
+    p = model.createParameter()
+    p.setId('observable_obs1')
+    p.setName('Observable 1')
+    rule = model.createAssignmentRule()
+    rule.setId('assignmentRuleIdDoesntMatter')
+    rule.setVariable('observable_obs1')
+    rule.setFormula('x1')
+
+    p = model.createParameter()
+    p.setId('observable_obs2')
+    p.setName('Observable 2')
+    p = model.createParameter()
+    p.setId('noiseParameter1_obs2')
+    p.setName('Observable 1')
+    p = model.createParameter()
+    p.setId('sigma_obs2')
+    rule = model.createAssignmentRule()
+    rule.setId('assignmentRuleIdDoesntMatter')
+    rule.setVariable('observable_obs2')
+    rule.setFormula('2*x1')
+    rule = model.createAssignmentRule()
+    rule.setId('assignmentRuleIdDoesntMatter')
+    rule.setVariable('sigma_obs2')
+    rule.setFormula('noiseParameter1_obs2')
+
+    measurement_df = pd.DataFrame(data={
+        'observableId': ['obs1', 'obs2'],
+        'observableParameters': ['', 'p1;p2'],
+        'noiseParameters': ['p3;p4', 'p5']
+    })
+
+    parameter_df = petab.create_parameter_df(
+        model,
+        condition_df_2_conditions,
+        measurement_df)
+
+    # first model parameters, then row by row noise and sigma overrides
+    expected = ['p3', 'p4', 'p1', 'p2', 'p5']
+    actual = parameter_df.index.values.tolist()
+    assert actual == expected
+

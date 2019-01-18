@@ -10,7 +10,7 @@ import petab
 
 
 def parse_cli_args():
-    """Parse command line argumentss"""
+    """Parse command line arguments"""
 
     parser = argparse.ArgumentParser(
         description='Check if a set of files adheres to the PEtab format.')
@@ -32,10 +32,10 @@ def parse_cli_args():
 def main():
     args = parse_cli_args()
 
-    problem = petab.OptimizationProblem(args.sbml_file_name,
-                                        args.measurement_file_name,
-                                        args.condition_file_name,
-                                        args.parameter_file_name)
+    problem = petab.Problem(args.sbml_file_name,
+                            args.condition_file_name,
+                            args.measurement_file_name,
+                            args.parameter_file_name)
 
     mandatory_measurement_fields = {'observableId',
                                     # 'preequilibrationConditionId',
