@@ -6,22 +6,41 @@ import re
 import itertools
 import os
 import numbers
-
+from collections import OrderedDict
 from . import lint
 
 
 class Problem:
+    """PEtab parameter estimation problem as defined by
+    - sbml model
+    - condition table
+    - measurement table
+    - parameter table [optional]
+
+    Attributes:
+        sbml_file: PEtab SBML model
+        condition_file: PEtab condition table
+        measurement_file: PEtab measurement table
+        parameter_file: PEtab parameter table
+        model_name: name of the model
+        condition_df: @type pandas.DataFrame
+        measurement_df: @type pandas.DataFrame
+        parameter_df: @type pandas.DataFrame
+        sbml_reader: @type libsbml.SBMLReader
+        sbml_document: @type libsbml.Document
+        sbml_model: @type libsbml.Model
+    """
 
     def __init__(self,
-            condition_file,
-            measurement_file,
-            parameter_file,
-            sbml_file,
-            name = None):
+                 sbml_file,
+                 condition_file,
+                 measurement_file,
+                 parameter_file=None,
+                 model_name=None):
 
-        if name is None:
-            name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
-        self.name = name
+        if model_name is None:
+            model_name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
+        self.model_name = model_name
 
         self.measurement_file = measurement_file
         self.condition_file = condition_file
@@ -30,7 +49,10 @@ class Problem:
 
         self.condition_df = get_condition_df(self.condition_file)
         self.measurement_df = get_measurement_df(self.measurement_file)
-        self.parameter_df = get_parameter_df(self.parameter_file)
+        if self.parameter_file:
+            self.parameter_df = get_parameter_df(self.parameter_file)
+        else:
+            self.parameter_df = None
 
         self.sbml_reader = None
         self.sbml_document = None
@@ -45,23 +67,15 @@ class Problem:
         """
 
         folder = os.path.abspath(folder)
-        name = os.path.split(folder)[-1]
-
-        condition_file = os.path.join(folder,
-            "experimentalCondition_" + name + ".tsv")
-        measurement_file = os.path.join(folder,
-            "measurementData_" + name + ".tsv")
-        parameter_file = os.path.join(folder,
-            "parameters_" + name + ".tsv")
-        sbml_file = os.path.join(folder,
-            "model_" + name + ".xml")
+        model_name = os.path.split(folder)[-1]
 
         return Problem(
-            condition_file = condition_file,
-            measurement_file = measurement_file,
-            parameter_file = parameter_file,
-            sbml_file = sbml_file,
-            name = name
+            condition_file=get_default_condition_file_name(model_name, folder),
+            measurement_file=get_default_measurement_file_name(
+                model_name, folder),
+            parameter_file=get_default_parameter_file_name(model_name, folder),
+            sbml_file=get_default_sbml_file_name(model_name, folder),
+            model_name=model_name
         )
 
     def _load_sbml(self):
@@ -156,6 +170,33 @@ class Problem:
             self.measurement_df,
             self.parameter_df,
             self.sbml_model)
+
+    def create_parameter_df(self, *args, **kwargs):
+        """Create a new PEtab parameter table"""
+        return create_parameter_df(self.sbml_model,
+                                   self.condition_df,
+                                   self.measurement_df,
+                                   *args, *kwargs)
+
+
+def get_default_condition_file_name(model_name, folder=''):
+    """Get file name according to proposed convention"""
+    return os.path.join(folder, "experimentalCondition_" + model_name + ".tsv")
+
+
+def get_default_measurement_file_name(model_name, folder=''):
+    """Get file name according to proposed convention"""
+    return os.path.join(folder, "measurementData_" + model_name + ".tsv")
+
+
+def get_default_parameter_file_name(model_name, folder=''):
+    """Get file name according to proposed convention"""
+    return os.path.join(folder, "parameters_" + model_name + ".tsv")
+
+
+def get_default_sbml_file_name(model_name, folder=''):
+    """Get file name according to proposed convention"""
+    return os.path.join(folder, "model_" + model_name + ".xml")
 
 
 def get_condition_df(condition_file_name):
@@ -314,7 +355,8 @@ def parameter_is_offset_parameter(parameter, formula):
 def get_simulation_conditions_from_measurement_df(measurement_df):
     grouping_cols = get_notnull_columns(measurement_df,
         ['simulationConditionId', 'preequilibrationConditionId'])
-    simulation_conditions = measurement_df.groupby(grouping_cols).size().reset_index()
+    simulation_conditions = \
+        measurement_df.groupby(grouping_cols).size().reset_index()
 
     return simulation_conditions
 
@@ -354,7 +396,7 @@ def get_optimization_to_simulation_parameter_mapping(
     simulation_conditions = \
         get_simulation_conditions_from_measurement_df(measurement_df)
     condition_ids = [
-        condition_id for condition_id in condition_df.conditionId.values
+        condition_id for condition_id in condition_df.index
         if condition_id in measurement_df.simulationConditionId.values
     ]
 
@@ -385,7 +427,8 @@ def get_optimization_to_simulation_parameter_mapping(
         """
         condition_idx = sim_condition_id_to_idx[condition_id]
         for i, override in enumerate(overrides):
-            par_sim_idx = par_sim_id_to_idx[f'{override_type}Parameter{i+1}_{observable_id}']
+            par_sim_idx = par_sim_id_to_idx[
+                f'{override_type}Parameter{i+1}_{observable_id}']
             mapping[condition_idx][par_sim_idx] = override
 
     for _, row in measurement_df.iterrows():
@@ -398,8 +441,6 @@ def get_optimization_to_simulation_parameter_mapping(
         _apply_overrides(
             overrides, row.simulationConditionId,
             row.observableId, override_type='noise')
-
-    # print("Mapping: ", mapping)
 
     return mapping
 
@@ -500,20 +541,18 @@ def split_parameter_replacement_list(list_string):
     return [to_float_if_float(x) for x in result]
 
 
-def get_num_placeholders(formula_string, observable_id, override_type):
+def get_placeholders(formula_string, observable_id, override_type):
     """
-    Get number of unique placeholder variables in noise or observable
-    definition.
+    Get placeholder variables in noise or observable definition.
     """
-
-    pattern = re.compile(re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
+    pattern = re.compile(
+        re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
     placeholders = set()
     for free_sym in sp.sympify(formula_string).free_symbols:
         free_sym = str(free_sym)
         if pattern.match(free_sym):
             placeholders.add(free_sym)
-
-    return len(placeholders)
+    return placeholders
 
 
 def get_dynamic_parameters_from_sbml(sbml_model):
@@ -521,7 +560,8 @@ def get_dynamic_parameters_from_sbml(sbml_model):
     Get list of non-constant parameters in sbml model.
     TODO: This is not what Y would expect. Remove?
     """
-    return [p.getId() for p in sbml_model.getListOfParameters() if not p.getConstant()]
+    return [p.getId() for p in sbml_model.getListOfParameters()
+            if not p.getConstant()]
 
 
 def get_dynamic_simulation_parameters(sbml_model, parameter_df):
@@ -534,6 +574,7 @@ def get_dynamic_simulation_parameters(sbml_model, parameter_df):
         or p.getId() in par_opt_ids
     ]
     return par_ids
+
 
 def get_optimization_parameters(parameter_df):
     """
@@ -595,3 +636,101 @@ def create_measurement_df():
     })
 
     return df
+
+
+def create_parameter_df(sbml_model, condition_df, measurement_df,
+                        parameter_scale='log10',
+                        lower_bound=None,
+                        upper_bound=None):
+    """Create a new PEtab parameter table
+
+    All table entries can be provided as string or list-like with length
+    matching the number of parameters
+
+    Arguments:
+        sbml_model: @type libsbml.Model
+        condition_df: @type pandas.DataFrame
+        measurement_df: @type pandas.DataFrame
+        parameter_scale: parameter scaling
+        lower_bound: lower bound for parameter value
+        upper_bound: upper bound for parameter value
+    """
+
+    # We do not handle that yet, once we do, we need to add those parameters
+    # as well
+    assert lint.condition_table_is_parameter_free(condition_df)
+
+    observables = get_observables(sbml_model)
+    sigmas = get_sigmas(sbml_model)
+
+    # collect placeholder parameters
+    placeholders = set()
+    for k, v in observables.items():
+        placeholders |= get_placeholders(v['formula'], get_observable_id(k),
+                                         'observable')
+    for k, v in sigmas.items():
+        placeholders |= get_placeholders(v, get_observable_id(k), 'noise')
+
+    # grab all from model and measurement table
+    # without condition table parameters
+    # and observables assigment targets
+    # and sigma assignment targets
+    # and placeholder parameters (only partial overrides are not supported)
+
+    # should not go into parameter table
+    blackset = set()
+    # collect assignment targets
+    blackset |= set(observables.keys())
+    blackset |= {'sigma_' + get_observable_id(k) for k in sigmas.keys()}
+    blackset |= placeholders
+    blackset |= set(condition_df.columns.values) - {'conditionName'}
+    # use ordered dict as proxy for ordered set
+    parameter_ids = OrderedDict.fromkeys(
+        p.getId() for p in sbml_model.getListOfParameters()
+        if p.getId() not in blackset)
+
+    # Append parameters from measurement table,
+    # unless they are fixed parameters
+    def append_overrides(overrides):
+        for p in overrides:
+            if isinstance(p, str) and p not in condition_df.columns:
+                parameter_ids[p] = None
+    for _, row in measurement_df.iterrows():
+        # we trust that the number of overrides matches
+        append_overrides(
+            split_parameter_replacement_list(row.observableParameters))
+        append_overrides(
+            split_parameter_replacement_list(row.noiseParameters))
+
+    parameter_ids = list(parameter_ids.keys())
+
+    df = pd.DataFrame(
+        data={
+            'parameterId': parameter_ids,
+            'parameterName': parameter_ids,
+            'parameterScale': parameter_scale,
+            'lowerBound': lower_bound,
+            'upperBound': upper_bound,
+            'nominalValue': np.nan,
+            'estimate': 1,
+            'priorType': '',
+            'priorParameters': ''
+        })
+    df.set_index(['parameterId'], inplace=True)
+
+    return df
+
+
+def get_observable_id(parameter_id):
+    """Get observable id from sigma or observable parameter_id
+    e.g. for observable_obs1 -> obs1
+             sigma_obs1 -> obs1
+    """
+
+    if parameter_id.startswith(r'observable_'):
+        return parameter_id[len('observable_'):]
+
+    if parameter_id.startswith(r'sigma_'):
+        return parameter_id[len('sigma_'):]
+
+    raise ValueError('Cannot extract observable id from: ' + parameter_id)
