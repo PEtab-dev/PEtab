@@ -683,7 +683,7 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
     blackset |= set(observables.keys())
     blackset |= {'sigma_' + get_observable_id(k) for k in sigmas.keys()}
     blackset |= placeholders
-    blackset |= set(condition_df.columns.values) - {'parameterName'}
+    blackset |= set(condition_df.columns.values) - {'conditionName'}
     # use ordered dict as proxy for ordered set
     parameter_ids = OrderedDict.fromkeys(
         p.getId() for p in sbml_model.getListOfParameters()
