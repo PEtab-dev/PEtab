@@ -59,6 +59,16 @@ class Problem:
         self.sbml_model = None
         self._load_sbml()
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        for key in ['sbml_reader', 'sbml_document', 'sbml_model']:
+            state.pop(key)
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._load_sbml()
+
     @staticmethod
     def from_folder(folder):
         """
