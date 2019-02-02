@@ -11,10 +11,12 @@ if sys.version_info < (3, 6):
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+# read version from file
+exec(read(os.path.join('petab', 'version.py')))
 
 # project metadata
 setup(name='petab',
-      version='0.0.0a6',
+      version=__version__,
       description='Parameter estimation tabular data',
       long_description=read('README.md'),
       long_description_content_type="text/markdown",
