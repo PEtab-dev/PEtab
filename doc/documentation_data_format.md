@@ -210,7 +210,7 @@ A tab-separated value text file containing information on model parameters.
 
 This table must comprise the following parameters:
 - All parameters from the SBML model, except for:
-    - constant and/or non-boundary condition parameters
+    - `constant` and/or `boundaryCondition` parameters (see SBML specs)
     - placeholder parameters (see `observableParameters` and `noiseParameters`
       above)
     - parameters included as column names in the *condition table*
@@ -253,15 +253,18 @@ Detailed column description:
 - `lowerBound` [NUMERIC]
 
   Lower bound of the parameter used for optimization.
+  Optional, if `estimate==0`.
 
 - `upperBound` [NUMERIC]
 
-  Upper bound of the parameter used for optimization.
+  Upper bound of the parameter used for optimization. 
+  Optional, if `estimate==0`.
 
-- `nominalValue`
+- `nominalValue` [NUMERIC]
 
-  Some parameter value to be used if the parameter is not subject to
-  estimation (see `estimate` below).
+  Some parameter value (scale as specified in `parameterScale`) to be used if 
+  the parameter is not subject to estimation (see `estimate` below). 
+  Optional, unless `estimate==0`.
 
 - `estimate` [BOOL 0|1]
 
@@ -291,5 +294,3 @@ Extra columns
 
   hierarchicalOptimization: 1 if parameter is optimized using hierarchical
   optimization approach. 0 otherwise.
-
-  **TODO**
