@@ -206,18 +206,27 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
 ## Parameter table
 
-A tab-separated value text file containing information on the parameters. One
-row per parameter with arbitrary order of rows and columns:
+A tab-separated value text file containing information on model parameters.
+
+This table must comprise the following parameters:
+- All parameters from the SBML model, except for:
+    - constant and/or non-boundary condition parameters
+    - placeholder parameters (see `observableParameters` and `noiseParameters`
+      above)
+    - parameters included as column names in the *condition table*
+- Named parameter overrides introduced in the *conditions table*
+- Named parameter overrides introduced in the *measurement table*
+
+One row per parameter with arbitrary order of rows and columns:
 
 | parameterId | [parameterName] | parameterScale | lowerBound  |upperBound | nominalValue | estimate | [priorType] | [priorParameters] |
 |---|---|---|---|---|---|---|---|---|
 |STRING|STRING|log10&#124;lin&#124;log|NUMERIC|NUMERIC|NUMERIC|0&#124;1|**TODO**|**TODO**
 |...|...|...|...|...|...|...|...|...|
 
-All non-constant parameters and non-overridden (see `observableParameters` and
-`noiseParameters` above) of the SBML model as well as all parameters
-introduced in the conditions table and measurement table must be specified
-here. Additional columns may be added.
+Additional columns may be added.
+
+Detailed column description:
 
 - `parameterId` [STRING, NOT NULL, REFERENCES(sbml.parameterId)]
 
@@ -263,13 +272,13 @@ here. Additional columns may be added.
 
   Type of prior. Leave empty or omit column, if no priors. Normal/ Laplace etc.
 
-  **TODO** What will be allowed here?
+  **TODO** What will be allowed here? (issue #17)
 
 - `priorParameters`
 
   Parameters for prior.
 
-  **TODO** Numeric or also parameter names?
+  **TODO** Numeric or also parameter names? (issue #17)
 
 
 ## Extensions
