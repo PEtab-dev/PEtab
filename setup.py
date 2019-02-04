@@ -12,7 +12,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 # read version from file
-exec(read(os.path.join('petab', 'version.py')))
+exec(read(os.path.join('petab', 'version.py'))) # pylint: disable=W0122 # nosec
 
 # project metadata
 setup(name='petab',
