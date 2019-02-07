@@ -11,7 +11,8 @@ from . import lint
 
 
 class Problem:
-    """PEtab parameter estimation problem as defined by
+    """
+    PEtab parameter estimation problem as defined by
     - sbml model
     - condition table
     - measurement table
