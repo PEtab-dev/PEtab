@@ -30,6 +30,6 @@ setup(name='petab',
                         'matplotlib>=2.2.3',
                         'python-libsbml>=5.17.0',
                         'sympy'],
-      tests_require=['pytest'],
+      tests_require=['pytest', 'pickle'],
       python_requires='>=3.6'
       )
