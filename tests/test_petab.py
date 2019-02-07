@@ -84,12 +84,12 @@ def petab_problem():
 def test_split_parameter_replacement_list():
     assert petab.split_parameter_replacement_list('') == []
     assert petab.split_parameter_replacement_list('param1') == ['param1']
-    assert petab.split_parameter_replacement_list(
-        'param1;param2') == ['param1', 'param2']
+    assert petab.split_parameter_replacement_list('param1;param2') \
+        == ['param1', 'param2']
     assert petab.split_parameter_replacement_list('1.0') == [1.0]
     assert petab.split_parameter_replacement_list('1.0;2.0') == [1.0, 2.0]
-    assert petab.split_parameter_replacement_list('param1;2.2') == [
-        'param1', 2.2]
+    assert petab.split_parameter_replacement_list('param1;2.2') == \
+        ['param1', 2.2]
     assert petab.split_parameter_replacement_list(np.nan) == []
     assert petab.split_parameter_replacement_list(1.5) == [1.5]
 
@@ -97,9 +97,8 @@ def test_split_parameter_replacement_list():
 def test_get_measurement_parameter_ids():
     measurement_df = pd.DataFrame(
         data={
-            'observableParameters': [
-                '', 'p1;p2'], 'noiseParameters': [
-                'p3;p4', 'p5']})
+            'observableParameters': ['', 'p1;p2'],
+            'noiseParameters': ['p3;p4', 'p5']})
     expected = ['p1', 'p2', 'p3', 'p4', 'p5']
     actual = petab.get_measurement_parameter_ids(measurement_df)
     # ordering is arbitrary

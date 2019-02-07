@@ -32,8 +32,8 @@ def test_condition_table_is_parameter_free():
 
     assert lint.condition_table_is_parameter_free(condition_df) is True
 
-    condition_df.fixedParameter1 = condition_df.fixedParameter1.values.astype(
-        int)
+    condition_df.fixedParameter1 = \
+        condition_df.fixedParameter1.values.astype(int)
 
     assert lint.condition_table_is_parameter_free(condition_df) is True
 

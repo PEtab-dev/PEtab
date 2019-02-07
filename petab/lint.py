@@ -89,9 +89,10 @@ def check_parameter_sheet(problem):
 
 
 def assert_parameter_id_is_string(parameter_df):
-    """Check if all entries in the parameterId column of the parameter table
-    are string and not empty"""
-
+    """
+    Check if all entries in the parameterId column of the parameter table
+    are string and not empty.
+    """
     for parameterId in parameter_df:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
@@ -102,24 +103,25 @@ def assert_parameter_id_is_string(parameter_df):
 
 
 def assert_parameter_id_is_unique(parameter_df):
-    """Check if the parameterId column of the parameter table is unique"""
-
+    """
+    Check if the parameterId column of the parameter table is unique.
+    """
     if len(parameter_df.index) != len(set(parameter_df.index)):
         raise AssertionError(
             'parameterId column in parameter table is not unique')
 
 
 def assert_parameter_scale_is_valid(parameter_df):
-    """Check if all entries in the parameterScale column of the parameter table
+    """
+    Check if all entries in the parameterScale column of the parameter table
     are 'lin' for linear, 'log' for natural logarithm or 'log10' for base 10
-    logarithm """
-
+    logarithm.
+    """
     for parameterScale in parameter_df['parameterScale']:
         if parameterScale not in ['lin', 'log', 'log10']:
             raise AssertionError(
                 'Expected "lin", "log" or "log10" but got "' +
-                parameterScale +
-                '"')
+                parameterScale + '"')
 
 
 def assert_parameter_bounds_are_numeric(parameter_df):
@@ -127,7 +129,6 @@ def assert_parameter_bounds_are_numeric(parameter_df):
     Check if all entries in the lowerBound and upperBound columns of the
     parameter table are numeric.
     """
-
     parameter_df["lowerBound"].apply(float).all()
     parameter_df["upperBound"].apply(float).all()
 
@@ -159,8 +160,8 @@ def assert_parameter_estimate_is_boolean(parameter_df):
 def measurement_table_has_timepoint_specific_mappings(measurement_df):
     """
     Are there time-point or replicate specific parameter assignments in the
-    measurement table."""
-
+    measurement table.
+    """
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(
             numbers.Number,)), 'noiseParameters'] = np.nan
