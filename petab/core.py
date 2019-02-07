@@ -47,12 +47,10 @@ class Problem:
         self.parameter_file = parameter_file
         self.sbml_file = sbml_file
 
-        self.condition_df = get_condition_df(self.condition_file)
-        self.measurement_df = get_measurement_df(self.measurement_file)
-        if self.parameter_file:
-            self.parameter_df = get_parameter_df(self.parameter_file)
-        else:
-            self.parameter_df = None
+        self.condition_df = None
+        self.measurement_df = None
+        self.parameter_df = None
+        self._load_dfs()
 
         self.sbml_reader = None
         self.sbml_document = None
@@ -61,13 +59,21 @@ class Problem:
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        for key in ['sbml_reader', 'sbml_document', 'sbml_model']:
+        # libsbml stuff cannot be serialized
+        # dfs can be recreated
+        for key in ['sbml_reader', 'sbml_document', 'sbml_model',
+                    'condition_df', 'measurement_df', 'parameter_df']:
             state.pop(key)
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
+
+        # load sbml from file name
         self._load_sbml()
+
+        # reload dfs
+        self._load_dfs()
 
     @staticmethod
     def from_folder(folder):
@@ -88,11 +94,21 @@ class Problem:
             model_name=model_name
         )
 
+    def _load_dfs(self):
+        """
+        Load condition, measurement, and parameter dataframes.
+        """
+        self.condition_df = get_condition_df(self.condition_file)
+        self.measurement_df = get_measurement_df(self.measurement_file)
+        if self.parameter_file:
+            self.parameter_df = get_parameter_df(self.parameter_file)
+        else:
+            self.parameter_df = None
+
     def _load_sbml(self):
         """
         Load SBML model.
         """
-
         # sbml_reader and sbml_document must be kept alive.
         # Otherwise operations on sbml_model will segfault
         self.sbml_reader = libsbml.SBMLReader()
