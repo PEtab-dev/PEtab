@@ -5,6 +5,7 @@ import sys
 import os
 import libsbml
 import numpy as np
+import pickle
 
 sys.path.append(os.getcwd())
 import petab
@@ -19,6 +20,65 @@ def condition_df_2_conditions():
     })
     condition_df.set_index('conditionId', inplace=True)
     return condition_df
+
+
+@pytest.fixture
+def petab_problem():
+    # create test model
+    document = libsbml.SBMLDocument(3, 1)
+    model = document.createModel()
+    model.setTimeUnits("second")
+    model.setExtentUnits("mole")
+    model.setSubstanceUnits('mole')
+
+    p = model.createParameter()
+    p.setId('fixedParameter1')
+    p.setName('FixedParameter1')
+
+    p = model.createParameter()
+    p.setId('observable_1')
+    p.setName('Observable 1')
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        sbml_file_name = fh.name
+        fh.write(libsbml.writeSBMLToString(document))
+
+    measurement_df = pd.DataFrame(data={
+        'observableId': ['obs1', 'obs2'],
+        'observableParameters': ['', 'p1;p2'],
+        'noiseParameters': ['p3;p4', 'p5']
+    })
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        measurement_file_name = fh.name
+        measurement_df.to_csv(fh, sep='\t', index=False)
+
+    condition_df = pd.DataFrame(data={
+        'conditionId': ['condition1', 'condition2'],
+        'conditionName': ['', 'Condition 2'],
+        'fixedParameter1': [1.0, 2.0]
+    })
+    condition_df.set_index('conditionId', inplace=True)
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        condition_file_name = fh.name
+        condition_df.to_csv(fh, sep='\t', index=True)
+
+    parameter_df = pd.DataFrame(data={
+        'parameterId': ['dynamicParameter1', 'dynamicParameter2'],
+        'parameterName': ['', '...'],  # ...
+    })
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        parameter_file_name = fh.name
+        parameter_df.to_csv(fh, sep='\t', index=False)
+
+    problem = petab.Problem(sbml_file=sbml_file_name,
+                            measurement_file=measurement_file_name,
+                            condition_file=condition_file_name,
+                            parameter_file=parameter_file_name)
+
+    return problem
 
 
 def test_split_parameter_replacement_list():
@@ -85,57 +145,31 @@ def test_assignment_rules_to_dict():
     assert len(model.getListOfParameters()) == 0
 
 
-def test_optimization_problem(condition_df_2_conditions):
-    # create test model
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    model.setTimeUnits("second")
-    model.setExtentUnits("mole")
-    model.setSubstanceUnits('mole')
+def test_petab_problem(petab_problem):
+    """
+    Basic tests on petab problem.
+    """
+    assert petab_problem.get_constant_parameters() == ['fixedParameter1']
 
-    p = model.createParameter()
-    p.setId('fixedParameter1')
-    p.setName('FixedParameter1')
 
-    p = model.createParameter()
-    p.setId('observable_1')
-    p.setName('Observable 1')
+def test_serialization(petab_problem):
+    # serialize and back
+    petab_problem_recreated = pickle.loads(pickle.dumps(petab_problem))
 
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
-        sbml_file_name = fh.name
-        fh.write(libsbml.writeSBMLToString(document))
-
-    measurement_df = pd.DataFrame(data={
-        'observableId': ['obs1', 'obs2'],
-        'observableParameters': ['', 'p1;p2'],
-        'noiseParameters': ['p3;p4', 'p5']
-    })
-
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
-        measurement_file_name = fh.name
-        measurement_df.to_csv(fh, sep='\t', index=False)
-
-    condition_df = condition_df_2_conditions
-
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
-        condition_file_name = fh.name
-        condition_df.to_csv(fh, sep='\t', index=True)
-
-    parameter_df = pd.DataFrame(data={
-        'parameterId': ['dynamicParameter1', 'dynamicParameter2'],
-        'parameterName': ['', '...'],  # ...
-    })
-
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
-        parameter_file_name = fh.name
-        parameter_df.to_csv(fh, sep='\t', index=False)
-
-    problem = petab.Problem(sbml_file=sbml_file_name,
-                            measurement_file=measurement_file_name,
-                            condition_file=condition_file_name,
-                            parameter_file=parameter_file_name)
-
-    assert problem.get_constant_parameters() == ['fixedParameter1']
+    assert petab_problem_recreated.measurement_file == \
+        petab_problem.measurement_file
+    assert petab_problem_recreated.condition_file == \
+        petab_problem.condition_file
+    assert petab_problem_recreated.parameter_file == \
+        petab_problem.parameter_file
+    assert petab_problem_recreated.sbml_file == \
+        petab_problem.sbml_file
+    assert petab_problem_recreated.condition_df.equals(
+        petab_problem.condition_df)
+    assert petab_problem_recreated.measurement_df.equals(
+        petab_problem.measurement_df)
+    assert petab_problem_recreated.parameter_df.equals(
+        petab_problem.parameter_df)
 
 
 class TestGetSimulationToOptimizationParameterMapping(object):
