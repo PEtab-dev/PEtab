@@ -131,7 +131,8 @@ class Problem:
         return get_optimization_parameters(self.parameter_df)
 
     def get_dynamic_simulation_parameters(self):
-        return get_dynamic_simulation_parameters(self.sbml_model, self.parameter_df)
+        return get_dynamic_simulation_parameters(
+            self.sbml_model, self.parameter_df)
 
     def get_dynamic_parameters_from_sbml(self):
         """
@@ -185,7 +186,8 @@ class Problem:
         return [self.x_nominal[val] for val in self.x_fixed_indices]
 
     def get_simulation_conditions_from_measurement_df(self):
-        return get_simulation_conditions_from_measurement_df(self.measurement_df)
+        return get_simulation_conditions_from_measurement_df(
+            self.measurement_df)
 
     def get_optimization_to_simulation_parameter_mapping(self):
         """
@@ -236,7 +238,8 @@ def get_condition_df(condition_file_name):
     try:
         condition_df.set_index(['conditionId'], inplace=True)
     except KeyError:
-        raise KeyError('Condition table missing mandatory field `conditionId`.')
+        raise KeyError(
+            'Condition table missing mandatory field `conditionId`.')
 
     return condition_df
 
@@ -250,7 +253,8 @@ def get_parameter_df(parameter_file_name):
     try:
         parameter_df.set_index(['parameterId'], inplace=True)
     except KeyError:
-        raise KeyError('Parameter table missing mandatory field `parameterId`.')
+        raise KeyError(
+            'Parameter table missing mandatory field `parameterId`.')
 
     return parameter_df
 
@@ -382,7 +386,8 @@ def parameter_is_offset_parameter(parameter, formula):
 
 
 def get_simulation_conditions_from_measurement_df(measurement_df):
-    grouping_cols = get_notnull_columns(measurement_df,
+    grouping_cols = get_notnull_columns(
+        measurement_df,
         ['simulationConditionId', 'preequilibrationConditionId'])
     simulation_conditions = \
         measurement_df.groupby(grouping_cols).size().reset_index()
@@ -429,7 +434,7 @@ def get_optimization_to_simulation_parameter_mapping(
         if condition_id in measurement_df.simulationConditionId.values
     ]
 
-    #if par_opt_ids is None:
+    # if par_opt_ids is None:
     #    par_opt_ids = get_optimization_parameters(parameter_df)
     if par_sim_ids is None:
         par_sim_ids = get_dynamic_simulation_parameters(sbml_model,
@@ -495,7 +500,7 @@ def get_optimization_to_simulation_scale_mapping(
     n_par_sim = len(mapping_par_opt_to_par_sim[0])
 
     par_opt_ids_from_df = list(parameter_df.reset_index()['parameterId'])
-    par_opt_scales_from_df =list(parameter_df.reset_index()['parameterScale'])
+    par_opt_scales_from_df = list(parameter_df.reset_index()['parameterScale'])
 
     mapping_scale_opt_to_scale_sim = []
 
