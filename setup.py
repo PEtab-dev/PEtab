@@ -34,6 +34,6 @@ setup(name='petab',
                         'matplotlib>=2.2.3',
                         'python-libsbml>=5.17.0',
                         'sympy'],
-      tests_require=['flake8', 'pickle', 'pytest'],
+      tests_require=['flake8', 'pytest'],
       python_requires='>=3.6'
       )
