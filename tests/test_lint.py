@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 sys.path.append(os.getcwd())
-from petab import lint
+from petab import lint  # noqa: E402
 
 
 def test_assert_measured_observables_present_in_model():
@@ -32,7 +32,8 @@ def test_condition_table_is_parameter_free():
 
     assert lint.condition_table_is_parameter_free(condition_df) is True
 
-    condition_df.fixedParameter1 =  condition_df.fixedParameter1.values.astype(int)
+    condition_df.fixedParameter1 = \
+        condition_df.fixedParameter1.values.astype(int)
 
     assert lint.condition_table_is_parameter_free(condition_df) is True
 
@@ -53,11 +54,13 @@ def test_measurement_table_has_timepoint_specific_mappings():
         'noiseParameters': ['', '']
     })
 
-    assert lint.measurement_table_has_timepoint_specific_mappings(measurement_df) is True
+    assert lint.measurement_table_has_timepoint_specific_mappings(
+        measurement_df) is True
 
     measurement_df.loc[1, 'observableId'] = 'obs2'
 
-    assert lint.measurement_table_has_timepoint_specific_mappings(measurement_df) is False
+    assert lint.measurement_table_has_timepoint_specific_mappings(
+        measurement_df) is False
 
 
 def test_assert_overrides_match_parameter_count():
@@ -67,7 +70,8 @@ def test_assert_overrides_match_parameter_count():
             'formula': '1.0'
         },
         'observable_2obsPar0noisePar': {
-            'formula': 'observableParameter1_2obsPar0noisePar + observableParameter2_2obsPar0noisePar'
+            'formula': 'observableParameter1_2obsPar0noisePar + '
+                       'observableParameter2_2obsPar0noisePar'
         }
     }
     noise = {
@@ -91,22 +95,27 @@ def test_assert_overrides_match_parameter_count():
     # Sigma override
     measurement_df = measurement_df_orig.copy()
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride'
-    lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
+    lint.assert_overrides_match_parameter_count(
+        measurement_df, observables, noise)
 
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride;oneTooMuch'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
+        lint.assert_overrides_match_parameter_count(
+            measurement_df, observables, noise)
 
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride'
     measurement_df.loc[1, 'noiseParameters'] = 'oneTooMuch'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
+        lint.assert_overrides_match_parameter_count(
+            measurement_df, observables, noise)
 
     # Observable override
     measurement_df = measurement_df_orig.copy()
     measurement_df.loc[1, 'observableParameters'] = 'override1;override2'
-    lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
+    lint.assert_overrides_match_parameter_count(
+        measurement_df, observables, noise)
 
     measurement_df.loc[1, 'observableParameters'] = 'oneMissing'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(measurement_df, observables, noise)
+        lint.assert_overrides_match_parameter_count(
+            measurement_df, observables, noise)

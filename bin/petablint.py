@@ -28,9 +28,9 @@ def parse_cli_args():
 
     # or with model name, following default naming
     parser.add_argument('-n', '--model-name', dest='model_name',
-                       help='Model name where all files are in the working '
-                            'directory and follow PEtab naming convention. '
-                            'Specifying -[smcp] will override defaults')
+                        help='Model name where all files are in the working '
+                        'directory and follow PEtab naming convention. '
+                        'Specifying -[smcp] will override defaults')
     args = parser.parse_args()
 
     if args.model_name:
@@ -51,7 +51,8 @@ def parse_cli_args():
             (not args.sbml_file_name
              or not args.condition_file_name
              or not args.measurement_file_name):
-        # TODO: we should also allow running (limited) tests on a subset of files
+        # TODO: we should also allow running (limited) tests on a subset of
+        # files
         parser.error('When not specifying a model name, sbml, '
                      'condition and measurement file must be specified')
 

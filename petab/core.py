@@ -11,7 +11,8 @@ from . import lint
 
 
 class Problem:
-    """PEtab parameter estimation problem as defined by
+    """
+    PEtab parameter estimation problem as defined by
     - sbml model
     - condition table
     - measurement table
@@ -47,17 +48,33 @@ class Problem:
         self.parameter_file = parameter_file
         self.sbml_file = sbml_file
 
-        self.condition_df = get_condition_df(self.condition_file)
-        self.measurement_df = get_measurement_df(self.measurement_file)
-        if self.parameter_file:
-            self.parameter_df = get_parameter_df(self.parameter_file)
-        else:
-            self.parameter_df = None
+        self.condition_df = None
+        self.measurement_df = None
+        self.parameter_df = None
+        self._load_dfs()
 
         self.sbml_reader = None
         self.sbml_document = None
         self.sbml_model = None
         self._load_sbml()
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # libsbml stuff cannot be serialized
+        # dfs can be recreated
+        for key in ['sbml_reader', 'sbml_document', 'sbml_model',
+                    'condition_df', 'measurement_df', 'parameter_df']:
+            state.pop(key)
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+        # load sbml from file name
+        self._load_sbml()
+
+        # reload dfs
+        self._load_dfs()
 
     @staticmethod
     def from_folder(folder):
@@ -78,11 +95,21 @@ class Problem:
             model_name=model_name
         )
 
+    def _load_dfs(self):
+        """
+        Load condition, measurement, and parameter dataframes.
+        """
+        self.condition_df = get_condition_df(self.condition_file)
+        self.measurement_df = get_measurement_df(self.measurement_file)
+        if self.parameter_file:
+            self.parameter_df = get_parameter_df(self.parameter_file)
+        else:
+            self.parameter_df = None
+
     def _load_sbml(self):
         """
         Load SBML model.
         """
-
         # sbml_reader and sbml_document must be kept alive.
         # Otherwise operations on sbml_model will segfault
         self.sbml_reader = libsbml.SBMLReader()
@@ -105,7 +132,8 @@ class Problem:
         return get_optimization_parameters(self.parameter_df)
 
     def get_dynamic_simulation_parameters(self):
-        return get_dynamic_simulation_parameters(self.sbml_model, self.parameter_df)
+        return get_dynamic_simulation_parameters(
+            self.sbml_model, self.parameter_df)
 
     def get_dynamic_parameters_from_sbml(self):
         """
@@ -159,7 +187,8 @@ class Problem:
         return [self.x_nominal[val] for val in self.x_fixed_indices]
 
     def get_simulation_conditions_from_measurement_df(self):
-        return get_simulation_conditions_from_measurement_df(self.measurement_df)
+        return get_simulation_conditions_from_measurement_df(
+            self.measurement_df)
 
     def get_optimization_to_simulation_parameter_mapping(self):
         """
@@ -210,7 +239,8 @@ def get_condition_df(condition_file_name):
     try:
         condition_df.set_index(['conditionId'], inplace=True)
     except KeyError:
-        raise KeyError('Condition table missing mandatory field `conditionId`.')
+        raise KeyError(
+            'Condition table missing mandatory field `conditionId`.')
 
     return condition_df
 
@@ -224,7 +254,8 @@ def get_parameter_df(parameter_file_name):
     try:
         parameter_df.set_index(['parameterId'], inplace=True)
     except KeyError:
-        raise KeyError('Parameter table missing mandatory field `parameterId`.')
+        raise KeyError(
+            'Parameter table missing mandatory field `parameterId`.')
 
     return parameter_df
 
@@ -356,7 +387,8 @@ def parameter_is_offset_parameter(parameter, formula):
 
 
 def get_simulation_conditions_from_measurement_df(measurement_df):
-    grouping_cols = get_notnull_columns(measurement_df,
+    grouping_cols = get_notnull_columns(
+        measurement_df,
         ['simulationConditionId', 'preequilibrationConditionId'])
     simulation_conditions = \
         measurement_df.groupby(grouping_cols).size().reset_index()
@@ -403,7 +435,7 @@ def get_optimization_to_simulation_parameter_mapping(
         if condition_id in measurement_df.simulationConditionId.values
     ]
 
-    #if par_opt_ids is None:
+    # if par_opt_ids is None:
     #    par_opt_ids = get_optimization_parameters(parameter_df)
     if par_sim_ids is None:
         par_sim_ids = get_dynamic_simulation_parameters(sbml_model,
@@ -469,7 +501,7 @@ def get_optimization_to_simulation_scale_mapping(
     n_par_sim = len(mapping_par_opt_to_par_sim[0])
 
     par_opt_ids_from_df = list(parameter_df.reset_index()['parameterId'])
-    par_opt_scales_from_df =list(parameter_df.reset_index()['parameterScale'])
+    par_opt_scales_from_df = list(parameter_df.reset_index()['parameterScale'])
 
     mapping_scale_opt_to_scale_sim = []
 
