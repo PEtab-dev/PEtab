@@ -2,9 +2,9 @@ import pandas as pd
 import generate_experimentId
 
 
-DataFilePath = "Sobotta_Frontiers2017/measurementData_Sobotta_Frontiers2017.tsv"
-ConditionFilePath = "Sobotta_Frontiers2017/experimentalCondition_Sobotta_Frontiers2017.tsv"
-
+DataFilePath = "https://raw.githubusercontent.com/LoosC/Benchmark-Models/hackathon/" \
+               "hackathon_contributions_new_data_format/" \
+               "Sobotta_Frontiers2017/measurementData_Sobotta_Frontiers2017.tsv"
 
 measurement_data = pd.DataFrame.from_csv(
     DataFilePath, sep="\t", index_col=None)
