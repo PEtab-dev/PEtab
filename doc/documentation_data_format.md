@@ -204,6 +204,10 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   `normal`, the specified `noiseParameters` will be interpreted as standard 
   deviation (*not* variance).
 
+- `experimentId` [STRING, OPTIONAL]
+
+    Experiment ID which is used for grouping in the visualization of the data. Measurements with the same `experimentId` are plotted together. Usually, measurements which were collected in the same experiment (at the same day) have the same `experimentId`. 
+
 ## Parameter table
 
 A tab-separated value text file containing information on model parameters.
