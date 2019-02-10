@@ -18,6 +18,7 @@ def _check_df(df, req_cols, name):
 def assert_presence_of_empty_spaces(names_list, name):
     r = re.compile("\w+\s$")
     names_with_empty_string = list(filter(r.match, names_list))
+
     if len(names_with_empty_string) > 0:
         if name in ["condition", "parameter", "measurement"]:
             raise AssertionError(
@@ -35,6 +36,12 @@ def check_condition_df(df):
             f"Condition table has wrong index {df.index.name}."
             "expected 'conditionId'.")
 
+    assert_presence_of_empty_spaces(df.index.values, "conditionId")
+
+    for column_name in req_cols:
+        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+            assert_presence_of_empty_spaces(df[column_name].values, column_name)
+
 
 def check_measurement_df(df):
     req_cols = [
@@ -42,6 +49,11 @@ def check_measurement_df(df):
         "measurement", "time", "observableParameters", "noiseParameters",
         "observableTransformation"
     ]
+
+    for column_name in req_cols:
+        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+            assert_presence_of_empty_spaces(df[column_name].values, column_name)
+
     _check_df(df, req_cols, "measurement")
 
 
@@ -57,12 +69,17 @@ def check_parameter_df(df):
             f"Parameter table has wrong index {df.index.name}."
             "expected 'parameterId'.")
 
+    assert_presence_of_empty_spaces(df.index.values, "parameterId")
+
+    for column_name in req_cols:
+        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+            assert_presence_of_empty_spaces(df[column_name].values, column_name)
+
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
     """Check if all observables in measurement files have been specified in
     the model"""
 
-    assert_presence_of_empty_spaces(measurement_df.observableId.values, "observableId")
     measurement_observables = [f'observable_{x}' for x in
                                measurement_df.observableId.values]
 
@@ -107,7 +124,6 @@ def assert_parameter_id_is_string(parameter_df):
     are string and not empty.
     """
 
-    assert_presence_of_empty_spaces(parameter_df.index.values, "parameterId")
     for parameterId in parameter_df:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
@@ -132,7 +148,7 @@ def assert_parameter_scale_is_valid(parameter_df):
     are 'lin' for linear, 'log' for natural logarithm or 'log10' for base 10
     logarithm.
     """
-    assert_presence_of_empty_spaces(parameter_df.parameterScale.values, "parameterScale")
+
     for parameterScale in parameter_df['parameterScale']:
         if parameterScale not in ['lin', 'log', 'log10']:
             raise AssertionError(
