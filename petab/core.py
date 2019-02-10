@@ -235,6 +235,7 @@ def get_condition_df(condition_file_name):
     """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
+    lint.assert_empty_spaces_in_column_names(condition_df, "condition")
 
     try:
         condition_df.set_index(['conditionId'], inplace=True)
@@ -251,6 +252,8 @@ def get_parameter_df(parameter_file_name):
     """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
+    lint.assert_empty_spaces_in_column_names(parameter_df, "parameter")
+
     try:
         parameter_df.set_index(['parameterId'], inplace=True)
     except KeyError:
@@ -266,6 +269,7 @@ def get_measurement_df(measurement_file_name):
     """
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
+    lint.assert_empty_spaces_in_column_names(measurement_df, "measurement")
 
     return measurement_df
 

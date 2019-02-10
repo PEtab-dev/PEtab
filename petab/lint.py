@@ -5,6 +5,7 @@ from . import core
 import numpy as np
 import numbers
 import libsbml
+import re
 
 
 def _check_df(df, req_cols, name):
@@ -14,6 +15,13 @@ def _check_df(df, req_cols, name):
         raise AssertionError(
             f"Dataframe {name} requires the columns {missing_cols}.")
 
+def assert_empty_spaces_in_column_names(df, name):
+    cols_set = df.columns.values
+    r = re.compile("\w+\s$")
+    names_with_empty_string = list(filter(r.match, cols_set))
+    if len(names_with_empty_string) > 0:
+        raise AssertionError(
+            f"Empty spaces found at end of string in column names of {name} file.")
 
 def check_condition_df(df):
     req_cols = []
