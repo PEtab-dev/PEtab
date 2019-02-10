@@ -15,17 +15,17 @@ def _check_df(df, req_cols, name):
         raise AssertionError(
             f"Dataframe {name} requires the columns {missing_cols}.")
 
-def assert_presence_of_empty_spaces(names_list, name):
+def assert_no_trailing_whitespace(names_list, name):
     r = re.compile("\w+\s$")
     names_with_empty_string = list(filter(r.match, names_list))
 
     if len(names_with_empty_string) > 0:
         if name in ["condition", "parameter", "measurement"]:
             raise AssertionError(
-                f"Empty spaces found at end of string in column names of {name} file.")
+                f"Trailing whitespace in column names of {name} file.")
         else:
             raise AssertionError(
-                f"Empty spaces found at end of string in entries of {name} column.")
+                f"Trailing whitespace in entries of {name} column.")
 
 def check_condition_df(df):
     req_cols = []
@@ -36,11 +36,11 @@ def check_condition_df(df):
             f"Condition table has wrong index {df.index.name}."
             "expected 'conditionId'.")
 
-    assert_presence_of_empty_spaces(df.index.values, "conditionId")
+    assert_no_trailing_whitespace(df.index.values, "conditionId")
 
     for column_name in req_cols:
         if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
-            assert_presence_of_empty_spaces(df[column_name].values, column_name)
+            assert_no_trailing_whitespace(df[column_name].values, column_name)
 
 
 def check_measurement_df(df):
@@ -52,7 +52,7 @@ def check_measurement_df(df):
 
     for column_name in req_cols:
         if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
-            assert_presence_of_empty_spaces(df[column_name].values, column_name)
+            assert_no_trailing_whitespace(df[column_name].values, column_name)
 
     _check_df(df, req_cols, "measurement")
 
@@ -69,11 +69,11 @@ def check_parameter_df(df):
             f"Parameter table has wrong index {df.index.name}."
             "expected 'parameterId'.")
 
-    assert_presence_of_empty_spaces(df.index.values, "parameterId")
+    assert_no_trailing_whitespace(df.index.values, "parameterId")
 
     for column_name in req_cols:
         if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
-            assert_presence_of_empty_spaces(df[column_name].values, column_name)
+            assert_no_trailing_whitespace(df[column_name].values, column_name)
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
