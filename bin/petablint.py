@@ -5,7 +5,6 @@
 import argparse
 import petab
 import os
-import numpy as np
 
 def parse_cli_args():
     """Parse command line arguments"""
