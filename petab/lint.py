@@ -15,13 +15,16 @@ def _check_df(df, req_cols, name):
         raise AssertionError(
             f"Dataframe {name} requires the columns {missing_cols}.")
 
-def assert_empty_spaces_in_column_names(df, name):
-    cols_set = df.columns.values
+def assert_presence_of_empty_spaces(names_list, name):
     r = re.compile("\w+\s$")
-    names_with_empty_string = list(filter(r.match, cols_set))
+    names_with_empty_string = list(filter(r.match, names_list))
     if len(names_with_empty_string) > 0:
-        raise AssertionError(
-            f"Empty spaces found at end of string in column names of {name} file.")
+        if name in ["condition", "parameter", "measurement"]:
+            raise AssertionError(
+                f"Empty spaces found at end of string in column names of {name} file.")
+        else:
+            raise AssertionError(
+                f"Empty spaces found at end of string in entries of {name} column.")
 
 def check_condition_df(df):
     req_cols = []
@@ -58,6 +61,8 @@ def check_parameter_df(df):
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
     """Check if all observables in measurement files have been specified in
     the model"""
+
+    assert_presence_of_empty_spaces(measurement_df.observableId.values, "observableId")
     measurement_observables = [f'observable_{x}' for x in
                                measurement_df.observableId.values]
 
@@ -101,6 +106,8 @@ def assert_parameter_id_is_string(parameter_df):
     Check if all entries in the parameterId column of the parameter table
     are string and not empty.
     """
+
+    assert_presence_of_empty_spaces(parameter_df.index.values, "parameterId")
     for parameterId in parameter_df:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
