@@ -4,7 +4,8 @@
 
 import argparse
 import petab
-
+import os
+import numpy as np
 
 def parse_cli_args():
     """Parse command line arguments"""
@@ -69,12 +70,34 @@ def main():
         print('\tMeasurement table:', args.measurement_file_name)
         print('\tParameter table:', args.parameter_file_name)
 
-    problem = petab.Problem(args.sbml_file_name,
+    default_files = [os.path.isfile(args.sbml_file_name),
+                     os.path.isfile(args.condition_file_name),
+                     os.path.isfile(args.measurement_file_name),
+                     os.path.isfile(args.parameter_file_name)]
+
+    not_found_files = [num for num, file_exists in enumerate(default_files) if not file_exists]
+
+    tmp = list(vars(args).values())
+    tmp = tmp[1:-1]  # remove first index (True)
+
+    if len(not_found_files) == 0:
+        problem = petab.Problem(args.sbml_file_name,
                             args.condition_file_name,
                             args.measurement_file_name,
                             args.parameter_file_name)
 
-    petab.lint.lint_problem(problem)
+        petab.lint.lint_problem(problem)
+
+    elif len(not_found_files) == len(default_files):
+        print("All files missing")
+
+    else:
+        if args.verbose:
+            print('Missing files found:')
+            for element in not_found_files:
+                print('* ', tmp[element])
+
+        # TO DO: continue petab running
 
 
 if __name__ == '__main__':
