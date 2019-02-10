@@ -559,10 +559,9 @@ def split_parameter_replacement_list(list_string):
 
     def to_float_if_float(x):
         try:
-            ret = float(x)
+            return float(x)
         except ValueError:
-            ret = x
-        return ret
+            return x
     if isinstance(list_string, numbers.Number):
         # Empty cells in pandas might be turned into nan
         # We might want to allow nan as replacement...
