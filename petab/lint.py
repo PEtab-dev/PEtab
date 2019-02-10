@@ -132,6 +132,7 @@ def assert_parameter_scale_is_valid(parameter_df):
     are 'lin' for linear, 'log' for natural logarithm or 'log10' for base 10
     logarithm.
     """
+    assert_presence_of_empty_spaces(parameter_df.parameterScale.values, "parameterScale")
     for parameterScale in parameter_df['parameterScale']:
         if parameterScale not in ['lin', 'log', 'log10']:
             raise AssertionError(
