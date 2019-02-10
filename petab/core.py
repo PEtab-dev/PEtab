@@ -425,7 +425,6 @@ def get_optimization_to_simulation_parameter_mapping(
         these are generated from the files automatically. However, passing
         them can ensure having the correct order.
     """
-
     perform_mapping_checks(condition_df, measurement_df)
 
     simulation_conditions = \
@@ -507,7 +506,6 @@ def get_optimization_to_simulation_scale_mapping(
 
     # iterate over conditions
     for j_condition in range(0, n_condition):
-
         # prepare vector of scales for j_condition
         scales_for_j_condition = []
 
@@ -526,8 +524,8 @@ def get_optimization_to_simulation_scale_mapping(
             # append to scales for condition j
             scales_for_j_condition.append(scale)
 
-    # append to mapping
-    mapping_scale_opt_to_scale_sim.append(scales_for_j_condition)
+        # append to mapping
+        mapping_scale_opt_to_scale_sim.append(scales_for_j_condition)
 
     return mapping_scale_opt_to_scale_sim
 
@@ -564,7 +562,6 @@ def split_parameter_replacement_list(list_string):
             return float(x)
         except ValueError:
             return x
-
     if isinstance(list_string, numbers.Number):
         # Empty cells in pandas might be turned into nan
         # We might want to allow nan as replacement...
