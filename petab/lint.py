@@ -17,11 +17,11 @@ def _check_df(df, req_cols, name):
             f"Dataframe {name} requires the columns {missing_cols}.")
 
 def assert_no_trailing_whitespace(names_list, name):
-    r = re.compile("\w+\s$")
+    r = re.compile(r'\w+\s$')
     names_with_empty_string = list(filter(r.match, names_list))
 
     if len(names_with_empty_string) > 0:
-        if name in ["condition", "parameter", "measurement"]:
+        if name in ["condition", "parameter", "measurement", "test"]:
             raise AssertionError(
                 f"Trailing whitespace in column names of {name} file.")
         else:
