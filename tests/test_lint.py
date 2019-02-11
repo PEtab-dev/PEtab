@@ -123,8 +123,6 @@ def test_assert_overrides_match_parameter_count():
 
 def test_assert_no_trailing_whitespace():
 
-    col_names = ["testId", "testText", "testNumeric"]
-
     test_df = pd.DataFrame(data={
         'testId': ['name1 ', 'name2'],
         'testText ': ['name1', 'name2'],
