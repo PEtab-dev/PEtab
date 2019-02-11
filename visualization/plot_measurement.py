@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def plot_measurementdata(DataFilePath, ConditionFilePath):
     '''
     plot measurement data grouped by variable ID
@@ -51,7 +52,7 @@ def plot_measurementdata(DataFilePath, ConditionFilePath):
 
             condition_name = experimental_condition.conditionName[val_unicon]
             ax.plot(time_unicon, measurement_unicon,
-                    label=condition_name+'-'+'experiment')
+                    label=condition_name + '-' + 'experiment')
             ax.set_xlabel('time')
             ax.set_ylabel('measurement')
             ax.set_title(val_uniobs)

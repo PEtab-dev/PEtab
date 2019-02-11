@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-def plot_simulationdata(DataFilePath, ConditionFilePath, ax):
 
+def plot_simulationdata(DataFilePath, ConditionFilePath, ax):
     '''
     plot simulation data grouped by variable ID
 
@@ -49,7 +49,7 @@ def plot_simulationdata(DataFilePath, ConditionFilePath, ax):
 
             condition_name = experimental_condition.conditionName[val_unicon]
             ax[i_uniobs].plot(time_unicon, measurement_unicon,
-                           label=condition_name+'_'+'simulation')
+                              label=condition_name + '_' + 'simulation')
 
         ax[i_uniobs].legend()
     return ax
