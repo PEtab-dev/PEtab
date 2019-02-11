@@ -119,3 +119,20 @@ def test_assert_overrides_match_parameter_count():
     with pytest.raises(AssertionError):
         lint.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
+
+
+def test_assert_no_trailing_whitespace():
+
+    test_df = pd.DataFrame(data={
+        'testId': ['name1 ', 'name2'],
+        'testText ': ['name1', 'name2'],
+        'testNumeric': [1.0, 2.0]
+    })
+
+    with pytest.raises(AssertionError):
+        lint.assert_no_trailing_whitespace(
+            test_df.columns.values, "test")
+
+    with pytest.raises(AssertionError):
+        lint.assert_no_trailing_whitespace(
+            test_df['testId'].values, "testId")

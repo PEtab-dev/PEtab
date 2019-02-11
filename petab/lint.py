@@ -5,6 +5,7 @@ from . import core
 import numpy as np
 import numbers
 import libsbml
+import re
 import copy
 
 
@@ -16,6 +17,19 @@ def _check_df(df, req_cols, name):
             f"Dataframe {name} requires the columns {missing_cols}.")
 
 
+def assert_no_trailing_whitespace(names_list, name):
+    r = re.compile(r'\w+\s$')
+    names_with_empty_string = list(filter(r.match, names_list))
+
+    if len(names_with_empty_string) > 0:
+        if name in ["condition", "parameter", "measurement", "test"]:
+            raise AssertionError(
+                f"Trailing whitespace in column names of {name} file.")
+        else:
+            raise AssertionError(
+                f"Trailing whitespace in entries of {name} column.")
+
+
 def check_condition_df(df):
     req_cols = []
     _check_df(df, req_cols, "condition")
@@ -25,6 +39,12 @@ def check_condition_df(df):
             f"Condition table has wrong index {df.index.name}."
             "expected 'conditionId'.")
 
+    assert_no_trailing_whitespace(df.index.values, "conditionId")
+
+    for column_name in req_cols:
+        if not np.issubdtype(df[column_name].dtype, np.number):
+            assert_no_trailing_whitespace(df[column_name].values, column_name)
+
 
 def check_measurement_df(df):
     req_cols = [
@@ -32,6 +52,11 @@ def check_measurement_df(df):
         "measurement", "time", "observableParameters", "noiseParameters",
         "observableTransformation"
     ]
+
+    for column_name in req_cols:
+        if not np.issubdtype(df[column_name].dtype, np.number):
+            assert_no_trailing_whitespace(df[column_name].values, column_name)
+
     _check_df(df, req_cols, "measurement")
 
 
@@ -47,10 +72,18 @@ def check_parameter_df(df):
             f"Parameter table has wrong index {df.index.name}."
             "expected 'parameterId'.")
 
+    assert_no_trailing_whitespace(df.index.values, "parameterId")
+
+    for column_name in req_cols:
+        if df[column_name].dtype != np.dtype(
+                np.float) and df[column_name].dtype != np.dtype(np.int):
+            assert_no_trailing_whitespace(df[column_name].values, column_name)
+
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
     """Check if all observables in measurement files have been specified in
     the model"""
+
     measurement_observables = [f'observable_{x}' for x in
                                measurement_df.observableId.values]
 
@@ -94,6 +127,7 @@ def assert_parameter_id_is_string(parameter_df):
     Check if all entries in the parameterId column of the parameter table
     are string and not empty.
     """
+
     for parameterId in parameter_df:
         if isinstance(parameterId, str):
             if parameterId[0].isdigit():
@@ -118,6 +152,7 @@ def assert_parameter_scale_is_valid(parameter_df):
     are 'lin' for linear, 'log' for natural logarithm or 'log10' for base 10
     logarithm.
     """
+
     for parameterScale in parameter_df['parameterScale']:
         if parameterScale not in ['lin', 'log', 'log10']:
             raise AssertionError(
