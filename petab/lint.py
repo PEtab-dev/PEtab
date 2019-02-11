@@ -40,7 +40,7 @@ def check_condition_df(df):
     assert_no_trailing_whitespace(df.index.values, "conditionId")
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+        if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
 
@@ -52,7 +52,7 @@ def check_measurement_df(df):
     ]
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+        if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
     _check_df(df, req_cols, "measurement")
