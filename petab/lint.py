@@ -6,6 +6,7 @@ import numpy as np
 import numbers
 import libsbml
 import re
+import copy
 
 
 def _check_df(df, req_cols, name):
@@ -194,6 +195,9 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     Are there time-point or replicate specific parameter assignments in the
     measurement table.
     """
+    # since we edit it, copy it first
+    measurement_df = copy.deepcopy(measurement_df)
+
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(
             numbers.Number,)), 'noiseParameters'] = np.nan
