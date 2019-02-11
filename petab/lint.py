@@ -18,11 +18,11 @@ def _check_df(df, req_cols, name):
 
 
 def assert_no_trailing_whitespace(names_list, name):
-    r = re.compile(r"\w+\s$")
+    r = re.compile(r'\w+\s$')
     names_with_empty_string = list(filter(r.match, names_list))
 
     if len(names_with_empty_string) > 0:
-        if name in ["condition", "parameter", "measurement"]:
+        if name in ["condition", "parameter", "measurement", "test"]:
             raise AssertionError(
                 f"Trailing whitespace in column names of {name} file.")
         else:
@@ -42,8 +42,7 @@ def check_condition_df(df):
     assert_no_trailing_whitespace(df.index.values, "conditionId")
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(
-                np.float) and df[column_name].dtype != np.dtype(np.int):
+        if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
 
@@ -55,8 +54,7 @@ def check_measurement_df(df):
     ]
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(
-                np.float) and df[column_name].dtype != np.dtype(np.int):
+        if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
     _check_df(df, req_cols, "measurement")
