@@ -6,6 +6,7 @@ import argparse
 import petab
 import os
 
+
 def parse_cli_args():
     """Parse command line arguments"""
 
@@ -74,16 +75,17 @@ def main():
                      os.path.isfile(args.measurement_file_name),
                      os.path.isfile(args.parameter_file_name)]
 
-    not_found_files = [num for num, file_exists in enumerate(default_files) if not file_exists]
+    not_found_files = [num for num, file_exists in enumerate(
+        default_files) if not file_exists]
 
     tmp = list(vars(args).values())
     tmp = tmp[1:-1]  # remove first index (True)
 
     if len(not_found_files) == 0:
         problem = petab.Problem(args.sbml_file_name,
-                            args.condition_file_name,
-                            args.measurement_file_name,
-                            args.parameter_file_name)
+                                args.condition_file_name,
+                                args.measurement_file_name,
+                                args.parameter_file_name)
 
         petab.lint.lint_problem(problem)
 

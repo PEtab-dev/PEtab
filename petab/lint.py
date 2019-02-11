@@ -16,8 +16,9 @@ def _check_df(df, req_cols, name):
         raise AssertionError(
             f"Dataframe {name} requires the columns {missing_cols}.")
 
+
 def assert_no_trailing_whitespace(names_list, name):
-    r = re.compile("\w+\s$")
+    r = re.compile(r"\w+\s$")
     names_with_empty_string = list(filter(r.match, names_list))
 
     if len(names_with_empty_string) > 0:
@@ -27,6 +28,7 @@ def assert_no_trailing_whitespace(names_list, name):
         else:
             raise AssertionError(
                 f"Trailing whitespace in entries of {name} column.")
+
 
 def check_condition_df(df):
     req_cols = []
@@ -40,7 +42,8 @@ def check_condition_df(df):
     assert_no_trailing_whitespace(df.index.values, "conditionId")
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+        if df[column_name].dtype != np.dtype(
+                np.float) and df[column_name].dtype != np.dtype(np.int):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
 
@@ -52,7 +55,8 @@ def check_measurement_df(df):
     ]
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+        if df[column_name].dtype != np.dtype(
+                np.float) and df[column_name].dtype != np.dtype(np.int):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
     _check_df(df, req_cols, "measurement")
@@ -73,7 +77,8 @@ def check_parameter_df(df):
     assert_no_trailing_whitespace(df.index.values, "parameterId")
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(np.float) and df[column_name].dtype != np.dtype(np.int):
+        if df[column_name].dtype != np.dtype(
+                np.float) and df[column_name].dtype != np.dtype(np.int):
             assert_no_trailing_whitespace(df[column_name].values, column_name)
 
 
