@@ -8,5 +8,6 @@ DataFilePath = "https://raw.githubusercontent.com/LoosC/Benchmark-Models/" \
 measurement_data = pd.DataFrame.from_csv(
     DataFilePath, sep="\t", index_col=None)
 
-measurement_data = generate_experimentId.generate_experimentId \
-    (measurement_data)
+measurement_data = generate_experimentId.generate_experimentId(
+    measurement_data
+)

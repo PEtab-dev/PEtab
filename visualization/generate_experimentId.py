@@ -54,8 +54,9 @@ def generate_experimentId(measurement_data):
     # all numeric values in noiseParameters are temporarily set to 0 to be
     # treated the same
     tmp_noiseParameters = noiseParameters
-    tmp_noiseParameters[np.where
-    (isnumeric(noiseParameters, numbers.Number))] = 0
+    tmp_noiseParameters[
+        np.where(isnumeric(noiseParameters, numbers.Number))
+    ] = 0
 
     # add new column for experimentId
     measurement_data = measurement_data.assign(
