@@ -413,7 +413,8 @@ def get_optimization_to_simulation_parameter_mapping(
         parameter_df=None,
         sbml_model=None,
         par_opt_ids=None,
-        par_sim_ids=None):
+        par_sim_ids=None,
+        simulation_conditions=None):
     """
     Create array of mappings. The length of the array is n_conditions, each
     entry is an array of length n_par_sim, listing the optimization parameters
@@ -435,18 +436,16 @@ def get_optimization_to_simulation_parameter_mapping(
         Ids of the optimization and simulation parameters. If not passed,
         these are generated from the files automatically. However, passing
         them can ensure having the correct order.
+
+    simulation_conditions: pd.DataFrame
+        Table of simulation conditions as created by
+        `petab.get_simulation_conditions`.
     """
     perform_mapping_checks(condition_df, measurement_df)
 
-    simulation_conditions = \
-        get_simulation_conditions_from_measurement_df(measurement_df)
-    condition_ids = [
-        condition_id for condition_id in condition_df.index
-        if condition_id in measurement_df.simulationConditionId.values
-    ]
+    if simulation_conditions is None:
+        simulation_conditions = get_simulation_conditions(measurement_df)
 
-    # if par_opt_ids is None:
-    #    par_opt_ids = get_optimization_parameters(parameter_df)
     if par_sim_ids is None:
         par_sim_ids = get_dynamic_simulation_parameters(sbml_model,
                                                         parameter_df)
@@ -457,39 +456,86 @@ def get_optimization_to_simulation_parameter_mapping(
     # for the case of matching simulation and optimization parameter vector
     mapping = [par_sim_ids[:] for _ in range(0, n_conditions)]
 
-    sim_condition_id_to_idx = {
-        name: idx for idx, name in enumerate(condition_ids)
-    }
-    par_sim_id_to_idx = {
+    par_sim_id_to_ix = {
         name: idx for idx, name in enumerate(par_sim_ids)
     }
 
     def _apply_overrides(
-            overrides, condition_id, observable_id, override_type):
+            overrides, condition_ix, observable_id, override_type):
         """
         Apply parameter-overrides for observables and noises to mapping
         matrix.
         """
-        condition_idx = sim_condition_id_to_idx[condition_id]
         for i, override in enumerate(overrides):
-            par_sim_idx = par_sim_id_to_idx[
+            par_sim_ix = par_sim_id_to_ix[
                 f'{override_type}Parameter{i+1}_{observable_id}']
-            mapping[condition_idx][par_sim_idx] = override
+            mapping[condition_ix][par_sim_ix] = override
 
-    for _, row in measurement_df.iterrows():
-        # we trust that the number of overrides matches (see above)
-        overrides = split_parameter_replacement_list(row.observableParameters)
-        _apply_overrides(
-            overrides, row.simulationConditionId,
-            row.observableId, override_type='observable')
-        overrides = split_parameter_replacement_list(row.noiseParameters)
-        _apply_overrides(
-            overrides, row.simulationConditionId,
-            row.observableId, override_type='noise')
+    for condition_ix, condition in simulation_conditions.iterrows():
+        cur_measurement_df = get_rows_for_condition(measurement_df, condition)
+        for _, row in cur_measurement_df.iterrows():
+            # we trust that the number of overrides matches (see above)
+            overrides = split_parameter_replacement_list(
+                row.observableParameters)
+            _apply_overrides(
+                overrides, condition_ix,
+                row.observableId, override_type='observable')
+            overrides = split_parameter_replacement_list(row.noiseParameters)
+            _apply_overrides(
+                overrides, condition_ix,
+                row.observableId, override_type='noise')
 
     handle_missing_overrides(mapping, measurement_df.observableId.unique())
 
     return mapping
+
+
+def get_simulation_conditions(measurement_df):
+    """
+    Create a table of separate simulation conditions. A simulation condition
+    is a specific combination of simulationConditionId and
+    preequilibrationConditionId.
+    """
+    # find columns to group by (i.e. if not all nans).
+    # can be improved by checking for identical condition vectors
+    grouping_cols = get_notnull_columns(
+        measurement_df,
+        ['simulationConditionId', 'preequilibrationConditionId'])
+
+    # group by cols and return dataframe containing each combination
+    # of those rows only once (and an additional counting row)
+    simulation_conditions = measurement_df.groupby(
+        grouping_cols).size().reset_index()
+
+    return simulation_conditions
+
+
+def get_rows_for_condition(measurement_df, condition):
+    """
+    Extract rows in `measurement_df` for `condition` according
+    to the grouping columns present in `condition`.
+
+    Returns
+    -------
+
+    cur_measurement_df: pd.DataFrame
+        The subselection of rows in `measurement_df` for the
+        condition `condition.
+    """
+    # filter rows for condition
+    row_filter = 1
+    # check for equality in all grouping cols
+    if 'preequilibrationConditionId' in condition:
+        row_filter = (measurement_df.preequilibrationConditionId ==
+                      condition.preequilibrationConditionId) & row_filter
+    if 'simulationConditionId' in condition:
+        row_filter = (measurement_df.simulationConditionId ==
+                      condition.simulationConditionId) & row_filter
+
+    # apply filter
+    cur_measurement_df = measurement_df.loc[row_filter, :]
+
+    return cur_measurement_df
 
 
 def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
@@ -510,7 +556,8 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
     if len(missed_vals):
         logger.warn(f"Could not map the following overrides "
                     f"(condition index, parameter index, parameter): "
-                    f"{missed_vals}.")
+                    f"{missed_vals}. Usually, this is just due to missing "
+                    f"data points.")
 
 
 def perform_mapping_checks(condition_df, measurement_df):
