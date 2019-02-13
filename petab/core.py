@@ -541,7 +541,7 @@ def get_rows_for_condition(measurement_df, condition):
 def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
     """
     Find all observable parameters and noise parameters that were not mapped,
-    and set their mapping to some arbitrary numeric value.
+    and set their mapping to np.nan.
     """
     missed_vals = []
     for i_condition, mapping_for_condition in \
