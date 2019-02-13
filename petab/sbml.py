@@ -51,7 +51,11 @@ def assignment_rules_to_dict(
 
 
 def constant_species_to_parameters(sbml_model):
-    """Convert constant species in the SBML model to constant parameters
+    """Convert constant species in the SBML model to constant parameters.
+
+    This can be used e.g. for setting up models with condition-specific
+    constant species for PEtab, since there it is not possible to specify
+    constant species in the condition table.
 
     Arguments:
 
@@ -63,7 +67,7 @@ def constant_species_to_parameters(sbml_model):
     Raises:
 
     """
-    transformable = []
+    transformables = []
     for species in sbml_model.getListOfSpecies():
         if not species.getConstant() and not species.getBoundaryCondition():
             continue
@@ -75,10 +79,10 @@ def constant_species_to_parameters(sbml_model):
             print(f"Ignoring {species.getId()} which has no initial "
                   "concentration. Amount conversion not yet implemented.")
             continue
-        transformable.append(species.getId())
+        transformables.append(species.getId())
 
     # Must not remove species while iterating over getListOfSpecies()
-    for speciesId in transformable:
+    for speciesId in transformables:
         species = sbml_model.removeSpecies(speciesId)
         par = sbml_model.createParameter()
         par.setId(species.getId())
@@ -89,8 +93,8 @@ def constant_species_to_parameters(sbml_model):
 
     # Remove from reactants and products
     for reaction in sbml_model.getListOfReactions():
-        for speciesId in transformable:
+        for speciesId in transformables:
             reaction.removeReactant(speciesId)
             reaction.removeProduct(speciesId)
 
-    return transformable
+    return transformables
