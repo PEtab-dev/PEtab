@@ -50,7 +50,7 @@ def assignment_rules_to_dict(
     return result
 
 
-def constantSpeciesToParameters(sbml_model):
+def constant_species_to_parameters(sbml_model):
     """Convert constant species in the SBML model to constant parameters
 
     Arguments:
@@ -94,5 +94,3 @@ def constantSpeciesToParameters(sbml_model):
             reaction.removeProduct(speciesId)
 
     return transformable
-
-
