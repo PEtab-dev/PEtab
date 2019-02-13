@@ -486,7 +486,7 @@ def get_optimization_to_simulation_parameter_mapping(
         _apply_overrides(
             overrides, row.simulationConditionId,
             row.observableId, override_type='noise')
-    
+
     handle_missing_overrides(mapping, measurement_df.observableId.unique())
 
     return mapping
@@ -502,8 +502,8 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
             enumerate(mapping_par_opt_to_par_sim):
         for i_val, val in enumerate(mapping_for_condition):
             for observable_id in observable_ids:
-                if re.match("(noise|observable)Parameter[0-9]+_" \
-                        + observable_id, val):
+                if re.match("(noise|observable)Parameter[0-9]+_"
+                            + observable_id, val):
                     mapping_for_condition[i_val] = np.nan
                     missed_vals.append((i_condition, i_val, val))
 
