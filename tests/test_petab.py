@@ -270,7 +270,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      'dynamicParameter2',
                      'obs1par1override',
                      'obs1par2cond1override',
-                     'observableParameter1_obs2',
+                     np.nan,
                      ],
                     ['dynamicParameter1',
                      'dynamicParameter2',
