@@ -7,7 +7,11 @@ import itertools
 import os
 import numbers
 from collections import OrderedDict
+import logging
 from . import lint
+
+
+logger = logging.getLogger(__name__)
 
 
 class Problem:
@@ -482,8 +486,31 @@ def get_optimization_to_simulation_parameter_mapping(
         _apply_overrides(
             overrides, row.simulationConditionId,
             row.observableId, override_type='noise')
+    
+    handle_missing_overrides(mapping, measurement_df.observableId.unique())
 
     return mapping
+
+
+def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
+    """
+    Find all observable parameters and noise parameters that were not mapped,
+    and set their mapping to some arbitrary numeric value.
+    """
+    missed_vals = []
+    for i_condition, mapping_for_condition in \
+            enumerate(mapping_par_opt_to_par_sim):
+        for i_val, val in enumerate(mapping_for_condition):
+            for observable_id in observable_ids:
+                if re.match("(noise|observable)Parameter[0-9]+_" \
+                        + observable_id, val):
+                    mapping_for_condition[i_val] = np.nan
+                    missed_vals.append((i_condition, i_val, val))
+
+    if len(missed_vals):
+        logger.warn(f"Could not map the following overrides "
+                    f"(condition index, parameter index, parameter): "
+                    f"{missed_vals}.")
 
 
 def perform_mapping_checks(condition_df, measurement_df):
