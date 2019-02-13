@@ -510,10 +510,10 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
                     _missed_vals.append((i_condition, i_val, val))
 
     if len(_missed_vals):
-        logger.warn(f"Could not map the following overrides "
-                    f"(condition index, parameter index, parameter): "
-                    f"{_missed_vals}. Usually, this is just due to missing "
-                    f"data points.")
+        logger.warning(f"Could not map the following overrides "
+                       f"(condition index, parameter index, parameter): "
+                       f"{_missed_vals}. Usually, this is just due to missing "
+                       f"data points.")
 
 
 def perform_mapping_checks(condition_df, measurement_df):
