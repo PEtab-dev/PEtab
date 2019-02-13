@@ -120,36 +120,6 @@ def test_parameter_is_scaling_parameter():
     assert petab.parameter_is_scaling_parameter('a', 'a * a') is False
 
 
-def test_assignment_rules_to_dict():
-    # Create Sbml model with one parameter and one assignment rule
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    p = model.createParameter()
-    p.setId('observable_1')
-    p.setName('Observable 1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_1')
-    rule.setFormula('a+b')
-
-    expected = {
-        'observable_1': {
-            'name': 'Observable 1',
-            'formula': 'a+b'
-        }
-    }
-
-    actual = petab.assignment_rules_to_dict(model, remove=False)
-    assert actual == expected
-    assert model.getAssignmentRuleByVariable('observable_1') is not None
-    assert len(model.getListOfParameters()) == 1
-
-    actual = petab.assignment_rules_to_dict(model, remove=True)
-    assert actual == expected
-    assert model.getAssignmentRuleByVariable('observable_1') is None
-    assert len(model.getListOfParameters()) == 0
-
-
 def test_petab_problem(petab_problem):
     """
     Basic tests on petab problem.

@@ -9,6 +9,7 @@ import numbers
 from collections import OrderedDict
 import logging
 from . import lint
+from . import sbml
 
 
 logger = logging.getLogger(__name__)
@@ -281,53 +282,6 @@ def get_measurement_df(measurement_file_name):
     return measurement_df
 
 
-def assignment_rules_to_dict(
-        sbml_model, filter_function=lambda *_: True, remove=False):
-    """
-    Turn assignment rules into dictionary.
-
-    Parameters
-    ----------
-
-    sbml_model:
-        an sbml model instance.
-    filter_function:
-        callback function taking assignment variable as input
-        and returning True/False to indicate if the respective rule should be
-        turned into an observable.
-
-    Returns
-    -------
-
-    A dictionary(assigneeId:{
-        'name': assigneeName,
-        'formula': formulaString
-    })
-    """
-    result = {}
-
-    # iterate over rules
-    for rule in sbml_model.getListOfRules():
-        if rule.getTypeCode() != libsbml.SBML_ASSIGNMENT_RULE:
-            continue
-        assignee = rule.getVariable()
-        parameter = sbml_model.getParameter(assignee)
-        # filter
-        if parameter and filter_function(parameter):
-            result[assignee] = {
-                'name': parameter.getName(),
-                'formula': rule.getFormula()
-            }
-
-    # remove from model?
-    if remove:
-        for parameter_id in result:
-            sbml_model.removeRuleByVariable(parameter_id)
-            sbml_model.removeParameter(parameter_id)
-
-    return result
-
-
 def sbml_parameter_is_observable(sbml_parameter):
     """
     Returns whether the `libsbml.Parameter` `sbml_parameter`
@@ -349,7 +303,7 @@ def get_observables(sbml_model, remove=False):
     Returns dictionary of observable definitions.
     See `assignment_rules_to_dict` for details.
     """
-    observables = assignment_rules_to_dict(
+    observables = sbml.assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_observable,
         remove=remove
@@ -362,7 +316,7 @@ def get_sigmas(sbml_model, remove=False):
     Returns dictionary of sigma definitions.
     See `assignment_rules_to_dict` for details.
     """
-    sigmas = assignment_rules_to_dict(
+    sigmas = sbml.assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_sigma,
         remove=remove
@@ -556,10 +510,10 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
                     _missed_vals.append((i_condition, i_val, val))
 
     if len(_missed_vals):
-        logger.warn(f"Could not map the following overrides "
-                    f"(condition index, parameter index, parameter): "
-                    f"{_missed_vals}. Usually, this is just due to missing "
-                    f"data points.")
+        logger.warning(f"Could not map the following overrides "
+                       f"(condition index, parameter index, parameter): "
+                       f"{_missed_vals}. Usually, this is just due to missing "
+                       f"data points.")
 
 
 def perform_mapping_checks(condition_df, measurement_df):
