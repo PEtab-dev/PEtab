@@ -547,6 +547,9 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
     for i_condition, mapping_for_condition in \
             enumerate(mapping_par_opt_to_par_sim):
         for i_val, val in enumerate(mapping_for_condition):
+            if isinstance(val, numbers.Number):
+                continue
+            print("mapping: ", val)
             for observable_id in observable_ids:
                 if re.match("(noise|observable)Parameter[0-9]+_"
                             + observable_id, val):
