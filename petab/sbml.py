@@ -1,6 +1,9 @@
 """Functions for direct access of SBML models"""
 import libsbml
 import math
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def assignment_rules_to_dict(
@@ -17,6 +20,8 @@ def assignment_rules_to_dict(
         callback function taking assignment variable as input
         and returning True/False to indicate if the respective rule should be
         turned into an observable.
+    remove:
+        Remove the all matching assignment rules from the model
 
     Returns
     -------
@@ -58,11 +63,10 @@ def constant_species_to_parameters(sbml_model):
     constant species in the condition table.
 
     Arguments:
-
-    sbml_model: libsbml model instance
+        sbml_model: libsbml model instance
 
     Returns:
-    species IDs that have been turned into constants
+        species IDs that have been turned into constants
 
     Raises:
 
@@ -72,12 +76,14 @@ def constant_species_to_parameters(sbml_model):
         if not species.getConstant() and not species.getBoundaryCondition():
             continue
         if species.getHasOnlySubstanceUnits():
-            print(f"Ignoring {species.getId()} which has only substance units."
-                  " Conversion not yet implemented.")
+            logger.warning(
+                f"Ignoring {species.getId()} which has only substance units."
+                " Conversion not yet implemented.")
             continue
         if math.isnan(species.getInitialConcentration()):
-            print(f"Ignoring {species.getId()} which has no initial "
-                  "concentration. Amount conversion not yet implemented.")
+            logger.warning(
+                f"Ignoring {species.getId()} which has no initial "
+                "concentration. Amount conversion not yet implemented.")
             continue
         transformables.append(species.getId())
 
@@ -116,15 +122,21 @@ def is_sbml_consistent(sbml_document: libsbml.SBMLDocument, check_units=False):
 
     has_problems = sbml_document.checkConsistency()
     if has_problems:
-        print_sbml_errors(sbml_document)
-        print('WARNING: Generated invalid SBML model. Check messages above.')
+        log_sbml_errors(sbml_document)
+        logger.warning(
+            'WARNING: Generated invalid SBML model. Check messages above.')
 
     return not has_problems
 
 
-def print_sbml_errors(sbml_document: libsbml.SBMLDocument,
-                      minimum_severity=libsbml.LIBSBML_SEV_WARNING):
-    """Print libsbml errors"""
+def log_sbml_errors(sbml_document: libsbml.SBMLDocument,
+                    minimum_severity=libsbml.LIBSBML_SEV_WARNING):
+    """Log libsbml errors
+
+    Arguments:
+        sbml_document: SBML document to check
+        minimum_severity: Minimum severity level to report (see libsbml)
+    """
 
     for error_idx in range(sbml_document.getNumErrors()):
         error = sbml_document.getError(error_idx)
@@ -132,10 +144,11 @@ def print_sbml_errors(sbml_document: libsbml.SBMLDocument,
             category = error.getCategoryAsString()
             severity = error.getSeverityAsString()
             message = error.getMessage()
-            print(f'libSBML {severity} ({category}): {message}')
+            logger.warning(f'libSBML {severity} ({category}): {message}')
 
 
-def globalize_parameters(sbml_model: libsbml.Model, prepend_reaction_id=False):
+def globalize_parameters(sbml_model: libsbml.Model,
+                         prepend_reaction_id: bool = False):
     """Turn all local parameters into global parameters with the same
     properties
 
@@ -178,10 +191,10 @@ def globalize_parameters(sbml_model: libsbml.Model, prepend_reaction_id=False):
 
 def add_global_parameter(sbml_model: libsbml.Model,
                          parameter_id: str,
-                         parameter_name=None,
-                         constant=False,
-                         units='dimensionless',
-                         value=0.0):
+                         parameter_name: str = None,
+                         constant: str = False,
+                         units: str = 'dimensionless',
+                         value: float = 0.0):
     """Add new global parameter to SBML model"""
 
     if parameter_name is None:
@@ -198,9 +211,9 @@ def add_global_parameter(sbml_model: libsbml.Model,
 
 def create_assigment_rule(sbml_model: libsbml.Model,
                           assignee_id: str,
-                          formula:str,
-                          rule_id=None,
-                          rule_name=None):
+                          formula: str,
+                          rule_id: str = None,
+                          rule_name: str = None):
     """Create SBML AssignmentRule
 
     Arguments:
@@ -228,7 +241,7 @@ def create_assigment_rule(sbml_model: libsbml.Model,
 def add_model_output(sbml_model: libsbml.Model,
                      observable_id: str,
                      formula: str,
-                     observable_name: None):
+                     observable_name: str = None):
     """Add PEtab-style output to model
 
     We expect that all formula parameters are added to the model elsewhere.
@@ -260,7 +273,7 @@ def add_model_output_sigma(sbml_model: libsbml.Model,
     Arguments:
         sbml_model: Model to add to
         observable_id: Observable id for which to add sigma
-
+        formula: Formula for sigma
     """
     add_global_parameter(sbml_model, f'sigma_{observable_id}')
     create_assigment_rule(sbml_model, f'sigma_{observable_id}', formula)
@@ -270,7 +283,7 @@ def add_model_output_with_sigma(
         sbml_model: libsbml.Model,
         observable_id: str,
         observable_formula: str,
-        observable_name: None):
+        observable_name: str = None):
     """Add PEtab-style output and corresponding sigma with single
     (newly created) parameter
 
