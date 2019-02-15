@@ -28,13 +28,10 @@ def test_assignment_rules_to_dict():
     # Create Sbml model with one parameter and one assignment rule
     document = libsbml.SBMLDocument(3, 1)
     model = document.createModel()
-    p = model.createParameter()
-    p.setId('observable_1')
-    p.setName('Observable 1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_1')
-    rule.setFormula('a+b')
+    petab.sbml.add_model_output(sbml_model=model,
+                                observable_id='1',
+                                observable_name='Observable 1',
+                                formula='a+b')
 
     expected = {
         'observable_1': {
