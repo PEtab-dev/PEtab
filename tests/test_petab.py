@@ -309,30 +309,17 @@ def test_create_parameter_df(condition_df_2_conditions):
     p.setId('fixedParameter1')
     p.setName('FixedParameter1')
 
-    p = model.createParameter()
-    p.setId('observable_obs1')
-    p.setName('Observable 1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_obs1')
-    rule.setFormula('x1')
+    petab.sbml.add_model_output_with_sigma(
+        sbml_model=model,
+        observable_id='obs1',
+        observable_name='Observable 1',
+        observable_formula='x1')
 
-    p = model.createParameter()
-    p.setId('observable_obs2')
-    p.setName('Observable 2')
-    p = model.createParameter()
-    p.setId('noiseParameter1_obs2')
-    p.setName('Observable 1')
-    p = model.createParameter()
-    p.setId('sigma_obs2')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_obs2')
-    rule.setFormula('2*x1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('sigma_obs2')
-    rule.setFormula('noiseParameter1_obs2')
+    petab.add_model_output_with_sigma(
+        sbml_model=model,
+        observable_id='obs2',
+        observable_name='Observable 2',
+        observable_formula='2*x1')
 
     measurement_df = pd.DataFrame(data={
         'observableId': ['obs1', 'obs2'],
