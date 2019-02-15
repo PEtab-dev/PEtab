@@ -100,10 +100,11 @@ def constant_species_to_parameters(sbml_model):
     return transformables
 
 
-def is_sbml_consistent(sbml_document, check_units=False):
+def is_sbml_consistent(sbml_document: libsbml.SBMLDocument, check_units=False):
     """Check for SBML validity / consistency
 
     Arguments:
+        sbml_document: SBML document to check
         check_units: Also check for unit-related issues
     Returns:
         False if problems were detected, otherwise True
@@ -121,7 +122,7 @@ def is_sbml_consistent(sbml_document, check_units=False):
     return not has_problems
 
 
-def print_sbml_errors(sbml_document,
+def print_sbml_errors(sbml_document: libsbml.SBMLDocument,
                       minimum_severity=libsbml.LIBSBML_SEV_WARNING):
     """Print libsbml errors"""
 
@@ -158,9 +159,14 @@ def globalize_parameters(sbml_model: libsbml.Model, prepend_reaction_id=False):
         local_parameters = [local_parameter for local_parameter
                             in law.getListOfParameters()]
         for lp in local_parameters:
+            if prepend_reaction_id:
+                parameter_id = f'{reaction.getId()}_{lp.getId()}'
+            else:
+                parameter_id = lp.getId()
+
             # Create global
             p = sbml_model.createParameter()
-            p.setId(lp.getId())
+            p.setId(parameter_id)
             p.setName(lp.getName())
             p.setConstant(lp.getConstant())
             p.setValue(lp.getValue())
@@ -190,9 +196,20 @@ def add_global_parameter(sbml_model: libsbml.Model,
     return p
 
 
-def create_assigment_rule(sbml_model, assignee_id, formula, rule_id=None,
+def create_assigment_rule(sbml_model: libsbml.Model,
+                          assignee_id: str,
+                          formula:str,
+                          rule_id=None,
                           rule_name=None):
-    """Create SBML AssignmentRule"""
+    """Create SBML AssignmentRule
+
+    Arguments:
+        sbml_model: Model to add output to
+        assignee_id: Target of assignment
+        formula: Formula string for model output
+        rule_id: SBML id for created rule
+        rule_name: SBML name for created rule
+    """
     if rule_id is None:
         rule_id = assignee_id
 
@@ -220,6 +237,7 @@ def add_model_output(sbml_model: libsbml.Model,
         sbml_model: Model to add output to
         formula: Formula string for model output
         observable_id: ID without 'observable_' prefix
+        observable_name: Any observable name
     """
 
     if observable_name is None:
