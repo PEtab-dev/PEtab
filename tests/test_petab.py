@@ -321,7 +321,6 @@ def test_create_parameter_df(condition_df_2_conditions):
         observable_name='Observable 2',
         observable_formula='2*x1')
 
-
     measurement_df = pd.DataFrame(data={
         'observableId': ['obs1', 'obs2'],
         'observableParameters': ['', 'p1;p2'],

@@ -211,8 +211,7 @@ def create_assigment_rule(sbml_model, assignee_id, formula, rule_id=None,
 def add_model_output(sbml_model: libsbml.Model,
                      observable_id: str,
                      formula: str,
-                     observable_name: None,
-                   ):
+                     observable_name: None):
     """Add PEtab-style output to model
 
     We expect that all formula parameters are added to the model elsewhere.
@@ -253,8 +252,7 @@ def add_model_output_with_sigma(
         sbml_model: libsbml.Model,
         observable_id: str,
         observable_formula: str,
-        observable_name: None,
-    ):
+        observable_name: None):
     """Add PEtab-style output and corresponding sigma with single
     (newly created) parameter
 
@@ -278,4 +276,3 @@ def add_model_output_with_sigma(
     add_model_output_sigma(sbml_model=sbml_model,
                            observable_id=observable_id,
                            formula=noise_parameter_id)
-
