@@ -48,7 +48,7 @@ class Problem:
                  measurement_df=None,
                  parameter_df=None):
 
-        if model_name is None:
+        if model_name is None and sbml_file is not None:
             model_name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
         self.model_name = model_name
 
