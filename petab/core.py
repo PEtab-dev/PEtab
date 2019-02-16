@@ -111,7 +111,7 @@ class Problem:
             self.condition_df = get_condition_df(self.condition_file)
         if self.measurement_df is None and self.measurement_file:
             self.measurement_df = get_measurement_df(self.measurement_file)
-        if  self.parameter_df is None and self.parameter_file:
+        if self.parameter_df is None and self.parameter_file:
             self.parameter_df = get_parameter_df(self.parameter_file)
 
     def _load_sbml(self):
