@@ -144,7 +144,12 @@ def log_sbml_errors(sbml_document: libsbml.SBMLDocument,
             category = error.getCategoryAsString()
             severity = error.getSeverityAsString()
             message = error.getMessage()
-            logger.warning(f'libSBML {severity} ({category}): {message}')
+            if severity == libsbml.LIBSBML_SEV_INFO:
+                logger.info(f'libSBML {severity} ({category}): {message}')
+            elif severity == libsbml.LIBSBML_SEV_WARNING:
+                logger.warning(f'libSBML {severity} ({category}): {message}')
+            else:
+                logger.error(f'libSBML {severity} ({category}): {message}')
 
 
 def globalize_parameters(sbml_model: libsbml.Model,

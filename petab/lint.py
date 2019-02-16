@@ -1,12 +1,14 @@
 """Integrity checks and tests for specific features used"""
 
 from . import core
-
+from . import sbml
 import numpy as np
 import numbers
-import libsbml
 import re
 import copy
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _check_df(df, req_cols, name):
@@ -75,6 +77,13 @@ def check_parameter_df(df):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
+    assert_parameter_id_is_string(df)
+    assert_parameter_scale_is_valid(df)
+    assert_parameter_bounds_are_numeric(df)
+    assert_parameter_estimate_is_boolean(df)
+    assert_parameter_id_is_unique(df)
+    check_parameterBounds(df)
+
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
     """Check if all observables in measurement files have been specified in
@@ -106,16 +115,6 @@ def condition_table_is_parameter_free(condition_df):
                 isinstance, args=(numbers.Number,)))):
             return False
     return True
-
-
-def check_parameter_sheet(problem):
-    check_parameter_df(problem.parameter_df)
-    assert_parameter_id_is_string(problem.parameter_df)
-    assert_parameter_scale_is_valid(problem.parameter_df)
-    assert_parameter_bounds_are_numeric(problem.parameter_df)
-    assert_parameter_estimate_is_boolean(problem.parameter_df)
-    assert_parameter_id_is_unique(problem.parameter_df)
-    check_parameterBounds(problem.parameter_df)
 
 
 def assert_parameter_id_is_string(parameter_df):
@@ -297,39 +296,72 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
                     f'But parameter name or multiple overrides provided.')
 
 
-def print_sbml_errors(sbml_document,
-                      minimum_severity=libsbml.LIBSBML_SEV_WARNING):
-    """Print libsbml errors
-
-    Arguments:
-        sbml_document: libsbml.Document
-        minimum_severity: minimum severity level to print
-        (see libsbml.LIBSBML_SEV_*)
-    """
-
-    for error_idx in range(sbml_document.getNumErrors()):
-        error = sbml_document.getError(error_idx)
-        if error.getSeverity() >= minimum_severity:
-            category = error.getCategoryAsString()
-            severity = error.getSeverityAsString()
-            message = error.getMessage()
-            print(f'libSBML {severity} ({category}): {message}')
-
-
-def lint_problem(problem):
+def lint_problem(problem: 'core.Problem'):
     """Run PEtab validation on problem
 
     Arguments:
-        problem: petab.Problem
+        problem: PEtab problem to check
     """
+    errors_occurred = False
 
-    check_measurement_df(problem.measurement_df)
-    check_condition_df(problem.condition_df)
-    check_parameter_sheet(problem)
-    assert_measured_observables_present_in_model(
-        problem.measurement_df, problem.sbml_model)
-    assert_overrides_match_parameter_count(
-        problem.measurement_df,
-        core.get_observables(problem.sbml_model, remove=False),
-        core.get_sigmas(problem.sbml_model, remove=False)
-    )
+    # Run checks on individual files
+    if problem.sbml_model is not None:
+        logger.info("Checking SBML model...")
+        errors_occurred |= not sbml.is_sbml_consistent(
+            problem.sbml_model.getSBMLDocument())
+        sbml.log_sbml_errors(problem.sbml_model.getSBMLDocument())
+    else:
+        logger.warning("SBML model not available. Skipping.")
+
+    if problem.measurement_df is not None:
+        logger.info("Checking measurement table...")
+        try:
+            check_measurement_df(problem.measurement_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Measurement table not available. Skipping.")
+
+    if problem.condition_df is not None:
+        logger.info("Checking condition table...")
+        try:
+            check_condition_df(problem.condition_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Condition table not available. Skipping.")
+
+    if problem.parameter_df is not None:
+        logger.info("Checking parameter table...")
+        try:
+            check_parameter_df(problem.parameter_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Parameter table not available. Skipping.")
+
+    if problem.measurement_df is not None and problem.sbml_model is not None \
+            and not errors_occurred:
+        try:
+            assert_measured_observables_present_in_model(
+                problem.measurement_df, problem.sbml_model)
+            assert_overrides_match_parameter_count(
+                problem.measurement_df,
+                core.get_observables(problem.sbml_model, remove=False),
+                core.get_sigmas(problem.sbml_model, remove=False)
+            )
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+
+    if errors_occurred:
+        logger.error('Not OK')
+    elif problem.measurement_df is None or problem.condition_df is None \
+            or problem.sbml_model is None or problem.parameter_df is None:
+        logger.warning('Not all files of the PEtab problem definition could '
+                       'be checked.')
+    else:
+        logger.info('OK')
