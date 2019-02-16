@@ -38,11 +38,15 @@ class Problem:
     """
 
     def __init__(self,
-                 sbml_file,
-                 condition_file,
-                 measurement_file,
+                 sbml_file=None,
+                 condition_file=None,
+                 measurement_file=None,
                  parameter_file=None,
-                 model_name=None):
+                 model_name=None,
+                 sbml_model=None,
+                 condition_df=None,
+                 measurement_df=None,
+                 parameter_df=None):
 
         if model_name is None:
             model_name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
@@ -53,22 +57,21 @@ class Problem:
         self.parameter_file = parameter_file
         self.sbml_file = sbml_file
 
-        self.condition_df = None
-        self.measurement_df = None
-        self.parameter_df = None
+        self.condition_df = condition_df
+        self.measurement_df = measurement_df
+        self.parameter_df = parameter_df
         self._load_dfs()
 
         self.sbml_reader = None
         self.sbml_document = None
-        self.sbml_model = None
-        self._load_sbml()
+        self.sbml_model = sbml_model
+        if not self.sbml_model and self.sbml_file:
+            self._load_sbml()
 
     def __getstate__(self):
         state = self.__dict__.copy()
         # libsbml stuff cannot be serialized
-        # dfs can be recreated
-        for key in ['sbml_reader', 'sbml_document', 'sbml_model',
-                    'condition_df', 'measurement_df', 'parameter_df']:
+        for key in ['sbml_reader', 'sbml_document', 'sbml_model']:
             state.pop(key)
         return state
 
@@ -104,12 +107,12 @@ class Problem:
         """
         Load condition, measurement, and parameter dataframes.
         """
-        self.condition_df = get_condition_df(self.condition_file)
-        self.measurement_df = get_measurement_df(self.measurement_file)
-        if self.parameter_file:
+        if self.condition_df is None and self.condition_file:
+            self.condition_df = get_condition_df(self.condition_file)
+        if self.measurement_df is None and self.measurement_file:
+            self.measurement_df = get_measurement_df(self.measurement_file)
+        if  self.parameter_df is None and self.parameter_file:
             self.parameter_df = get_parameter_df(self.parameter_file)
-        else:
-            self.parameter_df = None
 
     def _load_sbml(self):
         """
@@ -689,7 +692,7 @@ def create_condition_df(parameter_ids, condition_ids=None):
     return df
 
 
-def create_measurement_df():
+def create_measurement_df() -> pd.DataFrame:
     """Create empty measurement dataframe"""
 
     df = pd.DataFrame(data={
@@ -803,3 +806,19 @@ def get_observable_id(parameter_id):
         return parameter_id[len('sigma_'):]
 
     raise ValueError('Cannot extract observable id from: ' + parameter_id)
+
+
+def measurements_have_replicates(measurement_df: pd.DataFrame):
+    """Tests whether the measurements come with replicates
+
+    Arguments:
+        measurement_df: Measurement table
+
+    Returns:
+        True if there are replicates, False otherwise
+    """
+    return np.any(measurement_df.groupby(
+        get_notnull_columns(
+            measurement_df,
+            ['observableId', 'simulationConditionId',
+             'preequilibrationConditionId', 'time'])).size().values - 1)
