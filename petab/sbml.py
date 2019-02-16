@@ -192,7 +192,7 @@ def globalize_parameters(sbml_model: libsbml.Model,
 def add_global_parameter(sbml_model: libsbml.Model,
                          parameter_id: str,
                          parameter_name: str = None,
-                         constant: str = False,
+                         constant: bool = False,
                          units: str = 'dimensionless',
                          value: float = 0.0):
     """Add new global parameter to SBML model"""

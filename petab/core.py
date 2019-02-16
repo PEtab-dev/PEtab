@@ -18,17 +18,12 @@ logger = logging.getLogger(__name__)
 class Problem:
     """
     PEtab parameter estimation problem as defined by
-    - sbml model
+    - SBML model
     - condition table
     - measurement table
     - parameter table [optional]
 
     Attributes:
-        sbml_file: PEtab SBML model
-        condition_file: PEtab condition table
-        measurement_file: PEtab measurement table
-        parameter_file: PEtab parameter table
-        model_name: name of the model
         condition_df: @type pandas.DataFrame
         measurement_df: @type pandas.DataFrame
         parameter_df: @type pandas.DataFrame
@@ -38,90 +33,110 @@ class Problem:
     """
 
     def __init__(self,
-                 sbml_file=None,
-                 condition_file=None,
-                 measurement_file=None,
-                 parameter_file=None,
-                 model_name=None,
-                 sbml_model=None,
-                 condition_df=None,
-                 measurement_df=None,
-                 parameter_df=None):
-
-        if model_name is None and sbml_file is not None:
-            model_name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
-        self.model_name = model_name
-
-        self.measurement_file = measurement_file
-        self.condition_file = condition_file
-        self.parameter_file = parameter_file
-        self.sbml_file = sbml_file
+                 sbml_model: libsbml.Model = None,
+                 condition_df: pd.DataFrame = None,
+                 measurement_df: pd.DataFrame = None,
+                 parameter_df: pd.DataFrame = None):
 
         self.condition_df = condition_df
         self.measurement_df = measurement_df
         self.parameter_df = parameter_df
-        self._load_dfs()
 
         self.sbml_reader = None
         self.sbml_document = None
         self.sbml_model = sbml_model
-        if not self.sbml_model and self.sbml_file:
-            self._load_sbml()
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        # libsbml stuff cannot be serialized
-        for key in ['sbml_reader', 'sbml_document', 'sbml_model']:
+
+        # libsbml stuff cannot be serialized directly
+        if self.sbml_model:
+            sbml_document = self.sbml_model.getSBMLDocument()
+            sbml_writer = libsbml.SBMLWriter()
+            state['sbml_string'] = sbml_writer.writeSBMLToString(sbml_document)
+
+        exclude = ['sbml_reader', 'sbml_document', 'sbml_model']
+        for key in exclude:
             state.pop(key)
+
         return state
 
     def __setstate__(self, state):
+        # load SBML model from pickled string
+        sbml_string = state.pop('sbml_string', None)
+        if sbml_string:
+            self.sbml_reader = libsbml.SBMLReader()
+            self.sbml_document = \
+                self.sbml_reader.readSBMLFromString(sbml_string)
+            self.sbml_model = self.sbml_document.getModel()
+
         self.__dict__.update(state)
 
-        # load sbml from file name
-        self._load_sbml()
+    @staticmethod
+    def from_files(sbml_file: str = None,
+                   condition_file: str = None,
+                   measurement_file: str = None,
+                   parameter_file: str = None):
+        """
+        Factory method to load model and tables from files.
 
-        # reload dfs
-        self._load_dfs()
+        Arguments:
+            sbml_file: PEtab SBML model
+            condition_file: PEtab condition table
+            measurement_file: PEtab measurement table
+            parameter_file: PEtab parameter table
+        """
+
+        problem = Problem()
+        if condition_file:
+            problem.condition_df = get_condition_df(condition_file)
+        if measurement_file:
+            problem.measurement_df = get_measurement_df(measurement_file)
+        if parameter_file:
+            problem.parameter_df = get_parameter_df(parameter_file)
+        if sbml_file:
+            problem._load_sbml(sbml_file)
+        return problem
 
     @staticmethod
-    def from_folder(folder):
+    def from_folder(folder: str, model_name: str = None):
         """
         Factory method to use the standard folder structure
-        and file names.
+        and file names, i.e.
+            ${model_name}/
+              +-- experimentalCondition_${model_name}.tsv
+              +-- measurementData_${model_name}.tsv
+              +-- model_${model_name}.xml
+              +-- parameters_${model_name}.tsv
+
+        Arguments:
+            folder:
+                Path to the directory in which the files are located.
+            model_name:
+                If specified, overrides the model component in the file names.
+                Defaults to the last component of `folder`.
         """
 
         folder = os.path.abspath(folder)
-        model_name = os.path.split(folder)[-1]
+        if model_name is None:
+            model_name = os.path.split(folder)[-1]
 
-        return Problem(
+        return Problem.from_files(
             condition_file=get_default_condition_file_name(model_name, folder),
-            measurement_file=get_default_measurement_file_name(
-                model_name, folder),
+            measurement_file=get_default_measurement_file_name(model_name,
+                                                               folder),
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
-            model_name=model_name
         )
 
-    def _load_dfs(self):
-        """
-        Load condition, measurement, and parameter dataframes.
-        """
-        if self.condition_df is None and self.condition_file:
-            self.condition_df = get_condition_df(self.condition_file)
-        if self.measurement_df is None and self.measurement_file:
-            self.measurement_df = get_measurement_df(self.measurement_file)
-        if self.parameter_df is None and self.parameter_file:
-            self.parameter_df = get_parameter_df(self.parameter_file)
-
-    def _load_sbml(self):
+    def _load_sbml(self, sbml_file):
         """
         Load SBML model.
         """
         # sbml_reader and sbml_document must be kept alive.
         # Otherwise operations on sbml_model will segfault
         self.sbml_reader = libsbml.SBMLReader()
-        self.sbml_document = self.sbml_reader.readSBML(self.sbml_file)
+        self.sbml_document = self.sbml_reader.readSBML(sbml_file)
         self.sbml_model = self.sbml_document.getModel()
 
     def get_constant_parameters(self):
