@@ -258,7 +258,7 @@ def get_condition_df(condition_file_name):
     """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
-    lint.assert_no_trailing_whitespace(
+    lint.assert_no_leading_trailing_whitespace(
         condition_df.columns.values, "condition")
 
     try:
@@ -276,7 +276,7 @@ def get_parameter_df(parameter_file_name):
     """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
-    lint.assert_no_trailing_whitespace(
+    lint.assert_no_leading_trailing_whitespace(
         parameter_df.columns.values, "parameter")
 
     try:
@@ -294,7 +294,7 @@ def get_measurement_df(measurement_file_name):
     """
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
-    lint.assert_no_trailing_whitespace(
+    lint.assert_no_leading_trailing_whitespace(
         measurement_df.columns.values, "measurement")
 
     return measurement_df
