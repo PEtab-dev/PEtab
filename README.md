@@ -7,14 +7,14 @@
 # PEtab --- a data format for specifying parameter estimation problems in systems biology
 
 This repository describes *PEtab* --- a data format for specifying parameter 
-estimation problems in system biology, provides a Python library for easy 
+estimation problems in systems biology, provides a Python library for easy 
 access and validation of *PEtab* files. See 
 [doc/documentation_data_format.md](doc/documentation_data_format.md) for more 
 info.
 
 ## About PEtab
 
-PEtab built around [SBML](http://sbml.org/) and based on tab-separated values 
+PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values 
 (TSV) files. It is meant as a standardized way to provide information for 
 parameter estimation which is out of the current scope of SBML. This includes
 for example:
@@ -44,11 +44,11 @@ If you would like to use PEtab yourself, please have a look at
 the example models provided in the 
 [benchmark problem collection](https://github.com/LoosC/Benchmark-Models).
 
-To convert you existing parameter estimation problem to the PEtab, you will 
-have to:
+To convert your existing parameter estimation problem to the PEtab format, you 
+will have to:
 
 1. Specify your model in SBML
-1. Setup model outputs and noise model using `AssignmentRule` as described in 
+1. Set up model outputs and noise model using `AssignmentRule`s as described in 
   the PEtab documentation
 1. Create a condition table, if appropriate
 1. Create a table of measurements
@@ -57,8 +57,8 @@ have to:
 If you are using Python, some handy functions of the PEtab library can help 
 you with that. This include also a PEtab validator called `petablint.py` which
 you can use to check if your files adhere to the PEtab standard. If you have 
-further questions regarding PEtab, feel free to post an issue at our github 
-repository.
+further questions regarding PEtab, feel free to post an 
+[issue](https://github.com/ICB-DCM/PEtab/issues) at our github repository.
 
 ## PEtab Python library
 
@@ -80,6 +80,6 @@ be:
 
 ## Extending PEtab
 
-We are aware of the fact that PEtab may not serve everybodies needs. If you 
+We are aware of the fact that PEtab may not serve everybody's needs. If you 
 have a suggestion of how to extend PEtab, feel free to post an issue at our 
 github repository.
