@@ -4,6 +4,28 @@
 
 import argparse
 import petab
+import sys
+import logging
+from colorama import (init as init_colorama, Fore)
+
+logger = logging.getLogger(__name__)
+
+
+class LintFormatter(logging.Formatter):
+    """Custom log formatter"""
+    formats = {
+        logging.DEBUG: Fore.CYAN + '%(message)s',
+        logging.INFO: Fore.GREEN + '%(message)s',
+        logging.WARN: Fore.YELLOW + '%(message)s',
+        logging.ERROR: Fore.RED + '%(message)s',
+    }
+
+    def format(self, record):
+        format_orig = self._style._fmt
+        self._style._fmt = LintFormatter.formats.get(record.levelno, self._fmt)
+        result = logging.Formatter.format(self, record)
+        self._style._fmt = format_orig
+        return result
 
 
 def parse_cli_args():
@@ -61,20 +83,38 @@ def parse_cli_args():
 
 def main():
     args = parse_cli_args()
+    init_colorama(autoreset=True)
 
+    ch = logging.StreamHandler()
     if args.verbose:
-        print('Checking...')
-        print('\tSBML model:', args.sbml_file_name)
-        print('\tCondition table:', args.condition_file_name)
-        print('\tMeasurement table:', args.measurement_file_name)
-        print('\tParameter table:', args.parameter_file_name)
+        ch.setLevel(logging.DEBUG)
+    else:
+        ch.setLevel(logging.WARN)
+    ch.setFormatter(LintFormatter())
+    logging.basicConfig(level=logging.DEBUG, handlers=[ch])
 
-    problem = petab.Problem(args.sbml_file_name,
-                            args.condition_file_name,
-                            args.measurement_file_name,
-                            args.parameter_file_name)
+    logger.debug('Looking for...')
+    if args.sbml_file_name:
+        logger.debug('\tSBML model: ' + args.sbml_file_name)
+    if args.condition_file_name:
+        logger.debug('\tCondition table: ' + args.condition_file_name)
+    if args.measurement_file_name:
+        logger.debug('\tMeasurement table: ' + args.measurement_file_name)
+    if args.parameter_file_name:
+        logger.debug('\tParameter table: ' + args.parameter_file_name)
 
-    petab.lint.lint_problem(problem)
+    try:
+        problem = petab.Problem.from_files(
+            sbml_file=args.sbml_file_name,
+            condition_file=args.condition_file_name,
+            measurement_file=args.measurement_file_name,
+            parameter_file=args.parameter_file_name)
+    except FileNotFoundError as e:
+        logger.error(e)
+        sys.exit(1)
+
+    ret = petab.lint.lint_problem(problem)
+    sys.exit(ret)
 
 
 if __name__ == '__main__':
