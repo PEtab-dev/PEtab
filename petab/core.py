@@ -28,12 +28,16 @@ class Problem:
         measurement_df: @type pandas.DataFrame
         parameter_df: @type pandas.DataFrame
         sbml_reader: @type libsbml.SBMLReader
+            Stored to keep object alive.
         sbml_document: @type libsbml.Document
+            Stored to keep object alive.
         sbml_model: @type libsbml.Model
     """
 
     def __init__(self,
                  sbml_model: libsbml.Model = None,
+                 sbml_reader: libsbml.SBMLReader = None,
+                 sbml_document: libsbml.SBMLDocument = None,
                  condition_df: pd.DataFrame = None,
                  measurement_df: pd.DataFrame = None,
                  parameter_df: pd.DataFrame = None):
@@ -42,8 +46,8 @@ class Problem:
         self.measurement_df = measurement_df
         self.parameter_df = parameter_df
 
-        self.sbml_reader = None
-        self.sbml_document = None
+        self.sbml_reader = sbml_reader
+        self.sbml_document = sbml_document
         self.sbml_model = sbml_model
 
     def __getstate__(self):
@@ -87,15 +91,27 @@ class Problem:
             parameter_file: PEtab parameter table
         """
 
-        problem = Problem()
+        sbml_model = sbml_document = sbml_reader = None
+        condition_df = measurement_df = parameter_df = None
+
         if condition_file:
-            problem.condition_df = get_condition_df(condition_file)
+            condition_df = get_condition_df(condition_file)
         if measurement_file:
-            problem.measurement_df = get_measurement_df(measurement_file)
+            measurement_df = get_measurement_df(measurement_file)
         if parameter_file:
-            problem.parameter_df = get_parameter_df(parameter_file)
+            parameter_df = get_parameter_df(parameter_file)
         if sbml_file:
-            problem._load_sbml(sbml_file)
+            sbml_reader = libsbml.SBMLReader()
+            sbml_document = sbml_reader.readSBML(sbml_file)
+            sbml_model = sbml_document.getModel()
+
+        problem = Problem(condition_df=condition_df,
+                          measurement_df=measurement_df,
+                          parameter_df=parameter_df,
+                          sbml_model=sbml_model,
+                          sbml_document=sbml_document,
+                          sbml_reader=sbml_reader)
+
         return problem
 
     @staticmethod
@@ -128,16 +144,6 @@ class Problem:
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
-
-    def _load_sbml(self, sbml_file):
-        """
-        Load SBML model.
-        """
-        # sbml_reader and sbml_document must be kept alive.
-        # Otherwise operations on sbml_model will segfault
-        self.sbml_reader = libsbml.SBMLReader()
-        self.sbml_document = self.sbml_reader.readSBML(sbml_file)
-        self.sbml_model = self.sbml_document.getModel()
 
     def get_constant_parameters(self):
         """
