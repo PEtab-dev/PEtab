@@ -73,10 +73,11 @@ def petab_problem():
         parameter_file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
-    problem = petab.Problem(sbml_file=sbml_file_name,
-                            measurement_file=measurement_file_name,
-                            condition_file=condition_file_name,
-                            parameter_file=parameter_file_name)
+    problem = petab.Problem.from_files(
+        sbml_file=sbml_file_name,
+        measurement_file=measurement_file_name,
+        condition_file=condition_file_name,
+        parameter_file=parameter_file_name)
 
     return problem
 
@@ -129,22 +130,21 @@ def test_petab_problem(petab_problem):
 
 def test_serialization(petab_problem):
     # serialize and back
-    petab_problem_recreated = pickle.loads(pickle.dumps(petab_problem))
+    problem_recreated = pickle.loads(pickle.dumps(petab_problem))
 
-    assert petab_problem_recreated.measurement_file == \
-        petab_problem.measurement_file
-    assert petab_problem_recreated.condition_file == \
-        petab_problem.condition_file
-    assert petab_problem_recreated.parameter_file == \
-        petab_problem.parameter_file
-    assert petab_problem_recreated.sbml_file == \
-        petab_problem.sbml_file
-    assert petab_problem_recreated.condition_df.equals(
-        petab_problem.condition_df)
-    assert petab_problem_recreated.measurement_df.equals(
+    assert problem_recreated.measurement_df.equals(
         petab_problem.measurement_df)
-    assert petab_problem_recreated.parameter_df.equals(
+
+    assert problem_recreated.parameter_df.equals(
         petab_problem.parameter_df)
+
+    assert problem_recreated.condition_df.equals(
+        petab_problem.condition_df)
+
+    # Can't test for equality directly, testing for number of parameters
+    #  should do the job here
+    assert len(problem_recreated.sbml_model.getListOfParameters()) == \
+        len(petab_problem.sbml_model.getListOfParameters())
 
 
 class TestGetSimulationToOptimizationParameterMapping(object):

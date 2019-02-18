@@ -144,7 +144,12 @@ def log_sbml_errors(sbml_document: libsbml.SBMLDocument,
             category = error.getCategoryAsString()
             severity = error.getSeverityAsString()
             message = error.getMessage()
-            logger.warning(f'libSBML {severity} ({category}): {message}')
+            if severity == libsbml.LIBSBML_SEV_INFO:
+                logger.info(f'libSBML {severity} ({category}): {message}')
+            elif severity == libsbml.LIBSBML_SEV_WARNING:
+                logger.warning(f'libSBML {severity} ({category}): {message}')
+            else:
+                logger.error(f'libSBML {severity} ({category}): {message}')
 
 
 def globalize_parameters(sbml_model: libsbml.Model,
@@ -192,7 +197,7 @@ def globalize_parameters(sbml_model: libsbml.Model,
 def add_global_parameter(sbml_model: libsbml.Model,
                          parameter_id: str,
                          parameter_name: str = None,
-                         constant: str = False,
+                         constant: bool = False,
                          units: str = 'dimensionless',
                          value: float = 0.0):
     """Add new global parameter to SBML model"""

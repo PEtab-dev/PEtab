@@ -18,108 +18,132 @@ logger = logging.getLogger(__name__)
 class Problem:
     """
     PEtab parameter estimation problem as defined by
-    - sbml model
+    - SBML model
     - condition table
     - measurement table
     - parameter table [optional]
 
     Attributes:
-        sbml_file: PEtab SBML model
-        condition_file: PEtab condition table
-        measurement_file: PEtab measurement table
-        parameter_file: PEtab parameter table
-        model_name: name of the model
         condition_df: @type pandas.DataFrame
         measurement_df: @type pandas.DataFrame
         parameter_df: @type pandas.DataFrame
         sbml_reader: @type libsbml.SBMLReader
+            Stored to keep object alive.
         sbml_document: @type libsbml.Document
+            Stored to keep object alive.
         sbml_model: @type libsbml.Model
     """
 
     def __init__(self,
-                 sbml_file,
-                 condition_file,
-                 measurement_file,
-                 parameter_file=None,
-                 model_name=None):
+                 sbml_model: libsbml.Model = None,
+                 sbml_reader: libsbml.SBMLReader = None,
+                 sbml_document: libsbml.SBMLDocument = None,
+                 condition_df: pd.DataFrame = None,
+                 measurement_df: pd.DataFrame = None,
+                 parameter_df: pd.DataFrame = None):
 
-        if model_name is None:
-            model_name = os.path.splitext(os.path.split(sbml_file)[-1])[0]
-        self.model_name = model_name
+        self.condition_df = condition_df
+        self.measurement_df = measurement_df
+        self.parameter_df = parameter_df
 
-        self.measurement_file = measurement_file
-        self.condition_file = condition_file
-        self.parameter_file = parameter_file
-        self.sbml_file = sbml_file
-
-        self.condition_df = None
-        self.measurement_df = None
-        self.parameter_df = None
-        self._load_dfs()
-
-        self.sbml_reader = None
-        self.sbml_document = None
-        self.sbml_model = None
-        self._load_sbml()
+        self.sbml_reader = sbml_reader
+        self.sbml_document = sbml_document
+        self.sbml_model = sbml_model
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        # libsbml stuff cannot be serialized
-        # dfs can be recreated
-        for key in ['sbml_reader', 'sbml_document', 'sbml_model',
-                    'condition_df', 'measurement_df', 'parameter_df']:
+
+        # libsbml stuff cannot be serialized directly
+        if self.sbml_model:
+            sbml_document = self.sbml_model.getSBMLDocument()
+            sbml_writer = libsbml.SBMLWriter()
+            state['sbml_string'] = sbml_writer.writeSBMLToString(sbml_document)
+
+        exclude = ['sbml_reader', 'sbml_document', 'sbml_model']
+        for key in exclude:
             state.pop(key)
+
         return state
 
     def __setstate__(self, state):
+        # load SBML model from pickled string
+        sbml_string = state.pop('sbml_string', None)
+        if sbml_string:
+            self.sbml_reader = libsbml.SBMLReader()
+            self.sbml_document = \
+                self.sbml_reader.readSBMLFromString(sbml_string)
+            self.sbml_model = self.sbml_document.getModel()
+
         self.__dict__.update(state)
 
-        # load sbml from file name
-        self._load_sbml()
+    @staticmethod
+    def from_files(sbml_file: str = None,
+                   condition_file: str = None,
+                   measurement_file: str = None,
+                   parameter_file: str = None):
+        """
+        Factory method to load model and tables from files.
 
-        # reload dfs
-        self._load_dfs()
+        Arguments:
+            sbml_file: PEtab SBML model
+            condition_file: PEtab condition table
+            measurement_file: PEtab measurement table
+            parameter_file: PEtab parameter table
+        """
+
+        sbml_model = sbml_document = sbml_reader = None
+        condition_df = measurement_df = parameter_df = None
+
+        if condition_file:
+            condition_df = get_condition_df(condition_file)
+        if measurement_file:
+            measurement_df = get_measurement_df(measurement_file)
+        if parameter_file:
+            parameter_df = get_parameter_df(parameter_file)
+        if sbml_file:
+            sbml_reader = libsbml.SBMLReader()
+            sbml_document = sbml_reader.readSBML(sbml_file)
+            sbml_model = sbml_document.getModel()
+
+        problem = Problem(condition_df=condition_df,
+                          measurement_df=measurement_df,
+                          parameter_df=parameter_df,
+                          sbml_model=sbml_model,
+                          sbml_document=sbml_document,
+                          sbml_reader=sbml_reader)
+
+        return problem
 
     @staticmethod
-    def from_folder(folder):
+    def from_folder(folder: str, model_name: str = None):
         """
         Factory method to use the standard folder structure
-        and file names.
+        and file names, i.e.
+            ${model_name}/
+              +-- experimentalCondition_${model_name}.tsv
+              +-- measurementData_${model_name}.tsv
+              +-- model_${model_name}.xml
+              +-- parameters_${model_name}.tsv
+
+        Arguments:
+            folder:
+                Path to the directory in which the files are located.
+            model_name:
+                If specified, overrides the model component in the file names.
+                Defaults to the last component of `folder`.
         """
 
         folder = os.path.abspath(folder)
-        model_name = os.path.split(folder)[-1]
+        if model_name is None:
+            model_name = os.path.split(folder)[-1]
 
-        return Problem(
+        return Problem.from_files(
             condition_file=get_default_condition_file_name(model_name, folder),
-            measurement_file=get_default_measurement_file_name(
-                model_name, folder),
+            measurement_file=get_default_measurement_file_name(model_name,
+                                                               folder),
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
-            model_name=model_name
         )
-
-    def _load_dfs(self):
-        """
-        Load condition, measurement, and parameter dataframes.
-        """
-        self.condition_df = get_condition_df(self.condition_file)
-        self.measurement_df = get_measurement_df(self.measurement_file)
-        if self.parameter_file:
-            self.parameter_df = get_parameter_df(self.parameter_file)
-        else:
-            self.parameter_df = None
-
-    def _load_sbml(self):
-        """
-        Load SBML model.
-        """
-        # sbml_reader and sbml_document must be kept alive.
-        # Otherwise operations on sbml_model will segfault
-        self.sbml_reader = libsbml.SBMLReader()
-        self.sbml_document = self.sbml_reader.readSBML(self.sbml_file)
-        self.sbml_model = self.sbml_document.getModel()
 
     def get_constant_parameters(self):
         """
@@ -240,7 +264,7 @@ def get_condition_df(condition_file_name):
     """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
-    lint.assert_no_trailing_whitespace(
+    lint.assert_no_leading_trailing_whitespace(
         condition_df.columns.values, "condition")
 
     try:
@@ -258,7 +282,7 @@ def get_parameter_df(parameter_file_name):
     """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
-    lint.assert_no_trailing_whitespace(
+    lint.assert_no_leading_trailing_whitespace(
         parameter_df.columns.values, "parameter")
 
     try:
@@ -276,7 +300,7 @@ def get_measurement_df(measurement_file_name):
     """
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
-    lint.assert_no_trailing_whitespace(
+    lint.assert_no_leading_trailing_whitespace(
         measurement_df.columns.values, "measurement")
 
     return measurement_df
@@ -496,18 +520,23 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
     """
     Find all observable parameters and noise parameters that were not mapped,
     and set their mapping to np.nan.
+
+    Assumes that parameters matching "(noise|observable)Parameter[0-9]+_" were
+    all supposed to be overwritten.
     """
     _missed_vals = []
-    for observable_id in observable_ids:
-        rex = re.compile("(noise|observable)Parameter[0-9]+_" + observable_id)
-        for i_condition, mapping_for_condition in \
-                enumerate(mapping_par_opt_to_par_sim):
-            for i_val, val in enumerate(mapping_for_condition):
-                if isinstance(val, numbers.Number):
-                    continue
-                if rex.match(val):
-                    mapping_for_condition[i_val] = np.nan
-                    _missed_vals.append((i_condition, i_val, val))
+    rex = re.compile("^(noise|observable)Parameter[0-9]+_")
+    for i_condition, mapping_for_condition in \
+            enumerate(mapping_par_opt_to_par_sim):
+        for i_val, val in enumerate(mapping_for_condition):
+            try:
+                matches = rex.match(val)
+            except TypeError:
+                continue
+
+            if matches:
+                mapping_for_condition[i_val] = np.nan
+                _missed_vals.append((i_condition, i_val, val))
 
     if len(_missed_vals):
         logger.warning(f"Could not map the following overrides "
@@ -689,7 +718,7 @@ def create_condition_df(parameter_ids, condition_ids=None):
     return df
 
 
-def create_measurement_df():
+def create_measurement_df() -> pd.DataFrame:
     """Create empty measurement dataframe"""
 
     df = pd.DataFrame(data={
@@ -803,3 +832,19 @@ def get_observable_id(parameter_id):
         return parameter_id[len('sigma_'):]
 
     raise ValueError('Cannot extract observable id from: ' + parameter_id)
+
+
+def measurements_have_replicates(measurement_df: pd.DataFrame):
+    """Tests whether the measurements come with replicates
+
+    Arguments:
+        measurement_df: Measurement table
+
+    Returns:
+        True if there are replicates, False otherwise
+    """
+    return np.any(measurement_df.groupby(
+        get_notnull_columns(
+            measurement_df,
+            ['observableId', 'simulationConditionId',
+             'preequilibrationConditionId', 'time'])).size().values - 1)
