@@ -7,6 +7,8 @@ import numbers
 import re
 import copy
 import logging
+import libsbml
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -360,6 +362,18 @@ def lint_problem(problem: 'core.Problem'):
             logger.error(e)
             errors_occurred = True
 
+    if problem.sbml_model is not None and problem.condition_df is not None \
+            and problem.parameter_df is not None:
+        try:
+            assert_model_parameters_in_condition_or_parameter_table(
+                problem.sbml_model,
+                problem.condition_df,
+                problem.parameter_df
+            )
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+
     if errors_occurred:
         logger.error('Not OK')
     elif problem.measurement_df is None or problem.condition_df is None \
@@ -370,3 +384,44 @@ def lint_problem(problem: 'core.Problem'):
         logger.info('OK')
 
     return errors_occurred
+
+
+def assert_model_parameters_in_condition_or_parameter_table(
+        sbml_model: libsbml.Model,
+        condition_df: pd.DataFrame,
+        parameter_df: pd.DataFrame):
+    """Model non-placeholder model parameters must be either specified in the
+    condition or parameter table, unless they are AssignmentRule target, in
+    which case they must not occur in either.
+    Check that.
+
+    NOTE: SBML local parameters are ignored here"""
+
+    for parameter in sbml_model.getListOfParameters():
+        parameter_id = parameter.getId()
+
+        if parameter_id.startswith('observableParameter'):
+            continue
+        if parameter_id.startswith('noiseParameter'):
+            continue
+
+        is_assignee = \
+            sbml_model.getAssignmentRuleByVariable(parameter_id) is not None
+        in_parameter_df = parameter_id in parameter_df.index
+        in_condition_df = parameter_id in condition_df.columns
+
+        if is_assignee and (in_parameter_df or in_condition_df):
+            raise AssertionError(f"Model parameter '{parameter_id}' is target "
+                                 "of AssignmentRule, and thus, must not be "
+                                 "present in condition table or in parameter "
+                                 "table.")
+
+        if not is_assignee and not in_parameter_df and not in_condition_df:
+            raise AssertionError(f"Model parameter '{parameter_id}' neither "
+                                 "present in condition table nor in parameter "
+                                 "table.")
+
+        if in_parameter_df and in_condition_df:
+            raise AssertionError(f"Model parameter '{parameter_id}' present "
+                                 "in both condition table and parameter "
+                                 "table.")
