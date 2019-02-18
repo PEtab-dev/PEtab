@@ -514,21 +514,23 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
     """
     Find all observable parameters and noise parameters that were not mapped,
     and set their mapping to np.nan.
+
+    Assumes that parameters matching "(noise|observable)Parameter[0-9]+_" were
+    all supposed to be overwritten.
     """
     _missed_vals = []
-    for observable_id in observable_ids:
-        rex = re.compile("(noise|observable)Parameter[0-9]+_" + observable_id)
-        for i_condition, mapping_for_condition in \
-                enumerate(mapping_par_opt_to_par_sim):
-            for i_val, val in enumerate(mapping_for_condition):
-                try:
-                    matches = rex.match(val)
-                except TypeError:
-                    continue
+    rex = re.compile("^(noise|observable)Parameter[0-9]+_")
+    for i_condition, mapping_for_condition in \
+            enumerate(mapping_par_opt_to_par_sim):
+        for i_val, val in enumerate(mapping_for_condition):
+            try:
+                matches = rex.match(val)
+            except TypeError:
+                continue
 
-                if matches:
-                    mapping_for_condition[i_val] = np.nan
-                    _missed_vals.append((i_condition, i_val, val))
+            if matches:
+                mapping_for_condition[i_val] = np.nan
+                _missed_vals.append((i_condition, i_val, val))
 
     if len(_missed_vals):
         logger.warning(f"Could not map the following overrides "
