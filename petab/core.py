@@ -521,9 +521,12 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
         for i_condition, mapping_for_condition in \
                 enumerate(mapping_par_opt_to_par_sim):
             for i_val, val in enumerate(mapping_for_condition):
-                if isinstance(val, numbers.Number):
+                try:
+                    matches = rex.match(val)
+                except TypeError:
                     continue
-                if rex.match(val):
+
+                if matches:
                     mapping_for_condition[i_val] = np.nan
                     _missed_vals.append((i_condition, i_val, val))
 
