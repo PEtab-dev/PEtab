@@ -113,7 +113,8 @@ def main():
         logger.error(e)
         sys.exit(1)
 
-    petab.lint.lint_problem(problem)
+    ret = petab.lint.lint_problem(problem)
+    sys.exit(ret)
 
 
 if __name__ == '__main__':

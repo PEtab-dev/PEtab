@@ -301,6 +301,9 @@ def lint_problem(problem: 'core.Problem'):
 
     Arguments:
         problem: PEtab problem to check
+
+    Returns:
+        True is errors occurred, False otherwise
     """
     errors_occurred = False
 
@@ -365,3 +368,5 @@ def lint_problem(problem: 'core.Problem'):
                        'be checked.')
     else:
         logger.info('OK')
+
+    return errors_occurred
