@@ -12,7 +12,7 @@ after_success:
 - codecov
 deploy:
   provider: pypi
-  user: yannik.schaelte
+  username: yannik.schaelte
   password:
     secure: OWhxFMN4a8/4+c2L+IOFaV7ZJRD54PpaWIyBaD+ZKNolOQccS3k+SElV8qwVbS9tMddzijhiwVRuv3CfIflHRKFwOkZhuyI7QN9DblE3/ENhjpMLhTJ13rpinIULBpe+MFStBcjZauHf4fMrBypbLbGM7hFLTVCAoE0HjFCkh7hWNtP/WKzrMNXhr3lS5MHD7TkOSoD79SFB12X2rs6fNpG4eQQXJRDFQOpKw/3sorFxbwm94XguC+yuao7YOrT4aTS2BH0R4sUIzKjZwrZCzQctYFZkF2/kpo8H9uSHzf4G1GeRnegL1d6GyEzcKAqBy30wnZZRlAAZZpf60cjR7Om45FoYWs6ljZLjx1ReEkKSXL5+6KmoU9j69+AW5rnXVh/Rh+k7lxRSA5YCEHpzuyjcjB7n8PEQ2mgB3Ru98EemekEU+eWkbdTkkg9+1Gff/Ef5uB6mn7ZEFZQ9d1cBLFunU9UF62m/MH+ZanmzRM1QnVMtXxqsrnt8ktJfo5GTvHJ3HUY3CFsvJxjOKsVGVxuHapjBUburrv6wuNz2Dv/wdoZ/cW1u+mwOjh3DItJ7s5qgPcnOMUjn6Nk8nDsGzDvEsyFVz8ahipTWEvbAxNF5mFdcuj9yVRxa1rFlHaan9HH0TXp0fe1/SR4Ib7/lcPutdYzjdO0ec+DKSxAFd+c=
   on:
