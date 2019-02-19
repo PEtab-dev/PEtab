@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 sys.path.append(os.getcwd())
-from petab import lint  # noqa: E402
+from petab import (lint, sbml)  # noqa: E402
 
 
 def test_assert_measured_observables_present_in_model():
@@ -121,18 +121,66 @@ def test_assert_overrides_match_parameter_count():
             measurement_df, observables, noise)
 
 
-def test_assert_no_trailing_whitespace():
+def test_assert_no_leading_trailing_whitespace():
 
     test_df = pd.DataFrame(data={
         'testId': ['name1 ', 'name2'],
-        'testText ': ['name1', 'name2'],
-        'testNumeric': [1.0, 2.0]
+        'testText ': [' name1', 'name2'],
+        'testNumeric': [1.0, 2.0],
+        'testNone': None
     })
 
     with pytest.raises(AssertionError):
-        lint.assert_no_trailing_whitespace(
+        lint.assert_no_leading_trailing_whitespace(
             test_df.columns.values, "test")
 
     with pytest.raises(AssertionError):
-        lint.assert_no_trailing_whitespace(
+        lint.assert_no_leading_trailing_whitespace(
             test_df['testId'].values, "testId")
+
+    with pytest.raises(AssertionError):
+        lint.assert_no_leading_trailing_whitespace(
+            test_df['testText '].values, "testText")
+
+    lint.assert_no_leading_trailing_whitespace(
+        test_df['testNumeric'].values, "testNumeric")
+
+    lint.assert_no_leading_trailing_whitespace(
+        test_df['testNone'].values, "testNone")
+
+
+def test_assert_model_parameters_in_condition_or_parameter_table():
+    document = libsbml.SBMLDocument(3, 1)
+    model = document.createModel()
+    model.setTimeUnits("second")
+    model.setExtentUnits("mole")
+    model.setSubstanceUnits('mole')
+    sbml.add_global_parameter(model, 'parameter1')
+    sbml.add_global_parameter(model, 'noiseParameter1_')
+    sbml.add_global_parameter(model, 'observableParameter1_')
+
+    with pytest.raises(AssertionError):
+        lint.assert_model_parameters_in_condition_or_parameter_table(
+            model, pd.DataFrame(), pd.DataFrame())
+
+    lint.assert_model_parameters_in_condition_or_parameter_table(
+            model, pd.DataFrame(columns=['parameter1']), pd.DataFrame()
+    )
+
+    lint.assert_model_parameters_in_condition_or_parameter_table(
+            model, pd.DataFrame(), pd.DataFrame(index=['parameter1']))
+
+    with pytest.raises(AssertionError):
+        lint.assert_model_parameters_in_condition_or_parameter_table(
+            model,
+            pd.DataFrame(columns=['parameter1']),
+            pd.DataFrame(index=['parameter1']))
+
+    with pytest.raises(AssertionError):
+        lint.assert_model_parameters_in_condition_or_parameter_table(
+            model, pd.DataFrame(), pd.DataFrame())
+
+    sbml.create_assigment_rule(model, assignee_id='parameter1',
+                               formula='parameter2')
+    lint.assert_model_parameters_in_condition_or_parameter_table(
+        model, pd.DataFrame(), pd.DataFrame())

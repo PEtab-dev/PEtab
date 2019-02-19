@@ -1,12 +1,16 @@
 """Integrity checks and tests for specific features used"""
 
 from . import core
-
+from . import sbml
 import numpy as np
 import numbers
-import libsbml
 import re
 import copy
+import logging
+import libsbml
+import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def _check_df(df, req_cols, name):
@@ -17,17 +21,11 @@ def _check_df(df, req_cols, name):
             f"Dataframe {name} requires the columns {missing_cols}.")
 
 
-def assert_no_trailing_whitespace(names_list, name):
-    r = re.compile(r'\w+\s$')
-    names_with_empty_string = list(filter(r.match, names_list))
-
-    if len(names_with_empty_string) > 0:
-        if name in ["condition", "parameter", "measurement", "test"]:
-            raise AssertionError(
-                f"Trailing whitespace in column names of {name} file.")
-        else:
-            raise AssertionError(
-                f"Trailing whitespace in entries of {name} column.")
+def assert_no_leading_trailing_whitespace(names_list, name):
+    r = re.compile(r'(?:^\s)|(?:\s$)')
+    for i, x in enumerate(names_list):
+        if isinstance(x, str) and r.search(x):
+            raise AssertionError(f"Whitespace around {name}[{i}] = '{x}'.")
 
 
 def check_condition_df(df):
@@ -39,11 +37,12 @@ def check_condition_df(df):
             f"Condition table has wrong index {df.index.name}."
             "expected 'conditionId'.")
 
-    assert_no_trailing_whitespace(df.index.values, "conditionId")
+    assert_no_leading_trailing_whitespace(df.index.values, "conditionId")
 
     for column_name in req_cols:
         if not np.issubdtype(df[column_name].dtype, np.number):
-            assert_no_trailing_whitespace(df[column_name].values, column_name)
+            assert_no_leading_trailing_whitespace(
+                df[column_name].values, column_name)
 
 
 def check_measurement_df(df):
@@ -55,7 +54,8 @@ def check_measurement_df(df):
 
     for column_name in req_cols:
         if not np.issubdtype(df[column_name].dtype, np.number):
-            assert_no_trailing_whitespace(df[column_name].values, column_name)
+            assert_no_leading_trailing_whitespace(
+                df[column_name].values, column_name)
 
     _check_df(df, req_cols, "measurement")
 
@@ -72,12 +72,19 @@ def check_parameter_df(df):
             f"Parameter table has wrong index {df.index.name}."
             "expected 'parameterId'.")
 
-    assert_no_trailing_whitespace(df.index.values, "parameterId")
+    assert_no_leading_trailing_whitespace(df.index.values, "parameterId")
 
     for column_name in req_cols:
-        if df[column_name].dtype != np.dtype(
-                np.float) and df[column_name].dtype != np.dtype(np.int):
-            assert_no_trailing_whitespace(df[column_name].values, column_name)
+        if not np.issubdtype(df[column_name].dtype, np.number):
+            assert_no_leading_trailing_whitespace(
+                df[column_name].values, column_name)
+
+    assert_parameter_id_is_string(df)
+    assert_parameter_scale_is_valid(df)
+    assert_parameter_bounds_are_numeric(df)
+    assert_parameter_estimate_is_boolean(df)
+    assert_parameter_id_is_unique(df)
+    check_parameterBounds(df)
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
@@ -110,16 +117,6 @@ def condition_table_is_parameter_free(condition_df):
                 isinstance, args=(numbers.Number,)))):
             return False
     return True
-
-
-def check_parameter_sheet(problem):
-    check_parameter_df(problem.parameter_df)
-    assert_parameter_id_is_string(problem.parameter_df)
-    assert_parameter_scale_is_valid(problem.parameter_df)
-    assert_parameter_bounds_are_numeric(problem.parameter_df)
-    assert_parameter_estimate_is_boolean(problem.parameter_df)
-    assert_parameter_id_is_unique(problem.parameter_df)
-    check_parameterBounds(problem.parameter_df)
 
 
 def assert_parameter_id_is_string(parameter_df):
@@ -301,39 +298,130 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
                     f'But parameter name or multiple overrides provided.')
 
 
-def print_sbml_errors(sbml_document,
-                      minimum_severity=libsbml.LIBSBML_SEV_WARNING):
-    """Print libsbml errors
-
-    Arguments:
-        sbml_document: libsbml.Document
-        minimum_severity: minimum severity level to print
-        (see libsbml.LIBSBML_SEV_*)
-    """
-
-    for error_idx in range(sbml_document.getNumErrors()):
-        error = sbml_document.getError(error_idx)
-        if error.getSeverity() >= minimum_severity:
-            category = error.getCategoryAsString()
-            severity = error.getSeverityAsString()
-            message = error.getMessage()
-            print(f'libSBML {severity} ({category}): {message}')
-
-
-def lint_problem(problem):
+def lint_problem(problem: 'core.Problem'):
     """Run PEtab validation on problem
 
     Arguments:
-        problem: petab.Problem
-    """
+        problem: PEtab problem to check
 
-    check_measurement_df(problem.measurement_df)
-    check_condition_df(problem.condition_df)
-    check_parameter_sheet(problem)
-    assert_measured_observables_present_in_model(
-        problem.measurement_df, problem.sbml_model)
-    assert_overrides_match_parameter_count(
-        problem.measurement_df,
-        core.get_observables(problem.sbml_model, remove=False),
-        core.get_sigmas(problem.sbml_model, remove=False)
-    )
+    Returns:
+        True is errors occurred, False otherwise
+    """
+    errors_occurred = False
+
+    # Run checks on individual files
+    if problem.sbml_model is not None:
+        logger.info("Checking SBML model...")
+        errors_occurred |= not sbml.is_sbml_consistent(
+            problem.sbml_model.getSBMLDocument())
+        sbml.log_sbml_errors(problem.sbml_model.getSBMLDocument())
+    else:
+        logger.warning("SBML model not available. Skipping.")
+
+    if problem.measurement_df is not None:
+        logger.info("Checking measurement table...")
+        try:
+            check_measurement_df(problem.measurement_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Measurement table not available. Skipping.")
+
+    if problem.condition_df is not None:
+        logger.info("Checking condition table...")
+        try:
+            check_condition_df(problem.condition_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Condition table not available. Skipping.")
+
+    if problem.parameter_df is not None:
+        logger.info("Checking parameter table...")
+        try:
+            check_parameter_df(problem.parameter_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Parameter table not available. Skipping.")
+
+    if problem.measurement_df is not None and problem.sbml_model is not None \
+            and not errors_occurred:
+        try:
+            assert_measured_observables_present_in_model(
+                problem.measurement_df, problem.sbml_model)
+            assert_overrides_match_parameter_count(
+                problem.measurement_df,
+                core.get_observables(problem.sbml_model, remove=False),
+                core.get_sigmas(problem.sbml_model, remove=False)
+            )
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+
+    if problem.sbml_model is not None and problem.condition_df is not None \
+            and problem.parameter_df is not None:
+        try:
+            assert_model_parameters_in_condition_or_parameter_table(
+                problem.sbml_model,
+                problem.condition_df,
+                problem.parameter_df
+            )
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+
+    if errors_occurred:
+        logger.error('Not OK')
+    elif problem.measurement_df is None or problem.condition_df is None \
+            or problem.sbml_model is None or problem.parameter_df is None:
+        logger.warning('Not all files of the PEtab problem definition could '
+                       'be checked.')
+    else:
+        logger.info('OK')
+
+    return errors_occurred
+
+
+def assert_model_parameters_in_condition_or_parameter_table(
+        sbml_model: libsbml.Model,
+        condition_df: pd.DataFrame,
+        parameter_df: pd.DataFrame):
+    """Model non-placeholder model parameters must be either specified in the
+    condition or parameter table, unless they are AssignmentRule target, in
+    which case they must not occur in either.
+    Check that.
+
+    NOTE: SBML local parameters are ignored here"""
+
+    for parameter in sbml_model.getListOfParameters():
+        parameter_id = parameter.getId()
+
+        if parameter_id.startswith('observableParameter'):
+            continue
+        if parameter_id.startswith('noiseParameter'):
+            continue
+
+        is_assignee = \
+            sbml_model.getAssignmentRuleByVariable(parameter_id) is not None
+        in_parameter_df = parameter_id in parameter_df.index
+        in_condition_df = parameter_id in condition_df.columns
+
+        if is_assignee and (in_parameter_df or in_condition_df):
+            raise AssertionError(f"Model parameter '{parameter_id}' is target "
+                                 "of AssignmentRule, and thus, must not be "
+                                 "present in condition table or in parameter "
+                                 "table.")
+
+        if not is_assignee and not in_parameter_df and not in_condition_df:
+            raise AssertionError(f"Model parameter '{parameter_id}' neither "
+                                 "present in condition table nor in parameter "
+                                 "table.")
+
+        if in_parameter_df and in_condition_df:
+            raise AssertionError(f"Model parameter '{parameter_id}' present "
+                                 "in both condition table and parameter "
+                                 "table.")
