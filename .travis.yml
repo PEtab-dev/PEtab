@@ -1,24 +1,20 @@
 language: python
 
 python:
-  - '3.6'
-
+- '3.6'
 install:
-  - pip install -U pytest pytest-cov codecov flake8
-  - pip install -e .
-
+- pip install -U pytest pytest-cov codecov flake8
+- pip install -e .
 script:
-  - pytest --cov
-  - python3 -m flake8 --exclude=build,doc,example,tmp
-
+- pytest --cov
+- python3 -m flake8 --exclude=build,doc,example,tmp
 after_success:
-  - codecov
-
+- codecov
 deploy:
   provider: pypi
-  user: dweindl
+  user: yannik.schaelte
   password:
-    secure: WSGm9+c67bc9GzEq0qfxFN1qUVUP32OZwHSM6BPlIdvMvo0cOxiJIvmrgufpmBnxqxytvTOc9NVNUYp3INbo8x4ohI8hbUw8liwQypb6fakWvWKDEdLhu7xaIyJh/QP0aVnxMlq+RHypP+iYImDJW6Ss3WghINpln+vd9gv2O4vAdywCzrnI4VXO90mkTSFmEFFZnyAvA5Ht0zFaL+Mh0+Ggzo1/PDXCvQ9nLr07HaYAf3UG3SdQX8s1zSN67iu9+hchTefzm/Eq9pSpz+8ZhIdidvNnYv4zyJ5xtMKpL+5TQrl/7BDMM1UameJbDgG724bn53nuEL7fY1T1eguUt4m29cLl8QXidahLmNspnLkZmAWt6xixTAeEkUeGzsWnWxgsHf3fyy+gzAbD7i22vFlirym4l0ZkTcdtiuFRe3uNmVMHf5O3jgilc313odit5AWRJCLJINaZ3sMVZc3prMYC1w4FJuPI9WKnZJYJuKyhP8680fCkcQQmRdQ3zJqnwgQcUBCkY02L1dJdhUvwcAnAUHwu0Fb/hE1vdb75BQ9V78oeM9kzpF+inNxNWgrZVXH6dG6NN4naPL2W2WH3Oq7k6ib/qqmk7OE+FhFpjq+Gv2oY93qRHvb4djPEZVDLwFmz9y0Vdx1e2YRCnVor1pQbqPgIc/V+dmC6V4UhIhI=
+    secure: OWhxFMN4a8/4+c2L+IOFaV7ZJRD54PpaWIyBaD+ZKNolOQccS3k+SElV8qwVbS9tMddzijhiwVRuv3CfIflHRKFwOkZhuyI7QN9DblE3/ENhjpMLhTJ13rpinIULBpe+MFStBcjZauHf4fMrBypbLbGM7hFLTVCAoE0HjFCkh7hWNtP/WKzrMNXhr3lS5MHD7TkOSoD79SFB12X2rs6fNpG4eQQXJRDFQOpKw/3sorFxbwm94XguC+yuao7YOrT4aTS2BH0R4sUIzKjZwrZCzQctYFZkF2/kpo8H9uSHzf4G1GeRnegL1d6GyEzcKAqBy30wnZZRlAAZZpf60cjR7Om45FoYWs6ljZLjx1ReEkKSXL5+6KmoU9j69+AW5rnXVh/Rh+k7lxRSA5YCEHpzuyjcjB7n8PEQ2mgB3Ru98EemekEU+eWkbdTkkg9+1Gff/Ef5uB6mn7ZEFZQ9d1cBLFunU9UF62m/MH+ZanmzRM1QnVMtXxqsrnt8ktJfo5GTvHJ3HUY3CFsvJxjOKsVGVxuHapjBUburrv6wuNz2Dv/wdoZ/cW1u+mwOjh3DItJ7s5qgPcnOMUjn6Nk8nDsGzDvEsyFVz8ahipTWEvbAxNF5mFdcuj9yVRxa1rFlHaan9HH0TXp0fe1/SR4Ib7/lcPutdYzjdO0ec+DKSxAFd+c=
   on:
     branch: master
     tags: true
