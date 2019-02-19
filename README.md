@@ -19,20 +19,26 @@ PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values
 parameter estimation which is out of the current scope of SBML. This includes
 for example:
 
-- Specifying and linking measurements to models
+  - Specifying and linking measurements to models
+
     - Defining model outputs
+
     - Specifying noise models
-- Specifying parameter bounds for optimization
-- Specifying multiple simulation condition with potentially shared parameters
+
+  - Specifying parameter bounds for optimization
+
+  - Specifying multiple simulation condition with potentially shared parameters
  
 ## References
 
 Where PEtab is used / supported:
 
-- Within the systems biology optimization 
-  [benchmark problem collection](https://github.com/LoosC/Benchmark-Models)
-- [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
-- [AMICI](https://github.com/ICB-DCM/AMICI/)
+  - Within the systems biology optimization 
+    [benchmark problem collection](https://github.com/LoosC/Benchmark-Models)
+
+  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
+
+  - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
 If your project or tool is using PEtab, and you would like to have it listed
 here, please let us know.
@@ -48,10 +54,14 @@ To convert your existing parameter estimation problem to the PEtab format, you
 will have to:
 
 1. Specify your model in SBML
+
 1. Set up model outputs and noise model using `AssignmentRule`s as described in 
   the PEtab documentation
+
 1. Create a condition table, if appropriate
+
 1. Create a table of measurements
+
 1. Create a parameter table
 
 If you are using Python, some handy functions of the PEtab library can help 
@@ -73,9 +83,10 @@ It will require Python3.6 to run.
 When setting up a new parameter estimation problem, the most useful tools will
 be:
 
-- the PEtab validator `bin/petablint.py`
-- `petab.core.create_parameter_df` to create the parameter table, once you
-  have set up the model, condition table and measurement table
+  - The PEtab validator `bin/petablint.py`
+
+  - `petab.core.create_parameter_df` to create the parameter table, once you
+    have set up the model, condition table and measurement table
 
 
 ## Extending PEtab
