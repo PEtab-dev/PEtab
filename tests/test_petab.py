@@ -305,9 +305,17 @@ def test_create_parameter_df(condition_df_2_conditions):
     s = model.createSpecies()
     s.setId('x1')
 
-    p = model.createParameter()
-    p.setId('fixedParameter1')
-    p.setName('FixedParameter1')
+    petab.sbml.add_global_parameter(
+        model,
+        parameter_id='fixedParameter1',
+        parameter_name='FixedParameter1',
+        value=2.0)
+
+    petab.sbml.add_global_parameter(
+        model,
+        parameter_id='p0',
+        parameter_name='Parameter 0',
+        value=3.0)
 
     petab.sbml.add_model_output_with_sigma(
         sbml_model=model,
@@ -333,6 +341,8 @@ def test_create_parameter_df(condition_df_2_conditions):
         measurement_df)
 
     # first model parameters, then row by row noise and sigma overrides
-    expected = ['p3', 'p4', 'p1', 'p2', 'p5']
+    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5']
     actual = parameter_df.index.values.tolist()
     assert actual == expected
+
+    assert parameter_df.loc['p0', 'nominalValue'] == 3.0

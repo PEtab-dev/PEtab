@@ -816,6 +816,12 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
         })
     df.set_index(['parameterId'], inplace=True)
 
+    # For SBML model parameters set nominal values as defined in the model
+    for parameter_id in df.index:
+        parameter = sbml_model.getParameter(parameter_id)
+        if parameter:
+            df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
+
     return df
 
 
