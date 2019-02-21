@@ -21,8 +21,11 @@ and [Tab-Separated Values
 
 - A measurement file to fit the model to [TSV]
 
-- A "condition" file specifying model inputs and condition-specific parameters
-[TSV]
+- A condition file specifying model inputs and condition-specific parameters
+  [TSV]
+
+- A parameter file specifying optimization parameters and related information
+  [TSV]
 
 The following sections will describe the minimum requirements of those
 components in the core standard, which should provide all information for
@@ -84,22 +87,23 @@ Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 
 ## Condition table
 
-The condition table species parameters for specific simulation condition
-(generally corresponding to different experimental conditions).
+The condition table specifies parameters or *constant* species for specific
+simulation condition (generally corresponding to different experimental
+conditions).
 
 This is specified as tab-separated value file with condition-specific
-parameters in the following way:
+species/parameters in the following way:
 
-| conditionId | [conditionName] | parameterId1 | ... | parameterId${n} |
+| conditionId | [conditionName] | parameterOrStateId1 | ... | parameterOrStateId${n} |
 |---|---|---|---|---|
 | conditionId1 | conditionName1 | NUMERIC&#124;parameterId | ...| ...
 | conditionId2 | ... | ... | ...| ...
 |... | ... | ... | ... |...| ...
 
 Row names are condition names as referenced in the measurement table below.
-Column names are parameter names as given in the SBML model or the measurement
-table. These parameters will override any parameter values specified in the
-model. `parameterId`s and `conditionId`s must be unique.
+Column names are global parameter IDs or IDs of constant species as given in
+the SBML model. These parameters will override any parameter values specified
+in the model. `parameterOrStateId`s and `conditionId`s must be unique.
 
 Row- and column-ordering are arbitrary, although specifying `parameterId`
 first may improve human readability. The `conditionName` column is optional.
@@ -108,9 +112,6 @@ Additional columns are *not* allowed.
 *Note 1:* Instead of adding additional columns to the condition table, they
 can easily be added to a separate file, since every row of the condition table
 has `parameterId` as unique key.
-
-*Note 2:* State names to specify initial conditions are not allowed here. The
-respective initial values need to be turned into SBML model parameters.
 
 ## Measurements table
 
@@ -275,14 +276,20 @@ Detailed column description:
 
   Type of prior. Leave empty or omit column, if no priors. Normal/ Laplace etc.
 
-  **TODO** What will be allowed here? (issue #17)
+  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
+
 
 - `priorParameters`
 
   Parameters for prior.
 
-  **TODO** Numeric or also parameter names? (issue #17)
+  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
+  Numeric or also parameter names? (issue #17)
 
+
+## Parameter estimation problems combining multiple models
+
+[**Issue #49**](https://github.com/ICB-DCM/PEtab/issues/49)
 
 ## Extensions
 
