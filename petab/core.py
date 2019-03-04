@@ -216,8 +216,7 @@ class Problem:
         return [self.x_nominal[val] for val in self.x_fixed_indices]
 
     def get_simulation_conditions_from_measurement_df(self):
-        return get_simulation_conditions_from_measurement_df(
-            self.measurement_df)
+        return get_simulation_conditions(self.measurement_df)
 
     def get_optimization_to_simulation_parameter_mapping(self):
         """
@@ -375,16 +374,6 @@ def parameter_is_offset_parameter(parameter, formula):
     return sym_parameter not in (sym_formula - sym_parameter).free_symbols
 
 
-def get_simulation_conditions_from_measurement_df(measurement_df):
-    grouping_cols = get_notnull_columns(
-        measurement_df,
-        ['simulationConditionId', 'preequilibrationConditionId'])
-    simulation_conditions = \
-        measurement_df.groupby(grouping_cols).size().reset_index()
-
-    return simulation_conditions
-
-
 def get_optimization_to_simulation_parameter_mapping(
         condition_df,
         measurement_df,
@@ -458,13 +447,13 @@ def get_optimization_to_simulation_parameter_mapping(
             _apply_overrides(
                 overrides, condition_ix,
                 row.observableId, override_type='observable')
+
             overrides = split_parameter_replacement_list(row.noiseParameters)
             _apply_overrides(
                 overrides, condition_ix,
                 row.observableId, override_type='noise')
 
-    handle_missing_overrides(mapping, measurement_df.observableId.unique())
-
+    handle_missing_overrides(mapping)
     return mapping
 
 
@@ -516,7 +505,7 @@ def get_rows_for_condition(measurement_df, condition):
     return cur_measurement_df
 
 
-def handle_missing_overrides(mapping_par_opt_to_par_sim, observable_ids):
+def handle_missing_overrides(mapping_par_opt_to_par_sim):
     """
     Find all observable parameters and noise parameters that were not mapped,
     and set their mapping to np.nan.

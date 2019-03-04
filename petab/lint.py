@@ -84,7 +84,7 @@ def check_parameter_df(df):
     assert_parameter_bounds_are_numeric(df)
     assert_parameter_estimate_is_boolean(df)
     assert_parameter_id_is_unique(df)
-    check_parameterBounds(df)
+    check_parameter_bounds(df)
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
@@ -166,7 +166,7 @@ def assert_parameter_bounds_are_numeric(parameter_df):
     parameter_df["upperBound"].apply(float).all()
 
 
-def check_parameterBounds(parameter_df):
+def check_parameter_bounds(parameter_df):
     """
     Check if all entries in the lowerBound are smaller than upperBound column
     in the parameter table.
@@ -175,7 +175,7 @@ def check_parameterBounds(parameter_df):
         if not parameter_df['lowerBound'][element] \
                 <= parameter_df['upperBound'][element]:
             raise AssertionError(
-                f"lowerbound larger than upperBound in parameterId "
+                f"lowerBound larger than upperBound for parameterId "
                 f"{parameter_df.index[element]}.")
 
 
