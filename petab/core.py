@@ -453,7 +453,6 @@ def get_optimization_to_simulation_parameter_mapping(
                 overrides, condition_ix,
                 row.observableId, override_type='noise')
 
-
     handle_missing_overrides(mapping)
     return mapping
 
