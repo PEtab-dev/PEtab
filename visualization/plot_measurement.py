@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_measurementdata(DataFilePath, ConditionFilePath):
+def plot_measurementdata(data_file_path, condition_file_path):
     '''
     plot measurement data grouped by variable ID
 
@@ -21,26 +21,26 @@ def plot_measurementdata(DataFilePath, ConditionFilePath):
 
     # import measurement data
     measurement_data = pd.DataFrame.from_csv(
-        DataFilePath, sep="\t", index_col=None)
+        data_file_path, sep="\t", index_col=None)
     # import experimental condition
     experimental_condition = pd.DataFrame.from_csv(
-        ConditionFilePath, sep="\t")
+        condition_file_path, sep="\t")
 
-    observableId = np.array(measurement_data.observableId)
+    observable_id = np.array(measurement_data.observableId)
     measurement = np.array(measurement_data.measurement)
-    simulationCondition = np.array(measurement_data.simulationConditionId)
+    simulation_condition = np.array(measurement_data.simulationConditionId)
     time = np.array(measurement_data.time)
 
     # get unique observable ID
-    uni_observableId = np.unique(observableId)
+    uni_observable_id = np.unique(observable_id)
 
     # group measurement, time and condition Id by observable Id
-    axis = np.empty(len(uni_observableId), dtype=object)
-    for i_uniobs, val_uniobs in enumerate(uni_observableId):
-        ind_uniobs = np.where(observableId == val_uniobs)[0]
+    axis = np.empty(len(uni_observable_id), dtype=object)
+    for i_uniobs, val_uniobs in enumerate(uni_observable_id):
+        ind_uniobs = np.where(observable_id == val_uniobs)[0]
         measurement_uniobs = measurement[ind_uniobs]
         time_uniobs = time[ind_uniobs]
-        condition_uniobs = simulationCondition[ind_uniobs]
+        condition_uniobs = simulation_condition[ind_uniobs]
 
         uni_condition = np.unique(condition_uniobs)
         _, ax = plt.subplots()
