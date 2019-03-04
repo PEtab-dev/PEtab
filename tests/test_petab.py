@@ -73,10 +73,11 @@ def petab_problem():
         parameter_file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
-    problem = petab.Problem(sbml_file=sbml_file_name,
-                            measurement_file=measurement_file_name,
-                            condition_file=condition_file_name,
-                            parameter_file=parameter_file_name)
+    problem = petab.Problem.from_files(
+        sbml_file=sbml_file_name,
+        measurement_file=measurement_file_name,
+        condition_file=condition_file_name,
+        parameter_file=parameter_file_name)
 
     return problem
 
@@ -120,36 +121,6 @@ def test_parameter_is_scaling_parameter():
     assert petab.parameter_is_scaling_parameter('a', 'a * a') is False
 
 
-def test_assignment_rules_to_dict():
-    # Create Sbml model with one parameter and one assignment rule
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    p = model.createParameter()
-    p.setId('observable_1')
-    p.setName('Observable 1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_1')
-    rule.setFormula('a+b')
-
-    expected = {
-        'observable_1': {
-            'name': 'Observable 1',
-            'formula': 'a+b'
-        }
-    }
-
-    actual = petab.assignment_rules_to_dict(model, remove=False)
-    assert actual == expected
-    assert model.getAssignmentRuleByVariable('observable_1') is not None
-    assert len(model.getListOfParameters()) == 1
-
-    actual = petab.assignment_rules_to_dict(model, remove=True)
-    assert actual == expected
-    assert model.getAssignmentRuleByVariable('observable_1') is None
-    assert len(model.getListOfParameters()) == 0
-
-
 def test_petab_problem(petab_problem):
     """
     Basic tests on petab problem.
@@ -159,22 +130,21 @@ def test_petab_problem(petab_problem):
 
 def test_serialization(petab_problem):
     # serialize and back
-    petab_problem_recreated = pickle.loads(pickle.dumps(petab_problem))
+    problem_recreated = pickle.loads(pickle.dumps(petab_problem))
 
-    assert petab_problem_recreated.measurement_file == \
-        petab_problem.measurement_file
-    assert petab_problem_recreated.condition_file == \
-        petab_problem.condition_file
-    assert petab_problem_recreated.parameter_file == \
-        petab_problem.parameter_file
-    assert petab_problem_recreated.sbml_file == \
-        petab_problem.sbml_file
-    assert petab_problem_recreated.condition_df.equals(
-        petab_problem.condition_df)
-    assert petab_problem_recreated.measurement_df.equals(
+    assert problem_recreated.measurement_df.equals(
         petab_problem.measurement_df)
-    assert petab_problem_recreated.parameter_df.equals(
+
+    assert problem_recreated.parameter_df.equals(
         petab_problem.parameter_df)
+
+    assert problem_recreated.condition_df.equals(
+        petab_problem.condition_df)
+
+    # Can't test for equality directly, testing for number of parameters
+    #  should do the job here
+    assert len(problem_recreated.sbml_model.getListOfParameters()) == \
+        len(petab_problem.sbml_model.getListOfParameters())
 
 
 class TestGetSimulationToOptimizationParameterMapping(object):
@@ -270,7 +240,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      'dynamicParameter2',
                      'obs1par1override',
                      'obs1par2cond1override',
-                     'observableParameter1_obs2',
+                     np.nan,
                      ],
                     ['dynamicParameter1',
                      'dynamicParameter2',
@@ -339,30 +309,17 @@ def test_create_parameter_df(condition_df_2_conditions):
     p.setId('fixedParameter1')
     p.setName('FixedParameter1')
 
-    p = model.createParameter()
-    p.setId('observable_obs1')
-    p.setName('Observable 1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_obs1')
-    rule.setFormula('x1')
+    petab.sbml.add_model_output_with_sigma(
+        sbml_model=model,
+        observable_id='obs1',
+        observable_name='Observable 1',
+        observable_formula='x1')
 
-    p = model.createParameter()
-    p.setId('observable_obs2')
-    p.setName('Observable 2')
-    p = model.createParameter()
-    p.setId('noiseParameter1_obs2')
-    p.setName('Observable 1')
-    p = model.createParameter()
-    p.setId('sigma_obs2')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('observable_obs2')
-    rule.setFormula('2*x1')
-    rule = model.createAssignmentRule()
-    rule.setId('assignmentRuleIdDoesntMatter')
-    rule.setVariable('sigma_obs2')
-    rule.setFormula('noiseParameter1_obs2')
+    petab.add_model_output_with_sigma(
+        sbml_model=model,
+        observable_id='obs2',
+        observable_name='Observable 2',
+        observable_formula='2*x1')
 
     measurement_df = pd.DataFrame(data={
         'observableId': ['obs1', 'obs2'],
