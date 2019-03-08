@@ -69,14 +69,11 @@ def parse_cli_args():
             args.parameter_file_name = petab.get_default_parameter_file_name(
                 args.model_name)
 
-    if not args.model_name and \
-            (not args.sbml_file_name
-             or not args.condition_file_name
-             or not args.measurement_file_name):
-        # TODO: we should also allow running (limited) tests on a subset of
-        # files
-        parser.error('When not specifying a model name, sbml, '
-                     'condition and measurement file must be specified')
+    if not args.model_name and not args.sbml_file_name \
+        and not args.condition_file_name and not args.measurement_file_name \
+            and not args.parameter_file_name:
+        parser.error('Neither model name nor any filename specified. '
+                     'What shall I do?')
 
     return args
 

@@ -33,7 +33,8 @@ setup(name='petab',
                         'pandas>=0.23.4',
                         'matplotlib>=2.2.3',
                         'python-libsbml>=5.17.0',
-                        'sympy'],
+                        'sympy',
+                        'colorama'],
       tests_require=['flake8', 'pytest'],
       python_requires='>=3.6'
       )

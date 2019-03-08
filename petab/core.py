@@ -218,7 +218,8 @@ class Problem:
     def get_simulation_conditions_from_measurement_df(self):
         return get_simulation_conditions(self.measurement_df)
 
-    def get_optimization_to_simulation_parameter_mapping(self):
+    def get_optimization_to_simulation_parameter_mapping(
+            self, warn_unmapped=True):
         """
         See get_simulation_to_optimization_parameter_mapping.
         """
@@ -226,7 +227,8 @@ class Problem:
             self.condition_df,
             self.measurement_df,
             self.parameter_df,
-            self.sbml_model)
+            self.sbml_model,
+            warn_unmapped=warn_unmapped)
 
     def create_parameter_df(self, *args, **kwargs):
         """Create a new PEtab parameter table"""
@@ -379,9 +381,9 @@ def get_optimization_to_simulation_parameter_mapping(
         measurement_df,
         parameter_df=None,
         sbml_model=None,
-        par_opt_ids=None,
         par_sim_ids=None,
-        simulation_conditions=None):
+        simulation_conditions=None,
+        warn_unmapped=True):
     """
     Create array of mappings. The length of the array is n_conditions, each
     entry is an array of length n_par_sim, listing the optimization parameters
@@ -399,14 +401,17 @@ def get_optimization_to_simulation_parameter_mapping(
         The sbml model with observables and noise specified according to the
         petab format. Optional if par_sim_ids is provided.
 
-    par_opt_ids, par_sim_ids: list of str, optional
-        Ids of the optimization and simulation parameters. If not passed,
+    par_sim_ids: list of str, optional
+        Ids of the simulation parameters. If not passed,
         these are generated from the files automatically. However, passing
         them can ensure having the correct order.
 
     simulation_conditions: pd.DataFrame
         Table of simulation conditions as created by
         `petab.get_simulation_conditions`.
+
+    warn_unmapped:
+        If True, log warning regarding unmapped parameters
     """
     perform_mapping_checks(condition_df, measurement_df)
 
@@ -453,7 +458,7 @@ def get_optimization_to_simulation_parameter_mapping(
                 overrides, condition_ix,
                 row.observableId, override_type='noise')
 
-    handle_missing_overrides(mapping)
+    handle_missing_overrides(mapping, warn=warn_unmapped)
     return mapping
 
 
@@ -505,13 +510,18 @@ def get_rows_for_condition(measurement_df, condition):
     return cur_measurement_df
 
 
-def handle_missing_overrides(mapping_par_opt_to_par_sim):
+def handle_missing_overrides(mapping_par_opt_to_par_sim, warn=True):
     """
     Find all observable parameters and noise parameters that were not mapped,
     and set their mapping to np.nan.
 
     Assumes that parameters matching "(noise|observable)Parameter[0-9]+_" were
     all supposed to be overwritten.
+
+    Parameters:
+    -----------
+    warn:
+        If True, log warning regarding unmapped parameters
     """
     _missed_vals = []
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
@@ -642,10 +652,9 @@ def get_placeholders(formula_string, observable_id, override_type):
     return placeholders
 
 
-def get_dynamic_parameters_from_sbml(sbml_model):
+def get_dynamic_parameters_from_sbml(sbml_model: libsbml.Model):
     """
-    Get list of non-constant parameters in sbml model.
-    TODO: This is not what Y would expect. Remove?
+    Get list of non-constant parameters in SBML model.
     """
     return [p.getId() for p in sbml_model.getListOfParameters()
             if not p.getConstant()]
