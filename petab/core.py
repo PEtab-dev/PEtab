@@ -380,7 +380,8 @@ def get_optimization_to_simulation_parameter_mapping(
         parameter_df=None,
         sbml_model=None,
         par_sim_ids=None,
-        simulation_conditions=None):
+        simulation_conditions=None,
+        warn_unmapped=True):
     """
     Create array of mappings. The length of the array is n_conditions, each
     entry is an array of length n_par_sim, listing the optimization parameters
@@ -406,6 +407,9 @@ def get_optimization_to_simulation_parameter_mapping(
     simulation_conditions: pd.DataFrame
         Table of simulation conditions as created by
         `petab.get_simulation_conditions`.
+
+    warn_unmapped:
+        If True, log warning regarding unmapped parameters
     """
     perform_mapping_checks(condition_df, measurement_df)
 
@@ -452,7 +456,7 @@ def get_optimization_to_simulation_parameter_mapping(
                 overrides, condition_ix,
                 row.observableId, override_type='noise')
 
-    handle_missing_overrides(mapping)
+    handle_missing_overrides(mapping, warn=warn_unmapped)
     return mapping
 
 
@@ -504,13 +508,18 @@ def get_rows_for_condition(measurement_df, condition):
     return cur_measurement_df
 
 
-def handle_missing_overrides(mapping_par_opt_to_par_sim):
+def handle_missing_overrides(mapping_par_opt_to_par_sim, warn=True):
     """
     Find all observable parameters and noise parameters that were not mapped,
     and set their mapping to np.nan.
 
     Assumes that parameters matching "(noise|observable)Parameter[0-9]+_" were
     all supposed to be overwritten.
+
+    Parameters:
+    -----------
+    warn:
+        If True, log warning regarding unmapped parameters
     """
     _missed_vals = []
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
