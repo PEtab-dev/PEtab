@@ -402,7 +402,7 @@ def get_optimization_to_simulation_parameter_mapping(
         petab format. Optional if par_sim_ids is provided.
 
     par_sim_ids: list of str, optional
-        Ids of the optimization and simulation parameters. If not passed,
+        Ids of the simulation parameters. If not passed,
         these are generated from the files automatically. However, passing
         them can ensure having the correct order.
 
