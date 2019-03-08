@@ -379,7 +379,6 @@ def get_optimization_to_simulation_parameter_mapping(
         measurement_df,
         parameter_df=None,
         sbml_model=None,
-        par_opt_ids=None,
         par_sim_ids=None,
         simulation_conditions=None):
     """
@@ -399,7 +398,7 @@ def get_optimization_to_simulation_parameter_mapping(
         The sbml model with observables and noise specified according to the
         petab format. Optional if par_sim_ids is provided.
 
-    par_opt_ids, par_sim_ids: list of str, optional
+    par_sim_ids: list of str, optional
         Ids of the optimization and simulation parameters. If not passed,
         these are generated from the files automatically. However, passing
         them can ensure having the correct order.
@@ -642,10 +641,9 @@ def get_placeholders(formula_string, observable_id, override_type):
     return placeholders
 
 
-def get_dynamic_parameters_from_sbml(sbml_model):
+def get_dynamic_parameters_from_sbml(sbml_model: libsbml.Model):
     """
-    Get list of non-constant parameters in sbml model.
-    TODO: This is not what Y would expect. Remove?
+    Get list of non-constant parameters in SBML model.
     """
     return [p.getId() for p in sbml_model.getListOfParameters()
             if not p.getConstant()]
