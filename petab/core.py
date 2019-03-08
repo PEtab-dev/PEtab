@@ -218,7 +218,8 @@ class Problem:
     def get_simulation_conditions_from_measurement_df(self):
         return get_simulation_conditions(self.measurement_df)
 
-    def get_optimization_to_simulation_parameter_mapping(self):
+    def get_optimization_to_simulation_parameter_mapping(
+            self, warn_unmapped=True):
         """
         See get_simulation_to_optimization_parameter_mapping.
         """
@@ -226,7 +227,8 @@ class Problem:
             self.condition_df,
             self.measurement_df,
             self.parameter_df,
-            self.sbml_model)
+            self.sbml_model,
+            warn_unmapped=warn_unmapped)
 
     def create_parameter_df(self, *args, **kwargs):
         """Create a new PEtab parameter table"""
