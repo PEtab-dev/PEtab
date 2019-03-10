@@ -537,7 +537,7 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, warn=True):
                 mapping_for_condition[i_val] = np.nan
                 _missed_vals.append((i_condition, i_val, val))
 
-    if len(_missed_vals):
+    if len(_missed_vals) and warn:
         logger.warning(f"Could not map the following overrides "
                        f"(condition index, parameter index, parameter): "
                        f"{_missed_vals}. Usually, this is just due to missing "
