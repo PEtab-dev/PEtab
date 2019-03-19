@@ -294,8 +294,9 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
             if not len(replacements) == 1 \
                     or not isinstance(replacements[0], numbers.Number):
                 raise AssertionError(
-                    f'No place holders specified in model for:\n{row}\n'
-                    f'But parameter name or multiple overrides provided.')
+                    f'No placeholders specified in noise model for:\n{row}\n'
+                    f'But parameter name or multiple overrides provided in '
+                    'noiseParameters column.')
 
 
 def lint_problem(problem: 'core.Problem'):
