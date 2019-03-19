@@ -144,7 +144,7 @@ Expected to have the following named columns in any (but preferably this)
 order:
 
 | plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ... 
-|---|---|---|---|---|
+|---|---|---|---|---|---|
 | plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
 |...|...|...|...|...|
 
