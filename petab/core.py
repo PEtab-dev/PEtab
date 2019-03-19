@@ -190,6 +190,9 @@ class Problem:
 
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
 
+    def get_costs(self, remove=False):
+        return get_costs(sbml_model=self.sbml_model, remove=remove)
+    
     @property
     def x_ids(self):
         return list(self.parameter_df.reset_index()['parameterId'])
@@ -323,6 +326,10 @@ def sbml_parameter_is_sigma(sbml_parameter):
     return sbml_parameter.getId().startswith('sigma_')
 
 
+def sbml_parameter_is_cost(sbml_parameter):
+    return sbml_parameter.getId().startswith('cost_')
+
+
 def get_observables(sbml_model, remove=False):
     """
     Returns dictionary of observable definitions.
@@ -350,6 +357,20 @@ def get_sigmas(sbml_model, remove=False):
     sigmas = {re.sub(f'^sigma_', 'observable_', key): value['formula']
               for key, value in sigmas.items()}
     return sigmas
+
+
+def get_costs(sbml_model, remove=False):
+    pars = sbml_model.getListOfParameters()
+    costs = {par.getId(): par.getName() for par in pars \
+             if sbml_parameter_is_cost(par)}
+    result = {re.sub(f'^cost_', 'observable_', key): value
+             for key, value in costs.items()}
+
+    if remove:
+        for parameter_id in costs:
+            sbml_model.removeParameter(parameter_id)
+
+    return result
 
 
 def parameter_is_scaling_parameter(parameter, formula):
