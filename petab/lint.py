@@ -241,13 +241,22 @@ def assert_noise_distributions_valid(measurement_df):
     Check whether there are not multiple noise distributions for an
     observable, and that the names are correct.
     """
-    distrs = measurement_df.groupby(
-        ['observableId', 'noiseDistribution']).size().reset_index()
-    distrs_check = measurement_df.groupby(['observableId'])
+    df = measurement_df.copy()
+
+    if 'observableTransformation' not in df:
+        df['observableTransformation'] = np.nan
+    if 'noiseDistribution' not in df:
+        df['noiseDistribution'] = np.nan
+    
+    distrs = df.groupby(['observableId']).size().reset_index()
+
+    distrs_check = df.groupby(
+        ['observableId', 'observableTransformation', 'noiseDistribution'])
+
     if len(distrs) != len(distrs_check):
         raise AssertionError(
             f"The noiseDistribution for an observable in the measurement "
-            f"file is not unique: \n{distrs}")
+            f"file is not unique: \n{distrs_check}")
 
 
 def assert_overrides_match_parameter_count(measurement_df, observables, noise):

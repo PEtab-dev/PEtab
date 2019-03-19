@@ -377,11 +377,33 @@ def get_noise_distributions(measurement_df):
     lint.assert_noise_distributions_valid(measurement_df)
 
     # read noise distributions from measurement file
-    noise_distrs = measurement_df.groupby(
-        ['observableId', 'noiseDistribution']).size().reset_index()
-    noise_distrs = \
-        {'observable_' + row['observableId']: row['noiseDistribution']
-         for _, row in noise_distrs.iterrows()}
+
+    grouping_cols = [col for col in \
+        ['observableId', 'observableTransformation', 'noiseDistribution']
+        if col in measurement_df]
+
+    observables = measurement_df.groupby(grouping_cols) \
+        .size().reset_index()
+
+    noise_distrs = {}
+    for _, row in observables.iterrows():
+        # prefix id to get observable id
+        id_ = 'observable_' + row.observableId
+
+        # extract observable transformation and noise distribution,
+        # use lin+normal as default if none provided
+        obsTrafo = row.observableTransformation \
+            if 'observableTransformation' in row \
+            and row.observableTransformation \
+            else 'lin'
+        noiseDistr = row.noiseDistribution \
+            if 'noiseDistribution' in row \
+            and row.noiseDistribution \
+            else 'normal'
+        # add to noise distributions
+        noise_distrs[id_] = {
+            'observableTransformation': obsTrafo,
+            'noiseDistribution': noiseDistr}
 
     return noise_distrs
 
