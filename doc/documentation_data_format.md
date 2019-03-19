@@ -53,7 +53,7 @@ convention.
 
 In the SBML model, observables are specified as `AssignmentRules` assigning to
 parameters with `id`s starting with `observable_` followed by the
-`observableId` as in the corresponding column of the *measurement sheet* (see
+`observableId` as in the corresponding column of the *measurement table* (see
 below).
 
 E.g.
@@ -61,13 +61,13 @@ E.g.
 observable_pErk = observableParameter1_pErk + observableParameter2_pErk*pErk
 ```
 where `observableParameter1_pErk` would be an offset, and `observableParameter2_pErk` a
-scaling parameter for the observable `pErk`. The observable parameter names have the structure: `observableParameter${indexOfObservableParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement sheet*.
+scaling parameter for the observable `pErk`. The observable parameter names have the structure: `observableParameter${indexOfObservableParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement table*.
 
 
 ### Noise model
 
 Measurement noise can be specified as a numerical value in the
-`noiseParameters` column of the *measurement sheet* (see below), which will
+`noiseParameters` column of the *measurement table* (see below), which will
 default to a Gaussian noise model with standard deviation as provided in
 `noiseParameters`.
 
@@ -80,7 +80,7 @@ e.g., be defined as
 sigma_pErk = noiseParameter1_pErk + noiseParameter2_pErk*pErk
 ```
 with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk` the
-relative contribution for the observable `pErk`. The noise parameter names have the structure: `noiseParameter${indexOfNoiseParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement sheet*.
+relative contribution for the observable `pErk`. The noise parameter names have the structure: `noiseParameter${indexOfNoiseParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement table*.
 
 Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 `noiseParameters` column of the measurement file (see below).
@@ -114,7 +114,7 @@ Additional columns are *not* allowed.
 can easily be added to a separate file, since every row of the condition table
 has `parameterId` as unique key.
 
-## Measurements table
+## Measurement table
 
 A tab-separated values files containing all measurements to be used for
 model training or validation.
@@ -135,6 +135,31 @@ order:
 |...|...|...|...|...|...|
 
 Additional (non-standard) columns may be added.
+
+## Visualization table
+
+A tab-separated values files containing the specification of visualisations. Plots are in general collections of different datasets as specified using their `datasetId`.  
+
+Expected to have the following named columns in any (but preferably this)
+order:
+
+| plotId | [plotName] | plotTypeSimulation | plotTypeData | ... 
+|---|---|---|---|---|
+| plotId | [plotName] | LinePlot | MeanAndSD | 
+|...|...|...|...|...|
+
+*(wrapped for readability)*
+
+| ... | datasetId | independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry]
+|---|---|---|---|---|---|
+|... | datasetId | [parameterId] | [NUMERIC] | [STRING] | [STRING] | 
+|...|...|...|...|...|...|
+
+The `independentVariable`is the variable over which the dataset is visualised. For time-response data, this should be `time`, for dose response data the respective `parameterOrStateId`. The numerical values of the `independentVariable` are shown on the x-axis, while the values of the observables are shown of the respective y-axis.
+
+If different datasets are assigned to the same `plotID`, multiple datasets are overlaid. The name of the datasets is indicated by the corresponding `legendEntry`, which is by default the `datasetId`.
+
+The visualization types is specified by `plotTypeSimulation` and `plotTypeData`. Possible choices include LinePlot, BarPlot, MeanAndSD and MeanAndSEM. In addition, XScale and YScale, Color, etc. can be specified.
 
 ### Detailed field description
 
