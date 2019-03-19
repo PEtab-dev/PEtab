@@ -405,6 +405,8 @@ def assert_model_parameters_in_condition_or_parameter_table(
             continue
         if parameter_id.startswith('noiseParameter'):
             continue
+        if parameter.getConstant():
+            continue
 
         is_assignee = \
             sbml_model.getAssignmentRuleByVariable(parameter_id) is not None
