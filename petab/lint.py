@@ -219,7 +219,7 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
-        print(grouped_df)
+        logger.warn(grouped_df)
         return True
     return False
 
