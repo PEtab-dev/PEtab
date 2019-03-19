@@ -190,12 +190,12 @@ class Problem:
 
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
 
-    def get_noise_distributions(self, remove=False):
+    def get_noise_distributions(self):
         """
         See `get_noise_distributions`.
         """
         return get_noise_distributions(
-            sbml_model=self.sbml_model, remove=remove)
+            measurement_df=self.measurement_df)
 
     @property
     def x_ids(self):
@@ -330,11 +330,6 @@ def sbml_parameter_is_sigma(sbml_parameter):
     return sbml_parameter.getId().startswith('sigma_')
 
 
-def sbml_parameter_is_noise_distribution(sbml_parameter):
-    return sbml_parameter.getId().startswith(
-        'noiseDistribution_')
-
-
 def get_observables(sbml_model, remove=False):
     """
     Returns dictionary of observable definitions.
@@ -364,7 +359,7 @@ def get_sigmas(sbml_model, remove=False):
     return sigmas
 
 
-def get_noise_distributions(sbml_model, remove=False):
+def get_noise_distributions(measurement_df):
     """
     Returns dictiontary of cost definitions per observable, if specified.
     Looks through all parameters satisfying `sbml_parameter_is_cost` and
@@ -378,17 +373,17 @@ def get_noise_distributions(sbml_model, remove=False):
         Whether to remove parameters identified as a cost from the
         sbml model.
     """
-    pars = sbml_model.getListOfParameters()
-    noiseDistrs = {par.getId(): par.getName() for par in pars
-                   if sbml_parameter_is_noise_distribution(par)}
-    result = {re.sub(f'^noiseDistribution_', 'observable_', key): value
-              for key, value in noiseDistrs.items()}
+    # lint
+    lint.assert_noise_distributions_valid(measurement_df)
 
-    if remove:
-        for parameter_id in noiseDistrs:
-            sbml_model.removeParameter(parameter_id)
+    # read noise distributions from measurement file
+    noise_distrs = measurement_df.groupby(
+        ['observableId', 'noiseDistribution']).size().reset_index()
+    noise_distrs = \
+        {'observable_' + row['observableId']: row['noiseDistribution']
+         for _, row in noise_distrs.iterrows()}
 
-    return result
+    return noise_distrs
 
 
 def parameter_is_scaling_parameter(parameter, formula):

@@ -236,6 +236,20 @@ def measurement_table_has_observable_parameter_numeric_overrides(
     return False
 
 
+def assert_noise_distributions_valid(measurement_df):
+    """
+    Check whether there are not multiple noise distributions for an
+    observable, and that the names are correct.
+    """
+    distrs = measurement_df.groupby(
+        ['observableId', 'noiseDistribution']).size().reset_index()
+    distrs_check = measurement_df.groupby(['observableId'])
+    if len(distrs) != len(distrs_check):
+        raise AssertionError(
+            f"The noiseDistribution for an observable in the measurement "
+            f"file is not unique: \n{distrs}")
+
+
 def assert_overrides_match_parameter_count(measurement_df, observables, noise):
     """Ensure that number of parameters in the observable definition matches
     the number of overrides in `measurement_df`
