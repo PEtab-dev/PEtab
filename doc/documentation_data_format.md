@@ -146,14 +146,14 @@ order:
 | plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ... 
 |---|---|---|---|---|---|
 | plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
-|...|...|...|...|...|
+|...|...|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry]
-|---|---|---|---|---|
+| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry] |  ... 
+|---|---|---|---|---|---|
 |... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] | 
-|...|...|...|...|...|...|
+|...|...|...|...|...|...|...|
 
 The `independentVariable`is the variable over which the dataset is visualised. For time-response data, this should be `time`, for dose response data the respective `parameterOrStateId`. The numerical values of the `independentVariable` are shown on the x-axis, while the values of the observables are shown of the respective y-axis.
 
