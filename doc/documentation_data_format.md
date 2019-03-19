@@ -235,14 +235,14 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
 A tab-separated value text file containing information on model parameters.
 
-This table must comprise the following parameters:
-- All parameters from the SBML model, except for:
-    - `constant` and/or `boundaryCondition` parameters (see SBML specs)
-    - placeholder parameters (see `observableParameters` and `noiseParameters`
-      above)
-    - parameters included as column names in the *condition table*
+This table must include the following parameters:
 - Named parameter overrides introduced in the *conditions table*
 - Named parameter overrides introduced in the *measurement table*
+
+and must not include 
+- placeholder parameters (see `observableParameters` and `noiseParameters`
+  above)
+- parameters included as column names in the *condition table*
 
 One row per parameter with arbitrary order of rows and columns:
 
