@@ -58,10 +58,11 @@ below).
 
 E.g.
 ```
-observable_pErk = observableParameter1 + observableParameter2*pErk
+observable_pErk = observableParameter1_pErk + observableParameter2_pErk*pErk
 ```
-where `observableParameter1` would be an offset, and `observableParameter2` a
-scaling parameter.
+where `observableParameter1_pErk` would be an offset, and `observableParameter2_pErk` a
+scaling parameter for the observable `pErk`. The observable parameter names have the structure: `observableParameter${indexOfObservableParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement sheet*.
+
 
 ### Noise model
 
@@ -76,10 +77,10 @@ using additional `AssignmentRules`. Those noise model rules assign to
 A noise model which accounts for relative and absolute contributions could,
 e.g., be defined as
 ```
-sigma_pErk = noiseParameter1 + noiseParameter2*pErk
+sigma_pErk = noiseParameter1_pErk + noiseParameter2_pErk*pErk
 ```
-with `noiseParameter1` denoting the absolute and `noiseParameter2` the
-relative contribution.
+with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk` the
+relative contribution for the observable `pErk`. The noise parameter names have the structure: `noiseParameter${indexOfNoiseParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement sheet*.
 
 Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 `noiseParameters` column of the measurement file (see below).
