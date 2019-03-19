@@ -48,8 +48,7 @@ def check_condition_df(df):
 def check_measurement_df(df):
     req_cols = [
         "observableId", "preequilibrationConditionId", "simulationConditionId",
-        "measurement", "time", "observableParameters", "noiseParameters",
-        "observableTransformation"
+        "measurement", "time", "observableParameters", "noiseParameters"
     ]
 
     for column_name in req_cols:
