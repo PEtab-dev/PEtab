@@ -191,6 +191,9 @@ class Problem:
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
 
     def get_costs(self, remove=False):
+        """
+        See `get_costs`.
+        """
         return get_costs(sbml_model=self.sbml_model, remove=remove)
 
     @property
@@ -360,6 +363,19 @@ def get_sigmas(sbml_model, remove=False):
 
 
 def get_costs(sbml_model, remove=False):
+    """
+    Returns dictiontary of cost definitions per observable, if specified.
+    Looks through all parameters satisfying `sbml_parameter_is_cost` and
+    return dictionary of key: observableId, value: cost definition.
+
+    Parameters
+    ----------
+
+    sbml_model: The sbml model to look in.
+    remove: bool, optional (default = False)
+        Whether to remove parameters identified as a cost from the
+        sbml model.
+    """
     pars = sbml_model.getListOfParameters()
     costs = {par.getId(): par.getName() for par in pars
              if sbml_parameter_is_cost(par)}
