@@ -192,7 +192,7 @@ class Problem:
 
     def get_costs(self, remove=False):
         return get_costs(sbml_model=self.sbml_model, remove=remove)
-    
+
     @property
     def x_ids(self):
         return list(self.parameter_df.reset_index()['parameterId'])
@@ -361,10 +361,10 @@ def get_sigmas(sbml_model, remove=False):
 
 def get_costs(sbml_model, remove=False):
     pars = sbml_model.getListOfParameters()
-    costs = {par.getId(): par.getName() for par in pars \
+    costs = {par.getId(): par.getName() for par in pars
              if sbml_parameter_is_cost(par)}
     result = {re.sub(f'^cost_', 'observable_', key): value
-             for key, value in costs.items()}
+              for key, value in costs.items()}
 
     if remove:
         for parameter_id in costs:
