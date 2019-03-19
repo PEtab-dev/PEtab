@@ -190,11 +190,12 @@ class Problem:
 
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
 
-    def get_costs(self, remove=False):
+    def get_noise_distributions(self, remove=False):
         """
-        See `get_costs`.
+        See `get_noise_distributions`.
         """
-        return get_costs(sbml_model=self.sbml_model, remove=remove)
+        return get_noise_distributions(
+            sbml_model=self.sbml_model, remove=remove)
 
     @property
     def x_ids(self):
@@ -329,8 +330,9 @@ def sbml_parameter_is_sigma(sbml_parameter):
     return sbml_parameter.getId().startswith('sigma_')
 
 
-def sbml_parameter_is_cost(sbml_parameter):
-    return sbml_parameter.getId().startswith('cost_')
+def sbml_parameter_is_noise_distribution(sbml_parameter):
+    return sbml_parameter.getId().startswith(
+        'noiseDistribution_')
 
 
 def get_observables(sbml_model, remove=False):
@@ -362,7 +364,7 @@ def get_sigmas(sbml_model, remove=False):
     return sigmas
 
 
-def get_costs(sbml_model, remove=False):
+def get_noise_distributions(sbml_model, remove=False):
     """
     Returns dictiontary of cost definitions per observable, if specified.
     Looks through all parameters satisfying `sbml_parameter_is_cost` and
@@ -377,13 +379,13 @@ def get_costs(sbml_model, remove=False):
         sbml model.
     """
     pars = sbml_model.getListOfParameters()
-    costs = {par.getId(): par.getName() for par in pars
-             if sbml_parameter_is_cost(par)}
-    result = {re.sub(f'^cost_', 'observable_', key): value
-              for key, value in costs.items()}
+    noiseDistrs = {par.getId(): par.getName() for par in pars
+                   if sbml_parameter_is_noise_distribution(par)}
+    result = {re.sub(f'^noiseDistribution_', 'observable_', key): value
+              for key, value in noiseDistrs.items()}
 
     if remove:
-        for parameter_id in costs:
+        for parameter_id in noiseDistrs:
             sbml_model.removeParameter(parameter_id)
 
     return result
