@@ -391,12 +391,10 @@ def assert_model_parameters_in_condition_or_parameter_table(
         sbml_model: libsbml.Model,
         condition_df: pd.DataFrame,
         parameter_df: pd.DataFrame):
-    """Model non-placeholder model parameters must be either specified in the
-    condition or parameter table, unless they are AssignmentRule target, in
-    which case they must not occur in either.
-    Check that.
-
-    NOTE: SBML local parameters are ignored here"""
+    """Model parameters that are targets of AssignmentRule must not be present
+    in parameter table or in condition table columns. Other parameters must
+    only be present in either in parameter table or condition table columns.
+    Check that."""
 
     for parameter in sbml_model.getListOfParameters():
         parameter_id = parameter.getId()
@@ -404,8 +402,6 @@ def assert_model_parameters_in_condition_or_parameter_table(
         if parameter_id.startswith('observableParameter'):
             continue
         if parameter_id.startswith('noiseParameter'):
-            continue
-        if parameter.getConstant():
             continue
 
         is_assignee = \
@@ -417,11 +413,6 @@ def assert_model_parameters_in_condition_or_parameter_table(
             raise AssertionError(f"Model parameter '{parameter_id}' is target "
                                  "of AssignmentRule, and thus, must not be "
                                  "present in condition table or in parameter "
-                                 "table.")
-
-        if not is_assignee and not in_parameter_df and not in_condition_df:
-            raise AssertionError(f"Model parameter '{parameter_id}' neither "
-                                 "present in condition table nor in parameter "
                                  "table.")
 
         if in_parameter_df and in_condition_df:
