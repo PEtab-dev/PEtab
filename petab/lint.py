@@ -219,6 +219,7 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
+        print(grouped_df)
         return True
     return False
 
@@ -246,7 +247,7 @@ def assert_noise_distributions_valid(measurement_df):
         df['observableTransformation'] = np.nan
     if 'noiseDistribution' not in df:
         df['noiseDistribution'] = np.nan
-    
+
     distrs = df.groupby(['observableId']).size().reset_index()
 
     distrs_check = df.groupby(

@@ -378,9 +378,11 @@ def get_noise_distributions(measurement_df):
 
     # read noise distributions from measurement file
 
-    grouping_cols = [col for col in \
-        ['observableId', 'observableTransformation', 'noiseDistribution']
-        if col in measurement_df]
+    grouping_cols = [col for col in
+                     ['observableId',
+                      'observableTransformation',
+                      'noiseDistribution']
+                     if col in measurement_df]
 
     observables = measurement_df.groupby(grouping_cols) \
         .size().reset_index()
