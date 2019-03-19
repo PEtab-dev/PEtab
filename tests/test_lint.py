@@ -159,10 +159,6 @@ def test_assert_model_parameters_in_condition_or_parameter_table():
     sbml.add_global_parameter(model, 'noiseParameter1_')
     sbml.add_global_parameter(model, 'observableParameter1_')
 
-    with pytest.raises(AssertionError):
-        lint.assert_model_parameters_in_condition_or_parameter_table(
-            model, pd.DataFrame(), pd.DataFrame())
-
     lint.assert_model_parameters_in_condition_or_parameter_table(
             model, pd.DataFrame(columns=['parameter1']), pd.DataFrame()
     )
@@ -176,8 +172,7 @@ def test_assert_model_parameters_in_condition_or_parameter_table():
             pd.DataFrame(columns=['parameter1']),
             pd.DataFrame(index=['parameter1']))
 
-    with pytest.raises(AssertionError):
-        lint.assert_model_parameters_in_condition_or_parameter_table(
+    lint.assert_model_parameters_in_condition_or_parameter_table(
             model, pd.DataFrame(), pd.DataFrame())
 
     sbml.create_assigment_rule(model, assignee_id='parameter1',
