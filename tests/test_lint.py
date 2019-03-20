@@ -184,3 +184,25 @@ def test_assert_model_parameters_in_condition_or_parameter_table():
                                formula='parameter2')
     lint.assert_model_parameters_in_condition_or_parameter_table(
         model, pd.DataFrame(), pd.DataFrame())
+
+
+def test_assert_noise_distributions_valid():
+    measurement_df = pd.DataFrame(data={
+        'observableId': ['0obsPar1noisePar',
+                         '2obsPar0noisePar'],
+        'simulationConditionId': ['condition1', 'condition1'],
+        'preequilibrationConditionId': ['', ''],
+        'time': [1.0, 2.0],
+        'observableParameters': ['', ''],
+        'noiseParameters': ['', ''],
+        'noiseDistribution': ['', ''],
+    })
+    lint.assert_noise_distributions_valid(measurement_df)
+
+    measurement_df['observableParameters'] = ['lin', 'log']
+    measurement_df['noiseDistribution'] = ['normal', '']
+    lint.assert_noise_distributions_valid(measurement_df)
+
+    measurement_df['noiseDistribution'] = ['Normal', '']
+    with pytest.raises(ValueError):
+        lint.assert_noise_distributions_valid(measurement_df)

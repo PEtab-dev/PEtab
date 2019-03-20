@@ -219,7 +219,9 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
-        logger.warn(grouped_df)
+        logger.warning(
+            "Measurement table has timepoint specific mappings:\n"
+            + str(grouped_df))
         return True
     return False
 
@@ -243,10 +245,27 @@ def assert_noise_distributions_valid(measurement_df):
     """
     df = measurement_df.copy()
 
+    # insert optional columns into copied df
+
     if 'observableTransformation' not in df:
-        df['observableTransformation'] = np.nan
+        df['observableTransformation'] = ''
     if 'noiseDistribution' not in df:
-        df['noiseDistribution'] = np.nan
+        df['noiseDistribution'] = ''
+
+    # check for valid values
+
+    for trafo in df['observableTransformation']:
+        if trafo not in ['lin', 'log', 'log10'] and trafo:
+            raise ValueError(
+                f"Unrecognized observable transformation in measurement "
+                f"file: {trafo}.")
+    for distr in df['noiseDistribution']:
+        if distr not in ['normal', 'laplace'] and distr:
+            raise ValueError(
+                f"Unrecognized noise distribution in measurement "
+                f"file: {distr}.")
+
+    # check for unique values per observable
 
     distrs = df.groupby(['observableId']).size().reset_index()
 
