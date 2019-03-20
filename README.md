@@ -40,6 +40,9 @@ Where PEtab is used / supported:
 
   - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
+PEtab support for [D2D](https://github.com/Data2Dynamics/d2d/) and
+[AMIGO2](https://sites.google.com/site/amigo2toolbox/) is under development.
+
 If your project or tool is using PEtab, and you would like to have it listed
 here, please let us know.
 
