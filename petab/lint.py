@@ -48,8 +48,7 @@ def check_condition_df(df):
 def check_measurement_df(df):
     req_cols = [
         "observableId", "preequilibrationConditionId", "simulationConditionId",
-        "measurement", "time", "observableParameters", "noiseParameters",
-        "observableTransformation"
+        "measurement", "time", "observableParameters", "noiseParameters"
     ]
 
     for column_name in req_cols:
@@ -84,7 +83,7 @@ def check_parameter_df(df):
     assert_parameter_bounds_are_numeric(df)
     assert_parameter_estimate_is_boolean(df)
     assert_parameter_id_is_unique(df)
-    check_parameterBounds(df)
+    check_parameter_bounds(df)
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
@@ -166,7 +165,7 @@ def assert_parameter_bounds_are_numeric(parameter_df):
     parameter_df["upperBound"].apply(float).all()
 
 
-def check_parameterBounds(parameter_df):
+def check_parameter_bounds(parameter_df):
     """
     Check if all entries in the lowerBound are smaller than upperBound column
     in the parameter table.
@@ -175,7 +174,7 @@ def check_parameterBounds(parameter_df):
         if not parameter_df['lowerBound'][element] \
                 <= parameter_df['upperBound'][element]:
             raise AssertionError(
-                f"lowerbound larger than upperBound in parameterId "
+                f"lowerBound larger than upperBound for parameterId "
                 f"{parameter_df.index[element]}.")
 
 
@@ -220,6 +219,9 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
+        logger.warning(
+            "Measurement table has timepoint specific mappings:\n"
+            + str(grouped_df))
         return True
     return False
 
@@ -234,6 +236,46 @@ def measurement_table_has_observable_parameter_numeric_overrides(
             if isinstance(override, numbers.Number):
                 return True
     return False
+
+
+def assert_noise_distributions_valid(measurement_df):
+    """
+    Check whether there are not multiple noise distributions for an
+    observable, and that the names are correct.
+    """
+    df = measurement_df.copy()
+
+    # insert optional columns into copied df
+
+    if 'observableTransformation' not in df:
+        df['observableTransformation'] = ''
+    if 'noiseDistribution' not in df:
+        df['noiseDistribution'] = ''
+
+    # check for valid values
+
+    for trafo in df['observableTransformation']:
+        if trafo not in ['lin', 'log', 'log10'] and trafo:
+            raise ValueError(
+                f"Unrecognized observable transformation in measurement "
+                f"file: {trafo}.")
+    for distr in df['noiseDistribution']:
+        if distr not in ['normal', 'laplace'] and distr:
+            raise ValueError(
+                f"Unrecognized noise distribution in measurement "
+                f"file: {distr}.")
+
+    # check for unique values per observable
+
+    distrs = df.groupby(['observableId']).size().reset_index()
+
+    distrs_check = df.groupby(
+        ['observableId', 'observableTransformation', 'noiseDistribution'])
+
+    if len(distrs) != len(distrs_check):
+        raise AssertionError(
+            f"The noiseDistribution for an observable in the measurement "
+            f"file is not unique: \n{distrs_check}")
 
 
 def assert_overrides_match_parameter_count(measurement_df, observables, noise):
@@ -294,8 +336,9 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
             if not len(replacements) == 1 \
                     or not isinstance(replacements[0], numbers.Number):
                 raise AssertionError(
-                    f'No place holders specified in model for:\n{row}\n'
-                    f'But parameter name or multiple overrides provided.')
+                    f'No placeholders specified in noise model for:\n{row}\n'
+                    f'But parameter name or multiple overrides provided in '
+                    'noiseParameters column.')
 
 
 def lint_problem(problem: 'core.Problem'):
@@ -390,12 +433,10 @@ def assert_model_parameters_in_condition_or_parameter_table(
         sbml_model: libsbml.Model,
         condition_df: pd.DataFrame,
         parameter_df: pd.DataFrame):
-    """Model non-placeholder model parameters must be either specified in the
-    condition or parameter table, unless they are AssignmentRule target, in
-    which case they must not occur in either.
-    Check that.
-
-    NOTE: SBML local parameters are ignored here"""
+    """Model parameters that are targets of AssignmentRule must not be present
+    in parameter table or in condition table columns. Other parameters must
+    only be present in either in parameter table or condition table columns.
+    Check that."""
 
     for parameter in sbml_model.getListOfParameters():
         parameter_id = parameter.getId()
@@ -414,11 +455,6 @@ def assert_model_parameters_in_condition_or_parameter_table(
             raise AssertionError(f"Model parameter '{parameter_id}' is target "
                                  "of AssignmentRule, and thus, must not be "
                                  "present in condition table or in parameter "
-                                 "table.")
-
-        if not is_assignee and not in_parameter_df and not in_condition_df:
-            raise AssertionError(f"Model parameter '{parameter_id}' neither "
-                                 "present in condition table nor in parameter "
                                  "table.")
 
         if in_parameter_df and in_condition_df:

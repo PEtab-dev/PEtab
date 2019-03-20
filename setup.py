@@ -17,6 +17,11 @@ def read(fname):
 version_file = os.path.join('petab', 'version.py')
 exec(read(version_file))  # pylint: disable=W0122 # nosec
 
+ENTRY_POINTS = {
+    'console_scripts': [
+        'petablint = petab.petablint:main',
+    ]
+}
 
 # project metadata
 setup(name='petab',
@@ -28,12 +33,13 @@ setup(name='petab',
       author_email='daniel.weindl@helmholtz-muenchen.de',
       url='https://github.com/icb-dcm/petab',
       packages=find_packages(exclude=['doc*', 'test*']),
-      scripts=['bin/petablint.py'],
       install_requires=['numpy>=1.15.1',
                         'pandas>=0.23.4',
                         'matplotlib>=2.2.3',
                         'python-libsbml>=5.17.0',
-                        'sympy'],
+                        'sympy',
+                        'colorama'],
       tests_require=['flake8', 'pytest'],
-      python_requires='>=3.6'
+      python_requires='>=3.6',
+      entry_points=ENTRY_POINTS,
       )

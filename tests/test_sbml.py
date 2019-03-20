@@ -36,7 +36,7 @@ def test_assignment_rules_to_dict():
     expected = {
         'observable_1': {
             'name': 'Observable 1',
-            'formula': 'a+b'
+            'formula': 'a + b'
         }
     }
 
