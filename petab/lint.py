@@ -171,7 +171,7 @@ def check_parameter_bounds(parameter_df):
     in the parameter table.
     """
     for element in range(len(parameter_df['lowerBound'])):
-        if int(parameter_df['estimate'][element]) is True:
+        if int(parameter_df['estimate'][element]) == True:
             if not parameter_df['lowerBound'][element] \
                     <= parameter_df['upperBound'][element]:
                 raise AssertionError(
