@@ -175,7 +175,7 @@ def check_parameter_bounds(parameter_df):
             if not parameter_df['lowerBound'][element] \
                     <= parameter_df['upperBound'][element]:
                 raise AssertionError(
-                    f"lowerbound larger than upperBound in parameterId "
+                    f"lowerbound greater than upperBound for parameterId "
                     f"{parameter_df.index[element]}.")
 
 
