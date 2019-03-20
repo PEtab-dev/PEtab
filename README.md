@@ -83,7 +83,8 @@ It will require Python3.6 to run.
 When setting up a new parameter estimation problem, the most useful tools will
 be:
 
-  - The PEtab validator `bin/petablint.py`
+  - The PEtab validator, which is now automatically installed using Python entrypoints to 
+    be available as a shell command from anywhere called `petablint`
 
   - `petab.core.create_parameter_df` to create the parameter table, once you
     have set up the model, condition table and measurement table
