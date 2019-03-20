@@ -188,6 +188,13 @@ class Problem:
 
         return get_sigmas(sbml_model=self.sbml_model, remove=remove)
 
+    def get_noise_distributions(self):
+        """
+        See `get_noise_distributions`.
+        """
+        return get_noise_distributions(
+            measurement_df=self.measurement_df)
+
     @property
     def x_ids(self):
         return list(self.parameter_df.reset_index()['parameterId'])
@@ -348,6 +355,50 @@ def get_sigmas(sbml_model, remove=False):
     sigmas = {re.sub(f'^sigma_', 'observable_', key): value['formula']
               for key, value in sigmas.items()}
     return sigmas
+
+
+def get_noise_distributions(measurement_df):
+    """
+    Returns dictiontary of cost definitions per observable, if specified.
+    Looks through all parameters satisfying `sbml_parameter_is_cost` and
+    return dictionary of key: observableId, value: cost definition.
+
+    Parameters
+    ----------
+
+    sbml_model: The sbml model to look in.
+    remove: bool, optional (default = False)
+        Whether to remove parameters identified as a cost from the
+        sbml model.
+    """
+    # lint
+    lint.assert_noise_distributions_valid(measurement_df)
+
+    # read noise distributions from measurement file
+    observables = measurement_df.groupby(['observableId']) \
+        .size().reset_index()
+
+    noise_distrs = {}
+    for _, row in observables.iterrows():
+        # prefix id to get observable id
+        id_ = 'observable_' + row.observableId
+
+        # extract observable transformation and noise distribution,
+        # use lin+normal as default if none provided
+        obsTrafo = row.observableTransformation \
+            if 'observableTransformation' in row \
+            and row.observableTransformation \
+            else 'lin'
+        noiseDistr = row.noiseDistribution \
+            if 'noiseDistribution' in row \
+            and row.noiseDistribution \
+            else 'normal'
+        # add to noise distributions
+        noise_distrs[id_] = {
+            'observableTransformation': obsTrafo,
+            'noiseDistribution': noiseDistr}
+
+    return noise_distrs
 
 
 def parameter_is_scaling_parameter(parameter, formula):

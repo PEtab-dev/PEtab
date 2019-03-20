@@ -48,8 +48,7 @@ def check_condition_df(df):
 def check_measurement_df(df):
     req_cols = [
         "observableId", "preequilibrationConditionId", "simulationConditionId",
-        "measurement", "time", "observableParameters", "noiseParameters",
-        "observableTransformation"
+        "measurement", "time", "observableParameters", "noiseParameters"
     ]
 
     for column_name in req_cols:
@@ -220,6 +219,9 @@ def measurement_table_has_timepoint_specific_mappings(measurement_df):
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
+        logger.warning(
+            "Measurement table has timepoint specific mappings:\n"
+            + str(grouped_df))
         return True
     return False
 
@@ -234,6 +236,46 @@ def measurement_table_has_observable_parameter_numeric_overrides(
             if isinstance(override, numbers.Number):
                 return True
     return False
+
+
+def assert_noise_distributions_valid(measurement_df):
+    """
+    Check whether there are not multiple noise distributions for an
+    observable, and that the names are correct.
+    """
+    df = measurement_df.copy()
+
+    # insert optional columns into copied df
+
+    if 'observableTransformation' not in df:
+        df['observableTransformation'] = ''
+    if 'noiseDistribution' not in df:
+        df['noiseDistribution'] = ''
+
+    # check for valid values
+
+    for trafo in df['observableTransformation']:
+        if trafo not in ['lin', 'log', 'log10'] and trafo:
+            raise ValueError(
+                f"Unrecognized observable transformation in measurement "
+                f"file: {trafo}.")
+    for distr in df['noiseDistribution']:
+        if distr not in ['normal', 'laplace'] and distr:
+            raise ValueError(
+                f"Unrecognized noise distribution in measurement "
+                f"file: {distr}.")
+
+    # check for unique values per observable
+
+    distrs = df.groupby(['observableId']).size().reset_index()
+
+    distrs_check = df.groupby(
+        ['observableId', 'observableTransformation', 'noiseDistribution'])
+
+    if len(distrs) != len(distrs_check):
+        raise AssertionError(
+            f"The noiseDistribution for an observable in the measurement "
+            f"file is not unique: \n{distrs_check}")
 
 
 def assert_overrides_match_parameter_count(measurement_df, observables, noise):

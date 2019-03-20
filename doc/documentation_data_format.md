@@ -42,12 +42,14 @@ problem. Some optional extensions are described in the last section,
 - All model entities column and row names are case-sensitive
 - Fields in "[]" in the second row are optional and may be left empty.
 
+
 ## SBML model definition
 
 The model must be specified as valid SBML. Since parameter estimation is
 beyond the scope of SBML, there exists no standard way to specify observables
 (model outputs) and respective noise models. Therefore, we use the following
 convention.
+
 
 ### Observables
 
@@ -114,6 +116,7 @@ Additional columns are *not* allowed.
 can easily be added to a separate file, since every row of the condition table
 has `parameterId` as unique key.
 
+
 ## Measurement table
 
 A tab-separated values files containing all measurements to be used for
@@ -135,6 +138,7 @@ order:
 |...|...|...|...|...|...|
 
 Additional (non-standard) columns may be added.
+
 
 ## Visualization table
 
@@ -160,6 +164,7 @@ The `independentVariable`is the variable over which the dataset is visualised. F
 If different datasets are assigned to the same `plotID`, multiple datasets are overlaid. The name of the datasets is indicated by the corresponding `legendEntry`, which is by default the `datasetId`.
 
 The visualization types is specified by `plotTypeSimulation` and `plotTypeData`. Possible choices include LinePlot, BarPlot, MeanAndSD and MeanAndSEM. In addition, XScale and YScale, Color, etc. can be specified.
+
 
 ### Detailed field description
 
@@ -230,6 +235,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   Laplace distributed noise is currently allowed. Defaults to `normal`. If
   `normal`, the specified `noiseParameters` will be interpreted as standard 
   deviation (*not* variance).
+
 
 ## Parameter table
 
@@ -317,7 +323,9 @@ Detailed column description:
 
 [**Issue #49**](https://github.com/ICB-DCM/PEtab/issues/49)
 
+
 ## Extensions
+
 
 ### Parameter table
 
