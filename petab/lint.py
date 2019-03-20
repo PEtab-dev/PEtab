@@ -171,11 +171,12 @@ def check_parameter_bounds(parameter_df):
     in the parameter table.
     """
     for element in range(len(parameter_df['lowerBound'])):
-        if not parameter_df['lowerBound'][element] \
-                <= parameter_df['upperBound'][element]:
-            raise AssertionError(
-                f"lowerBound larger than upperBound for parameterId "
-                f"{parameter_df.index[element]}.")
+        if int(parameter_df['estimate'][element]) is True:
+            if not parameter_df['lowerBound'][element] \
+                    <= parameter_df['upperBound'][element]:
+                raise AssertionError(
+                    f"lowerbound larger than upperBound in parameterId "
+                    f"{parameter_df.index[element]}.")
 
 
 def assert_parameter_estimate_is_boolean(parameter_df):
