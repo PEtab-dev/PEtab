@@ -105,14 +105,12 @@ class Problem:
             sbml_document = sbml_reader.readSBML(sbml_file)
             sbml_model = sbml_document.getModel()
 
-        problem = Problem(condition_df=condition_df,
-                          measurement_df=measurement_df,
-                          parameter_df=parameter_df,
-                          sbml_model=sbml_model,
-                          sbml_document=sbml_document,
-                          sbml_reader=sbml_reader)
-
-        return problem
+        return Problem(condition_df=condition_df,
+                       measurement_df=measurement_df,
+                       parameter_df=parameter_df,
+                       sbml_model=sbml_model,
+                       sbml_document=sbml_document,
+                       sbml_reader=sbml_reader)
 
     @staticmethod
     def from_folder(folder: str, model_name: str = None):
@@ -247,22 +245,22 @@ class Problem:
 
 def get_default_condition_file_name(model_name, folder=''):
     """Get file name according to proposed convention"""
-    return os.path.join(folder, "experimentalCondition_" + model_name + ".tsv")
+    return os.path.join(folder, f"experimentalCondition_{model_name}.tsv")
 
 
 def get_default_measurement_file_name(model_name, folder=''):
     """Get file name according to proposed convention"""
-    return os.path.join(folder, "measurementData_" + model_name + ".tsv")
+    return os.path.join(folder, f"measurementData_{model_name}.tsv")
 
 
 def get_default_parameter_file_name(model_name, folder=''):
     """Get file name according to proposed convention"""
-    return os.path.join(folder, "parameters_" + model_name + ".tsv")
+    return os.path.join(folder, f"parameters_{model_name}.tsv")
 
 
 def get_default_sbml_file_name(model_name, folder=''):
     """Get file name according to proposed convention"""
-    return os.path.join(folder, "model_" + model_name + ".xml")
+    return os.path.join(folder, f"model_{model_name}.xml")
 
 
 def get_condition_df(condition_file_name):
