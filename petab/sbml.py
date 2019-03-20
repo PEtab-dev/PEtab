@@ -43,7 +43,7 @@ def assignment_rules_to_dict(
         if parameter and filter_function(parameter):
             result[assignee] = {
                 'name': parameter.getName(),
-                'formula': rule.getFormula()
+                'formula': libsbml.formulaToL3String(rule.getMath())
             }
 
     # remove from model?
