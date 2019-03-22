@@ -45,9 +45,12 @@ def generate_experimentId(measurement_data):
     # assign 'empty' to missing observableParameters
     tmp_observable_parameters = observable_parameters
     tmp_ind = np.where(isnumeric(observable_parameters, numbers.Number))
-    tmp_observable_parameters[tmp_ind[0][
-        np.where(isnan_vectorized(observable_parameters[tmp_ind[0]]))]
-    ] = 'empty'
+    if tmp_ind[0].size == 0:
+        tmp_observable_parameters == observable_parameters
+    else:
+        tmp_observable_parameters[tmp_ind[0][
+            np.where(isnan_vectorized(observable_parameters[tmp_ind[0]]))]
+        ] = 'empty'
 
     # all numeric values in noiseParameters are temporarily set to 0 to be
     # treated the same
@@ -65,7 +68,7 @@ def generate_experimentId(measurement_data):
     count = 1
     # assign experiment ID when data share the same observable parameters,
     # noise parameters and observable transformation
-    while ind_no_exp_id[0].size > 0:
+    while ind_no_exp_id.size > 0:
         ind_exp_id = np.where(
             (observable_parameters == observable_parameters[ind_no_exp_id[
                 0]]) *
@@ -77,11 +80,12 @@ def generate_experimentId(measurement_data):
             measurement_data.experimentId[ind] = 'experiment_' + str(count)
 
         # extract measurements with no assigned experimentId
-        ind_no_exp_id = np.where(measurement_data.experimentId == 0)
+        ind_no_exp_id = np.where(measurement_data.experimentId == 0)[0]
 
         # if it does not decrease there might be a missing value in the
         # observableTransformation or noiseParameter
-        print(str(len(ind_no_exp_id[0])) + ' measurements left to be assigned')
+        print(str(ind_no_exp_id.size) + ' measurements left to be '
+                                             'assigned')
         count = count + 1
 
     print(str(count - 1) + ' experimentIds added.')
