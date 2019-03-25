@@ -236,7 +236,6 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   `normal`, the specified `noiseParameters` will be interpreted as standard 
   deviation (*not* variance).
 
-
 ## Parameter table
 
 A tab-separated value text file containing information on model parameters.
