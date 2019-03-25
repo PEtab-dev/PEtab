@@ -3,7 +3,7 @@ import numpy as np
 import numbers
 
 
-def generate_experimentId(measurement_data):
+def generate_experiment_id(measurement_data):
     '''
     automatically generate the experimentId:
     every row which shares the observableParameters (if provided),
@@ -84,8 +84,7 @@ def generate_experimentId(measurement_data):
 
         # if it does not decrease there might be a missing value in the
         # observableTransformation or noiseParameter
-        print(str(ind_no_exp_id.size) + ' measurements left to be '
-                                             'assigned')
+        print(str(ind_no_exp_id.size) + ' measurements left to be assigned')
         count = count + 1
 
     print(str(count - 1) + ' experimentIds added.')
