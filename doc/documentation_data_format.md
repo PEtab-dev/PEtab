@@ -21,8 +21,11 @@ and [Tab-Separated Values
 
 - A measurement file to fit the model to [TSV]
 
-- A "condition" file specifying model inputs and condition-specific parameters
-[TSV]
+- A condition file specifying model inputs and condition-specific parameters
+  [TSV]
+
+- A parameter file specifying optimization parameters and related information
+  [TSV]
 
 The following sections will describe the minimum requirements of those
 components in the core standard, which should provide all information for
@@ -39,6 +42,7 @@ problem. Some optional extensions are described in the last section,
 - All model entities column and row names are case-sensitive
 - Fields in "[]" in the second row are optional and may be left empty.
 
+
 ## SBML model definition
 
 The model must be specified as valid SBML. Since parameter estimation is
@@ -46,24 +50,26 @@ beyond the scope of SBML, there exists no standard way to specify observables
 (model outputs) and respective noise models. Therefore, we use the following
 convention.
 
+
 ### Observables
 
 In the SBML model, observables are specified as `AssignmentRules` assigning to
 parameters with `id`s starting with `observable_` followed by the
-`observableId` as in the corresponding column of the *measurement sheet* (see
+`observableId` as in the corresponding column of the *measurement table* (see
 below).
 
 E.g.
 ```
-observable_pErk = observableParameter1 + observableParameter2*pErk
+observable_pErk = observableParameter1_pErk + observableParameter2_pErk*pErk
 ```
-where `observableParameter1` would be an offset, and `observableParameter2` a
-scaling parameter.
+where `observableParameter1_pErk` would be an offset, and `observableParameter2_pErk` a
+scaling parameter for the observable `pErk`. The observable parameter names have the structure: `observableParameter${indexOfObservableParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement table*.
+
 
 ### Noise model
 
 Measurement noise can be specified as a numerical value in the
-`noiseParameters` column of the *measurement sheet* (see below), which will
+`noiseParameters` column of the *measurement table* (see below), which will
 default to a Gaussian noise model with standard deviation as provided in
 `noiseParameters`.
 
@@ -73,10 +79,10 @@ using additional `AssignmentRules`. Those noise model rules assign to
 A noise model which accounts for relative and absolute contributions could,
 e.g., be defined as
 ```
-sigma_pErk = noiseParameter1 + noiseParameter2*pErk
+sigma_pErk = noiseParameter1_pErk + noiseParameter2_pErk*pErk
 ```
-with `noiseParameter1` denoting the absolute and `noiseParameter2` the
-relative contribution.
+with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk` the
+relative contribution for the observable `pErk`. The noise parameter names have the structure: `noiseParameter${indexOfNoiseParameter}_${observableId}` to facilitate automatic recognition. The specific values or parameters are assigned in the *measurement table*.
 
 Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 `noiseParameters` column of the measurement file (see below).
@@ -84,22 +90,23 @@ Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 
 ## Condition table
 
-The condition table species parameters for specific simulation condition
-(generally corresponding to different experimental conditions).
+The condition table specifies parameters or *constant* species for specific
+simulation condition (generally corresponding to different experimental
+conditions).
 
 This is specified as tab-separated value file with condition-specific
-parameters in the following way:
+species/parameters in the following way:
 
-| conditionId | [conditionName] | parameterId1 | ... | parameterId${n} |
+| conditionId | [conditionName] | parameterOrStateId1 | ... | parameterOrStateId${n} |
 |---|---|---|---|---|
 | conditionId1 | conditionName1 | NUMERIC&#124;parameterId | ...| ...
 | conditionId2 | ... | ... | ...| ...
 |... | ... | ... | ... |...| ...
 
 Row names are condition names as referenced in the measurement table below.
-Column names are parameter names as given in the SBML model or the measurement
-table. These parameters will override any parameter values specified in the
-model. `parameterId`s and `conditionId`s must be unique.
+Column names are global parameter IDs or IDs of constant species as given in
+the SBML model. These parameters will override any parameter values specified
+in the model. `parameterOrStateId`s and `conditionId`s must be unique.
 
 Row- and column-ordering are arbitrary, although specifying `parameterId`
 first may improve human readability. The `conditionName` column is optional.
@@ -109,10 +116,8 @@ Additional columns are *not* allowed.
 can easily be added to a separate file, since every row of the condition table
 has `parameterId` as unique key.
 
-*Note 2:* State names to specify initial conditions are not allowed here. The
-respective initial values need to be turned into SBML model parameters.
 
-## Measurements table
+## Measurement table
 
 A tab-separated values files containing all measurements to be used for
 model training or validation.
@@ -133,6 +138,33 @@ order:
 |...|...|...|...|...|...|
 
 Additional (non-standard) columns may be added.
+
+
+## Visualization table
+
+A tab-separated values files containing the specification of visualisations. Plots are in general collections of different datasets as specified using their `datasetId`.  
+
+Expected to have the following named columns in any (but preferably this)
+order:
+
+| plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ... 
+|---|---|---|---|---|---|
+| plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
+|...|...|...|...|...|...|
+
+*(wrapped for readability)*
+
+| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry] |  ... 
+|---|---|---|---|---|---|
+|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] | 
+|...|...|...|...|...|...|...|
+
+The `independentVariable`is the variable over which the dataset is visualised. For time-response data, this should be `time`, for dose response data the respective `parameterOrStateId`. The numerical values of the `independentVariable` are shown on the x-axis, while the values of the observables are shown of the respective y-axis.
+
+If different datasets are assigned to the same `plotID`, multiple datasets are overlaid. The name of the datasets is indicated by the corresponding `legendEntry`, which is by default the `datasetId`.
+
+The visualization types is specified by `plotTypeSimulation` and `plotTypeData`. Possible choices include LinePlot, BarPlot, MeanAndSD and MeanAndSEM. In addition, XScale and YScale, Color, etc. can be specified.
+
 
 ### Detailed field description
 
@@ -204,22 +236,18 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   `normal`, the specified `noiseParameters` will be interpreted as standard 
   deviation (*not* variance).
 
-- `experimentId` [STRING, OPTIONAL]
-
-    Experiment ID which is used for grouping in the visualization of the data. Measurements with the same `experimentId` are plotted together. Usually, measurements which were collected in the same experiment (at the same day) have the same `experimentId`. 
-
 ## Parameter table
 
 A tab-separated value text file containing information on model parameters.
 
-This table must comprise the following parameters:
-- All parameters from the SBML model, except for:
-    - `constant` and/or `boundaryCondition` parameters (see SBML specs)
-    - placeholder parameters (see `observableParameters` and `noiseParameters`
-      above)
-    - parameters included as column names in the *condition table*
+This table must include the following parameters:
 - Named parameter overrides introduced in the *conditions table*
 - Named parameter overrides introduced in the *measurement table*
+
+and must not include 
+- placeholder parameters (see `observableParameters` and `noiseParameters`
+  above)
+- parameters included as column names in the *condition table*
 
 One row per parameter with arbitrary order of rows and columns:
 
@@ -279,16 +307,24 @@ Detailed column description:
 
   Type of prior. Leave empty or omit column, if no priors. Normal/ Laplace etc.
 
-  **TODO** What will be allowed here? (issue #17)
+  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
+
 
 - `priorParameters`
 
   Parameters for prior.
 
-  **TODO** Numeric or also parameter names? (issue #17)
+  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
+  Numeric or also parameter names? (issue #17)
+
+
+## Parameter estimation problems combining multiple models
+
+[**Issue #49**](https://github.com/ICB-DCM/PEtab/issues/49)
 
 
 ## Extensions
+
 
 ### Parameter table
 
