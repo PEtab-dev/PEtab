@@ -159,14 +159,7 @@ class Problem:
         return get_optimization_parameters(self.parameter_df)
 
     def get_dynamic_simulation_parameters(self):
-        return get_model_parameters(self.sbml_model)
-
-    def get_dynamic_parameters_from_sbml(self):
-        """
-        Provide list of IDS of parameters which are dynamic, i.e. not
-        fixed.
-        See get_dynamic_parameters_from_sbml.
-        """
+        """See `get_model_parameters`"""
         return get_model_parameters(self.sbml_model)
 
     def get_observables(self, remove=False):
@@ -586,7 +579,7 @@ def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
 
     overrides = {row.name: row.nominalValue for _, row
                  in parameter_df.iterrows() if row.estimate != 1}
-    print(overrides)
+
     for i_condition, mapping_for_condition in enumerate(mapping):
         for i_val, val in enumerate(mapping_for_condition):
             if isinstance(val, str):
