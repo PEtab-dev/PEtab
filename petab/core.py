@@ -434,9 +434,12 @@ def get_optimization_to_simulation_parameter_mapping(
         simulation_conditions=None,
         warn_unmapped=True):
     """
-    Create array of mappings. The length of the array is n_conditions, each
-    entry is an array of length n_par_sim, listing the optimization parameters
-    or constants to be mapped to the simulation parameters.
+    Create array of mappings from PEtab-problem to SBML parameters.
+
+    The length of the returned array is n_conditions, each entry is an array
+    of length n_par_sim, listing the optimization parameters or constants to
+    be mapped to the simulation parameters. NaN is used where no mapping
+    exists.
 
     Parameters
     ----------
@@ -468,8 +471,7 @@ def get_optimization_to_simulation_parameter_mapping(
         simulation_conditions = get_simulation_conditions(measurement_df)
 
     if par_sim_ids is None:
-        par_sim_ids = get_dynamic_simulation_parameters(sbml_model,
-                                                        parameter_df)
+        par_sim_ids = get_model_parameters(sbml_model)
 
     n_conditions = simulation_conditions.shape[0]
 
@@ -481,6 +483,10 @@ def get_optimization_to_simulation_parameter_mapping(
         name: idx for idx, name in enumerate(par_sim_ids)
     }
 
+    _apply_dynamic_parameter_overrides(mapping, condition_df, parameter_df,
+                                       par_sim_id_to_ix)
+
+    # apply output parameter overrides
     def _apply_overrides(
             overrides, condition_ix, observable_id, override_type):
         """
@@ -507,8 +513,87 @@ def get_optimization_to_simulation_parameter_mapping(
                 overrides, condition_ix,
                 row.observableId, override_type='noise')
 
+    fill_in_nominal_values(mapping, parameter_df)
+
     handle_missing_overrides(mapping, warn=warn_unmapped)
     return mapping
+
+
+def _apply_dynamic_parameter_overrides(mapping,
+                                       condition_df: pd.DataFrame,
+                                       parameter_df: pd.DataFrame,
+                                       par_sim_id_to_ix):
+    """Apply dynamic parameter overrides from condition table (inplace).
+
+    Arguments:
+        mapping, par_sim_id_to_ix:
+            see get_optimization_to_simulation_parameter_mapping
+        condition_df, parameter_df: PEtab condition and parameter table
+    """
+    for overridee_id in condition_df.columns:
+        if overridee_id == 'conditionName':
+            continue
+        if condition_df[overridee_id].dtype != 'O':
+            continue
+
+        for condition_idx, overrider_id \
+                in enumerate(condition_df[overridee_id]):
+            if isinstance(overridee_id, str):
+                _check_dynamic_parameter_override(overridee_id, overrider_id,
+                                                parameter_df)
+                mapping[condition_idx][par_sim_id_to_ix[overridee_id]] = \
+                    overrider_id
+
+
+def _check_dynamic_parameter_override(overridee_id, overrider_id, parameter_df):
+    """Check for valid replacement of parameter overridee_id by overrider_id.
+    Matching scales, etc."""
+
+    if 'parameterScale' not in parameter_df:
+        return  # Nothing to check
+
+    # in case both parameter are in parameter table, their scale
+    # must match.
+    if overridee_id in parameter_df.index \
+            and parameter_df.loc[overridee_id, 'parameterScale'] \
+            != parameter_df.loc[overrider_id, 'parameterScale']:
+        raise ValueError(f'Cannot override {overridee_id} with '
+                         f'with {overrider_id} which have '
+                         'different parameterScale.')
+
+    # if not, the scale of the overrider must be lin
+    # (or needs to be unscaled)
+    if parameter_df.loc[overrider_id, 'parameterScale'] != 'lin':
+        raise ValueError(f'No scale given for parameter {overridee_id}, '
+                         f'assuming "lin" which does not match scale of '
+                         f'overriding parameter {overrider_id}')
+
+
+def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
+    """Replace non-estimated parameters by nominalValues.
+
+    Arguments:
+        mapping: list of matrices as obtained from
+            get_optimization_to_simulation_parameter_mapping
+        parameter_df:
+            PEtab parameter table
+    """
+
+    if parameter_df is None:
+        return
+    if 'estimate' not in parameter_df:
+        return
+
+    overrides = {row.name: row.nominalValue for _, row
+                 in parameter_df.iterrows() if row.estimate != 1 }
+    print(overrides)
+    for i_condition, mapping_for_condition in enumerate(mapping):
+        for i_val, val in enumerate(mapping_for_condition):
+            if isinstance(val, str):
+                try:
+                    mapping[i_condition][i_val] = overrides[val]
+                except KeyError:
+                    pass
 
 
 def get_simulation_conditions(measurement_df):
@@ -594,11 +679,6 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, warn=True):
 
 
 def perform_mapping_checks(condition_df, measurement_df):
-
-    # we cannot handle those cases yet
-    if not lint.condition_table_is_parameter_free(condition_df):
-        raise ValueError(
-            "Parameterized condition table currently unsupported.")
     if lint.measurement_table_has_timepoint_specific_mappings(measurement_df):
         # we could allow that for floats, since they don't matter in this
         # function and would be simply ignored
@@ -701,24 +781,9 @@ def get_placeholders(formula_string, observable_id, override_type):
     return placeholders
 
 
-def get_dynamic_parameters_from_sbml(sbml_model: libsbml.Model):
-    """
-    Get list of non-constant parameters in SBML model.
-    """
-    return [p.getId() for p in sbml_model.getListOfParameters()
-            if not p.getConstant()]
-
-
-def get_dynamic_simulation_parameters(sbml_model, parameter_df):
-    par_opt_ids = get_optimization_parameters(parameter_df)
-    sbml_pars = sbml_model.getListOfParameters()
-    par_ids = [
-        p.getId() for p in sbml_pars
-        if p.getId().startswith("noiseParameter")
-        or p.getId().startswith("observableParameter")
-        or p.getId() in par_opt_ids
-    ]
-    return par_ids
+def get_model_parameters(sbml_model: libsbml.Model):
+    """Return list of SBML model parameter IDs"""
+    return [p.getId() for p in sbml_model.getListOfParameters()]
 
 
 def get_optimization_parameters(parameter_df):
