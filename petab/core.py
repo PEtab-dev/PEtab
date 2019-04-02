@@ -775,8 +775,11 @@ def get_placeholders(formula_string, observable_id, override_type):
 
 
 def get_model_parameters(sbml_model: libsbml.Model):
-    """Return list of SBML model parameter IDs"""
-    return [p.getId() for p in sbml_model.getListOfParameters()]
+    """Return list of SBML model parameter IDs which are not AssignmentRule
+    targets for observables or sigmas"""
+
+    return [p.getId() for p in sbml_model.getListOfParameters()
+            if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
 
 
 def get_optimization_parameters(parameter_df):
