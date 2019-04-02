@@ -433,6 +433,9 @@ def get_optimization_to_simulation_parameter_mapping(
     be mapped to the simulation parameters. NaN is used where no mapping
     exists.
 
+    If no `par_sim_ids` is passed, parameter ordering will the one obtained
+    from `get_model_parameters()`.
+
     Parameters
     ----------
 
