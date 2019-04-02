@@ -159,8 +159,7 @@ class Problem:
         return get_optimization_parameters(self.parameter_df)
 
     def get_dynamic_simulation_parameters(self):
-        return get_dynamic_simulation_parameters(
-            self.sbml_model, self.parameter_df)
+        return get_model_parameters(self.sbml_model)
 
     def get_dynamic_parameters_from_sbml(self):
         """
@@ -168,7 +167,7 @@ class Problem:
         fixed.
         See get_dynamic_parameters_from_sbml.
         """
-        return get_dynamic_parameters_from_sbml(self.sbml_model)
+        return get_model_parameters(self.sbml_model)
 
     def get_observables(self, remove=False):
         """
@@ -539,13 +538,14 @@ def _apply_dynamic_parameter_overrides(mapping,
         for condition_idx, overrider_id \
                 in enumerate(condition_df[overridee_id]):
             if isinstance(overridee_id, str):
-                _check_dynamic_parameter_override(overridee_id, overrider_id,
-                                                parameter_df)
+                _check_dynamic_parameter_override(
+                    overridee_id, overrider_id, parameter_df)
                 mapping[condition_idx][par_sim_id_to_ix[overridee_id]] = \
                     overrider_id
 
 
-def _check_dynamic_parameter_override(overridee_id, overrider_id, parameter_df):
+def _check_dynamic_parameter_override(
+        overridee_id, overrider_id, parameter_df: pd.DataFrame):
     """Check for valid replacement of parameter overridee_id by overrider_id.
     Matching scales, etc."""
 
@@ -585,7 +585,7 @@ def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
         return
 
     overrides = {row.name: row.nominalValue for _, row
-                 in parameter_df.iterrows() if row.estimate != 1 }
+                 in parameter_df.iterrows() if row.estimate != 1}
     print(overrides)
     for i_condition, mapping_for_condition in enumerate(mapping):
         for i_val, val in enumerate(mapping_for_condition):
