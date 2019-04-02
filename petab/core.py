@@ -522,7 +522,7 @@ def _apply_dynamic_parameter_overrides(mapping,
                                        condition_df: pd.DataFrame,
                                        parameter_df: pd.DataFrame,
                                        par_sim_id_to_ix):
-    """Apply dynamic parameter overrides from condition table (inplace).
+    """Apply dynamic parameter overrides from condition table (in-place).
 
     Arguments:
         mapping, par_sim_id_to_ix:
@@ -552,7 +552,7 @@ def _check_dynamic_parameter_override(
     if 'parameterScale' not in parameter_df:
         return  # Nothing to check
 
-    # in case both parameter are in parameter table, their scale
+    # in case both parameters are in parameter table, their scale
     # must match.
     if overridee_id in parameter_df.index \
             and parameter_df.loc[overridee_id, 'parameterScale'] \
