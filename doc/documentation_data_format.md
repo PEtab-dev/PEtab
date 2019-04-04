@@ -140,32 +140,6 @@ order:
 Additional (non-standard) columns may be added.
 
 
-## Visualization table
-
-A tab-separated values files containing the specification of visualisations. Plots are in general collections of different datasets as specified using their `datasetId`.  
-
-Expected to have the following named columns in any (but preferably this)
-order:
-
-| plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ... 
-|---|---|---|---|---|---|
-| plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
-|...|...|...|...|...|...|
-
-*(wrapped for readability)*
-
-| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry] |  ... 
-|---|---|---|---|---|---|
-|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] | 
-|...|...|...|...|...|...|...|
-
-The `independentVariable`is the variable over which the dataset is visualised. For time-response data, this should be `time`, for dose response data the respective `parameterOrStateId`. The numerical values of the `independentVariable` are shown on the x-axis, while the values of the observables are shown of the respective y-axis.
-
-If different datasets are assigned to the same `plotID`, multiple datasets are overlaid. The name of the datasets is indicated by the corresponding `legendEntry`, which is by default the `datasetId`.
-
-The visualization types is specified by `plotTypeSimulation` and `plotTypeData`. Possible choices include LinePlot, BarPlot, MeanAndSD and MeanAndSEM. In addition, XScale and YScale, Color, etc. can be specified.
-
-
 ### Detailed field description
 
 - `observableId` [STRING, NOT NULL, REFERENCES(sbml.observableID)]
@@ -321,6 +295,44 @@ Detailed column description:
 ## Parameter estimation problems combining multiple models
 
 [**Issue #49**](https://github.com/ICB-DCM/PEtab/issues/49)
+
+
+
+## Visualization table
+
+A tab-separated value file containing the specification of visualisations.
+Plots are in general collections of different datasets as specified using
+their `datasetId` inside the measurement table.
+
+Expected to have the following columns in any (but preferably this)
+order:
+
+| plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ...
+|---|---|---|---|---|---|
+| plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
+|...|...|...|...|...|...|
+
+*(wrapped for readability)*
+
+| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry] |  ...
+|---|---|---|---|---|---|
+|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] |
+|...|...|...|...|...|...|...|
+
+The `independentVariable`is the variable over which the dataset is visualised.
+For time-response data, this should be `time`, for dose-response data the
+respective `parameterOrStateId`. The numerical values of the
+`independentVariable` are shown on the x-axis, while the values of the
+observables are shown on the respective y-axis.
+
+If different datasets are assigned to the same `plotID`, multiple datasets are
+overlaid. The name of the dataset is indicated by the corresponding
+`legendEntry`, which defaults to the `datasetId`.
+
+The visualization type is specified as `plotTypeSimulation` and
+`plotTypeData`. Possible choices include `LinePlot`, `BarPlot`, `MeanAndSD` and
+`MeanAndSEM`. In addition, `XScale` and `YScale`, `Color`, etc. may be
+specified.
 
 
 ## Extensions
