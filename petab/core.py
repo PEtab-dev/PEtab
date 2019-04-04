@@ -912,6 +912,7 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
         set(condition_df.columns.values.tolist()) - {'conditionId',
                                                      'conditionName'})
     for overridee in condition_parameters:
+        # non-numeric entries are parameter overrides
         overrides = condition_df[overridee][np.invert(
             condition_df[overridee].apply(isinstance, args=(numbers.Number,)))]
         if not len(overrides):
