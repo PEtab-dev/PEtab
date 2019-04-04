@@ -865,10 +865,6 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
         upper_bound: upper bound for parameter value
     """
 
-    # We do not handle that yet, once we do, we need to add those parameters
-    # as well
-    assert lint.condition_table_is_parameter_free(condition_df)
-
     observables = get_observables(sbml_model)
     sigmas = get_sigmas(sbml_model)
 
@@ -911,6 +907,17 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
         append_overrides(
             split_parameter_replacement_list(row.noiseParameters))
 
+    # Append parameter overrides from condition table
+    condition_parameters = list(
+        set(condition_df.columns.values.tolist()) - {'conditionId',
+                                                     'conditionName'})
+    for overridee in condition_parameters:
+        # non-numeric entries are parameter overrides
+        overrides = condition_df[overridee][
+            ~condition_df[overridee].apply(isinstance, args=(numbers.Number,))]
+        for overrider in overrides:
+            parameter_ids[overrider] = None
+
     parameter_ids = list(parameter_ids.keys())
 
     df = pd.DataFrame(
@@ -929,10 +936,14 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
 
     # For SBML model parameters set nominal values as defined in the model
     for parameter_id in df.index:
-        parameter = sbml_model.getParameter(parameter_id)
-        if parameter:
-            df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
-
+        try:
+            parameter = sbml_model.getParameter(parameter_id)
+            if parameter:
+                df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
+        except ValueError:
+            # parameter was introduced as condition-specific override and
+            # is potentially not present in the model
+            pass
     return df
 
 
