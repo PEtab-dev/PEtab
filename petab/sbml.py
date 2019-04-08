@@ -43,7 +43,7 @@ def assignment_rules_to_dict(
         if parameter and filter_function(parameter):
             result[assignee] = {
                 'name': parameter.getName(),
-                'formula': rule.getFormula()
+                'formula': libsbml.formulaToL3String(rule.getMath())
             }
 
     # remove from model?
@@ -55,7 +55,7 @@ def assignment_rules_to_dict(
     return result
 
 
-def constant_species_to_parameters(sbml_model):
+def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
     """Convert constant species in the SBML model to constant parameters.
 
     This can be used e.g. for setting up models with condition-specific
@@ -75,16 +75,19 @@ def constant_species_to_parameters(sbml_model):
     for species in sbml_model.getListOfSpecies():
         if not species.getConstant() and not species.getBoundaryCondition():
             continue
+
         if species.getHasOnlySubstanceUnits():
             logger.warning(
                 f"Ignoring {species.getId()} which has only substance units."
                 " Conversion not yet implemented.")
             continue
+
         if math.isnan(species.getInitialConcentration()):
             logger.warning(
                 f"Ignoring {species.getId()} which has no initial "
                 "concentration. Amount conversion not yet implemented.")
             continue
+
         transformables.append(species.getId())
 
     # Must not remove species while iterating over getListOfSpecies()
@@ -102,6 +105,7 @@ def constant_species_to_parameters(sbml_model):
         for speciesId in transformables:
             reaction.removeReactant(speciesId)
             reaction.removeProduct(speciesId)
+            reaction.removeModifier(speciesId)
 
     return transformables
 

@@ -261,19 +261,49 @@ class TestGetSimulationToOptimizationParameterMapping(object):
 
         assert actual == expected
 
+    def test_parameterized_condition_table(self):
+        condition_df = pd.DataFrame(data={
+            'conditionId': ['condition1', 'condition2', 'condition3'],
+            'conditionName': ['', 'Condition 2', ''],
+            'dynamicParameter1': ['dynamicOverride1_1',
+                                  'dynamicOverride1_2', 0]
+        })
+        condition_df.set_index('conditionId', inplace=True)
 
-def test_get_dynamic_parameters_from_sbml():
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    p = model.createParameter()
-    p.setId('dynamicParameter1')
-    p.setConstant(False)
-    p = model.createParameter()
-    p.setId('fixedParameter1')
-    p.setConstant(True)
+        measurement_df = pd.DataFrame(data={
+            'simulationConditionId': ['condition1', 'condition2',
+                                      'condition3'],
+            'observableId': ['obs1', 'obs2', 'obs1'],
+            'observableParameters': '',
+            'noiseParameters': '',
+        })
 
-    assert petab.get_dynamic_parameters_from_sbml(model) == [
-        'dynamicParameter1']
+        parameter_df = pd.DataFrame(data={
+            'parameterId': ['dynamicOverride1_1', 'dynamicOverride1_2'],
+            'parameterName': ['', '...'],  # ...
+        })
+
+        document = libsbml.SBMLDocument(3, 1)
+        model = document.createModel()
+        model.setTimeUnits("second")
+        model.setExtentUnits("mole")
+        model.setSubstanceUnits('mole')
+        model.createParameter().setId('dynamicParameter1')
+
+        assert petab.get_model_parameters(model) == ['dynamicParameter1']
+
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
+            measurement_df=measurement_df,
+            condition_df=condition_df,
+            parameter_df=parameter_df,
+            sbml_model=model
+        )
+
+        expected = [['dynamicOverride1_1'],
+                    ['dynamicOverride1_2'],
+                    [0]]
+
+        assert actual == expected
 
 
 def test_get_observable_id():
@@ -305,9 +335,17 @@ def test_create_parameter_df(condition_df_2_conditions):
     s = model.createSpecies()
     s.setId('x1')
 
-    p = model.createParameter()
-    p.setId('fixedParameter1')
-    p.setName('FixedParameter1')
+    petab.sbml.add_global_parameter(
+        model,
+        parameter_id='fixedParameter1',
+        parameter_name='FixedParameter1',
+        value=2.0)
+
+    petab.sbml.add_global_parameter(
+        model,
+        parameter_id='p0',
+        parameter_name='Parameter 0',
+        value=3.0)
 
     petab.sbml.add_model_output_with_sigma(
         sbml_model=model,
@@ -333,6 +371,43 @@ def test_create_parameter_df(condition_df_2_conditions):
         measurement_df)
 
     # first model parameters, then row by row noise and sigma overrides
-    expected = ['p3', 'p4', 'p1', 'p2', 'p5']
+    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5']
     actual = parameter_df.index.values.tolist()
     assert actual == expected
+    assert parameter_df.loc['p0', 'nominalValue'] == 3.0
+
+    # test with condition parameter override:
+    condition_df_2_conditions.loc['condition2', 'fixedParameter1'] \
+        = 'overrider'
+    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
+
+    parameter_df = petab.create_parameter_df(
+        model,
+        condition_df_2_conditions,
+        measurement_df)
+    actual = parameter_df.index.values.tolist()
+    assert actual == expected
+    assert parameter_df.loc['p0', 'nominalValue'] == 3.0
+
+
+def test_fill_in_nominal_values():
+    parameter_df = pd.DataFrame(data={
+        'parameterId': ['estimated', 'not_estimated'],
+        'parameterName': ['', '...'],  # ...
+        'nominalValue': [0.0, 2.0],
+        'estimate': [1, 0]
+    })
+    parameter_df.set_index(['parameterId'], inplace=True)
+    mapping = [[1.0, 1.0], ['estimated', 'not_estimated']]
+
+    actual = mapping.copy()
+    petab.fill_in_nominal_values(actual, parameter_df)
+    expected = [[1.0, 1.0], ['estimated', 2.0]]
+    assert expected == actual
+
+    del parameter_df['estimate']
+    # should not replace
+    actual = mapping.copy()
+    petab.fill_in_nominal_values(actual, parameter_df)
+    expected = mapping.copy()
+    assert expected == actual
