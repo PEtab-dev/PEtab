@@ -337,10 +337,11 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
             if not len(replacements) == 1 \
                     or not isinstance(replacements[0], numbers.Number):
                 raise AssertionError(
-                    f'No placeholders specified SBML-file noise model for: '
+                    f'No placeholders have been specified in the noise model '
+                    f'SBML AssigmentRule for: '
                     f'\n{row}\n'
-                    f'But parameter name or multiple overrides provided in '
-                    'noiseParameters column.')
+                    f'But parameter name or multiple overrides were specified '
+                    'in the noiseParameters column.')
 
 
 def lint_problem(problem: 'core.Problem'):
