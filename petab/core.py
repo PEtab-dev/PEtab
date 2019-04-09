@@ -695,8 +695,14 @@ def get_optimization_to_simulation_scale_mapping(
                 scale = 'lin'
             else:
                 # is par opt id, thus extract its scale
-                scale = par_opt_scales_from_df[par_opt_ids_from_df.index(val)]
-
+                try:
+                    scale = \
+                        par_opt_scales_from_df[par_opt_ids_from_df.index(val)]
+                except ValueError:
+                    # This is a condition-table parameter which may not be
+                    # present in the parameter table. Those are assumed to be
+                    # 'lin'
+                    scale = 'lin'
             # append to scales for condition j
             scales_for_j_condition.append(scale)
 
