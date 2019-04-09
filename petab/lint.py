@@ -256,12 +256,12 @@ def assert_noise_distributions_valid(measurement_df):
     # check for valid values
 
     for trafo in df['observableTransformation']:
-        if trafo not in ['lin', 'log', 'log10'] and trafo:
+        if trafo not in ['', 'lin', 'log', 'log10', np.nan]:
             raise ValueError(
                 f"Unrecognized observable transformation in measurement "
                 f"file: {trafo}.")
     for distr in df['noiseDistribution']:
-        if distr not in ['normal', 'laplace'] and distr:
+        if distr not in ['', 'normal', 'laplace', np.nan]:
             raise ValueError(
                 f"Unrecognized noise distribution in measurement "
                 f"file: {distr}.")
@@ -337,7 +337,8 @@ def assert_overrides_match_parameter_count(measurement_df, observables, noise):
             if not len(replacements) == 1 \
                     or not isinstance(replacements[0], numbers.Number):
                 raise AssertionError(
-                    f'No placeholders specified in noise model for:\n{row}\n'
+                    f'No placeholders specified SBML-file noise model for: '
+                    f'\n{row}\n'
                     f'But parameter name or multiple overrides provided in '
                     'noiseParameters column.')
 
