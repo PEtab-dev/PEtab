@@ -534,35 +534,8 @@ def _apply_dynamic_parameter_overrides(mapping,
         for condition_idx, overrider_id \
                 in enumerate(condition_df[overridee_id]):
             if isinstance(overridee_id, str):
-                _check_dynamic_parameter_override(
-                    overridee_id, overrider_id, parameter_df)
                 mapping[condition_idx][par_sim_id_to_ix[overridee_id]] = \
                     overrider_id
-
-
-def _check_dynamic_parameter_override(
-        overridee_id, overrider_id, parameter_df: pd.DataFrame):
-    """Check for valid replacement of parameter overridee_id by overrider_id.
-    Matching scales, etc."""
-
-    if 'parameterScale' not in parameter_df:
-        return  # Nothing to check
-
-    # in case both parameters are in parameter table, their scale
-    # must match.
-    if overridee_id in parameter_df.index \
-            and parameter_df.loc[overridee_id, 'parameterScale'] \
-            != parameter_df.loc[overrider_id, 'parameterScale']:
-        raise ValueError(f'Cannot override {overridee_id} with '
-                         f'with {overrider_id} which have '
-                         'different parameterScale.')
-
-    # if not, the scale of the overrider must be lin
-    # (or needs to be unscaled)
-    if parameter_df.loc[overrider_id, 'parameterScale'] != 'lin':
-        raise ValueError(f'No scale given for parameter {overridee_id}, '
-                         f'assuming "lin" which does not match scale of '
-                         f'overriding parameter {overrider_id}')
 
 
 def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
@@ -588,6 +561,19 @@ def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
             if isinstance(val, str):
                 try:
                     mapping[i_condition][i_val] = overrides[val]
+                    # rescale afterwards. if there the parameter is not
+                    # overridden, the previous line raises and we save the
+                    # lookup
+
+                    # all overrides will be scaled to 'lin'
+                    if 'parameterScale' in parameter_df:
+                        scale = parameter_df.loc[val, 'parameterScale']
+                        if scale == 'log':
+                            mapping[i_condition][i_val] = \
+                                np.exp(mapping[i_condition][i_val])
+                        elif scale == 'log10':
+                            mapping[i_condition][i_val] = \
+                                10**mapping[i_condition][i_val]
                 except KeyError:
                     pass
 
