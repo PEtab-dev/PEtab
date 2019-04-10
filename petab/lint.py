@@ -256,12 +256,16 @@ def assert_noise_distributions_valid(measurement_df):
     # check for valid values
 
     for trafo in df['observableTransformation']:
-        if trafo not in ['', 'lin', 'log', 'log10', np.nan]:
+        if trafo not in ['', 'lin', 'log', 'log10'] \
+                and not (isinstance(trafo, numbers.Number)
+                         and np.isnan(trafo)):
             raise ValueError(
                 f"Unrecognized observable transformation in measurement "
                 f"file: {trafo}.")
     for distr in df['noiseDistribution']:
-        if distr not in ['', 'normal', 'laplace', np.nan]:
+        if distr not in ['', 'normal', 'laplace'] \
+                and not (isinstance(distr, numbers.Number)
+                         and np.isnan(distr)):
             raise ValueError(
                 f"Unrecognized noise distribution in measurement "
                 f"file: {distr}.")
