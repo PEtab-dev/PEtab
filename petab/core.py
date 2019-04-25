@@ -418,29 +418,29 @@ def parameter_is_offset_parameter(parameter, formula):
 
 
 def get_optimization_to_simulation_parameter_mapping(
-        condition_df,
-        measurement_df,
-        parameter_df=None,
-        sbml_model=None,
+        condition_df: pd.DataFrame,
+        measurement_df: pd.DataFrame,
+        parameter_df: pd.DataFrame = None,
+        sbml_model: libsbml.Model = None,
         par_sim_ids=None,
         simulation_conditions=None,
-        warn_unmapped=True):
+        warn_unmapped: bool = True):
     """
     Create array of mappings from PEtab-problem to SBML parameters.
 
-    The length of the returned array is n_conditions, each entry is an array
-    of length n_par_sim, listing the optimization parameters or constants to
-    be mapped to the simulation parameters. NaN is used where no mapping
-    exists.
+    The length of the returned array is n_conditions, each entry is a tuple of
+    two arrays of length n_par_sim, listing the optimization parameters or
+    constants to be mapped to the simulation parameters, first for
+    preequilibration (empty if no preequilibration condition is specified),
+    second for simulation. NaN is used where no mapping exists.
 
-    If no `par_sim_ids` is passed, parameter ordering will the one obtained
+    If no `par_sim_ids` is passed, parameter ordering will be the one obtained
     from `get_model_parameters()`.
 
     Parameters
     ----------
-
     condition_df, measurement_df, parameter_df:
-        The dataframes in the petab format.
+        The dataframes in the PEtab format.
 
         parameter_df is optional if par_sim_ids is provided
 
@@ -468,22 +468,101 @@ def get_optimization_to_simulation_parameter_mapping(
     if par_sim_ids is None:
         par_sim_ids = get_model_parameters(sbml_model)
 
-    n_conditions = simulation_conditions.shape[0]
+    mapping = []
+    for condition_ix, condition in simulation_conditions.iterrows():
+        cur_measurement_df = get_rows_for_condition(measurement_df,
+                                                    condition)
 
-    # initialize mapping matrix of shape n_par_dyn_sim_ids x n_conditions
+        if 'preequilibrationConditionId' not in condition \
+                or not isinstance(condition.preequilibrationConditionId, str) \
+                or not condition.preequilibrationConditionId:
+            preeq_map = []
+        else:
+            preeq_map = get_parameter_mapping_for_condition(
+                condition_id=condition.preequilibrationConditionId,
+                is_preeq=True,
+                cur_measurement_df=cur_measurement_df,
+                condition_df=condition_df,
+                parameter_df=parameter_df, sbml_model=sbml_model,
+                par_sim_ids=par_sim_ids, warn_unmapped=warn_unmapped
+            )
+
+        sim_map = get_parameter_mapping_for_condition(
+            condition_id=condition.simulationConditionId,
+            is_preeq=False,
+            cur_measurement_df=cur_measurement_df,
+            condition_df=condition_df,
+            parameter_df=parameter_df, sbml_model=sbml_model,
+            par_sim_ids=par_sim_ids, warn_unmapped=warn_unmapped
+        )
+        mapping.append((preeq_map, sim_map),)
+    return mapping
+
+
+def get_parameter_mapping_for_condition(
+        condition_id: str,
+        is_preeq: bool,
+        cur_measurement_df: pd.DataFrame,
+        condition_df: pd.DataFrame,
+        parameter_df: pd.DataFrame = None,
+        sbml_model: libsbml.Model = None,
+        par_sim_ids=None,
+        warn_unmapped: bool = True):
+    """
+    Create array of mappings from PEtab-problem to SBML parameters for the
+    given condition.
+
+    The length of the returned array of length n_par_sim, listing the
+    optimization parameters or constants to be mapped to the simulation
+    parameters. NaN is used where no mapping exists.
+
+    If no `par_sim_ids` is passed, parameter ordering will be the one obtained
+    from `get_model_parameters()`.
+
+    Parameters
+    ----------
+    condition_id: Condition ID for which to perform mapping
+
+    is_preeq: If true, output parameters will not be mapped
+
+    cur_measurement_df: Measurement sub-table for current condition
+
+    condition_df, parameter_df:
+        The dataframes in the PEtab format.
+
+        parameter_df is optional if par_sim_ids is provided
+
+    sbml_model:
+        The sbml model with observables and noise specified according to the
+        petab format. Optional if par_sim_ids is provided.
+
+    par_sim_ids: list of str, optional
+        Ids of the simulation parameters. If not passed,
+        these are generated from the files automatically. However, passing
+        them can ensure having the correct order.
+
+    warn_unmapped:
+        If True, log warning regarding unmapped parameters
+    """
+    perform_mapping_checks(condition_df, cur_measurement_df)
+
+    if par_sim_ids is None:
+        par_sim_ids = get_model_parameters(sbml_model)
+
+    # initialize mapping matrix of shape n_par_sim_ids
     # for the case of matching simulation and optimization parameter vector
-    mapping = [par_sim_ids[:] for _ in range(0, n_conditions)]
+    mapping = par_sim_ids[:]
 
     par_sim_id_to_ix = {
         name: idx for idx, name in enumerate(par_sim_ids)
     }
 
-    _apply_dynamic_parameter_overrides(mapping, condition_df, parameter_df,
+    _apply_dynamic_parameter_overrides(mapping, condition_id,
+                                       condition_df, parameter_df,
                                        par_sim_id_to_ix)
 
     # apply output parameter overrides
-    def _apply_overrides(
-            overrides, condition_ix, observable_id, override_type):
+    def _apply_overrides(overrides, observable_id, override_type):
         """
         Apply parameter-overrides for observables and noises to mapping
         matrix.
@@ -491,30 +570,30 @@ def get_optimization_to_simulation_parameter_mapping(
         for i, override in enumerate(overrides):
             par_sim_ix = par_sim_id_to_ix[
                 f'{override_type}Parameter{i+1}_{observable_id}']
-            mapping[condition_ix][par_sim_ix] = override
+            mapping[par_sim_ix] = override
 
-    for condition_ix, condition in simulation_conditions.iterrows():
-        cur_measurement_df = get_rows_for_condition(measurement_df, condition)
+    if not is_preeq:
         for _, row in cur_measurement_df.iterrows():
             # we trust that the number of overrides matches (see above)
             overrides = split_parameter_replacement_list(
                 row.observableParameters)
             _apply_overrides(
-                overrides, condition_ix,
-                row.observableId, override_type='observable')
+                overrides, row.observableId, override_type='observable')
 
             overrides = split_parameter_replacement_list(row.noiseParameters)
             _apply_overrides(
-                overrides, condition_ix,
-                row.observableId, override_type='noise')
+                overrides, row.observableId, override_type='noise')
 
     fill_in_nominal_values(mapping, parameter_df)
+
+    # TODO fill in fixed parameters (#103)
 
     handle_missing_overrides(mapping, warn=warn_unmapped)
     return mapping
 
 
 def _apply_dynamic_parameter_overrides(mapping,
+                                       condition_id: str,
                                        condition_df: pd.DataFrame,
                                        parameter_df: pd.DataFrame,
                                        par_sim_id_to_ix):
@@ -522,7 +601,7 @@ def _apply_dynamic_parameter_overrides(mapping,
 
     Arguments:
         mapping, par_sim_id_to_ix:
-            see get_optimization_to_simulation_parameter_mapping
+            see get_parameter_mapping_for_condition
         condition_df, parameter_df: PEtab condition and parameter table
     """
     for overridee_id in condition_df.columns:
@@ -531,19 +610,16 @@ def _apply_dynamic_parameter_overrides(mapping,
         if condition_df[overridee_id].dtype != 'O':
             continue
 
-        for condition_idx, overrider_id \
-                in enumerate(condition_df[overridee_id]):
-            if isinstance(overridee_id, str):
-                mapping[condition_idx][par_sim_id_to_ix[overridee_id]] = \
-                    overrider_id
+        overrider_id = condition_df.loc[condition_id, overridee_id]
+        mapping[par_sim_id_to_ix[overridee_id]] = overrider_id
 
 
 def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
     """Replace non-estimated parameters by nominalValues.
 
     Arguments:
-        mapping: list of matrices as obtained from
-            get_optimization_to_simulation_parameter_mapping
+        mapping: mapping lists obtained from
+            get_parameter_mapping_for_condition
         parameter_df:
             PEtab parameter table
     """
@@ -556,29 +632,28 @@ def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
     overrides = {row.name: row.nominalValue for _, row
                  in parameter_df.iterrows() if row.estimate != 1}
 
-    for i_condition, mapping_for_condition in enumerate(mapping):
-        for i_val, val in enumerate(mapping_for_condition):
-            if isinstance(val, str):
-                try:
-                    mapping[i_condition][i_val] = overrides[val]
-                    # rescale afterwards. if there the parameter is not
-                    # overridden, the previous line raises and we save the
-                    # lookup
+    for i_val, val in enumerate(mapping):
+        if isinstance(val, str):
+            try:
+                mapping[i_val] = overrides[val]
+                # rescale afterwards. if there the parameter is not
+                # overridden, the previous line raises and we save the
+                # lookup
 
-                    # all overrides will be scaled to 'lin'
-                    if 'parameterScale' in parameter_df:
-                        scale = parameter_df.loc[val, 'parameterScale']
-                        if scale == 'log':
-                            mapping[i_condition][i_val] = \
-                                np.exp(mapping[i_condition][i_val])
-                        elif scale == 'log10':
-                            mapping[i_condition][i_val] = \
-                                10**mapping[i_condition][i_val]
-                except KeyError:
-                    pass
+                # all overrides will be scaled to 'lin'
+                if 'parameterScale' in parameter_df:
+                    scale = parameter_df.loc[val, 'parameterScale']
+                    if scale == 'log':
+                        mapping[i_val] = \
+                            np.exp(mapping[i_val])
+                    elif scale == 'log10':
+                        mapping[i_val] = \
+                            10**mapping[i_val]
+            except KeyError:
+                pass
 
 
-def get_simulation_conditions(measurement_df):
+def get_simulation_conditions(measurement_df) -> pd.DataFrame:
     """
     Create a table of separate simulation conditions. A simulation condition
     is a specific combination of simulationConditionId and
@@ -598,7 +673,8 @@ def get_simulation_conditions(measurement_df):
     return simulation_conditions
 
 
-def get_rows_for_condition(measurement_df, condition):
+def get_rows_for_condition(measurement_df: pd.DataFrame, condition)\
+        -> pd.DataFrame:
     """
     Extract rows in `measurement_df` for `condition` according
     to the grouping columns present in `condition`.
@@ -619,16 +695,17 @@ def get_rows_for_condition(measurement_df, condition):
     if 'simulationConditionId' in condition:
         row_filter = (measurement_df.simulationConditionId ==
                       condition.simulationConditionId) & row_filter
-
     # apply filter
     cur_measurement_df = measurement_df.loc[row_filter, :]
 
     return cur_measurement_df
 
 
-def handle_missing_overrides(mapping_par_opt_to_par_sim, warn=True):
+def handle_missing_overrides(mapping_par_opt_to_par_sim,
+                             warn: bool = True,
+                             condition_id: str = None):
     """
-    Find all observable parameters and noise parameters that were not mapped,
+    Find all observable parameters and noise parameters that were not mapped
     and set their mapping to np.nan.
 
     Assumes that parameters matching "(noise|observable)Parameter[0-9]+_" were
@@ -636,26 +713,26 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim, warn=True):
 
     Parameters:
     -----------
+    mapping_par_opt_to_par_sim:
+        Output of get_parameter_mapping_for_condition
     warn:
         If True, log warning regarding unmapped parameters
     """
     _missed_vals = []
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
-    for i_condition, mapping_for_condition in \
-            enumerate(mapping_par_opt_to_par_sim):
-        for i_val, val in enumerate(mapping_for_condition):
-            try:
-                matches = rex.match(val)
-            except TypeError:
-                continue
+    for i_val, val in enumerate(mapping_par_opt_to_par_sim):
+        try:
+            matches = rex.match(val)
+        except TypeError:
+            continue
 
-            if matches:
-                mapping_for_condition[i_val] = np.nan
-                _missed_vals.append((i_condition, i_val, val))
+        if matches:
+            mapping_par_opt_to_par_sim[i_val] = np.nan
+            _missed_vals.append((i_val, val))
 
     if len(_missed_vals) and warn:
-        logger.warning(f"Could not map the following overrides "
-                       f"(condition index, parameter index, parameter): "
+        logger.warning(f"Could not map the following overrides for condition "
+                       f"{condition_id} (parameter index, parameter): "
                        f"{_missed_vals}. Usually, this is just due to missing "
                        f"data points.")
 
@@ -670,44 +747,76 @@ def perform_mapping_checks(condition_df, measurement_df):
 
 def get_optimization_to_simulation_scale_mapping(
         parameter_df,
-        mapping_par_opt_to_par_sim):
+        mapping_par_opt_to_par_sim,
+        measurement_df,
+        simulation_conditions=None):
+    """Get parameter scale mapping for all conditions"""
+    mapping_scale_opt_to_scale_sim = []
 
-    n_condition = len(mapping_par_opt_to_par_sim)
-    n_par_sim = len(mapping_par_opt_to_par_sim[0])
+    if simulation_conditions is None:
+        simulation_conditions = get_simulation_conditions(measurement_df)
+
+    # iterate over conditions
+    for condition_ix, condition in simulation_conditions.iterrows():
+        if 'preequilibrationConditionId' not in condition \
+                or not isinstance(condition.preequilibrationConditionId, str) \
+                or not condition.preequilibrationConditionId:
+            preeq_map = []
+        else:
+            preeq_map = get_scale_mapping_for_condition(
+                parameter_df=parameter_df,
+                mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim[
+                    condition_ix][0]
+            )
+
+        sim_map = get_scale_mapping_for_condition(
+            parameter_df=parameter_df,
+            mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim[
+                condition_ix][1]
+        )
+
+        # append to mapping
+        mapping_scale_opt_to_scale_sim.append((preeq_map, sim_map),)
+
+    return mapping_scale_opt_to_scale_sim
+
+
+def get_scale_mapping_for_condition(
+        parameter_df: pd.DataFrame,
+        mapping_par_opt_to_par_sim):
+    """Get parameter scale mapping for the given condition
+
+    Arguments:
+        parameter_df: PEtab parameter table
+        mapping_par_opt_to_par_sim:
+            Mapping as obtained from get_parameter_mapping_for_condition
+    """
+    n_par_sim = len(mapping_par_opt_to_par_sim)
 
     par_opt_ids_from_df = list(parameter_df.reset_index()['parameterId'])
     par_opt_scales_from_df = list(parameter_df.reset_index()['parameterScale'])
 
     mapping_scale_opt_to_scale_sim = []
 
-    # iterate over conditions
-    for j_condition in range(0, n_condition):
-        # prepare vector of scales for j_condition
-        scales_for_j_condition = []
+    # iterate over simulation parameters
+    for j_par_sim in range(n_par_sim):
+        # extract entry in mapping table for j_par_sim
+        val = mapping_par_opt_to_par_sim[j_par_sim]
 
-        # iterate over simulation parameters
-        for j_par_sim in range(n_par_sim):
-            # extract entry in mapping table for j_par_sim
-            val = mapping_par_opt_to_par_sim[j_condition][j_par_sim]
-
-            if isinstance(val, numbers.Number):
-                # fixed value assignment
+        if isinstance(val, numbers.Number):
+            # fixed value assignment
+            scale = 'lin'
+        else:
+            # is par opt id, thus extract its scale
+            try:
+                scale = \
+                    par_opt_scales_from_df[par_opt_ids_from_df.index(val)]
+            except ValueError:
+                # This is a condition-table parameter which is not
+                # present in the parameter table. Those are assumed to be
+                # 'lin'
                 scale = 'lin'
-            else:
-                # is par opt id, thus extract its scale
-                try:
-                    scale = \
-                        par_opt_scales_from_df[par_opt_ids_from_df.index(val)]
-                except ValueError:
-                    # This is a condition-table parameter which may not be
-                    # present in the parameter table. Those are assumed to be
-                    # 'lin'
-                    scale = 'lin'
-            # append to scales for condition j
-            scales_for_j_condition.append(scale)
-
-        # append to mapping
-        mapping_scale_opt_to_scale_sim.append(scales_for_j_condition)
+        mapping_scale_opt_to_scale_sim.append(scale)
 
     return mapping_scale_opt_to_scale_sim
 

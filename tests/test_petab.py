@@ -99,8 +99,8 @@ def test_split_parameter_replacement_list():
         == ['param1', 'param2']
     assert petab.split_parameter_replacement_list('1.0') == [1.0]
     assert petab.split_parameter_replacement_list('1.0;2.0') == [1.0, 2.0]
-    assert petab.split_parameter_replacement_list('param1;2.2') == \
-        ['param1', 2.2]
+    assert petab.split_parameter_replacement_list('param1;2.2') \
+        == ['param1', 2.2]
     assert petab.split_parameter_replacement_list(np.nan) == []
     assert petab.split_parameter_replacement_list(1.5) == [1.5]
 
@@ -153,8 +153,8 @@ def test_serialization(petab_problem):
 
     # Can't test for equality directly, testing for number of parameters
     #  should do the job here
-    assert len(problem_recreated.sbml_model.getListOfParameters()) == \
-        len(petab_problem.sbml_model.getListOfParameters())
+    assert len(problem_recreated.sbml_model.getListOfParameters()) \
+        == len(petab_problem.sbml_model.getListOfParameters())
 
 
 class TestGetSimulationToOptimizationParameterMapping(object):
@@ -172,12 +172,14 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '']
         })
 
-        expected = [['dynamicParameter1',
-                     'dynamicParameter2',
-                     'dynamicParameter3'],
-                    ['dynamicParameter1',
-                     'dynamicParameter2',
-                     'dynamicParameter3']]
+        expected = [([],
+                     ['dynamicParameter1',
+                      'dynamicParameter2',
+                      'dynamicParameter3']),
+                    ([],
+                     ['dynamicParameter1',
+                      'dynamicParameter2',
+                      'dynamicParameter3'])]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
@@ -205,18 +207,20 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = [['dynamicParameter1',
-                     'dynamicParameter2',
-                     'obs1par1override',
-                     'obs1par2cond1override',
-                     'obs2par1cond1override',
-                     ],
-                    ['dynamicParameter1',
-                     'dynamicParameter2',
-                     'obs1par1override',
-                     'obs1par2cond2override',
-                     'obs2par1cond2override'
-                     ]]
+        expected = [([],
+                     ['dynamicParameter1',
+                      'dynamicParameter2',
+                      'obs1par1override',
+                      'obs1par2cond1override',
+                      'obs2par1cond1override',
+                      ]),
+                    ([],
+                     ['dynamicParameter1',
+                      'dynamicParameter2',
+                      'obs1par1override',
+                      'obs1par2cond2override',
+                      'obs2par1cond2override'
+                      ])]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
@@ -246,18 +250,20 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
-        expected = [['dynamicParameter1',
-                     'dynamicParameter2',
-                     'obs1par1override',
-                     'obs1par2cond1override',
-                     np.nan,
-                     ],
-                    ['dynamicParameter1',
-                     'dynamicParameter2',
-                     'obs1par1override',
-                     'obs1par2cond2override',
-                     'obs2par1cond2override'
-                     ]]
+        expected = [([],
+                     ['dynamicParameter1',
+                      'dynamicParameter2',
+                      'obs1par1override',
+                      'obs1par2cond1override',
+                      np.nan,
+                      ]),
+                    ([],
+                     ['dynamicParameter1',
+                      'dynamicParameter2',
+                      'obs1par1override',
+                      'obs1par2cond2override',
+                      'obs2par1cond2override'
+                      ])]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
@@ -306,9 +312,9 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             sbml_model=model
         )
 
-        expected = [['dynamicOverride1_1'],
-                    ['dynamicOverride1_2'],
-                    [0]]
+        expected = [([], ['dynamicOverride1_1']),
+                    ([], ['dynamicOverride1_2']),
+                    ([], [0])]
 
         assert actual == expected
 
@@ -364,20 +370,52 @@ class TestGetSimulationToOptimizationParameterMapping(object):
 
         actual_scale_map = petab.get_optimization_to_simulation_scale_mapping(
             parameter_df=parameter_df,
+            measurement_df=measurement_df,
             mapping_par_opt_to_par_sim=actual_par_map
         )
 
-        expected_par_map = [['dynamicOverrideLog10'],
-                            [2.0],
+        expected_par_map = [([], ['dynamicOverrideLog10']),
+                            ([], [2.0]),
                             # rescaled:
-                            [0.01],
-                            [10.0]]
+                            ([], [0.01]),
+                            ([], [10.0])]
 
-        expected_scale_map = [['log10'],
-                              ['lin'],
-                              ['lin'],
-                              ['lin']]
+        expected_scale_map = [([], ['log10']),
+                              ([], ['lin']),
+                              ([], ['lin']),
+                              ([], ['lin'])]
 
+        assert actual_par_map == expected_par_map
+        assert actual_scale_map == expected_scale_map
+
+        # Add preeq condition
+        measurement_df['preequilibrationConditionId'] = \
+            ['condition1', 'condition1', 'condition3', 'condition3']
+        actual_par_map = \
+            petab.get_optimization_to_simulation_parameter_mapping(
+                measurement_df=measurement_df,
+                condition_df=condition_df,
+                parameter_df=parameter_df,
+                sbml_model=model
+            )
+
+        actual_scale_map = petab.get_optimization_to_simulation_scale_mapping(
+            parameter_df=parameter_df,
+            measurement_df=measurement_df,
+            mapping_par_opt_to_par_sim=actual_par_map
+        )
+
+        expected_par_map = [
+            (['dynamicOverrideLog10'], ['dynamicOverrideLog10']),
+            (['dynamicOverrideLog10'], [2.0]),
+            # rescaled:
+            ([0.01], [0.01]),
+            ([0.01], [10.0])]
+
+        expected_scale_map = [(['log10'], ['log10']),
+                              (['log10'], ['lin']),
+                              (['lin'], ['lin']),
+                              (['lin'], ['lin'])]
         assert actual_par_map == expected_par_map
         assert actual_scale_map == expected_scale_map
 
@@ -394,10 +432,11 @@ def test_get_placeholders():
         'observableParameter1_twoParams * '
         'observableParameter2_twoParams + otherParam',
         'twoParams', 'observable') \
-        == {'observableParameter1_twoParams', 'observableParameter2_twoParams'}
+        == {'observableParameter1_twoParams',
+            'observableParameter2_twoParams'}
 
-    assert petab.get_placeholders(
-        '3.0 * noiseParameter1_oneParam', 'oneParam', 'noise') \
+    assert petab.get_placeholders('3.0 * noiseParameter1_oneParam',
+                                  'oneParam', 'noise') \
         == {'noiseParameter1_oneParam'}
 
 
@@ -474,15 +513,28 @@ def test_fill_in_nominal_values():
         'estimate': [1, 0]
     })
     parameter_df.set_index(['parameterId'], inplace=True)
-    mapping = [[1.0, 1.0], ['estimated', 'not_estimated']]
 
+    mapping = [1.0, 1.0]
     actual = mapping.copy()
     petab.fill_in_nominal_values(actual, parameter_df)
-    expected = [[1.0, 1.0], ['estimated', 2.0]]
+    expected = mapping.copy()
+    assert expected == actual
+
+    mapping = ['estimated', 'not_estimated']
+    actual = mapping.copy()
+    petab.fill_in_nominal_values(actual, parameter_df)
+    expected = ['estimated', 2.0]
     assert expected == actual
 
     del parameter_df['estimate']
     # should not replace
+    mapping = [1.0, 1.0]
+    actual = mapping.copy()
+    petab.fill_in_nominal_values(actual, parameter_df)
+    expected = mapping.copy()
+    assert expected == actual
+
+    mapping = ['estimated', 'not_estimated']
     actual = mapping.copy()
     petab.fill_in_nominal_values(actual, parameter_df)
     expected = mapping.copy()
