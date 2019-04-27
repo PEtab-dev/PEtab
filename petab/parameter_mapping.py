@@ -31,7 +31,7 @@ def get_optimization_to_simulation_parameter_mapping(
         simulation_conditions=None,
         warn_unmapped: bool = True) -> List[ParMappingDictTuple]:
     """
-    Create list of mappings dicts from PEtab-problem to SBML parameters.
+    Create list of mapping dicts from PEtab-problem to SBML parameters.
 
     Parameters
     ----------
@@ -119,7 +119,6 @@ def get_parameter_mapping_for_condition(
 
     condition_df, parameter_df:
         The dataframes in the PEtab format.
-
         parameter_df is optional if par_sim_ids is provided
 
     sbml_model:

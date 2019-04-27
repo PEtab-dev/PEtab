@@ -555,7 +555,7 @@ def get_placeholders(formula_string: str, observable_id: str,
         formula_string: observable formula (typically from SBML model)
         observable_id: ID of current observable
         override_type: 'observable' or 'noise', depending on whether `formula`
-            is for observable of for noise model
+            is for observable or for noise model
 
     Returns:
         (Un-ordered) set of placeholder parameter IDs
