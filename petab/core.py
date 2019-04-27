@@ -495,42 +495,6 @@ def get_rows_for_condition(measurement_df: pd.DataFrame,
     return cur_measurement_df
 
 
-def handle_missing_overrides(mapping_par_opt_to_par_sim: list,
-                             warn: bool = True,
-                             condition_id: str = None) -> None:
-    """
-    Find all observable parameters and noise parameters that were not mapped
-    and set their mapping to np.nan.
-
-    Assumes that parameters matching "(noise|observable)Parameter[0-9]+_" were
-    all supposed to be overwritten.
-
-    Parameters:
-    -----------
-    mapping_par_opt_to_par_sim:
-        Output of get_parameter_mapping_for_condition
-    warn:
-        If True, log warning regarding unmapped parameters
-    """
-    _missed_vals = []
-    rex = re.compile("^(noise|observable)Parameter[0-9]+_")
-    for i_val, val in enumerate(mapping_par_opt_to_par_sim):
-        try:
-            matches = rex.match(val)
-        except TypeError:
-            continue
-
-        if matches:
-            mapping_par_opt_to_par_sim[i_val] = np.nan
-            _missed_vals.append((i_val, val))
-
-    if len(_missed_vals) and warn:
-        logger.warning(f"Could not map the following overrides for condition "
-                       f"{condition_id} (parameter index, parameter): "
-                       f"{_missed_vals}. Usually, this is just due to missing "
-                       f"data points.")
-
-
 def get_measurement_parameter_ids(measurement_df: pd.DataFrame) -> list:
     """
     Return list of ID of parameters which occur in measurement table as
@@ -552,7 +516,8 @@ def get_measurement_parameter_ids(measurement_df: pd.DataFrame) -> list:
         + get_unique_parameters(measurement_df.noiseParameters))
 
 
-def split_parameter_replacement_list(list_string: str, delim: str = ';'
+def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
+                                     delim: str = ';'
                                      ) -> List:
     """
     Split values in observableParameters and noiseParameters in measurement
@@ -608,7 +573,6 @@ def get_placeholders(formula_string: str, observable_id: str,
 def get_model_parameters(sbml_model: libsbml.Model) -> List[str]:
     """Return list of SBML model parameter IDs which are not AssignmentRule
     targets for observables or sigmas"""
-
     return [p.getId() for p in sbml_model.getListOfParameters()
             if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
 
