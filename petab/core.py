@@ -10,6 +10,8 @@ from collections import OrderedDict
 import logging
 from . import lint
 from . import sbml
+from typing import Optional, List, Tuple, Dict, Union, Iterable
+import warnings
 
 
 logger = logging.getLogger(__name__)
@@ -42,15 +44,16 @@ class Problem:
                  measurement_df: pd.DataFrame = None,
                  parameter_df: pd.DataFrame = None):
 
-        self.condition_df = condition_df
-        self.measurement_df = measurement_df
-        self.parameter_df = parameter_df
+        self.condition_df: Optional[pd.DataFrame] = condition_df
+        self.measurement_df: Optional[pd.DataFrame] = measurement_df
+        self.parameter_df: Optional[pd.DataFrame] = parameter_df
 
-        self.sbml_reader = sbml_reader
-        self.sbml_document = sbml_document
-        self.sbml_model = sbml_model
+        self.sbml_reader: Optional[libsbml.SBMLReader] = sbml_reader
+        self.sbml_document: Optional[libsbml.SBMLDocument] = sbml_document
+        self.sbml_model: Optional[libsbml.Model] = sbml_model
 
     def __getstate__(self):
+        """Return state for pickling"""
         state = self.__dict__.copy()
 
         # libsbml stuff cannot be serialized directly
@@ -66,6 +69,7 @@ class Problem:
         return state
 
     def __setstate__(self, state):
+        """Set state after unpickling"""
         # load SBML model from pickled string
         sbml_string = state.pop('sbml_string', None)
         if sbml_string:
@@ -80,7 +84,7 @@ class Problem:
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
                    measurement_file: str = None,
-                   parameter_file: str = None):
+                   parameter_file: str = None) -> 'Problem':
         """
         Factory method to load model and tables from files.
 
@@ -113,7 +117,7 @@ class Problem:
                        sbml_reader=sbml_reader)
 
     @staticmethod
-    def from_folder(folder: str, model_name: str = None):
+    def from_folder(folder: str, model_name: str = None) -> 'Problem':
         """
         Factory method to use the standard folder structure
         and file names, i.e.
@@ -149,12 +153,17 @@ class Problem:
         to optimization, no sensitivities w.r.t. these parameters are
         required).
         """
+        warnings.warn("This function will be removed in future releases. ",
+                      DeprecationWarning)
+
         columns_set = set(self.condition_df.columns.values)
         return list(columns_set - {'conditionId', 'conditionName'})
 
     def get_optimization_parameters(self):
         """
-        Return list of optimization parameter ids.
+        Return list of optimization parameter IDs.
+
+        See get_optimization_parameters.
         """
         return get_optimization_parameters(self.parameter_df)
 
@@ -162,7 +171,7 @@ class Problem:
         """See `get_model_parameters`"""
         return get_model_parameters(self.sbml_model)
 
-    def get_observables(self, remove=False):
+    def get_observables(self, remove: bool = False):
         """
         Returns dictionary of observables definitions
         See `assignment_rules_to_dict` for details.
@@ -170,7 +179,7 @@ class Problem:
 
         return get_observables(sbml_model=self.sbml_model, remove=remove)
 
-    def get_sigmas(self, remove=False):
+    def get_sigmas(self, remove: bool = False):
         """
         Return dictionary of observableId => sigma as defined in the SBML
         model.
@@ -188,35 +197,42 @@ class Problem:
             measurement_df=self.measurement_df)
 
     @property
-    def x_ids(self):
+    def x_ids(self) -> List[str]:
+        """Parameter table parameter IDs"""
         return list(self.parameter_df.reset_index()['parameterId'])
 
     @property
-    def x_nominal(self):
+    def x_nominal(self) -> List:
+        """Parameter table nominal values"""
         return list(self.parameter_df['nominalValue'])
 
     @property
-    def lb(self):
+    def lb(self) -> List:
+        """Parameter table lower bounds"""
         return list(self.parameter_df['lowerBound'])
 
     @property
-    def ub(self):
+    def ub(self) -> List:
+        """Parameter table upper bounds"""
         return list(self.parameter_df['upperBound'])
 
     @property
-    def x_fixed_indices(self):
+    def x_fixed_indices(self) -> List[int]:
+        """Parameter table non-estimated parameter indices"""
         estimated = list(self.parameter_df['estimate'])
         return [j for j, val in enumerate(estimated) if val == 0]
 
     @property
-    def x_fixed_vals(self):
+    def x_fixed_vals(self) -> List:
+        """Nominal values for parameter table non-estimated parameters"""
         return [self.x_nominal[val] for val in self.x_fixed_indices]
 
     def get_simulation_conditions_from_measurement_df(self):
+        """See petab.get_simulation_conditions"""
         return get_simulation_conditions(self.measurement_df)
 
     def get_optimization_to_simulation_parameter_mapping(
-            self, warn_unmapped=True):
+            self, warn_unmapped: bool = True):
         """
         See get_simulation_to_optimization_parameter_mapping.
         """
@@ -228,34 +244,37 @@ class Problem:
             warn_unmapped=warn_unmapped)
 
     def create_parameter_df(self, *args, **kwargs):
-        """Create a new PEtab parameter table"""
+        """Create a new PEtab parameter table
+
+        See create_parameter_df
+        """
         return create_parameter_df(self.sbml_model,
                                    self.condition_df,
                                    self.measurement_df,
                                    *args, **kwargs)
 
 
-def get_default_condition_file_name(model_name, folder=''):
+def get_default_condition_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
     return os.path.join(folder, f"experimentalCondition_{model_name}.tsv")
 
 
-def get_default_measurement_file_name(model_name, folder=''):
+def get_default_measurement_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
     return os.path.join(folder, f"measurementData_{model_name}.tsv")
 
 
-def get_default_parameter_file_name(model_name, folder=''):
+def get_default_parameter_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
     return os.path.join(folder, f"parameters_{model_name}.tsv")
 
 
-def get_default_sbml_file_name(model_name, folder=''):
+def get_default_sbml_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
     return os.path.join(folder, f"model_{model_name}.xml")
 
 
-def get_condition_df(condition_file_name):
+def get_condition_df(condition_file_name: str) -> pd.DataFrame:
     """Read the provided condition file into a `pandas.Dataframe`
 
     Conditions are rows, parameters are columns, conditionId is index.
@@ -274,7 +293,7 @@ def get_condition_df(condition_file_name):
     return condition_df
 
 
-def get_parameter_df(parameter_file_name):
+def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
     """
     Read the provided parameter file into a `pandas.Dataframe`.
     """
@@ -292,7 +311,7 @@ def get_parameter_df(parameter_file_name):
     return parameter_df
 
 
-def get_measurement_df(measurement_file_name):
+def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
     """
     Read the provided measurement file into a `pandas.Dataframe`.
     """
@@ -304,7 +323,7 @@ def get_measurement_df(measurement_file_name):
     return measurement_df
 
 
-def sbml_parameter_is_observable(sbml_parameter):
+def sbml_parameter_is_observable(sbml_parameter: str) -> bool:
     """
     Returns whether the `libsbml.Parameter` `sbml_parameter`
     matches the defined observable format.
@@ -312,7 +331,7 @@ def sbml_parameter_is_observable(sbml_parameter):
     return sbml_parameter.getId().startswith('observable_')
 
 
-def sbml_parameter_is_sigma(sbml_parameter):
+def sbml_parameter_is_sigma(sbml_parameter: str) -> bool:
     """
     Returns whether the `libsbml.Parameter` `sbml_parameter`
     matches the defined sigma format.
@@ -320,7 +339,7 @@ def sbml_parameter_is_sigma(sbml_parameter):
     return sbml_parameter.getId().startswith('sigma_')
 
 
-def get_observables(sbml_model, remove=False):
+def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     """
     Returns dictionary of observable definitions.
     See `assignment_rules_to_dict` for details.
@@ -333,10 +352,12 @@ def get_observables(sbml_model, remove=False):
     return observables
 
 
-def get_sigmas(sbml_model, remove=False):
+def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     """
     Returns dictionary of sigma definitions.
-    See `assignment_rules_to_dict` for details.
+
+    Keys are observable IDs, for values see `assignment_rules_to_dict` for
+    details.
     """
     sigmas = sbml.assignment_rules_to_dict(
         sbml_model,
@@ -349,11 +370,12 @@ def get_sigmas(sbml_model, remove=False):
     return sigmas
 
 
-def get_noise_distributions(measurement_df):
+def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
     """
-    Returns dictiontary of cost definitions per observable, if specified.
+    Returns dictionary of cost definitions per observable, if specified.
+
     Looks through all parameters satisfying `sbml_parameter_is_cost` and
-    return dictionary of key: observableId, value: cost definition.
+    return as dictionary.
 
     Parameters
     ----------
@@ -362,8 +384,10 @@ def get_noise_distributions(measurement_df):
     remove: bool, optional (default = False)
         Whether to remove parameters identified as a cost from the
         sbml model.
+
+    Returns:
+        {observableId: cost definition}
     """
-    # lint
     lint.assert_noise_distributions_valid(measurement_df)
 
     # read noise distributions from measurement file
@@ -393,7 +417,7 @@ def get_noise_distributions(measurement_df):
     return noise_distrs
 
 
-def parameter_is_scaling_parameter(parameter, formula):
+def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:
     """
     Returns true if parameter `parameter` is a scaling
     parameter in formula `formula`.
@@ -405,7 +429,7 @@ def parameter_is_scaling_parameter(parameter, formula):
     return sym_parameter not in (sym_formula / sym_parameter).free_symbols
 
 
-def parameter_is_offset_parameter(parameter, formula):
+def parameter_is_offset_parameter(parameter: str, formula: str) -> bool:
     """
     Returns true if parameter `parameter` is an offset
     parameter with positive sign in formula `formula`.
@@ -424,7 +448,7 @@ def get_optimization_to_simulation_parameter_mapping(
         sbml_model: libsbml.Model = None,
         par_sim_ids=None,
         simulation_conditions=None,
-        warn_unmapped: bool = True):
+        warn_unmapped: bool = True) -> List[Tuple[List, List]]:
     """
     Create array of mappings from PEtab-problem to SBML parameters.
 
@@ -460,7 +484,8 @@ def get_optimization_to_simulation_parameter_mapping(
     warn_unmapped:
         If True, log warning regarding unmapped parameters
     """
-    perform_mapping_checks(condition_df, measurement_df)
+    # Ensure inputs are okay
+    perform_mapping_checks(measurement_df)
 
     if simulation_conditions is None:
         simulation_conditions = get_simulation_conditions(measurement_df)
@@ -507,7 +532,7 @@ def get_parameter_mapping_for_condition(
         parameter_df: pd.DataFrame = None,
         sbml_model: libsbml.Model = None,
         par_sim_ids=None,
-        warn_unmapped: bool = True):
+        warn_unmapped: bool = True) -> List:
     """
     Create array of mappings from PEtab-problem to SBML parameters for the
     given condition.
@@ -544,7 +569,7 @@ def get_parameter_mapping_for_condition(
     warn_unmapped:
         If True, log warning regarding unmapped parameters
     """
-    perform_mapping_checks(condition_df, cur_measurement_df)
+    perform_mapping_checks(cur_measurement_df)
 
     if par_sim_ids is None:
         par_sim_ids = get_model_parameters(sbml_model)
@@ -553,6 +578,7 @@ def get_parameter_mapping_for_condition(
     # for the case of matching simulation and optimization parameter vector
     mapping = par_sim_ids[:]
 
+    # Lookup table
     par_sim_id_to_ix = {
         name: idx for idx, name in enumerate(par_sim_ids)
     }
@@ -561,28 +587,9 @@ def get_parameter_mapping_for_condition(
                                        condition_df, parameter_df,
                                        par_sim_id_to_ix)
 
-    # apply output parameter overrides
-    def _apply_overrides(overrides, observable_id, override_type):
-        """
-        Apply parameter-overrides for observables and noises to mapping
-        matrix.
-        """
-        for i, override in enumerate(overrides):
-            par_sim_ix = par_sim_id_to_ix[
-                f'{override_type}Parameter{i+1}_{observable_id}']
-            mapping[par_sim_ix] = override
-
     if not is_preeq:
-        for _, row in cur_measurement_df.iterrows():
-            # we trust that the number of overrides matches (see above)
-            overrides = split_parameter_replacement_list(
-                row.observableParameters)
-            _apply_overrides(
-                overrides, row.observableId, override_type='observable')
-
-            overrides = split_parameter_replacement_list(row.noiseParameters)
-            _apply_overrides(
-                overrides, row.observableId, override_type='noise')
+        _apply_output_parameter_overrides(mapping, cur_measurement_df,
+                                          par_sim_id_to_ix)
 
     fill_in_nominal_values(mapping, parameter_df)
 
@@ -590,6 +597,57 @@ def get_parameter_mapping_for_condition(
 
     handle_missing_overrides(mapping, warn=warn_unmapped)
     return mapping
+
+
+def _apply_output_parameter_overrides(
+        mapping: List,
+        cur_measurement_df: pd.DataFrame,
+        par_sim_id_to_ix: Dict[str, int]) -> None:
+    """
+    Apply output parameter overrides to the parameter mapping list for a given
+    condition as defined in the measurement table (observableParameter,
+    noiseParameters).
+
+    Arguments:
+        mapping: parameter mapping list
+        cur_measurement_df:
+            Subset of the measurement table for the current condition
+        par_sim_id_to_ix: mapping of model parameter id to index
+    """
+    for _, row in cur_measurement_df.iterrows():
+        # we trust that the number of overrides matches (see above)
+        overrides = split_parameter_replacement_list(
+            row.observableParameters)
+        _apply_overrides_for_observable(mapping, row.observableId,
+                                        'observable',
+                                        overrides, par_sim_id_to_ix)
+
+        overrides = split_parameter_replacement_list(row.noiseParameters)
+        _apply_overrides_for_observable(mapping, row.observableId, 'noise',
+                                        overrides, par_sim_id_to_ix)
+
+
+def _apply_overrides_for_observable(
+        mapping: list,
+        observable_id: str,
+        override_type: str,
+        overrides: list,
+        par_sim_id_to_ix: Dict[str, int]) -> None:
+    """
+    Apply parameter-overrides for observables and noises to mapping
+    matrix.
+
+    Arguments:
+        mapping: mapping list to which to apply overrides
+        observable_id: observable ID
+        override_type: 'observable' or 'noise'
+        overrides: list of overrides for noise or observable parameters
+        par_sim_id_to_ix: mapping of model parameter id to index
+    """
+    for i, override in enumerate(overrides):
+        overridee_id = f'{override_type}Parameter{i+1}_{observable_id}'
+        par_sim_ix = par_sim_id_to_ix[overridee_id]
+        mapping[par_sim_ix] = override
 
 
 def _apply_dynamic_parameter_overrides(mapping,
@@ -614,8 +672,9 @@ def _apply_dynamic_parameter_overrides(mapping,
         mapping[par_sim_id_to_ix[overridee_id]] = overrider_id
 
 
-def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
-    """Replace non-estimated parameters by nominalValues.
+def fill_in_nominal_values(mapping: list, parameter_df: pd.DataFrame) -> None:
+    """Replace non-estimated parameters in mapping list for a given condition
+    by nominalValues provided in parameter table.
 
     Arguments:
         mapping: mapping lists obtained from
@@ -644,20 +703,25 @@ def fill_in_nominal_values(mapping, parameter_df: pd.DataFrame):
                 if 'parameterScale' in parameter_df:
                     scale = parameter_df.loc[val, 'parameterScale']
                     if scale == 'log':
-                        mapping[i_val] = \
-                            np.exp(mapping[i_val])
+                        mapping[i_val] = np.exp(mapping[i_val])
                     elif scale == 'log10':
-                        mapping[i_val] = \
-                            10**mapping[i_val]
+                        mapping[i_val] = 10**mapping[i_val]
             except KeyError:
                 pass
 
 
-def get_simulation_conditions(measurement_df) -> pd.DataFrame:
+def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     """
     Create a table of separate simulation conditions. A simulation condition
     is a specific combination of simulationConditionId and
     preequilibrationConditionId.
+
+    Arguments:
+        measurement_df: PEtab measurement table
+
+    Returns:
+        Dataframe with columns 'simulationConditionId' and
+        'preequilibrationConditionId'. All-NULL columns will be omitted.
     """
     # find columns to group by (i.e. if not all nans).
     # can be improved by checking for identical condition vectors
@@ -673,37 +737,39 @@ def get_simulation_conditions(measurement_df) -> pd.DataFrame:
     return simulation_conditions
 
 
-def get_rows_for_condition(measurement_df: pd.DataFrame, condition)\
-        -> pd.DataFrame:
+def get_rows_for_condition(measurement_df: pd.DataFrame,
+                           condition: Union[pd.DataFrame, dict]
+                           ) -> pd.DataFrame:
     """
     Extract rows in `measurement_df` for `condition` according
-    to the grouping columns present in `condition`.
+    to 'preequilibrationConditionId' and 'simulationConditionId' in
+    `condition`.
 
     Returns
     -------
 
     cur_measurement_df: pd.DataFrame
         The subselection of rows in `measurement_df` for the
-        condition `condition.
+        condition `condition`.
     """
     # filter rows for condition
     row_filter = 1
     # check for equality in all grouping cols
     if 'preequilibrationConditionId' in condition:
         row_filter = (measurement_df.preequilibrationConditionId ==
-                      condition.preequilibrationConditionId) & row_filter
+                      condition['preequilibrationConditionId']) & row_filter
     if 'simulationConditionId' in condition:
         row_filter = (measurement_df.simulationConditionId ==
-                      condition.simulationConditionId) & row_filter
+                      condition['simulationConditionId']) & row_filter
     # apply filter
     cur_measurement_df = measurement_df.loc[row_filter, :]
 
     return cur_measurement_df
 
 
-def handle_missing_overrides(mapping_par_opt_to_par_sim,
+def handle_missing_overrides(mapping_par_opt_to_par_sim: list,
                              warn: bool = True,
-                             condition_id: str = None):
+                             condition_id: str = None) -> None:
     """
     Find all observable parameters and noise parameters that were not mapped
     and set their mapping to np.nan.
@@ -737,7 +803,7 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim,
                        f"data points.")
 
 
-def perform_mapping_checks(condition_df, measurement_df):
+def perform_mapping_checks(measurement_df: pd.DataFrame) -> None:
     if lint.measurement_table_has_timepoint_specific_mappings(measurement_df):
         # we could allow that for floats, since they don't matter in this
         # function and would be simply ignored
@@ -746,10 +812,11 @@ def perform_mapping_checks(condition_df, measurement_df):
 
 
 def get_optimization_to_simulation_scale_mapping(
-        parameter_df,
-        mapping_par_opt_to_par_sim,
-        measurement_df,
-        simulation_conditions=None):
+        parameter_df: pd.DataFrame,
+        mapping_par_opt_to_par_sim: List[Tuple[List, List]],
+        measurement_df: pd.DataFrame,
+        simulation_conditions: Union[dict, pd.DataFrame] = None
+) -> List[Tuple[List, List]]:
     """Get parameter scale mapping for all conditions"""
     mapping_scale_opt_to_scale_sim = []
 
@@ -783,8 +850,8 @@ def get_optimization_to_simulation_scale_mapping(
 
 def get_scale_mapping_for_condition(
         parameter_df: pd.DataFrame,
-        mapping_par_opt_to_par_sim):
-    """Get parameter scale mapping for the given condition
+        mapping_par_opt_to_par_sim: List):
+    """Get parameter scale mapping for the given condition.
 
     Arguments:
         parameter_df: PEtab parameter table
@@ -821,10 +888,10 @@ def get_scale_mapping_for_condition(
     return mapping_scale_opt_to_scale_sim
 
 
-def get_measurement_parameter_ids(measurement_df):
+def get_measurement_parameter_ids(measurement_df: pd.DataFrame) -> list:
     """
     Return list of ID of parameters which occur in measurement table as
-    observable or noise parameter.
+    observable or noise parameter overrides.
     """
 
     def unique_preserve_order(seq):
@@ -842,10 +909,15 @@ def get_measurement_parameter_ids(measurement_df):
         + get_unique_parameters(measurement_df.noiseParameters))
 
 
-def split_parameter_replacement_list(list_string):
+def split_parameter_replacement_list(list_string: str, delim: str = ';'
+                                     ) -> List:
     """
     Split values in observableParameters and noiseParameters in measurement
-    table.
+    table. Convert numeric values to float.
+
+    Arguments:
+        delim: delimiter
+        list_string: delim-separated stringified list
     """
 
     def to_float_if_float(x):
@@ -853,6 +925,7 @@ def split_parameter_replacement_list(list_string):
             return float(x)
         except ValueError:
             return x
+
     if isinstance(list_string, numbers.Number):
         # Empty cells in pandas might be turned into nan
         # We might want to allow nan as replacement...
@@ -860,13 +933,24 @@ def split_parameter_replacement_list(list_string):
             return []
         return [list_string]
 
-    result = [x.strip() for x in list_string.split(';') if len(x.strip())]
+    result = [x.strip() for x in list_string.split(delim) if len(x.strip())]
     return [to_float_if_float(x) for x in result]
 
 
-def get_placeholders(formula_string, observable_id, override_type):
+def get_placeholders(formula_string: str, observable_id: str,
+                     override_type: str) -> set:
     """
-    Get placeholder variables in noise or observable definition.
+    Get placeholder variables in noise or observable definition for the
+    given observable ID.
+
+    Arguments:
+        formula_string: observable formula (typically from SBML model)
+        observable_id: ID of current observable
+        override_type: 'observable' or 'noise', depending on whether `formula`
+            is for observable of for noise model
+
+    Returns:
+        (Un-ordered) set of placeholder parameter IDs
     """
     pattern = re.compile(
         re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
@@ -878,7 +962,7 @@ def get_placeholders(formula_string, observable_id, override_type):
     return placeholders
 
 
-def get_model_parameters(sbml_model: libsbml.Model):
+def get_model_parameters(sbml_model: libsbml.Model) -> List[str]:
     """Return list of SBML model parameter IDs which are not AssignmentRule
     targets for observables or sigmas"""
 
@@ -886,15 +970,14 @@ def get_model_parameters(sbml_model: libsbml.Model):
             if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
 
 
-def get_optimization_parameters(parameter_df):
+def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     """
-    Get list of optimization parameter ids from parameter
-    dataframe.
+    Get list of optimization parameter ids from parameter dataframe.
     """
     return list(parameter_df.reset_index()['parameterId'])
 
 
-def get_notnull_columns(df, candidates):
+def get_notnull_columns(df: pd.DataFrame, candidates: Iterable):
     """
     Return list of df-columns in candidates which are not all null/nan.
     The output can e.g. be used as input for pandas.DataFrame.groupby.
@@ -903,7 +986,8 @@ def get_notnull_columns(df, candidates):
             if col in df and not np.all(df[col].isnull())]
 
 
-def create_condition_df(parameter_ids, condition_ids=None):
+def create_condition_df(parameter_ids: Iterable[str],
+                        condition_ids: Iterable[str] = None) -> pd.DataFrame:
     """Create empty condition dataframe
 
     Arguments:
@@ -948,10 +1032,12 @@ def create_measurement_df() -> pd.DataFrame:
     return df
 
 
-def create_parameter_df(sbml_model, condition_df, measurement_df,
-                        parameter_scale='log10',
-                        lower_bound=None,
-                        upper_bound=None):
+def create_parameter_df(sbml_model: libsbml.Model,
+                        condition_df: pd.DataFrame,
+                        measurement_df: pd.DataFrame,
+                        parameter_scale: str = 'log10',
+                        lower_bound: Iterable = None,
+                        upper_bound: Iterable = None) -> pd.DataFrame:
     """Create a new PEtab parameter table
 
     All table entries can be provided as string or list-like with length
@@ -1048,7 +1134,7 @@ def create_parameter_df(sbml_model, condition_df, measurement_df,
     return df
 
 
-def get_observable_id(parameter_id):
+def get_observable_id(parameter_id: str) -> str:
     """Get observable id from sigma or observable parameter_id
     e.g. for observable_obs1 -> obs1
              sigma_obs1 -> obs1
@@ -1063,7 +1149,7 @@ def get_observable_id(parameter_id):
     raise ValueError('Cannot extract observable id from: ' + parameter_id)
 
 
-def measurements_have_replicates(measurement_df: pd.DataFrame):
+def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
     """Tests whether the measurements come with replicates
 
     Arguments:
