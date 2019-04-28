@@ -313,7 +313,7 @@ def get_scale_mapping_for_condition(
             # is par opt id, thus extract its scale
             try:
                 return parameter_df.loc[par_id_or_val, 'parameterScale']
-            except ValueError:
+            except KeyError:
                 # This is a condition-table parameter which is not
                 # present in the parameter table. Those are assumed to be
                 # 'lin'
