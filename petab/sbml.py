@@ -1,13 +1,16 @@
 """Functions for direct access of SBML models"""
+
 import libsbml
 import math
 import logging
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 
 
 def assignment_rules_to_dict(
-        sbml_model, filter_function=lambda *_: True, remove=False):
+        sbml_model: libsbml.Model, filter_function=lambda *_: True,
+        remove: bool = False) -> Dict[str, Dict[str, Any]]:
     """
     Turn assignment rules into dictionary.
 
@@ -110,7 +113,8 @@ def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
     return transformables
 
 
-def is_sbml_consistent(sbml_document: libsbml.SBMLDocument, check_units=False):
+def is_sbml_consistent(sbml_document: libsbml.SBMLDocument,
+                       check_units: bool = False):
     """Check for SBML validity / consistency
 
     Arguments:
@@ -134,7 +138,7 @@ def is_sbml_consistent(sbml_document: libsbml.SBMLDocument, check_units=False):
 
 
 def log_sbml_errors(sbml_document: libsbml.SBMLDocument,
-                    minimum_severity=libsbml.LIBSBML_SEV_WARNING):
+                    minimum_severity=libsbml.LIBSBML_SEV_WARNING) -> None:
     """Log libsbml errors
 
     Arguments:
@@ -157,7 +161,7 @@ def log_sbml_errors(sbml_document: libsbml.SBMLDocument,
 
 
 def globalize_parameters(sbml_model: libsbml.Model,
-                         prepend_reaction_id: bool = False):
+                         prepend_reaction_id: bool = False) -> None:
     """Turn all local parameters into global parameters with the same
     properties
 
@@ -203,7 +207,7 @@ def add_global_parameter(sbml_model: libsbml.Model,
                          parameter_name: str = None,
                          constant: bool = False,
                          units: str = 'dimensionless',
-                         value: float = 0.0):
+                         value: float = 0.0) -> libsbml.Parameter:
     """Add new global parameter to SBML model"""
 
     if parameter_name is None:
@@ -222,7 +226,7 @@ def create_assigment_rule(sbml_model: libsbml.Model,
                           assignee_id: str,
                           formula: str,
                           rule_id: str = None,
-                          rule_name: str = None):
+                          rule_name: str = None) -> libsbml.AssignmentRule:
     """Create SBML AssignmentRule
 
     Arguments:
