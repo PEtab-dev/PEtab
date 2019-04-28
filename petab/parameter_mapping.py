@@ -8,7 +8,7 @@ import numbers
 import re
 from . import lint
 from . import core
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -365,3 +365,66 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
                        f"{condition_id}: "
                        f"{_missed_vals}. Usually, this is just due to missing "
                        f"data points.")
+
+
+def merge_preeq_and_sim_pars_condition(
+        condition_map_preeq: ParMappingDict,
+        condition_map_sim: ParMappingDict,
+        condition_scale_map_preeq: ScaleMappingDict,
+        condition_scale_map_sim: ScaleMappingDict,
+        condition: Any) -> None:
+    """Merge preequilibration and simulation parameters and scales while
+    checking for compatibility.
+
+    This function is meant for the case where we cannot have different
+    parameters (and scales) for preequilibration and simulation. Therefore,
+    merge both and ensure matching scales and parameters.
+    `condition_map_sim` and `condition_scale_map_sim` will ne modified in
+    place.
+
+    Arguments:
+        condition_map_preeq, condition_map_sim:
+            Parameter mapping as obtained from
+            `get_parameter_mapping_for_condition`
+        condition_scale_map_preeq, condition_scale_map_sim:
+            Parameter scale mapping as obtained from
+            `get_get_scale_mapping_for_condition`
+        condition: Condition identifier for more informative error messages
+    """
+    if not condition_map_preeq:
+        # nothing to do
+        return
+
+    for idx, (par_preeq, par_sim, scale_preeq, scale_sim) \
+            in enumerate(zip(condition_map_preeq,
+                             condition_map_sim,
+                             condition_scale_map_preeq,
+                             condition_scale_map_sim)):
+        if par_preeq != par_sim \
+                and not (np.isnan(par_sim) and np.isnan(par_preeq)):
+            # both identical or both nan is okay
+            if np.isnan(par_sim):
+                # unmapped for simulation
+                par_sim[idx] = par_preeq
+            elif np.isnan(par_preeq):
+                # unmapped for preeq is okay
+                pass
+            else:
+                raise ('Cannot handle different values for dynamic '
+                       f'parameters: for condition {condition} '
+                       f'parameter {idx} is {par_preeq} for preeq '
+                       f'and {par_sim} for simulation.')
+        if scale_preeq != scale_sim:
+            # both identical is okay
+            if np.isnan(par_sim):
+                # unmapped for simulation
+                scale_sim[idx] = scale_preeq
+            elif np.isnan(par_preeq):
+                # unmapped for preeq is okay
+                pass
+            else:
+                raise ('Cannot handle different parameter scales '
+                       f'parameters: for condition {condition} '
+                       f'scale for parameter {idx} is '
+                       f'{scale_preeq} for preeq '
+                       f'and {scale_sim} for simulation.')
