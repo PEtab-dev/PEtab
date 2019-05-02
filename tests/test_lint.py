@@ -194,7 +194,7 @@ def test_assert_noise_distributions_valid():
     })
     lint.assert_noise_distributions_valid(measurement_df)
 
-    measurement_df['observableParameters'] = ['lin', 'log']
+    measurement_df['observableTransformation'] = ['lin', 'log']
     measurement_df['noiseDistribution'] = ['normal', '']
     lint.assert_noise_distributions_valid(measurement_df)
 
