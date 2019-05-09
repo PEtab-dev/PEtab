@@ -7,6 +7,15 @@ import petab
 import seaborn as sns
 sns.set()
 
+'''
+run this script for plotting data and simulations
+
+what exactly should be plotted is specified in a visualizationSpecification.tsv file
+
+also, the data, simulations and conditions have to be defined in a specific format (see "doc/documentation_data_format.md")
+
+
+'''
 
 data_file_path = "https://raw.githubusercontent.com/LoosC/Benchmark-Models/" \
                "hackathon/hackathon_contributions_new_data_format/" \
@@ -17,10 +26,6 @@ condition_file_path = "https://raw.githubusercontent.com/LoosC/" \
                     "new_data_format/Isensee_JCB2018/" \
                     "experimentalCondition_Isensee_JCB2018.tsv"
 
-#visualization_file_path = "https://raw.githubusercontent.com/LoosC/"\
-#                        "Benchmark-Models/visualization/hackathon_contributions"\
-#                        "_new_data_format/Isensee_JCB2018/visualizationSpecific"\
-#                        "ation_Isensee_JCB2018.tsv"
 visualization_file_path = "https://raw.githubusercontent.com/LoosC/"\
                         "Benchmark-Models/visualization/hackathon_contributions"\
                         "_new_data_format/Isensee_JCB2018/visualizationSpecific"\
@@ -83,7 +88,6 @@ for i_plot_id, var_plot_id in enumerate(uni_plotIds):
     for i in visualization_specification[ind_plot].index.values:
         # get datasetID and independent variable of first entry of plot1
         dataset_id = visualization_specification.datasetId[i]
-        #indep_var = visualization_specification.independentVariable[i]
         indep_var = visualization_specification.xValues[i]
 
         # define index to reduce measurement_data to data linked to datasetId
@@ -103,55 +107,13 @@ for i_plot_id, var_plot_id in enumerate(uni_plotIds):
             ms = get_data_to_plot.get_data_to_plot(visualization_specification, measurement_data, simulation_data, uni_condition_id,
                                                        i, clmn_name_unique)
 
-            # # set xScale
-            # if visualization_specification.xScale[i] == 'lin':
-            #     ax[axx, axy].set_xscale("linear")
-            # elif visualization_specification.xScale[i] == 'log10':
-            #     ax[axx, axy].set_xscale("log")
-            # elif visualization_specification.xScale[i] == 'order':        # equidistant
-            #     ax[axx, axy].set_xscale("linear")
-            #     # check if conditions are monotone decreasing or increasing
-            #     if np.all(np.diff(conditions) < 0):             # monotone decreasing
-            #         xlabel = conditions[::-1]                   # reversing
-            #         conditions = range(len(conditions))[::-1]   # reversing
-            #         ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
-            #     elif np.all(np.diff(conditions) > 0):
-            #         print('monotone increasing')
-            #         xlabel = conditions
-            #         conditions = range(len(conditions))
-            #         ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
-            #     else:
-            #         print('Error: x-conditions do not coincide, some are mon. increasing,'\
-            #               ' some monotonically decreasing')
-            #
-            # conditions = conditions + visualization_specification.xOffset[i]
-            #
-            # if visualization_specification.plotTypeData[i] == 'MeanAndSD':
-            #     ax[axx, axy].errorbar(conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
-            #                             label = visualization_specification[ind_plot].legendEntry[i])
-            # elif visualization_specification.plotTypeData[i] == 'MeanAndSEM':
-            #     ax[axx, axy].errorbar(conditions, ms['mean'], ms['sem'], linestyle='-', marker='.',
-            #                           label=visualization_specification[ind_plot].legendEntry[i])
-            # elif visualization_specification.plotTypeData[i] == 'replicate':  # plotting all measurement data
-            #     for ii in range(0,len(ms['repl'])):
-            #         for k in range(0,len(ms.repl[ii])):
-            #             ax[axx, axy].plot(conditions[conditions.index.values[ii]],
-            #                               ms.repl[ii][ms.repl[ii].index.values[k]], 'x')
-            # ax[axx, axy].legend()
-            # ax[axx, axy].set_title(visualization_specification.plotName[i])
-
             ax = plotting_config.plotting_config(visualization_specification, ax, axx, axy, conditions, ms, ind_plot, i, plt)
 
         elif indep_var == 'condition':
 
             ms = get_data_to_plot.get_data_to_plot(visualization_specification, measurement_data, simulation_data, uni_condition_id,
                                                        i, clmn_name_unique)
-            # # barplot
-            # x_pos = range(len(visualization_specification[ind_plot]))       # how many x-values (how many bars)
-            # x_name = visualization_specification[ind_plot].legendEntry[i]
-            #
-            # ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
-            # ax[axx, axy].set_title(visualization_specification.plotName[i])
+
             ax = plotting_config.plotting_config(visualization_specification, ax, axx, axy, conditions, ms, ind_plot, i, plt)
 
         elif indep_var == 'time':
@@ -165,16 +127,8 @@ for i_plot_id, var_plot_id in enumerate(uni_plotIds):
             ms = get_data_to_plot.get_data_to_plot(visualization_specification, measurement_data, simulation_data, uni_times, i,
                                                        clmn_name_unique)
 
-            # uni_times = uni_times + visualization_specification.xOffset[i]
-
-            # ax[axx, axy].errorbar(uni_times, ms['mean'], ms['sd'], linestyle='-', marker='.',
-            #              label=visualization_specification[ind_plot].legendEntry[i]
-            #              )
-            # ax[axx, axy].legend()
-            # ax[axx, axy].set_title(visualization_specification.plotName[i])
             ax = plotting_config.plotting_config(visualization_specification, ax, axx, axy, uni_times, ms, ind_plot, i, plt)
 
-    #ax[axx, axy].set_xlabel(visualization_specification.independentVariableName[i])
     ax[axx, axy].set_xlabel(visualization_specification.xLabel[i])
     ax[axx, axy].set_ylabel(visualization_specification.yLabel[i])
 
@@ -188,4 +142,4 @@ for i_plot_id, var_plot_id in enumerate(uni_plotIds):
 if subplots:
     plt.savefig("Plot")
 
-   # plt.show()
+plt.show()
