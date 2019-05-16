@@ -77,7 +77,8 @@ def generate_experiment_id(measurement_data):
             (observable_transformation ==
              observable_transformation[ind_no_exp_id[0]]))
         for ind in ind_exp_id[0]:
-            measurement_data.experimentId[ind] = 'experiment_' + str(count)
+            measurement_data.loc[ind, 'experimentId'] = 'experiment_' + str(
+                count)
 
         # extract measurements with no assigned experimentId
         ind_no_exp_id = np.where(measurement_data.experimentId == 0)[0]
