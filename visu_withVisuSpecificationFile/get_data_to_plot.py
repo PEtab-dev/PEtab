@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def get_data_to_plot(visualization_specification, measurement_data,
-                     simulation_data, condition_ids, i, clmn_name_unique):
+                     simulation_data, condition_ids, i_visu_spec, col_id):
     """
     group the data, which should be plotted and save it in dataframe called
     'ms'.
@@ -15,14 +15,14 @@ def get_data_to_plot(visualization_specification, measurement_data,
         pandas data frame contains defined data format (visualization file)
     measurement_data:
         pandas data frame contains defined data format (measurement file)
-    conditionIds:
+    condition_ids:
         array containing all unique condition IDs which should be plotted in
         one figure (can be found in measurementData file,
         column simulationConditionId)
-    i:
+    i_visu_spec:
         current index (row number) of row which should be plotted in
         visualizationSpecification file
-    clmn_name_unique:
+    col_id:
         the name of the column in visualization file, whose entries should be
         unique (depends on condition in column independentVariableName)
 
@@ -43,18 +43,17 @@ def get_data_to_plot(visualization_specification, measurement_data,
             'sim'],
         index=condition_ids)
 
-    # if visualization_specification.independentVariable[i] == 'time':
     for var_cond_id in condition_ids:
         # get boolean vector which fulfill the requirements
-        vec_bool_meas = ((measurement_data[clmn_name_unique] == var_cond_id) &
+        vec_bool_meas = ((measurement_data[col_id] == var_cond_id) &
                          (measurement_data['datasetId'] ==
-                          visualization_specification.datasetId[i]))
+                          visualization_specification.datasetId[i_visu_spec]))
         # get indices of rows with "True" values of vec_bool_meas
-        ind_meas = [i for i, x in enumerate(vec_bool_meas) if x]
+        ind_meas = [i_visu_spec for i_visu_spec, x in enumerate(vec_bool_meas) if x]
 
         # check that all entries for all columns-conditions are the same, for
         # grouping the measurement data
-        if clmn_name_unique != 'time':
+        if col_id != 'time':
             vec_bool_allcond = \
                 ((measurement_data.preequilibrationConditionId[ind_meas[0]] ==
                     measurement_data.preequilibrationConditionId) &
@@ -80,7 +79,7 @@ def get_data_to_plot(visualization_specification, measurement_data,
                 (measurement_data.noiseDistribution[ind_meas[0]] ==
                     measurement_data.noiseDistribution))
         # get indices of rows with "True" values, of vec_bool_allcond
-        ind_bool_allcond = [i for i, x in enumerate(vec_bool_allcond) if x]
+        ind_bool_allcond = [i_visu_spec for i_visu_spec, x in enumerate(vec_bool_allcond) if x]
         # get intersection of ind_meas and ind_bool_allcond
         ind_intersec = np.intersect1d(ind_meas, ind_bool_allcond)
 
@@ -92,7 +91,6 @@ def get_data_to_plot(visualization_specification, measurement_data,
         if len(ind_intersec) != len(ind_meas):
             # find unique values in ind_meas that are not in ind_intersec
             unique_values = np.setdiff1d(ind_meas, ind_intersec)
-            print(unique_values)
         else:
             ind_intersec = ind_intersec
 
