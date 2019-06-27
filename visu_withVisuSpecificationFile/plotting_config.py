@@ -54,7 +54,8 @@ def plotting_config(visualization_specification, ax, axx,
                                  ' mon. increasing, some monotonically decreasing')
 
         # add xOffset
-        conditions = conditions + visualization_specification.xOffset[i_visu_spec]
+        conditions = conditions + \
+            visualization_specification.xOffset[i_visu_spec]
 
         # construct errorbar-plots
         if visualization_specification.plotTypeData[i_visu_spec] == 'MeanAndSD':
@@ -80,13 +81,15 @@ def plotting_config(visualization_specification, ax, axx,
                         conditions[conditions.index.values[ii]],
                         ms.repl[ii][ms.repl[ii].index.values[k]], 'x')
         ax[axx, axy].legend()
-        ax[axx, axy].set_title(visualization_specification.plotName[i_visu_spec])
+        ax[axx, axy].set_title(
+            visualization_specification.plotName[i_visu_spec])
 
     elif visualization_specification.plotTypeSimulation[i_visu_spec] == 'BarPlot':
 
         x_name = visualization_specification[ind_plot].legendEntry[i_visu_spec]
 
         ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
-        ax[axx, axy].set_title(visualization_specification.plotName[i_visu_spec])
+        ax[axx, axy].set_title(
+            visualization_specification.plotName[i_visu_spec])
 
     return ax

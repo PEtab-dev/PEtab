@@ -8,10 +8,10 @@ import seaborn as sns
 sns.set()
 
 
-def plot_data_and_simulation(data_file_path, condition_file_path,
+def plot_data_and_simulation(data_file_path: str, condition_file_path,
                              visualization_file_path, simulation_file_path):
     """
-    main function for plotting data and simulations.
+    Main function for plotting data and simulations.
 
     What exactly should be plotted is specified in a
     visualizationSpecification.tsv file.
@@ -19,6 +19,15 @@ def plot_data_and_simulation(data_file_path, condition_file_path,
     Also, the data, simulations and conditions have
     to be defined in a specific format
     (see "doc/documentation_data_format.md").
+
+    Parameters
+    ----------
+    data_file_path: str
+	Path to the data file.
+
+    Returns
+    -------
+    ax: Axis object of the created plot.
     """
 
     # Set Options for plots

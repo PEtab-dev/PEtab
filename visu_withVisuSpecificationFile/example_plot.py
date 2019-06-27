@@ -21,5 +21,5 @@ simulation_file_path = "https://raw.githubusercontent.com/LoosC/"\
 
 # function to call, to plot your data and simulations
 ax = main.plot_data_and_simulation(data_file_path, condition_file_path,
-                                    visualization_file_path, simulation_file_path)
+                                   visualization_file_path, simulation_file_path)
 plt.show()
