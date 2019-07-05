@@ -8,8 +8,10 @@ import seaborn as sns
 sns.set()
 
 
-def plot_data_and_simulation(data_file_path: str, condition_file_path,
-                             visualization_file_path, simulation_file_path):
+def plot_data_and_simulation(data_file_path: str,
+                             condition_file_path: str,
+                             visualization_file_path: str,
+                             simulation_file_path: str):
     """
     Main function for plotting data and simulations.
 
@@ -23,7 +25,13 @@ def plot_data_and_simulation(data_file_path: str, condition_file_path,
     Parameters
     ----------
     data_file_path: str
-	Path to the data file.
+        Path to the data file.
+    condition_file_path: str
+        Path to the condition file.
+    visualization_file_path: str
+        Path to the vizualization specification file.
+    simulation_file_path: str
+        Path to the simulation output data file.
 
     Returns
     -------
@@ -95,7 +103,7 @@ def plot_data_and_simulation(data_file_path: str, condition_file_path,
             # gather simulationConditionIds belonging to datasetId
             uni_condition_id = np.unique(
                 measurement_data[ind_dataset].simulationConditionId)
-            clmn_name_unique = 'simulationConditionId'
+            col_name_unique = 'simulationConditionId'
 
             # Case seperation indepParameter custom, time or condition
             if indep_var not in ['time', "condition"]:
@@ -106,7 +114,7 @@ def plot_data_and_simulation(data_file_path: str, condition_file_path,
 
                 ms = get_data_to_plot.get_data_to_plot(
                     visualization_specification, measurement_data,
-                    simulation_data, uni_condition_id, i_visu_spec, clmn_name_unique)
+                    simulation_data, uni_condition_id, i_visu_spec, col_name_unique)
 
                 ax = plotting_config.plotting_config(
                     visualization_specification, ax, axx, axy, conditions,
@@ -116,7 +124,7 @@ def plot_data_and_simulation(data_file_path: str, condition_file_path,
 
                 ms = get_data_to_plot.get_data_to_plot(
                     visualization_specification, measurement_data,
-                    simulation_data, uni_condition_id, i_visu_spec, clmn_name_unique)
+                    simulation_data, uni_condition_id, i_visu_spec, col_name_unique)
 
                 ax = plotting_config.plotting_config(
                     visualization_specification, ax, axx, axy, conditions, ms,
@@ -127,12 +135,12 @@ def plot_data_and_simulation(data_file_path: str, condition_file_path,
                 # obtain unique observation times
                 uni_times = np.unique(measurement_data[ind_dataset].time)
 
-                clmn_name_unique = 'time'
+                col_name_unique = 'time'
 
                 # group measurement values for each conditionId/unique time
                 ms = get_data_to_plot.get_data_to_plot(
                     visualization_specification, measurement_data,
-                    simulation_data, uni_times, i_visu_spec, clmn_name_unique)
+                    simulation_data, uni_times, i_visu_spec, col_name_unique)
 
                 ax = plotting_config.plotting_config(
                     visualization_specification, ax, axx, axy, uni_times, ms,

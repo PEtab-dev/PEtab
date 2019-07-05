@@ -2,28 +2,34 @@ import numpy as np
 import pandas as pd
 
 
-def get_data_to_plot(visualization_specification, measurement_data,
-                     simulation_data, condition_ids, i_visu_spec, col_id):
+def get_data_to_plot(visualization_specification: pd.DataFrame,
+                     measurement_data: pd.DataFrame,
+                     simulation_data: pd.DataFrame,
+                     condition_ids: np.ndarray,
+                     i_visu_spec: int,
+                     col_id: str):
     """
-    group the data, which should be plotted and save it in dataframe called
+    group the data, which should be plotted and save it in pd.dataframe called
     'ms'.
 
     Parameters:
     ----------
 
     visualization_specification:
-        pandas data frame contains defined data format (visualization file)
+        pandas data frame, contains defined data format (visualization file)
     measurement_data:
-        pandas data frame contains defined data format (measurement file)
+        pandas data frame, contains defined data format (measurement file)
+    simulation_data:
+        pandas data frame, contains defined data format (simulation file)
     condition_ids:
-        array containing all unique condition IDs which should be plotted in
+        numpy array, containing all unique condition IDs which should be plotted in
         one figure (can be found in measurementData file,
         column simulationConditionId)
     i_visu_spec:
-        current index (row number) of row which should be plotted in
+        int, current index (row number) of row which should be plotted in
         visualizationSpecification file
     col_id:
-        the name of the column in visualization file, whose entries should be
+        str, the name of the column in visualization file, whose entries should be
         unique (depends on condition in column independentVariableName)
 
     Return:

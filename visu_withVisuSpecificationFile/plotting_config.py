@@ -1,8 +1,16 @@
 import numpy as np
+import pandas as pd
 
 
-def plotting_config(visualization_specification, ax, axx,
-                    axy, conditions, ms, ind_plot, i_visu_spec, plt):
+def plotting_config(visualization_specification: pd.DataFrame,
+                    ax: np.ndarray,
+                    axx: int,
+                    axy: int,
+                    conditions: pd.Series,
+                    ms: pd.DataFrame,
+                    ind_plot: pd.Series,
+                    i_visu_spec: int,
+                    plt):
     """
     plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
@@ -10,18 +18,26 @@ def plotting_config(visualization_specification, ax, axx,
     Parameters:
     ----------
 
-    visualization_specification: pandas data frame contains defined data
-        format (visualization file)
-    ax: matplotlib.Axes
-    axx: subplot axis indices for x
-    axy: subplot axis indices for y
-    conditions: Values on x-axis
-    ms: pandas data frame containing measurement data which should be
-        plotted
-    ind_plot: boolean vector, with size: len(rows in visualization file) x 1
-    with 'True' entries for rows which should be plotted
-    i_visu_spec: current index (row number) of row which should be plotted in
+    visualization_specification:
+        pandas data frame, contains defined data format (visualization file)
+    ax:
+        np.ndarray, matplotlib.Axes
+    axx:
+        int, subplot axis indices for x
+    axy:
+        int, subplot axis indices for y
+    conditions:
+        pd.Series, Values on x-axis
+    ms:
+        pd.DataFrame,  containing measurement data which should be plotted
+    ind_plot:
+        pd.Series, boolean vector, with size: len(rows in visualization file) x 1
+        with 'True' entries for rows which should be plotted
+    i_visu_spec:
+        int64, current index (row number) of row which should be plotted in
         visualizationSpecification file
+    plt:
+        module matplotlib.pyplot
 
     Return:
     ----------
