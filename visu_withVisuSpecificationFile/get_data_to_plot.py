@@ -89,11 +89,19 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
         # get intersection of ind_meas and ind_bool_allcond
         ind_intersec = np.intersect1d(ind_meas, ind_bool_allcond)
 
-        # TODO: Here not the case: So, if entries of preequCondId,
-        # time, observableParams,noiseParams, observableTransf,
-        # noiseDistr are not the same, then this belongs not to the data of
-        # interest, which should be in one group ->
+        # see Issue #117
+        # TODO: Here not the case: So, if entries in measurement file: preequCondId,
+        # time, observableParams, noiseParams, observableTransf,
+        # noiseDistr are not the same, then  ->
         #  differ these data into different groups!
+        # now: go in simulationConditionId, search group of unique simulationConditionId
+        # e.g. rows 0,6,12,18 share the same simulationCondId, then check if other column
+        # entries are the same (now: they are), then take intersection of rows 0,6,12,18
+        # and checked other same columns (-> now: 0,6,12,18) and then go on with code.
+        # if there is at some point a difference in other columns, say e.g. row 12,18
+        # have different noiseParams than rows 0,6, the actual code would take rows 0,6
+        # and forget about rows 12,18
+
         if len(ind_intersec) != len(ind_meas):
             # find unique values in ind_meas that are not in ind_intersec
             unique_values = np.setdiff1d(ind_meas, ind_intersec)

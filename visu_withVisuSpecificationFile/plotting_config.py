@@ -55,13 +55,11 @@ def plotting_config(visualization_specification: pd.DataFrame,
         elif visualization_specification.xScale[i_visu_spec] == 'order':
             ax[axx, axy].set_xscale("linear")
             # check if conditions are monotone decreasing or increasing
-            if np.all(np.diff(conditions) <
-                      0):             # monotone decreasing
+            if np.all(np.diff(conditions) < 0):             # monotone decreasing
                 xlabel = conditions[::-1]                   # reversing
                 conditions = range(len(conditions))[::-1]   # reversing
                 ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
             elif np.all(np.diff(conditions) > 0):
-                print('monotone increasing')
                 xlabel = conditions
                 conditions = range(len(conditions))
                 ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
