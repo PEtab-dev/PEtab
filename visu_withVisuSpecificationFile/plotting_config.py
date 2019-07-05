@@ -31,7 +31,8 @@ def plotting_config(visualization_specification: pd.DataFrame,
     ms:
         pd.DataFrame,  containing measurement data which should be plotted
     ind_plot:
-        pd.Series, boolean vector, with size: len(rows in visualization file) x 1
+        pd.Series, boolean vector, with size:
+        len(rows in visualization file) x 1
         with 'True' entries for rows which should be plotted
     i_visu_spec:
         int64, current index (row number) of row which should be plotted in
@@ -44,7 +45,8 @@ def plotting_config(visualization_specification: pd.DataFrame,
     ax: matplotlib.Axes
     """
 
-    if visualization_specification.plotTypeSimulation[i_visu_spec] == 'LinePlot':
+    if visualization_specification.plotTypeSimulation[i_visu_spec] == \
+            'LinePlot':
 
         # set xScale
         if visualization_specification.xScale[i_visu_spec] == 'lin':
@@ -55,7 +57,8 @@ def plotting_config(visualization_specification: pd.DataFrame,
         elif visualization_specification.xScale[i_visu_spec] == 'order':
             ax[axx, axy].set_xscale("linear")
             # check if conditions are monotone decreasing or increasing
-            if np.all(np.diff(conditions) < 0):             # monotone decreasing
+            if np.all(np.diff(conditions) <
+                      0):             # monotone decreasing
                 xlabel = conditions[::-1]                   # reversing
                 conditions = range(len(conditions))[::-1]   # reversing
                 ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
@@ -64,18 +67,21 @@ def plotting_config(visualization_specification: pd.DataFrame,
                 conditions = range(len(conditions))
                 ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
             else:
-                raise ValueError('Error: x-conditions do not coincide, some are'
-                                 ' mon. increasing, some monotonically decreasing')
+                raise ValueError('Error: x-conditions do not coincide, '
+                                 'some are mon. increasing, some monotonically'
+                                 ' decreasing')
 
         # add xOffset
         conditions = conditions + \
             visualization_specification.xOffset[i_visu_spec]
 
         # construct errorbar-plots
-        if visualization_specification.plotTypeData[i_visu_spec] == 'MeanAndSD':
+        if visualization_specification.plotTypeData[i_visu_spec] == \
+                'MeanAndSD':
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
-                label=visualization_specification[ind_plot].legendEntry[i_visu_spec])
+                label=
+                visualization_specification[ind_plot].legendEntry[i_visu_spec])
             colors = p[0].get_color()
             if plt.plot_simulation:
                 ax[axx, axy].plot(
@@ -83,12 +89,15 @@ def plotting_config(visualization_specification: pd.DataFrame,
                     label=visualization_specification[ind_plot]
                     .legendEntry[i_visu_spec]
                     + " simulation", color=colors)
-        elif visualization_specification.plotTypeData[i_visu_spec] == 'MeanAndSEM':
+        elif visualization_specification.plotTypeData[i_visu_spec] == \
+                'MeanAndSEM':
             ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sem'], linestyle='-', marker='.',
-                label=visualization_specification[ind_plot].legendEntry[i_visu_spec])
+                label=
+                visualization_specification[ind_plot].legendEntry[i_visu_spec])
         # plotting all measurement data
-        elif visualization_specification.plotTypeData[i_visu_spec] == 'replicate':
+        elif visualization_specification.plotTypeData[i_visu_spec] == \
+                'replicate':
             for ii in range(0, len(ms['repl'])):
                 for k in range(0, len(ms.repl[ii])):
                     ax[axx, axy].plot(
@@ -98,7 +107,8 @@ def plotting_config(visualization_specification: pd.DataFrame,
         ax[axx, axy].set_title(
             visualization_specification.plotName[i_visu_spec])
 
-    elif visualization_specification.plotTypeSimulation[i_visu_spec] == 'BarPlot':
+    elif visualization_specification.plotTypeSimulation[i_visu_spec] == \
+            'BarPlot':
 
         x_name = visualization_specification[ind_plot].legendEntry[i_visu_spec]
 

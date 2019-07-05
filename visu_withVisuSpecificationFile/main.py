@@ -97,7 +97,8 @@ def plot_data_and_simulation(data_file_path: str,
             dataset_id = visualization_specification.datasetId[i_visu_spec]
             indep_var = visualization_specification.xValues[i_visu_spec]
 
-            # define index to reduce measurement_data to data linked to datasetId
+            # define index to reduce measurement_data to data linked to
+            # datasetId
             ind_dataset = measurement_data['datasetId'] == dataset_id
 
             # gather simulationConditionIds belonging to datasetId
@@ -114,7 +115,8 @@ def plot_data_and_simulation(data_file_path: str,
 
                 ms = get_data_to_plot.get_data_to_plot(
                     visualization_specification, measurement_data,
-                    simulation_data, uni_condition_id, i_visu_spec, col_name_unique)
+                    simulation_data, uni_condition_id, i_visu_spec,
+                    col_name_unique)
 
                 ax = plotting_config.plotting_config(
                     visualization_specification, ax, axx, axy, conditions,
@@ -124,7 +126,8 @@ def plot_data_and_simulation(data_file_path: str,
 
                 ms = get_data_to_plot.get_data_to_plot(
                     visualization_specification, measurement_data,
-                    simulation_data, uni_condition_id, i_visu_spec, col_name_unique)
+                    simulation_data, uni_condition_id, i_visu_spec,
+                    col_name_unique)
 
                 ax = plotting_config.plotting_config(
                     visualization_specification, ax, axx, axy, conditions, ms,
@@ -146,8 +149,10 @@ def plot_data_and_simulation(data_file_path: str,
                     visualization_specification, ax, axx, axy, uni_times, ms,
                     ind_plot, i_visu_spec, plt)
 
-        ax[axx, axy].set_xlabel(visualization_specification.xLabel[i_visu_spec])
-        ax[axx, axy].set_ylabel(visualization_specification.yLabel[i_visu_spec])
+        ax[axx, axy].set_xlabel(
+            visualization_specification.xLabel[i_visu_spec])
+        ax[axx, axy].set_ylabel(
+            visualization_specification.yLabel[i_visu_spec])
 
         if subplots is False:
             filename = 'Plot' + str(i_plot_id) + '.png'
