@@ -4,11 +4,12 @@ import os
 
 sys.path.append(os.getcwd())
 from petab import generate_experiment_id  # noqa: E402
-from visu_withSpecificationFile import main
+from visualization import plot_data_and_simulation
 
 
 def test_visualization_routine():
-    data_file_path = "https://raw.githubusercontent.com/LoosC/Benchmark-Models/" \
+    data_file_path = "https://raw.githubusercontent.com/LoosC/" \
+                     "Benchmark-Models/" \
         "hackathon/hackathon_contributions_new_data_format/" \
         "Isensee_JCB2018/measurementData_Isensee_JCB2018.tsv"
 
@@ -25,8 +26,11 @@ def test_visualization_routine():
         "Benchmark-Models/visualization/hackathon_contributions"\
         "_new_data_format/Isensee_JCB2018/simulationData"\
         "_Isensee_JCB2018.tsv"
-    ax = main.plot_data_and_simulation(data_file_path, condition_file_path,
-                                   visualization_file_path, simulation_file_path)
+    ax = \
+        plot_data_and_simulation.plot_data_and_simulation(data_file_path,
+                                                          condition_file_path,
+                                                          visualization_file_path,
+                                                          simulation_file_path)
 
 
 def test_generate_experimentId_no_empty():
