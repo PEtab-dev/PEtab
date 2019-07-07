@@ -1,10 +1,7 @@
 import pandas as pd
-import sys
-import os
 
-sys.path.append(os.getcwd())
 from petab import generate_experiment_id  # noqa: E402
-from visualization import plot_data_and_simulation
+from petab.visualize import plot_data_and_simulation
 
 
 def test_visualization_routine():
@@ -26,11 +23,11 @@ def test_visualization_routine():
         "Benchmark-Models/visualization/hackathon_contributions"\
         "_new_data_format/Isensee_JCB2018/simulationData"\
         "_Isensee_JCB2018.tsv"
-    ax = \
-        plot_data_and_simulation.plot_data_and_simulation(data_file_path,
-                                                          condition_file_path,
-                                                          visualization_file_path,
-                                                          simulation_file_path)
+
+    plot_data_and_simulation(data_file_path,
+                             condition_file_path,
+                             visualization_file_path,
+                             simulation_file_path)
 
 
 def test_generate_experimentId_no_empty():

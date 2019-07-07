@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import get_data_to_plot
-import plotting_config
+from .get_data_to_plot import get_data_to_plot
+from .plotting_config import plotting_config
 import petab
 import seaborn as sns
 sns.set()
@@ -76,6 +76,7 @@ def plot_data_and_simulation(data_file_path: str,
     num_row = np.round(np.sqrt(num_subplot))
     num_col = np.ceil(num_subplot / num_row)
 
+    # initialize figure
     fig, ax = plt.subplots(int(num_row), int(num_col), squeeze=False)
 
     # loop over unique plotIds
@@ -113,23 +114,23 @@ def plot_data_and_simulation(data_file_path: str,
                 ind_cond = experimental_condition.index.isin(uni_condition_id)
                 conditions = experimental_condition[ind_cond][indep_var]
 
-                ms = get_data_to_plot.get_data_to_plot(
+                ms = get_data_to_plot(
                     visualization_specification, measurement_data,
                     simulation_data, uni_condition_id, i_visu_spec,
                     col_name_unique)
 
-                ax = plotting_config.plotting_config(
+                ax = plotting_config(
                     visualization_specification, ax, axx, axy, conditions,
                     ms, ind_plot, i_visu_spec, plt)
 
             elif indep_var == 'condition':
 
-                ms = get_data_to_plot.get_data_to_plot(
+                ms = get_data_to_plot(
                     visualization_specification, measurement_data,
                     simulation_data, uni_condition_id, i_visu_spec,
                     col_name_unique)
 
-                ax = plotting_config.plotting_config(
+                ax = plotting_config(
                     visualization_specification, ax, axx, axy, conditions, ms,
                     ind_plot, i_visu_spec, plt)
 
@@ -141,11 +142,11 @@ def plot_data_and_simulation(data_file_path: str,
                 col_name_unique = 'time'
 
                 # group measurement values for each conditionId/unique time
-                ms = get_data_to_plot.get_data_to_plot(
+                ms = get_data_to_plot(
                     visualization_specification, measurement_data,
                     simulation_data, uni_times, i_visu_spec, col_name_unique)
 
-                ax = plotting_config.plotting_config(
+                ax = plotting_config(
                     visualization_specification, ax, axx, axy, uni_times, ms,
                     ind_plot, i_visu_spec, plt)
 
@@ -154,12 +155,7 @@ def plot_data_and_simulation(data_file_path: str,
         ax[axx, axy].set_ylabel(
             visualization_specification.yLabel[i_visu_spec])
 
-        if subplots is False:
-            filename = 'Plot' + str(i_plot_id) + '.png'
-            plt.savefig(filename)
-            ax[0, 0].clear()
-
-    if subplots:
-        plt.savefig("Plot")
+    # finalize figure
+    fig.tight_layout()
 
     return ax

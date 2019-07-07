@@ -76,25 +76,23 @@ def plotting_config(visualization_specification: pd.DataFrame,
             visualization_specification.xOffset[i_visu_spec]
 
         # construct errorbar-plots
+        label_base = visualization_specification[ind_plot] \
+            .legendEntry[i_visu_spec]
         if visualization_specification.plotTypeData[i_visu_spec] == \
                 'MeanAndSD':
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
-                label=
-                visualization_specification[ind_plot].legendEntry[i_visu_spec])
+                label=label_base)
             colors = p[0].get_color()
             if plt.plot_simulation:
                 ax[axx, axy].plot(
                     conditions, ms['sim'], linestyle='-.', marker='o',
-                    label=visualization_specification[ind_plot]
-                    .legendEntry[i_visu_spec]
-                    + " simulation", color=colors)
+                    label=label_base + " simulation", color=colors)
         elif visualization_specification.plotTypeData[i_visu_spec] == \
                 'MeanAndSEM':
             ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sem'], linestyle='-', marker='.',
-                label=
-                visualization_specification[ind_plot].legendEntry[i_visu_spec])
+                label=label_base)
         # plotting all measurement data
         elif visualization_specification.plotTypeData[i_visu_spec] == \
                 'replicate':
