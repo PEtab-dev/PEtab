@@ -67,7 +67,7 @@ def plot_data_and_simulation(data_file_path: str,
         for i_visu_spec in vis_spec[ind_plot].index.values:
 
             # handle plot of current dataset
-            ax = _handle_dataset_plot(i_visu_spec, ax, i_row, i_col,
+            ax = _handle_dataset_plot(i_visu_spec, ind_plot, ax, i_row, i_col,
                                       exp_data, exp_conditions, vis_spec,
                                       sim_data)
 
@@ -219,6 +219,7 @@ def _create_figure(uni_plot_ids):
 
 
 def _handle_dataset_plot(i_visu_spec,
+                         ind_plot,
                          ax,
                          i_row,
                          i_col,
@@ -238,16 +239,18 @@ def _handle_dataset_plot(i_visu_spec,
     uni_condition_id = np.unique(exp_data[ind_dataset].simulationConditionId)
     col_name_unique = 'simulationConditionId'
 
-    # extract conditions (plot input) from condition file
-    ind_cond = exp_conditions.index.isin(uni_condition_id)
-    conditions = exp_conditions[ind_cond][indep_var]
-
     # Case separation of independent parameter: condition, time or custom
     if indep_var == 'time':
         # obtain unique observation times
         uni_condition_id = np.unique(exp_data[ind_dataset].time)
         col_name_unique = 'time'
         conditions = uni_condition_id
+    elif indep_var == 'condition':
+        conditions = None
+    else:
+        # extract conditions (plot input) from condition file
+        ind_cond = exp_conditions.index.isin(uni_condition_id)
+        conditions = exp_conditions[ind_cond][indep_var]
 
     # retrieve measurements from dataframes
     measurement_to_plot = get_data_to_plot(vis_spec, exp_data, sim_data,
