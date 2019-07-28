@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def plotting_config(visualization_specification: pd.DataFrame,
@@ -9,8 +10,7 @@ def plotting_config(visualization_specification: pd.DataFrame,
                     conditions: pd.Series,
                     ms: pd.DataFrame,
                     ind_plot: pd.Series,
-                    i_visu_spec: int,
-                    plt):
+                    i_visu_spec: int):
     """
     plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
@@ -37,8 +37,6 @@ def plotting_config(visualization_specification: pd.DataFrame,
     i_visu_spec:
         int64, current index (row number) of row which should be plotted in
         visualizationSpecification file
-    plt:
-        module matplotlib.pyplot
 
     Return:
     ----------

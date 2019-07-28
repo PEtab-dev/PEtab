@@ -10,8 +10,12 @@ sns.set()
 
 def plot_data_and_simulation(data_file_path: str,
                              condition_file_path: str,
-                             visualization_file_path: str,
-                             simulation_file_path: str):
+                             visualization_file_path: str='',
+                             simulation_file_path: str='',
+                             sim_cond_id_list=None,
+                             sim_cond_num_list=None,
+                             observable_id_list=None,
+                             observable_num_list=None):
     """
     Main function for plotting data and simulations.
 
@@ -28,14 +32,166 @@ def plot_data_and_simulation(data_file_path: str,
         Path to the data file.
     condition_file_path: str
         Path to the condition file.
-    visualization_file_path: str
-        Path to the vizualization specification file.
-    simulation_file_path: str
+    visualization_file_path: str (optional)
+        Path to the visualization specification file.
+    simulation_file_path: str (optional)
         Path to the simulation output data file.
 
     Returns
     -------
     ax: Axis object of the created plot.
+    """
+
+    # import data from PEtab files
+    exp_data, exp_conditions, vis_spec, sim_data = _import_from_files(
+        data_file_path, condition_file_path, visualization_file_path,
+        simulation_file_path, sim_cond_id_list, sim_cond_num_list,
+        observable_id_list, observable_num_list)
+
+    # get unique plotIDs
+    uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
+
+    fig, ax, num_row, num_col = _create_figure(uni_plot_ids)
+
+    # loop over unique plotIds
+    for i_plot_id, var_plot_id in enumerate(uni_plot_ids):
+
+        # setting axis indices
+        i_row = int(np.ceil((i_plot_id + 1) / num_col)) - 1
+        i_col = int(((i_plot_id + 1) - i_row * num_col)) - 1
+
+        # get indices for specific plotId
+        ind_plot = (vis_spec['plotId'] == var_plot_id)
+
+        # loop over datsets
+        for i_visu_spec in vis_spec[ind_plot].index.values:
+
+            # handle plot of current dataset
+            ax = _handle_dataset_plot(i_visu_spec, ax, i_row, i_col,
+                                      exp_data, exp_conditions, vis_spec,
+                                      sim_data)
+
+    # finalize figure
+    fig.tight_layout()
+
+    return ax
+
+
+def _import_from_files(data_file_path,
+                       condition_file_path,
+                       visualization_file_path,
+                       simulation_file_path,
+                       sim_cond_id_list,
+                       sim_cond_num_list,
+                       observable_id_list,
+                       observable_num_list):
+    """
+    Helper function for plotting data and simulations, which imports data
+    from PEtab files.
+
+    For documentation, see main function plot_data_and_simulation()
+    """
+
+    # import measurement data and experimental condition
+    exp_data = petab.get_measurement_df(data_file_path)
+    exp_conditions = petab.get_condition_df(condition_file_path)
+
+    # import visualization specification, if file was specified
+    if visualization_file_path is not '':
+        vis_spec = pd.read_csv(visualization_file_path, sep="\t",
+                               index_col=None)
+    else:
+        # create them based on simulation conditions
+        vis_spec = _get_default_vis_specs(exp_data,
+                                          sim_cond_id_list,
+                                          sim_cond_num_list,
+                                          observable_id_list,
+                                          observable_num_list)
+
+    # import simulation file, if file was specified
+    if simulation_file_path is not '':
+        sim_data = pd.read_csv(simulation_file_path,
+                               sep="\t", index_col=None)
+    else:
+        sim_data = None
+
+    return exp_data, exp_conditions, vis_spec, sim_data
+
+
+def _get_default_vis_specs(exp_data,
+                           dataset_id_list=None,
+                           dataset_num_list=None,
+                           observable_id_list=None,
+                           observable_num_list=None):
+    """
+    Helper function for plotting data and simulations, which creates a
+    default visualization table.
+
+    For documentation, see main function plot_data_and_simulation()
+    """
+
+    # consistency check
+    if dataset_id_list is not None and dataset_num_list is not None:
+        raise("Either specify a list of dataset IDs or a list "
+              "of dataset numbers, but not both. Stopping.")
+    if observable_id_list is not None and observable_num_list is not None:
+        raise("Either specify a list of observable IDs or a list "
+              "of observable numbers, but not both. Stopping.")
+
+    # check, whether mesaurement data has datasetIDs, otherwise use
+    # simulation conditions as dummy
+    if not 'datasetId' in exp_data.columns:
+        exp_data.insert(loc = exp_data.columns.size, column = 'datasetId',
+                        value = exp_data['simulationConditionId'])
+
+    # TODO: Handle if no observables were specified!
+    # TODO: Handle if no experimental conditions were specified!
+    # TODO: Handle, if sim_cond_num_list was passed instead of sim_cond_id_list
+    # TODO: Handle, if obs_id_list was passed instead of obs_num_list
+
+    # get number of plots and create plotId-lists
+    num_plot_ids = len(dataset_id_list)
+    plot_id_list = [['plot%s' % ind for inner_ind in range(len(
+        dataset_id_list[ind]))] for ind in range(1, num_plot_ids + 1)]
+    data_list = [dataset for id_list in dataset_id_list for dataset in id_list]
+
+    # create dataframe
+    vis_spec = pd.DataFrame({'plotId': plot_id_list, 'datasetId': data_list})
+
+    # fill columns with default values
+    fill_vis_spec = ((1, 'yScale', 'lin'),
+                     (1, 'xScale', 'lin'),
+                     (1, 'legendEntry', ''),
+                     (1, 'yLabel', 'value'),
+                     (1, 'yOffset', 0),
+                     (1, 'yValues', ''),
+                     (1, 'xLabel', 'time'),
+                     (1, 'xOffset', 0),
+                     (1, 'xValues', 'time'),
+                     (0, 'plotTypeData', 'MeanAndSD'),
+                     (0, 'plotTypeSimulation', 'LinePlot'),
+                     (0, 'plotName', ''))
+    for pos, col, val in fill_vis_spec:
+        vis_spec.insert(loc = pos, column = col, value = val)
+
+    return vis_spec
+
+
+def _create_figure(uni_plot_ids):
+    """
+    Helper function for plotting data and simulations, open figure and axes
+
+    Parameters
+    ----------
+    uni_plot_ids: ndarray
+        Array with unique plot indices
+
+    Returns
+    -------
+    fig: Figure object of the created plot.
+    ax: Axis object of the created plot.
+    num_row: int, number of subplot rows
+    num_col: int, number of subplot columns
     """
 
     # Set Options for plots
@@ -46,116 +202,65 @@ def plot_data_and_simulation(data_file_path: str,
     plt.rcParams['errorbar.capsize'] = 2
     plt.plot_simulation = True
 
-    subplots = True
-
-    # import measurement data, experimental condition, visualization
-    # specification, simulation data
-    measurement_data = petab.get_measurement_df(data_file_path)
-    experimental_condition = petab.get_condition_df(condition_file_path)
-    visualization_specification = pd.read_csv(
-        visualization_file_path, sep="\t", index_col=None)
-    simulation_data = pd.read_csv(
-        simulation_file_path, sep="\t", index_col=None)
-
     # Set Colormap
-    # ccodes = \
-    # ['#8c510a','#bf812d','#dfc27d','#f6e8c3', \
-    #  '#c7eae5','#80cdc1','#35978f','#01665e']
     sns.set_palette("colorblind")
 
-    # get unique plotIDs
-    uni_plot_ids, plot_ind = np.unique(
-        visualization_specification.plotId, return_index=True)
+    #  Initiate subplots
+    num_subplot = len(uni_plot_ids)
 
-    # Initiate subplots
-    if subplots:
-        num_subplot = len(uni_plot_ids)
-    else:
-        num_subplot = 1
-
+    # compute, how many rows and columns we need for the subplots
     num_row = np.round(np.sqrt(num_subplot))
     num_col = np.ceil(num_subplot / num_row)
 
     # initialize figure
     fig, ax = plt.subplots(int(num_row), int(num_col), squeeze=False)
 
-    # loop over unique plotIds
-    for i_plot_id, var_plot_id in enumerate(uni_plot_ids):
+    return fig, ax, num_row, num_col
 
-        # setting axis indices
-        if subplots:
-            axx = int(np.ceil((i_plot_id + 1) / num_col)) - 1
-            axy = int(((i_plot_id + 1) - axx * num_col)) - 1
-        else:
-            axx = 0
-            axy = 0
 
-        # get indices for specific plotId
-        ind_plot = visualization_specification['plotId'] == var_plot_id
+def _handle_dataset_plot(i_visu_spec,
+                         ax,
+                         i_row,
+                         i_col,
+                         exp_data,
+                         exp_conditions,
+                         vis_spec,
+                         sim_data):
 
-        for i_visu_spec in visualization_specification[ind_plot].index.values:
-            # get datasetID and independent variable of first entry of plot1
-            dataset_id = visualization_specification.datasetId[i_visu_spec]
-            indep_var = visualization_specification.xValues[i_visu_spec]
+    # get datasetID and independent variable of first entry of plot1
+    dataset_id = vis_spec.datasetId[i_visu_spec]
+    indep_var = vis_spec.xValues[i_visu_spec]
 
-            # define index to reduce measurement_data to data linked to
-            # datasetId
-            ind_dataset = measurement_data['datasetId'] == dataset_id
+    # define index to reduce exp_data to data linked to datasetId
+    ind_dataset = exp_data['datasetId'] == dataset_id
 
-            # gather simulationConditionIds belonging to datasetId
-            uni_condition_id = np.unique(
-                measurement_data[ind_dataset].simulationConditionId)
-            col_name_unique = 'simulationConditionId'
+    # gather simulationConditionIds belonging to datasetId
+    uni_condition_id = np.unique(exp_data[ind_dataset].simulationConditionId)
+    col_name_unique = 'simulationConditionId'
 
-            # Case seperation indepParameter custom, time or condition
-            if indep_var not in ['time', "condition"]:
+    # extract conditions (plot input) from condition file
+    ind_cond = exp_conditions.index.isin(uni_condition_id)
+    conditions = exp_conditions[ind_cond][indep_var]
 
-                # extract conditions (plot input) from condition file
-                ind_cond = experimental_condition.index.isin(uni_condition_id)
-                conditions = experimental_condition[ind_cond][indep_var]
+    # Case separation of independent parameter: condition, time or custom
+    if indep_var == 'time':
+        # obtain unique observation times
+        uni_condition_id = np.unique(exp_data[ind_dataset].time)
+        col_name_unique = 'time'
+        conditions = uni_condition_id
 
-                ms = get_data_to_plot(
-                    visualization_specification, measurement_data,
-                    simulation_data, uni_condition_id, i_visu_spec,
-                    col_name_unique)
+    # retrieve measurements from dataframes
+    measurement_to_plot = get_data_to_plot(vis_spec, exp_data, sim_data,
+        uni_condition_id, i_visu_spec, col_name_unique)
 
-                ax = plotting_config(
-                    visualization_specification, ax, axx, axy, conditions,
-                    ms, ind_plot, i_visu_spec, plt)
+    # plot data
+    ax = plotting_config(vis_spec, ax, i_row, i_col, conditions,
+        measurement_to_plot, ind_plot, i_visu_spec)
 
-            elif indep_var == 'condition':
-
-                ms = get_data_to_plot(
-                    visualization_specification, measurement_data,
-                    simulation_data, uni_condition_id, i_visu_spec,
-                    col_name_unique)
-
-                ax = plotting_config(
-                    visualization_specification, ax, axx, axy, conditions, ms,
-                    ind_plot, i_visu_spec, plt)
-
-            elif indep_var == 'time':
-
-                # obtain unique observation times
-                uni_times = np.unique(measurement_data[ind_dataset].time)
-
-                col_name_unique = 'time'
-
-                # group measurement values for each conditionId/unique time
-                ms = get_data_to_plot(
-                    visualization_specification, measurement_data,
-                    simulation_data, uni_times, i_visu_spec, col_name_unique)
-
-                ax = plotting_config(
-                    visualization_specification, ax, axx, axy, uni_times, ms,
-                    ind_plot, i_visu_spec, plt)
-
-        ax[axx, axy].set_xlabel(
-            visualization_specification.xLabel[i_visu_spec])
-        ax[axx, axy].set_ylabel(
-            visualization_specification.yLabel[i_visu_spec])
-
-    # finalize figure
-    fig.tight_layout()
+    # Beautify plots
+    ax[i_row, i_col].set_xlabel(
+        vis_spec.xLabel[i_visu_spec])
+    ax[i_row, i_col].set_ylabel(
+        vis_spec.yLabel[i_visu_spec])
 
     return ax
