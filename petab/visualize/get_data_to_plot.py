@@ -108,11 +108,11 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
         # row 12,18 have different noiseParams than rows 0,6, the actual code
         # would take rows 0,6 and forget about rows 12,18
 
-        if len(ind_intersec) != len(ind_meas):
-            # find unique values in ind_meas that are not in ind_intersec
-            unique_values = np.setdiff1d(ind_meas, ind_intersec)
-        else:
-            ind_intersec = ind_intersec
+        # if len(ind_intersec) != len(ind_meas):
+        #     # find unique values in ind_meas that are not in ind_intersec
+        #     unique_values = np.setdiff1d(ind_meas, ind_intersec)
+        # else:
+        #     ind_intersec = ind_intersec
 
         # measurement_data[ind_meas].measurement.mean()
         ms.at[var_cond_id, 'mean'] = np.mean(

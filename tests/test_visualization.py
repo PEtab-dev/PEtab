@@ -18,7 +18,7 @@ def test_visualization_routine():
     visualization_file_path = "https://raw.githubusercontent.com/LoosC/"\
         "Benchmark-Models/visualization/hackathon_contributions"\
         "_new_data_format/Isensee_JCB2018/visualizationSpecific"\
-        "ation_Isensee_JCB2018_2.tsv"
+        "ation_Isensee_JCB2018.tsv"
     simulation_file_path = "https://raw.githubusercontent.com/LoosC/"\
         "Benchmark-Models/visualization/hackathon_contributions"\
         "_new_data_format/Isensee_JCB2018/simulationData"\
