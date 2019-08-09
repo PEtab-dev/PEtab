@@ -111,6 +111,7 @@ def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
     # Remove from reactants and products
     for reaction in sbml_model.getListOfReactions():
         for speciesId in transformables:
+            # loop, since removeX only removes one instance
             while reaction.removeReactant(speciesId):
                 pass
             while reaction.removeProduct(speciesId):
