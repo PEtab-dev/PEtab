@@ -352,4 +352,3 @@ Extra columns
 
   hierarchicalOptimization: 1 if parameter is optimized using hierarchical
   optimization approach. 0 otherwise.
-  
