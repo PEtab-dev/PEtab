@@ -10,8 +10,8 @@ sns.set()
 
 def plot_data_and_simulation(data_file_path: str,
                              condition_file_path: str,
-                             visualization_file_path: str='',
-                             simulation_file_path: str='',
+                             visualization_file_path: str = '',
+                             simulation_file_path: str = '',
                              sim_cond_id_list=None,
                              sim_cond_num_list=None,
                              observable_id_list=None,
@@ -97,7 +97,7 @@ def _import_from_files(data_file_path,
     exp_conditions = petab.get_condition_df(condition_file_path)
 
     # import visualization specification, if file was specified
-    if visualization_file_path is not '':
+    if visualization_file_path != '':
         vis_spec = pd.read_csv(visualization_file_path, sep="\t",
                                index_col=None)
     else:
@@ -109,7 +109,7 @@ def _import_from_files(data_file_path,
                                           observable_num_list)
 
     # import simulation file, if file was specified
-    if simulation_file_path is not '':
+    if simulation_file_path != '':
         sim_data = pd.read_csv(simulation_file_path,
                                sep="\t", index_col=None)
     else:
@@ -140,9 +140,9 @@ def _get_default_vis_specs(exp_data,
 
     # check, whether mesaurement data has datasetIDs, otherwise use
     # simulation conditions as dummy
-    if not 'datasetId' in exp_data.columns:
-        exp_data.insert(loc = exp_data.columns.size, column = 'datasetId',
-                        value = exp_data['simulationConditionId'])
+    if 'datasetId' not in exp_data.columns:
+        exp_data.insert(loc=exp_data.columns.size, column='datasetId',
+                        value=exp_data['simulationConditionId'])
 
     # TODO: Handle if no observables were specified!
     # TODO: Handle if no experimental conditions were specified!
@@ -172,7 +172,7 @@ def _get_default_vis_specs(exp_data,
                      (0, 'plotTypeSimulation', 'LinePlot'),
                      (0, 'plotName', ''))
     for pos, col, val in fill_vis_spec:
-        vis_spec.insert(loc = pos, column = col, value = val)
+        vis_spec.insert(loc=pos, column=col, value=val)
 
     return vis_spec
 
@@ -254,11 +254,12 @@ def _handle_dataset_plot(i_visu_spec,
 
     # retrieve measurements from dataframes
     measurement_to_plot = get_data_to_plot(vis_spec, exp_data, sim_data,
-        uni_condition_id, i_visu_spec, col_name_unique)
+                                           uni_condition_id, i_visu_spec,
+                                           col_name_unique)
 
     # plot data
     ax = plotting_config(vis_spec, ax, i_row, i_col, conditions,
-        measurement_to_plot, ind_plot, i_visu_spec)
+                         measurement_to_plot, ind_plot, i_visu_spec)
 
     # Beautify plots
     ax[i_row, i_col].set_xlabel(
