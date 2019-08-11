@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def get_data_to_plot(visualization_specification: pd.DataFrame,
-                     measurement_data: pd.DataFrame,
+                     m_data: pd.DataFrame,
                      simulation_data: pd.DataFrame,
                      condition_ids: np.ndarray,
                      i_visu_spec: int,
@@ -17,7 +17,7 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
 
     visualization_specification:
         pandas data frame, contains defined data format (visualization file)
-    measurement_data:
+    m_data:
         pandas data frame, contains defined data format (measurement file)
     simulation_data:
         pandas data frame, contains defined data format (simulation file)
@@ -36,12 +36,12 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
     Return:
     ----------
 
-    ms: pandas data frame containing the data which should be plotted
+    data_to_plot: pandas data frame containing the data which should be plotted
     (Mean and Std)
     """
 
     # create empty dataframe for means and SDs
-    ms = pd.DataFrame(
+    data_to_plot = pd.DataFrame(
         columns=[
             'mean',
             'sd',
@@ -52,45 +52,45 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
 
     for var_cond_id in condition_ids:
         # get boolean vector which fulfill the requirements
-        vec_bool_meas = ((measurement_data[col_id] == var_cond_id) &
-                         (measurement_data['datasetId'] ==
-                          visualization_specification.datasetId[i_visu_spec]))
-        # get indices of rows with "True" values of vec_bool_meas
-        ind_meas = [
-            i_visu_spec for i_visu_spec,
-            x in enumerate(vec_bool_meas) if x]
+        vec_bool_meas = ((m_data[col_id] == var_cond_id) & (m_data['datasetId']
+            == visualization_specification.datasetId[i_visu_spec]))
+        # get indices of rows with True values of vec_bool_meas
+        ind_meas = [i_visu_spec for i_visu_spec,
+                    x in enumerate(vec_bool_meas) if x]
 
-        # check that all entries for all columns-conditions are the same, for
-        # grouping the measurement data
+        # check that all entries for all columns-conditions are the same:
+        # check correct observable
+        bool_observable = (m_data.observableParameters[ind_meas[0]] ==
+                           m_data.observableParameters)
+        # check correct observable transformation
+        bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
+                              m_data.observableTransformation)
+        # check correct noise parameters
+        # TODO: This might be too restrictive. Maybe rethink this...
+        bool_noise = (m_data.noiseParameters[ind_meas[0]] ==
+                      m_data.noiseParameters)
+        # check correct noise distribution
+        bool_noise_dist = (m_data.noiseDistribution[ind_meas[0]] ==
+                           m_data.noiseDistribution)
+        # check correct time point
+        bool_time = True
         if col_id != 'time':
-            vec_bool_allcond = \
-                ((measurement_data.preequilibrationConditionId[ind_meas[0]] ==
-                    measurement_data.preequilibrationConditionId) &
-                 (measurement_data.time[ind_meas[0]] ==
-                     measurement_data.time) &
-                 (measurement_data.observableParameters[ind_meas[0]] ==
-                     measurement_data.observableParameters) &
-                 (measurement_data.noiseParameters[ind_meas[0]] ==
-                     measurement_data.noiseParameters) &
-                 (measurement_data.observableTransformation[ind_meas[0]] ==
-                     measurement_data.observableTransformation) &
-                 (measurement_data.noiseDistribution[ind_meas[0]] ==
-                     measurement_data.noiseDistribution))
-        else:
-            vec_bool_allcond = ((measurement_data.preequilibrationConditionId[
-                ind_meas[0]] == measurement_data.preequilibrationConditionId) &
-                (measurement_data.observableParameters[
-                    ind_meas[0]] == measurement_data.observableParameters) &
-                (measurement_data.noiseParameters[ind_meas[0]] ==
-                    measurement_data.noiseParameters) &
-                (measurement_data.observableTransformation[ind_meas[0]] ==
-                    measurement_data.observableTransformation) &
-                (measurement_data.noiseDistribution[ind_meas[0]] ==
-                    measurement_data.noiseDistribution))
+            bool_time = (m_data.time[ind_meas[0]] == m_data.time)
+        # check correct preqeuilibration condition
+        pre_cond = m_data.preequilibrationConditionId[ind_meas[0]]
+        bool_preequ = (pre_cond == m_data.preequilibrationConditionId)
+        # special handling is needed, if preequilibration cond is left empty
+        if (type(pre_cond) == np.float64) and np.isnan(pre_cond):
+            bool_preequ = np.isnan(m_data.preequilibrationConditionId)
+
+        # combine all boolean vectors
+        vec_bool_allcond = (bool_preequ & bool_observable & bool_noise &
+                            bool_obs_transform & bool_noise_dist & bool_time)
+
         # get indices of rows with "True" values, of vec_bool_allcond
-        ind_bool_allcond = [
-            i_visu_spec for i_visu_spec,
-            x in enumerate(vec_bool_allcond) if x]
+        ind_bool_allcond = [i_visu_spec for i_visu_spec,
+                            x in enumerate(vec_bool_allcond) if x]
+
         # get intersection of ind_meas and ind_bool_allcond
         ind_intersec = np.intersect1d(ind_meas, ind_bool_allcond)
 
@@ -108,19 +108,19 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
         # row 12,18 have different noiseParams than rows 0,6, the actual code
         # would take rows 0,6 and forget about rows 12,18
 
-        # measurement_data[ind_meas].measurement.mean()
-        ms.at[var_cond_id, 'mean'] = np.mean(
-            measurement_data.measurement[ind_intersec])
-        ms.at[var_cond_id, 'sd'] = np.std(
-            measurement_data.measurement[ind_intersec])
+        # m_data[ind_meas].measurement.mean()
+        data_to_plot.at[var_cond_id, 'mean'] = np.mean(
+            m_data.measurement[ind_intersec])
+        data_to_plot.at[var_cond_id, 'sd'] = np.std(
+            m_data.measurement[ind_intersec])
+
         # standard error of mean
-        ms.at[var_cond_id, 'sem'] = \
-            np.std(measurement_data.measurement[ind_intersec]) / \
-            np.sqrt(len(measurement_data.measurement[ind_intersec]))
-        ms.at[var_cond_id, 'repl'] = \
-            measurement_data.measurement[ind_intersec]
+        data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data.measurement[
+            ind_intersec]) / np.sqrt(len(m_data.measurement[ind_intersec]))
+        data_to_plot.at[var_cond_id, 'repl'] = m_data.measurement[ind_intersec]
 
-        ms.at[var_cond_id, 'sim'] = np.mean(
-            simulation_data.simulatedData[ind_intersec])
+        if simulation_data is not None:
+            data_to_plot.at[var_cond_id, 'sim'] = np.mean(
+                simulation_data.simulatedData[ind_intersec])
 
-    return ms
+    return data_to_plot

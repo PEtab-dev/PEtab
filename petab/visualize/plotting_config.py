@@ -10,7 +10,8 @@ def plotting_config(visualization_specification: pd.DataFrame,
                     conditions: pd.Series,
                     ms: pd.DataFrame,
                     ind_plot: pd.Series,
-                    i_visu_spec: int):
+                    i_visu_spec: int,
+                    plot_sim: bool):
     """
     plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
@@ -37,6 +38,8 @@ def plotting_config(visualization_specification: pd.DataFrame,
     i_visu_spec:
         int64, current index (row number) of row which should be plotted in
         visualizationSpecification file
+    plot_sim:
+        bool, tells whether or not simulated data should be plotted as well
 
     Return:
     ----------
@@ -82,7 +85,7 @@ def plotting_config(visualization_specification: pd.DataFrame,
                 conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
                 label=label_base)
             colors = p[0].get_color()
-            if plt.plot_simulation:
+            if plot_sim:
                 ax[axx, axy].plot(
                     conditions, ms['sim'], linestyle='-.', marker='o',
                     label=label_base + " simulation", color=colors)

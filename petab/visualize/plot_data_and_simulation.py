@@ -5,6 +5,7 @@ from .get_data_to_plot import get_data_to_plot
 from .plotting_config import plotting_config
 import petab
 import seaborn as sns
+import functools
 sns.set()
 
 
@@ -143,6 +144,12 @@ def _get_default_vis_specs(exp_data,
     if 'datasetId' not in exp_data.columns:
         exp_data.insert(loc=exp_data.columns.size, column='datasetId',
                         value=exp_data['simulationConditionId'])
+        # make dummy dataset names unique and iterable, then create a
+        # dataset_id_list based on numbers or names, which have been passed
+        full_dataset_id_list = functools.reduce(lambda tmp, x: tmp.append(x)
+            or tmp if x not in tmp else tmp, list(exp_data['datasetId']), [])
+        dataset_id_list = [full_dataset_id_list[i_dataset] for sublist in
+                           dataset_num_list for i_dataset in sublist]
 
     # TODO: Handle if no observables were specified!
     # TODO: Handle if no experimental conditions were specified!
@@ -150,13 +157,12 @@ def _get_default_vis_specs(exp_data,
     # TODO: Handle, if obs_id_list was passed instead of obs_num_list
 
     # get number of plots and create plotId-lists
-    num_plot_ids = len(dataset_id_list)
-    plot_id_list = [['plot%s' % ind for inner_ind in range(len(
-        dataset_id_list[ind]))] for ind in range(1, num_plot_ids + 1)]
-    data_list = [dataset for id_list in dataset_id_list for dataset in id_list]
+    plot_id_list = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
+        dataset_num_list) for _ in inner_list]
 
     # create dataframe
-    vis_spec = pd.DataFrame({'plotId': plot_id_list, 'datasetId': data_list})
+    vis_spec = pd.DataFrame({'plotId': plot_id_list,
+                             'datasetId': dataset_id_list})
 
     # fill columns with default values
     fill_vis_spec = ((1, 'yScale', 'lin'),
@@ -200,7 +206,6 @@ def _create_figure(uni_plot_ids):
     plt.rcParams['axes.titlesize'] = 10
     plt.rcParams['figure.figsize'] = [20, 10]
     plt.rcParams['errorbar.capsize'] = 2
-    plt.plot_simulation = True
 
     # Set Colormap
     sns.set_palette("colorblind")
@@ -257,9 +262,14 @@ def _handle_dataset_plot(i_visu_spec,
                                            uni_condition_id, i_visu_spec,
                                            col_name_unique)
 
+
+    plot_sim = True
+    if sim_data is None:
+        plot_sim = False
+
     # plot data
     ax = plotting_config(vis_spec, ax, i_row, i_col, conditions,
-                         measurement_to_plot, ind_plot, i_visu_spec)
+                         measurement_to_plot, ind_plot, i_visu_spec, plot_sim)
 
     # Beautify plots
     ax[i_row, i_col].set_xlabel(
