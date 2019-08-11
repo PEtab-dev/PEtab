@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def get_data_to_plot(visualization_specification: pd.DataFrame,
+def get_data_to_plot(vis_spec: pd.DataFrame,
                      m_data: pd.DataFrame,
                      simulation_data: pd.DataFrame,
                      condition_ids: np.ndarray,
@@ -15,7 +15,7 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
     Parameters:
     ----------
 
-    visualization_specification:
+    vis_spec:
         pandas data frame, contains defined data format (visualization file)
     m_data:
         pandas data frame, contains defined data format (measurement file)
@@ -53,7 +53,7 @@ def get_data_to_plot(visualization_specification: pd.DataFrame,
     for var_cond_id in condition_ids:
         # get boolean vector which fulfill the requirements
         vec_bool_meas = ((m_data[col_id] == var_cond_id) & (m_data['datasetId']
-            == visualization_specification.datasetId[i_visu_spec]))
+                         == vis_spec.datasetId[i_visu_spec]))
         # get indices of rows with True values of vec_bool_meas
         ind_meas = [i_visu_spec for i_visu_spec,
                     x in enumerate(vec_bool_meas) if x]

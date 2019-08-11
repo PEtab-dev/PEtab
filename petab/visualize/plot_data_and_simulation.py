@@ -6,6 +6,7 @@ from .plotting_config import plotting_config
 import petab
 import seaborn as sns
 import functools
+
 sns.set()
 
 
@@ -66,7 +67,6 @@ def plot_data_and_simulation(data_file_path: str,
 
         # loop over datsets
         for i_visu_spec in vis_spec[ind_plot].index.values:
-
             # handle plot of current dataset
             ax = _handle_dataset_plot(i_visu_spec, ind_plot, ax, i_row, i_col,
                                       exp_data, exp_conditions, vis_spec,
@@ -133,11 +133,11 @@ def _get_default_vis_specs(exp_data,
 
     # consistency check
     if dataset_id_list is not None and dataset_num_list is not None:
-        raise("Either specify a list of dataset IDs or a list "
-              "of dataset numbers, but not both. Stopping.")
+        raise ("Either specify a list of dataset IDs or a list "
+               "of dataset numbers, but not both. Stopping.")
     if observable_id_list is not None and observable_num_list is not None:
-        raise("Either specify a list of observable IDs or a list "
-              "of observable numbers, but not both. Stopping.")
+        raise ("Either specify a list of observable IDs or a list "
+               "of observable numbers, but not both. Stopping.")
 
     # check, whether mesaurement data has datasetIDs, otherwise use
     # simulation conditions as dummy
@@ -146,8 +146,9 @@ def _get_default_vis_specs(exp_data,
                         value=exp_data['simulationConditionId'])
         # make dummy dataset names unique and iterable, then create a
         # dataset_id_list based on numbers or names, which have been passed
-        full_dataset_id_list = functools.reduce(lambda tmp, x: tmp.append(x)
-            or tmp if x not in tmp else tmp, list(exp_data['datasetId']), [])
+        full_dataset_id_list = functools.reduce(
+            lambda tmp, x: tmp.append(x) or tmp if x not in tmp else tmp,
+            list(exp_data['datasetId']), [])
         dataset_id_list = [full_dataset_id_list[i_dataset] for sublist in
                            dataset_num_list for i_dataset in sublist]
 
@@ -232,7 +233,6 @@ def _handle_dataset_plot(i_visu_spec,
                          exp_conditions,
                          vis_spec,
                          sim_data):
-
     # get datasetID and independent variable of first entry of plot1
     dataset_id = vis_spec.datasetId[i_visu_spec]
     indep_var = vis_spec.xValues[i_visu_spec]
@@ -261,7 +261,6 @@ def _handle_dataset_plot(i_visu_spec,
     measurement_to_plot = get_data_to_plot(vis_spec, exp_data, sim_data,
                                            uni_condition_id, i_visu_spec,
                                            col_name_unique)
-
 
     plot_sim = True
     if sim_data is None:
