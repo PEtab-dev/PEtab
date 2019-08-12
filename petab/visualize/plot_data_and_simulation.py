@@ -40,6 +40,23 @@ def plot_data_and_simulation(data_file_path: str,
         Path to the visualization specification file.
     simulation_file_path: str (optional)
         Path to the simulation output data file.
+    dataset_id_list: list (optional)
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the datasetIds for this plot.
+    sim_cond_id_list list (optional)
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the simulationConditionIds for this plot.
+    sim_cond_num_list list (optional)
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the numbers corresponding to the simulationConditionIds for
+        this plot.
+    observable_id_list list (optional)
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the obersvableIds for this plot.
+    observable_num_list list (optional)
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the numbers corresponding to the obersvableIds for
+        this plot.
 
     Returns
     -------
@@ -137,14 +154,15 @@ def _get_default_vis_specs(exp_data,
     """
 
     # check consistency of settings
-    group_by = _check_vis_spec_consistency(dataset_id_list, sim_cond_id_list,
-        sim_cond_num_list, observable_id_list, observable_num_list, exp_data)
+    group_by = _check_vis_spec_consistency(
+        dataset_id_list, sim_cond_id_list, sim_cond_num_list,
+        observable_id_list, observable_num_list, exp_data)
 
     if group_by != 'dataset':
         # datasetId_list will be created (possibly overwriting previous list)
-        exp_data, dataset_id_list = _create_dataset_id_list(sim_cond_id_list,
-            sim_cond_num_list, observable_id_list, observable_num_list,
-            exp_data, group_by)
+        exp_data, dataset_id_list = _create_dataset_id_list(
+            sim_cond_id_list, sim_cond_num_list, observable_id_list,
+            observable_num_list, exp_data, group_by)
 
     datasetId_column = [i_dataset for sublist in dataset_id_list for
                         i_dataset in sublist]
@@ -288,16 +306,17 @@ def _create_dataset_id_list(simcond_id_list,
                                simcond_num_list]
         for simcond in unique_simcond_list:
             ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
-                0 : len(simcond) + 3] == simcond + ' - ']
+                0:len(simcond)+3] == simcond + ' - ']
         grouped_list = simcond_id_list
 
     elif group_by == 'observable':
         if observable_id_list is None:
-            obs_id_list = [[unique_obs_list[i_obs] for i_obs in i_obs_list]
-                           for i_obs_list in observable_num_list]
+            observable_id_list = [[unique_obs_list[i_obs] for i_obs in
+                                   i_obs_list] for i_obs_list in
+                                  observable_num_list]
         for observable in unique_obs_list:
             ds_dict[observable] = [ds for ds in unique_dataset_list if ds[
-                - len(observable) - 3:] == ' - ' + observable]
+                -len(observable)-3:] == ' - ' + observable]
         grouped_list = observable_id_list
 
     else:
