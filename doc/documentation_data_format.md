@@ -131,20 +131,29 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | ...
-|---|---|---|---|---|
-| observableId | [conditionId] | conditionId | NUMERIC |
-|...|...|...|...|...|
+| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time |...
+|---|---|---|---|---|---|
+| observableId | [conditionId] | conditionId | NUMERIC | NUMERIC&#124;'inf' |
+|...|...|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... | time | [observableParameters] | [noiseParameters] | [observableTransformation] | [noiseDistribution]
-|---|---|---|---|---|---|
-|... | NUMERIC&#124;'inf' |[parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | ['lin'(default)&#124;'log'&#124;'log10'] | ['laplace'&#124;'normal'] |
-|...|...|...|...|...|...|
+| ... | [observableParameters] | [noiseParameters] | [observableTransformation] | [noiseDistribution]
+|---|---|---|---|---|
+|... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | ['lin'(default)&#124;'log'&#124;'log10'] | ['laplace'&#124;'normal'] |
+|...|...|...|...|...|
 
-Additional (non-standard) columns may be added.
+Additional (non-standard) columns may be added. If the additional plotting 
+functionality of PEtab should be used, suhc columns could be
 
+| ... | [datasetId] | [replicateId]  | ... |
+|---|---|---|---|
+|... | [String] | [String] | ... | 
+|...|...|...|...|
+
+where `datasetId` is a necessary column to use particular plotting 
+funcitonality, and `replicateId` is optional, which can be used to group 
+replicates and plot error bars. 
 
 ### Detailed field description
 
@@ -216,6 +225,20 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   `normal`, the specified `noiseParameters` will be interpreted as standard
   deviation (*not* variance).
 
+- `datasetId` [STRING, optional]
+
+   The datasetId is used to group certain measurements to datasets. This is 
+   typically the case for data points which belong to the same observable, 
+   the same simulation and preequilibration condition, the same noise model,
+   the same observable tranformation and the same observable parameters.
+   This grouping makes it possible to use the plotting routines which are 
+   provided in the PEtab repository. 
+
+- `replicateId` [STRING, optional]
+
+   The replicateId can be used to discern replicates with the same 
+   datasetId, which is helpful for plotting e.g. error bars.
+
 ## Parameter table
 
 A tab-separated value text file containing information on model parameters.
@@ -238,7 +261,7 @@ One row per parameter with arbitrary order of rows and columns:
 
 Additional columns may be added.
 
-Detailed column description:
+### Detailed field description:
 
 - `parameterId` [STRING, NOT NULL, REFERENCES(sbml.parameterId)]
 
@@ -306,42 +329,102 @@ Detailed column description:
 
 ## Visualization table
 
-A tab-separated value file containing the specification of visualisations.
-Plots are in general collections of different datasets as specified using
-their `datasetId` inside the measurement table.
+A tab-separated value file containing the specification of the visualization
+routines which come with the PEtab repository. Plots are in general 
+collections of different datasets as specified using their `datasetId` (if 
+provided) inside the measurement table.
 
 Expected to have the following columns in any (but preferably this)
 order:
 
 | plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ...
 |---|---|---|---|---|---|
-| plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
+| plotId | [plotName] | LinePlot | MeanAndSD | datasetId | ...
 |...|...|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry] |  ...
+| ... | [xValues] | [xOffset] | [xLabel] | [xScale] | ...
 |---|---|---|---|---|---|
-|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] |
+|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] | ...
+|...|...|...|...|...|...|
+
+*(wrapped for readability)*
+
+| ... | [yValues] | [yOffset] | [yLabel] | [yScale] | [legendEntry] |  ...
+|---|---|---|---|---|---|---|
+|... |  [observableId] | [NUMERIC] | [STRING] | [STRING] | [STRING] | ...
 |...|...|...|...|...|...|...|
 
-The `independentVariable`is the variable over which the dataset is visualised.
-For time-response data, this should be `time`, for dose-response data the
-respective `parameterOrStateId`. The numerical values of the
-`independentVariable` are shown on the x-axis, while the values of the
-observables are shown on the respective y-axis.
+### Detailed field description:
 
-If different datasets are assigned to the same `plotID`, multiple datasets are
-overlaid. The name of the dataset is indicated by the corresponding
-`legendEntry`, which defaults to the `datasetId`.
-
-The visualization type is specified as `plotTypeSimulation` and
-`plotTypeData`. Possible choices include `LinePlot`, `BarPlot`, `MeanAndSD` and
-`MeanAndSEM`. In addition, `XScale` and `YScale`, `Color`, etc. may be
-specified.
-
+ - `plotId` [STRING, NOT NULL]
+ 
+ An ID which corresponds to a specific plot. All datasets with the same 
+ plotId will be plotted into the same axes object.
+ 
+ - `plotName` [STRING]
+ 
+ A name for the specific plot.
+ 
+ - `plotTypeSimulation` [STRING]
+ 
+ The type of the corresponding plot, can be `LinePlot` or `BarPlot`. Default
+ is `LinePlot`.
+ 
+ - `plotTypeData`
+ 
+ The type how replicates should be handled, can be `MeanAndSD`, 
+ `MeanAndSEM`, or `replicate` (for plotting all replicates separately) . 
+ Default is `MeanAndSD`.
+ 
+ - `datasetId` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId)]
+ 
+ The datasets, which should be groupd into one plot.
+ 
+ - `xValues` [STRING]
+ 
+ The independent variable, which will be plotted on the x-axis. Can be 
+ `time` (default, for time resolved data), or it can be `parameterOrStateId` 
+ for dose-reponse plots. The coresponding nuemric values will be shown on 
+ the x-axis. 
+ 
+ - `xOffset` [NUMERIC]
+ 
+ Possible data-offsets for the independent variable (default is `0`).
+ 
+ - `xLabel` [STRING]
+ 
+ Label for the x-axis.
+ 
+ - `xScale` [STRING]
+ 
+ Scale of the independent variable, can be `lin`, `log`, or `log10`.
+ 
+ - `yValues` [observableId, REFERENCES(measurementTable.observableId)]
+ 
+ The observable which should be plotted on the y-axis.
+ 
+ - `yOffset` [NUMERIC]
+ 
+ Possible data-offsets for the observable (default is `0`).
+ 
+ - `yLabel` [STRING]
+ 
+ Label for the y-axis.
+ 
+ - `yScale` [STRING]
+ 
+ Scale of the observable, can be `lin`, `log`, or `log10`.
+ 
+ - `legendEntry` [STRING]
+ 
+ The name that should be displayed for the correpsonding dataset in the 
+ legend and which defaults to `datasetId`.
 
 ## Extensions
+
+Additional columns, such as `Color`, etc. may be specified.
 
 
 ### Parameter table
