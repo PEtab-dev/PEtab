@@ -5,14 +5,13 @@ from petab.visualize import plot_data_and_simulation
 
 
 def test_visualization_routine():
-    data_file_path = "doc/example/example_Isensee/example_measurementData" \
-                     ".tsv"
+    data_file_path = "doc/example/example_Isensee/Isensee_measurementData.tsv"
     condition_file_path = \
-        "doc/example/example_Isensee/example_experimentalCondition.tsv"
+        "doc/example/example_Isensee/Isensee_experimentalCondition.tsv"
     visualization_file_path = \
-        "doc/example/example_Isensee/example_visualizationSpecification.tsv"
+        "doc/example/example_Isensee/Isensee_visualizationSpecification.tsv"
     simulation_file_path = \
-        "doc/example/example_Isensee/example_simulationData.tsv"
+        "doc/example/example_Isensee/Isensee_simulationData.tsv"
 
     plot_data_and_simulation(data_file_path,
                              condition_file_path,
