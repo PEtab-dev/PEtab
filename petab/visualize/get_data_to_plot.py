@@ -42,12 +42,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
     # create empty dataframe for means and SDs
     data_to_plot = pd.DataFrame(
-        columns=[
-            'mean',
-            'sd',
-            'sem',
-            'repl',
-            'sim'],
+        columns=['mean', 'sd', 'sem', 'repl', 'sim'],
         index=condition_ids)
 
     for var_cond_id in condition_ids:

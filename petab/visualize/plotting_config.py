@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def plotting_config(visualization_specification: pd.DataFrame,
+def plotting_config(vis_spec: pd.DataFrame,
                     ax: np.ndarray,
                     axx: int,
                     axy: int,
@@ -18,7 +18,7 @@ def plotting_config(visualization_specification: pd.DataFrame,
     Parameters:
     ----------
 
-    visualization_specification:
+    vis_spec:
         pandas data frame, contains defined data format (visualization file)
     ax:
         np.ndarray, matplotlib.Axes
@@ -45,20 +45,18 @@ def plotting_config(visualization_specification: pd.DataFrame,
     ax: matplotlib.Axes
     """
 
-    if visualization_specification.plotTypeSimulation[i_visu_spec] == \
-            'LinePlot':
+    if vis_spec.plotTypeSimulation[i_visu_spec] == 'LinePlot':
 
         # set xScale
-        if visualization_specification.xScale[i_visu_spec] == 'lin':
+        if vis_spec.xScale[i_visu_spec] == 'lin':
             ax[axx, axy].set_xscale("linear")
-        elif visualization_specification.xScale[i_visu_spec] == 'log10':
+        elif vis_spec.xScale[i_visu_spec] == 'log10':
             ax[axx, axy].set_xscale("log")
         # equidistant
-        elif visualization_specification.xScale[i_visu_spec] == 'order':
+        elif vis_spec.xScale[i_visu_spec] == 'order':
             ax[axx, axy].set_xscale("linear")
             # check if conditions are monotone decreasing or increasing
-            if np.all(np.diff(conditions) <
-                      0):             # monotone decreasing
+            if np.all(np.diff(conditions) < 0):             # monot. decreasing
                 xlabel = conditions[::-1]                   # reversing
                 conditions = range(len(conditions))[::-1]   # reversing
                 ax[axx, axy].set_xticks(range(len(conditions)), xlabel)
@@ -72,14 +70,11 @@ def plotting_config(visualization_specification: pd.DataFrame,
                                  ' decreasing')
 
         # add xOffset
-        conditions = conditions + \
-            visualization_specification.xOffset[i_visu_spec]
+        conditions = conditions + vis_spec.xOffset[i_visu_spec]
 
         # construct errorbar-plots
-        label_base = visualization_specification[ind_plot] \
-            .legendEntry[i_visu_spec]
-        if visualization_specification.plotTypeData[i_visu_spec] == \
-                'MeanAndSD':
+        label_base = vis_spec[ind_plot].legendEntry[i_visu_spec]
+        if vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSD':
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
                 label=label_base)
@@ -88,30 +83,25 @@ def plotting_config(visualization_specification: pd.DataFrame,
                 ax[axx, axy].plot(
                     conditions, ms['sim'], linestyle='-.', marker='o',
                     label=label_base + " simulation", color=colors)
-        elif visualization_specification.plotTypeData[i_visu_spec] == \
-                'MeanAndSEM':
+        elif vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSEM':
             ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sem'], linestyle='-', marker='.',
                 label=label_base)
         # plotting all measurement data
-        elif visualization_specification.plotTypeData[i_visu_spec] == \
-                'replicate':
+        elif vis_spec.plotTypeData[i_visu_spec] == 'replicate':
             for ii in range(0, len(ms['repl'])):
                 for k in range(0, len(ms.repl[ii])):
                     ax[axx, axy].plot(
                         conditions[conditions.index.values[ii]],
                         ms.repl[ii][ms.repl[ii].index.values[k]], 'x')
         ax[axx, axy].legend()
-        ax[axx, axy].set_title(
-            visualization_specification.plotName[i_visu_spec])
+        ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
 
-    elif visualization_specification.plotTypeSimulation[i_visu_spec] == \
-            'BarPlot':
+    elif vis_spec.plotTypeSimulation[i_visu_spec] == 'BarPlot':
 
-        x_name = visualization_specification[ind_plot].legendEntry[i_visu_spec]
+        x_name = vis_spec[ind_plot].legendEntry[i_visu_spec]
 
         ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
-        ax[axx, axy].set_title(
-            visualization_specification.plotName[i_visu_spec])
+        ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
 
     return ax
