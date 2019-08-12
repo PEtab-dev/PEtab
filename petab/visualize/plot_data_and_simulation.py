@@ -177,7 +177,7 @@ def _get_default_vis_specs(exp_data,
                              'legendEntry': datasetId_column})
 
     # fill columns with default values
-    fill_vis_spec = ((2, 'yLabel', 'value [a.u.]'),
+    fill_vis_spec = ((2, 'yLabel', 'value'),
                      (2, 'yOffset', 0),
                      (2, 'yValues', ''),
                      (2, 'xLabel', 'time'),
