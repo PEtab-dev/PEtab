@@ -85,15 +85,17 @@ def check_vis_spec_consistency(dataset_id_list,
 
     # check whether grouping by simulation condition should be done
     if sim_cond_id_list is not None and sim_cond_num_list is not None:
-        raise ("Either specify a list of dataset IDs or a list "
-               "of dataset numbers, but not both. Stopping.")
+        raise NotImplementedError(
+            "Either specify a list of dataset IDs or a list of dataset "
+            "numbers, but not both. Stopping.")
     if sim_cond_id_list is not None or sim_cond_num_list is not None:
         group_by += 'simulation'
 
     # check whether grouping by observable should be done
     if observable_id_list is not None and observable_num_list is not None:
-        raise ("Either specify a list of observable IDs or a list "
-               "of observable numbers, but not both. Stopping.")
+        raise NotImplementedError(
+            "Either specify a list of observable IDs or a list "
+            "of observable numbers, but not both. Stopping.")
     if observable_id_list is not None or observable_num_list is not None:
         group_by += 'observable'
 
@@ -115,13 +117,15 @@ def check_vis_spec_consistency(dataset_id_list,
         group_by = 'dataset'
 
     elif group_by == 'simulationobservable':
-        raise ("Plotting without visualization specification file and "
-               "datasetId can be performed via grouping by simulation "
-               "conditions OR observables, but not both. Stopping.")
+        raise NotImplementedError(
+            "Plotting without visualization specification file and datasetId "
+            "can be performed via grouping by simulation conditions OR "
+            "observables, but not both. Stopping.")
     elif group_by in ['simulation', 'observable', 'dataset']:
         pass
     else:
-        raise ("No information provided, how to plot data. Stopping.")
+        raise NotImplementedError(
+            "No information provided, how to plot data. Stopping.")
 
     if group_by != 'dataset':
         # group plots not by dataset. Check, whether such a column would
@@ -131,8 +135,9 @@ def check_vis_spec_consistency(dataset_id_list,
                           "grouping was requested. Consider using datasetId.")
     else:
         if 'datasetId' not in exp_data.columns:
-            raise ("Data should be grouped by datasetId, but no datasetId is "
-                   "given in the measureents file. Stopping.")
+            raise NotImplementedError(
+                "Data should be grouped by datasetId, but no datasetId is "
+                "given in the measureents file. Stopping.")
 
     return group_by
 
@@ -165,7 +170,7 @@ def create_dataset_id_list(simcond_id_list,
 
     # add these column to the measurement table (possibly overwrite)
     if 'datasetId' in exp_data.columns:
-        exp_data.drop('datasetId')
+        exp_data = exp_data.drop('datasetId', axis=1)
     exp_data.insert(loc=exp_data.columns.size, column='datasetId',
                     value=dataset_id_column)
 
@@ -205,8 +210,9 @@ def create_dataset_id_list(simcond_id_list,
         grouped_list = observable_id_list
 
     else:
-        raise ('Very, very weird error. Should not have happened. Something '
-               'went wrong in how datasets should be grouped. Very weird...')
+        raise NotImplementedError(
+            "Very, very weird error. Should not have happened. Something "
+            "went wrong in how datasets should be grouped. Very weird...")
 
     for sublist in grouped_list:
         datasets_for_this_plot = [dset for sublist_entry in sublist
@@ -486,11 +492,12 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
         if vis_spec.plotTypeData[i_visu_spec] == 'provided':
             tmp_noise = (m_data.noiseParameters[ind_intersec].values)[0]
-            if type(tmp_noise) == float or tmp_noise.dtype == 'float64':
+            if type(tmp_noise) == str:
+                raise NotImplementedError(
+                    "No numerical noise values provided in the measurement "
+                    "table. Stopping.")
+            elif type(tmp_noise) == float or tmp_noise.dtype == 'float64':
                 data_to_plot.at[var_cond_id, 'noise_model'] = tmp_noise
-            else:
-                raise ("No numerical noise values provided in the " +
-                       "measurement table. Stopping.")
 
         # standard error of mean
         data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data.measurement[
