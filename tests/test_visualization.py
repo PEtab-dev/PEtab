@@ -1,23 +1,82 @@
 import pandas as pd
+import pytest
 
 from petab import generate_experiment_id  # noqa: E402
 from petab.visualize import plot_data_and_simulation
 
 
-def test_visualization_routine():
-    data_file_path = "doc/example/example_Isensee/Isensee_measurementData.tsv"
-    condition_file_path = \
-        "doc/example/example_Isensee/Isensee_experimentalCondition.tsv"
-    visualization_file_path = \
-        "doc/example/example_Isensee/Isensee_visualizationSpecification.tsv"
-    simulation_file_path = \
-        "doc/example/example_Isensee/Isensee_simulationData.tsv"
+@pytest.fixture
+def data_file_Fujita():
+    return "doc/example/example_Fujita/Fujita_measurementData.tsv"
 
-    plot_data_and_simulation(data_file_path,
-                             condition_file_path,
-                             visualization_file_path,
-                             simulation_file_path)
+@pytest.fixture
+def condition_file_Fujita():
+    return "doc/example/example_Fujita/Fujita_experimentalCondition.tsv"
 
+@pytest.fixture
+def data_file_Isensee():
+    return "doc/example/example_Isensee/Isensee_measurementData.tsv"
+
+@pytest.fixture
+def condition_file_Isensee():
+    return "doc/example/example_Isensee/Isensee_experimentalCondition.tsv"
+
+@pytest.fixture
+def vis_spec_file_Isensee():
+    return "doc/example/example_Isensee/Isensee_visualizationSpecification.tsv"
+
+@pytest.fixture
+def simulation_file_Isensee():
+    return "doc/example/example_Isensee/Isensee_simulationData.tsv"
+
+
+def test_visualization_with_vis_and_sim(data_file_Isensee,
+                                        condition_file_Isensee,
+                                        vis_spec_file_Isensee,
+                                        simulation_file_Isensee):
+    plot_data_and_simulation(data_file_Isensee,
+                             condition_file_Isensee,
+                             vis_spec_file_Isensee,
+                             simulation_file_Isensee)
+
+
+def test_visualization_with_vis(data_file_Isensee,
+                                condition_file_Isensee,
+                                vis_spec_file_Isensee):
+    plot_data_and_simulation(data_file_Isensee,
+                             condition_file_Isensee,
+                             vis_spec_file_Isensee)
+
+
+def test_visualization_with_dataset_list(data_file_Isensee,
+                                         condition_file_Isensee):
+    datasets = [['JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_ctrl',
+                 'JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_Fsk'],
+                ['JI09_160201_Drg453-452_CycNuc__ctrl',
+                 'JI09_160201_Drg453-452_CycNuc__Fsk',
+                 'JI09_160201_Drg453-452_CycNuc__Sp8_Br_cAMPS_AM']]
+    plot_data_and_simulation(data_file_Isensee,
+                             condition_file_Isensee,
+                             dataset_id_list=datasets)
+
+
+def test_visualization_without_datasets(data_file_Fujita,
+                                        condition_file_Fujita):
+
+    sim_cond_num_list = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 5]]
+    sim_cond_id_list = [['model1_data1'], ['model1_data2', 'model1_data3'],
+                        ['model1_data4', 'model1_data5'], ['model1_data6']]
+    observable_num_list = [[0], [1], [2], [0, 2], [1, 2]]
+    observable_id_list = [['pS6_tot'], ['pEGFR_tot'], ['pAkt_tot']]
+
+    plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
+                             sim_cond_num_list=sim_cond_num_list)
+    plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
+                             sim_cond_id_list=sim_cond_id_list)
+    plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
+                             observable_num_list=observable_num_list)
+    plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
+                             observable_id_list=observable_id_list)
 
 def test_generate_experimentId_no_empty():
     data_actual = {'observableParameters': ['obs1', 'obs1', 'obs2', 'obs3'],
