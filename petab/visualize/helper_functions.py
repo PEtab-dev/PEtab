@@ -159,7 +159,7 @@ def create_dataset_id_list(simcond_id_list,
         if dataset_id not in legend_dict.keys():
             tmp = exp_conditions.loc[exp_conditions.index == cond_id]
             legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
-                                      tmp_obs[ind]
+                tmp_obs[ind]
 
     # add these column to the measurement table (possibly overwrite)
     if 'datasetId' in exp_data.columns:
@@ -279,7 +279,6 @@ def get_default_vis_specs(exp_data,
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
             observable_num_list, exp_data, exp_conditions, group_by)
 
-
     datasetId_column = [i_dataset for sublist in dataset_id_list for
                         i_dataset in sublist]
     if group_by != 'dataset':
@@ -371,11 +370,11 @@ def handle_dataset_plot(i_visu_spec,
 
 
 def get_data_to_plot(vis_spec: pd.DataFrame,
-                      m_data: pd.DataFrame,
-                      simulation_data: pd.DataFrame,
-                      condition_ids: np.ndarray,
-                      i_visu_spec: int,
-                      col_id: str):
+                     m_data: pd.DataFrame,
+                     simulation_data: pd.DataFrame,
+                     condition_ids: np.ndarray,
+                     i_visu_spec: int,
+                     col_id: str):
     """
     group the data, which should be plotted and save it in pd.dataframe called
     'ms'.

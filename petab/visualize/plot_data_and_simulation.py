@@ -1,4 +1,8 @@
-from .helper_functions import *
+import numpy as np
+import pandas as pd
+from .helper_functions import (import_from_files,
+                               create_figure,
+                               handle_dataset_plot)
 
 
 def plot_data_and_simulation(data_file_path: str,
@@ -87,7 +91,6 @@ def plot_data_and_simulation(data_file_path: str,
     return ax
 
 
-
 def plot_measurements_by_observable(data_file_path, condition_file_path):
     '''
     plot measurement data grouped by observable ID.
@@ -108,11 +111,8 @@ def plot_measurements_by_observable(data_file_path, condition_file_path):
     '''
 
     # import measurement data
-    measurement_data = pd.DataFrame.from_csv(
+    measurement_data = pd.read_csv(
         data_file_path, sep="\t", index_col=None)
-    # import experimental condition
-    experimental_condition = pd.DataFrame.from_csv(
-        condition_file_path, sep="\t")
 
     # get unique observable ID
     observable_id = np.array(measurement_data.observableId)

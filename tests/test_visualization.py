@@ -2,28 +2,34 @@ import pandas as pd
 import pytest
 
 from petab import generate_experiment_id  # noqa: E402
-from petab.visualize import plot_data_and_simulation
+from petab.visualize import (plot_data_and_simulation,
+                             plot_measurements_by_observable)
 
 
 @pytest.fixture
 def data_file_Fujita():
     return "doc/example/example_Fujita/Fujita_measurementData.tsv"
 
+
 @pytest.fixture
 def condition_file_Fujita():
     return "doc/example/example_Fujita/Fujita_experimentalCondition.tsv"
+
 
 @pytest.fixture
 def data_file_Isensee():
     return "doc/example/example_Isensee/Isensee_measurementData.tsv"
 
+
 @pytest.fixture
 def condition_file_Isensee():
     return "doc/example/example_Isensee/Isensee_experimentalCondition.tsv"
 
+
 @pytest.fixture
 def vis_spec_file_Isensee():
     return "doc/example/example_Isensee/Isensee_visualizationSpecification.tsv"
+
 
 @pytest.fixture
 def simulation_file_Isensee():
@@ -77,6 +83,12 @@ def test_visualization_without_datasets(data_file_Fujita,
                              observable_num_list=observable_num_list)
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              observable_id_list=observable_id_list)
+
+
+def test_simple_visualization(data_file_Fujita,
+                              condition_file_Fujita):
+    plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita)
+
 
 def test_generate_experimentId_no_empty():
     data_actual = {'observableParameters': ['obs1', 'obs1', 'obs2', 'obs3'],
