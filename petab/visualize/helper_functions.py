@@ -27,7 +27,8 @@ def import_from_files(data_file_path,
                       sim_cond_id_list,
                       sim_cond_num_list,
                       observable_id_list,
-                      observable_num_list):
+                      observable_num_list,
+                      plotted_noise):
     """
     Helper function for plotting data and simulations, which imports data
     from PEtab files.
@@ -51,7 +52,8 @@ def import_from_files(data_file_path,
                                          sim_cond_id_list,
                                          sim_cond_num_list,
                                          observable_id_list,
-                                         observable_num_list)
+                                         observable_num_list,
+                                         plotted_noise)
 
     # import simulation file, if file was specified
     if simulation_file_path != '':
@@ -260,7 +262,8 @@ def get_default_vis_specs(exp_data,
                           sim_cond_id_list=None,
                           sim_cond_num_list=None,
                           observable_id_list=None,
-                          observable_num_list=None):
+                          observable_num_list=None,
+                          plotted_noise='MeanAndSD'):
     """
     Helper function for plotting data and simulations, which creates a
     default visualization table.
@@ -305,7 +308,7 @@ def get_default_vis_specs(exp_data,
                      (2, 'xValues', 'time'),
                      (1, 'yScale', 'lin'),
                      (1, 'xScale', 'lin'),
-                     (0, 'plotTypeData', 'MeanAndSD'),
+                     (0, 'plotTypeData', plotted_noise),
                      (0, 'plotTypeSimulation', 'LinePlot'),
                      (0, 'plotName', ''))
     for pos, col, val in fill_vis_spec:
@@ -409,7 +412,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
     # create empty dataframe for means and SDs
     data_to_plot = pd.DataFrame(
-        columns=['mean', 'sd', 'sem', 'repl', 'sim'],
+        columns=['mean', 'noise_model', 'sd', 'sem', 'repl', 'sim'],
         index=condition_ids)
 
     for var_cond_id in condition_ids:
@@ -424,20 +427,25 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # check correct observable
         bool_observable = (m_data.observableParameters[ind_meas[0]] ==
                            m_data.observableParameters)
+
         # check correct observable transformation
         bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
                               m_data.observableTransformation)
+
         # check correct noise parameters
         # TODO: This might be too restrictive. Maybe rethink this...
         bool_noise = (m_data.noiseParameters[ind_meas[0]] ==
                       m_data.noiseParameters)
+
         # check correct noise distribution
         bool_noise_dist = (m_data.noiseDistribution[ind_meas[0]] ==
                            m_data.noiseDistribution)
+
         # check correct time point
         bool_time = True
         if col_id != 'time':
             bool_time = (m_data.time[ind_meas[0]] == m_data.time)
+
         # check correct preqeuilibration condition
         pre_cond = m_data.preequilibrationConditionId[ind_meas[0]]
         bool_preequ = (pre_cond == m_data.preequilibrationConditionId)
@@ -470,15 +478,25 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # row 12,18 have different noiseParams than rows 0,6, the actual code
         # would take rows 0,6 and forget about rows 12,18
 
-        # m_data[ind_meas].measurement.mean()
+        # compute mean and standard deviation across replicates
         data_to_plot.at[var_cond_id, 'mean'] = np.mean(
             m_data.measurement[ind_intersec])
         data_to_plot.at[var_cond_id, 'sd'] = np.std(
             m_data.measurement[ind_intersec])
 
+        if vis_spec.plotTypeData[i_visu_spec] == 'provided':
+            tmp_noise = (m_data.noiseParameters[ind_intersec].values)[0]
+            if type(tmp_noise) == float or tmp_noise.dtype == 'float64':
+                data_to_plot.at[var_cond_id, 'noise_model'] = tmp_noise
+            else:
+                raise ("No numerical noise values provided in the " +
+                       "measurement table. Stopping.")
+
         # standard error of mean
         data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data.measurement[
             ind_intersec]) / np.sqrt(len(m_data.measurement[ind_intersec]))
+
+        # single replicates
         data_to_plot.at[var_cond_id, 'repl'] = m_data.measurement[ind_intersec]
 
         if simulation_data is not None:

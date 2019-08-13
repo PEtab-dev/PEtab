@@ -13,7 +13,8 @@ def plot_data_and_simulation(data_file_path: str,
                              sim_cond_id_list=None,
                              sim_cond_num_list=None,
                              observable_id_list=None,
-                             observable_num_list=None):
+                             observable_num_list=None,
+                             plotted_noise: str='MeanAndSD'):
     """
     Main function for plotting data and simulations.
 
@@ -37,20 +38,23 @@ def plot_data_and_simulation(data_file_path: str,
     dataset_id_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the datasetIds for this plot.
-    sim_cond_id_list list (optional)
+    sim_cond_id_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the simulationConditionIds for this plot.
-    sim_cond_num_list list (optional)
+    sim_cond_num_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the numbers corresponding to the simulationConditionIds for
         this plot.
-    observable_id_list list (optional)
+    observable_id_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the obersvableIds for this plot.
-    observable_num_list list (optional)
+    observable_num_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the numbers corresponding to the obersvableIds for
         this plot.
+    plotted_noise: str (optional)
+        String indicating how noise should be visualized:
+        ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
 
     Returns
     -------
@@ -61,7 +65,8 @@ def plot_data_and_simulation(data_file_path: str,
     exp_data, exp_conditions, vis_spec, sim_data = import_from_files(
         data_file_path, condition_file_path, visualization_file_path,
         simulation_file_path, dataset_id_list, sim_cond_id_list,
-        sim_cond_num_list, observable_id_list, observable_num_list)
+        sim_cond_num_list, observable_id_list, observable_num_list,
+        plotted_noise)
 
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
@@ -91,7 +96,9 @@ def plot_data_and_simulation(data_file_path: str,
     return ax
 
 
-def plot_measurements_by_observable(data_file_path, condition_file_path):
+def plot_measurements_by_observable(data_file_path: str,
+                                    condition_file_path: str,
+                                    plotted_noise: str='MeanAndSD'):
     '''
     plot measurement data grouped by observable ID.
     A simple wrapper around the more complex function plot_data_and_simulation.
@@ -103,11 +110,14 @@ def plot_measurements_by_observable(data_file_path, condition_file_path):
         file path of measurement data
     ConditionFilePath: str
         file path of condition file
+    plotted_noise: str (optional)
+        String indicating how noise should be visualized:
+        ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
 
     Return:
     ----------
 
-    axis: axis of figures
+    ax: axis of figures
     '''
 
     # import measurement data
@@ -121,6 +131,7 @@ def plot_measurements_by_observable(data_file_path, condition_file_path):
 
     # use new routine now
     ax = plot_data_and_simulation(data_file_path, condition_file_path,
-                                  observable_id_list=observable_id_list)
+                                  observable_id_list=observable_id_list,
+                                  plotted_noise=plotted_noise)
 
     return ax
