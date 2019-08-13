@@ -14,7 +14,7 @@ def plot_data_and_simulation(data_file_path: str,
                              sim_cond_num_list=None,
                              observable_id_list=None,
                              observable_num_list=None,
-                             plotted_noise: str='MeanAndSD'):
+                             plotted_noise: str = 'MeanAndSD'):
     """
     Main function for plotting data and simulations.
 
@@ -98,7 +98,7 @@ def plot_data_and_simulation(data_file_path: str,
 
 def plot_measurements_by_observable(data_file_path: str,
                                     condition_file_path: str,
-                                    plotted_noise: str='MeanAndSD'):
+                                    plotted_noise: str = 'MeanAndSD'):
     '''
     plot measurement data grouped by observable ID.
     A simple wrapper around the more complex function plot_data_and_simulation.

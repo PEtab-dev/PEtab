@@ -76,18 +76,22 @@ def test_visualization_without_datasets(data_file_Fujita,
     observable_id_list = [['pS6_tot'], ['pEGFR_tot'], ['pAkt_tot']]
 
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
-                             sim_cond_num_list=sim_cond_num_list)
+                             sim_cond_num_list=sim_cond_num_list,
+                             plotted_noise='provided')
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              sim_cond_id_list=sim_cond_id_list)
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              observable_num_list=observable_num_list)
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
-                             observable_id_list=observable_id_list)
+                             observable_id_list=observable_id_list,
+                             plotted_noise='provided')
 
 
 def test_simple_visualization(data_file_Fujita,
                               condition_file_Fujita):
     plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita)
+    plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita,
+                                    plotted_noise='provided')
 
 
 def test_generate_experimentId_no_empty():
