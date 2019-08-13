@@ -2,15 +2,15 @@ import numpy as np
 import pandas as pd
 
 
-def plotting_config(vis_spec: pd.DataFrame,
-                    ax: np.ndarray,
-                    axx: int,
-                    axy: int,
-                    conditions: pd.Series,
-                    ms: pd.DataFrame,
-                    ind_plot: pd.Series,
-                    i_visu_spec: int,
-                    plot_sim: bool):
+def plot_lowlevel(vis_spec: pd.DataFrame,
+                  ax: np.ndarray,
+                  axx: int,
+                  axy: int,
+                  conditions: pd.Series,
+                  ms: pd.DataFrame,
+                  ind_plot: pd.Series,
+                  i_visu_spec: int,
+                  plot_sim: bool):
     """
     plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
