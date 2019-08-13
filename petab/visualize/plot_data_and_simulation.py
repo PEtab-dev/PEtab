@@ -124,6 +124,7 @@ def _import_from_files(data_file_path,
     else:
         # create them based on simulation conditions
         vis_spec = _get_default_vis_specs(exp_data,
+                                          exp_conditions,
                                           dataset_id_list,
                                           sim_cond_id_list,
                                           sim_cond_num_list,
@@ -141,6 +142,7 @@ def _import_from_files(data_file_path,
 
 
 def _get_default_vis_specs(exp_data,
+                           exp_conditions,
                            dataset_id_list=None,
                            sim_cond_id_list=None,
                            sim_cond_num_list=None,
@@ -162,7 +164,7 @@ def _get_default_vis_specs(exp_data,
         # datasetId_list will be created (possibly overwriting previous list)
         exp_data, dataset_id_list = _create_dataset_id_list(
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
-            observable_num_list, exp_data, group_by)
+            observable_num_list, exp_data, exp_conditions, group_by)
 
     datasetId_column = [i_dataset for sublist in dataset_id_list for
                         i_dataset in sublist]
@@ -271,18 +273,30 @@ def _create_dataset_id_list(simcond_id_list,
                             observable_id_list,
                             observable_num_list,
                             exp_data,
+                            exp_conditions,
                             group_by):
 
     # create a column of dummy datasetIDs:
-    tmp_s = list(exp_data['simulationConditionId'])
-    tmp_o = list(exp_data['observableId'])
-    dataset_id_column = [tmp_s[i] + ' - ' + tmp_o[i] for i in exp_data.index]
+    tmp_simcond = list(exp_data['simulationConditionId'])
+    tmp_obs = list(exp_data['observableId'])
+    dataset_id_column = [tmp_simcond[ind] + ' - ' + tmp_obs[ind]
+                         for ind in exp_data.index]
 
-    # add this column to the measurement table
+    # also find condition names from conditionIds for legend entries later on
+    legend_entry_column = []
+    for ind, cond_id in enumerate(tmp_simcond):
+        tmp = exp_conditions.loc[exp_conditions.index == cond_id]
+        legend_entry_column.append(tmp.conditionName[0] + ' - ' + tmp_obs[ind])
+
+    # add these column to the measurement table
     if 'datasetId' in exp_data.columns:
         exp_data.drop('datasetId')
     exp_data.insert(loc=exp_data.columns.size, column='datasetId',
                     value=dataset_id_column)
+    if 'legendEntry' in exp_data.columns:
+        exp_data.drop('legendEntry')
+    exp_data.insert(loc=exp_data.columns.size, column='legendEntry',
+                    value=legend_entry_column)
 
     # make dummy dataset names unique and iterable
     unique_dataset_list = functools.reduce(
