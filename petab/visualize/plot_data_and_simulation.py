@@ -162,12 +162,18 @@ def _get_default_vis_specs(exp_data,
 
     if group_by != 'dataset':
         # datasetId_list will be created (possibly overwriting previous list)
-        exp_data, dataset_id_list = _create_dataset_id_list(
+        exp_data, dataset_id_list, legend_dict = _create_dataset_id_list(
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
             observable_num_list, exp_data, exp_conditions, group_by)
 
+
     datasetId_column = [i_dataset for sublist in dataset_id_list for
                         i_dataset in sublist]
+    if group_by != 'dataset':
+        dataset_label_column = [legend_dict[i_dataset] for sublist in
+                                dataset_id_list for i_dataset in sublist]
+    else:
+        dataset_label_column = datasetId_column
 
     # get number of plots and create plotId-lists
     plot_id_list = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
@@ -176,7 +182,7 @@ def _get_default_vis_specs(exp_data,
     # create dataframe
     vis_spec = pd.DataFrame({'plotId': plot_id_list,
                              'datasetId': datasetId_column,
-                             'legendEntry': datasetId_column})
+                             'legendEntry': dataset_label_column})
 
     # fill columns with default values
     fill_vis_spec = ((2, 'yLabel', 'value'),
@@ -276,27 +282,29 @@ def _create_dataset_id_list(simcond_id_list,
                             exp_conditions,
                             group_by):
 
-    # create a column of dummy datasetIDs:
+    # create a column of dummy datasetIDs and legend entries: preallocate
+    dataset_id_column = []
+    legend_dict = {}
+
+    # loop over experimental data table, create datasetOd for each entry
     tmp_simcond = list(exp_data['simulationConditionId'])
     tmp_obs = list(exp_data['observableId'])
-    dataset_id_column = [tmp_simcond[ind] + ' - ' + tmp_obs[ind]
-                         for ind in exp_data.index]
-
-    # also find condition names from conditionIds for legend entries later on
-    legend_entry_column = []
     for ind, cond_id in enumerate(tmp_simcond):
-        tmp = exp_conditions.loc[exp_conditions.index == cond_id]
-        legend_entry_column.append(tmp.conditionName[0] + ' - ' + tmp_obs[ind])
+        # create and add dummy datasetID
+        dataset_id = tmp_simcond[ind] + ' - ' + tmp_obs[ind]
+        dataset_id_column.append(dataset_id)
 
-    # add these column to the measurement table
+        # create nicer legend entries from condition names instead of IDs
+        if dataset_id not in legend_dict.keys():
+            tmp = exp_conditions.loc[exp_conditions.index == cond_id]
+            legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
+                                      tmp_obs[ind]
+
+    # add these column to the measurement table (possibly overwrite)
     if 'datasetId' in exp_data.columns:
         exp_data.drop('datasetId')
     exp_data.insert(loc=exp_data.columns.size, column='datasetId',
                     value=dataset_id_column)
-    if 'legendEntry' in exp_data.columns:
-        exp_data.drop('legendEntry')
-    exp_data.insert(loc=exp_data.columns.size, column='legendEntry',
-                    value=legend_entry_column)
 
     # make dummy dataset names unique and iterable
     unique_dataset_list = functools.reduce(
@@ -342,7 +350,7 @@ def _create_dataset_id_list(simcond_id_list,
                                   for dset in ds_dict[sublist_entry]]
         dataset_id_list.append(datasets_for_this_plot)
 
-    return exp_data, dataset_id_list
+    return exp_data, dataset_id_list, legend_dict
 
 
 def _create_figure(uni_plot_ids):
