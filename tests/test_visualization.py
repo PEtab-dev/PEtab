@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-
+import warnings
 from petab import generate_experiment_id  # noqa: E402
 from petab.visualize import (plot_data_and_simulation,
                              plot_measurements_by_observable)
@@ -161,6 +161,53 @@ def test_visualization_raises(data_file_Fujita,
         error_counter += 1
 
     assert (error_counter == 5)
+
+
+def test_visualization_warnings(data_file_Isensee,
+                                condition_file_Isensee):
+    datasets = [['JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_ctrl',
+                 'JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_Fsk'],
+                ['JI09_160201_Drg453-452_CycNuc__ctrl',
+                 'JI09_160201_Drg453-452_CycNuc__Fsk',
+                 'JI09_160201_Drg453-452_CycNuc__Sp8_Br_cAMPS_AM']]
+    sim_cond_num_list = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 5]]
+    observable_num_list = [[0], [1], [2], [0, 2], [1, 2]]
+
+    with warnings.catch_warnings(record=True) as warnMsg:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+        # plotting with datasetIds and sim conditions should issue a warning
+        plot_data_and_simulation(data_file_Isensee,
+                                 condition_file_Isensee,
+                                 dataset_id_list=datasets,
+                                 sim_cond_num_list=sim_cond_num_list)
+
+        # plotting with datasetIds and observables should issue a warning
+        plot_data_and_simulation(data_file_Isensee,
+                                 condition_file_Isensee,
+                                 dataset_id_list=datasets,
+                                 observable_num_list=observable_num_list)
+
+        # plotting with datasetIds and observables and sim conditions should
+        # issue a warning
+        plot_data_and_simulation(data_file_Isensee,
+                                 condition_file_Isensee,
+                                 dataset_id_list=datasets,
+                                 observable_num_list=observable_num_list,
+                                 sim_cond_num_list=sim_cond_num_list)
+
+        # plotting grouped by something else than datasetIds should issue a
+        # warning if datasetsIDs would have been available
+        plot_data_and_simulation(data_file_Isensee,
+                                 condition_file_Isensee,
+                                 sim_cond_num_list=sim_cond_num_list)
+
+        # test correct number of warnings
+        assert len(warnMsg) == 4
+
+        # test that all warnings were indeed UserWarnings
+        for i_warn in warnMsg:
+            assert issubclass(i_warn.category, UserWarning)
 
 
 def test_simple_visualization(data_file_Fujita,
