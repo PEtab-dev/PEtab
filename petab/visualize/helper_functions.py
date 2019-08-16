@@ -369,7 +369,7 @@ def handle_dataset_plot(i_visu_spec,
 
     # plot data
     nan_set = all([np.isnan(val) for val in measurement_to_plot['mean']])
-    if nan_set == False:
+    if not nan_set:
         ax = plot_lowlevel(vis_spec, ax, i_row, i_col, conditions,
                            measurement_to_plot, ind_plot, i_visu_spec,
                            plot_sim)
