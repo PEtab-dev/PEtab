@@ -102,7 +102,7 @@ def check_vis_spec_consistency(dataset_id_list,
     # consistency check. Warn or error, if grouping not clear
     if group_by == 'datasetsimulation':
         warnings.warn("Found grouping by datasetId and simulation condition. "
-                      "Using datasetId, omitting simmulation condition.")
+                      "Using datasetId, omitting simulation condition.")
         group_by = 'dataset'
 
     elif group_by == 'datasetobservable':

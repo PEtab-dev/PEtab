@@ -14,8 +14,7 @@ def plot_data_and_simulation(data_file_path: str,
                              sim_cond_num_list=None,
                              observable_id_list=None,
                              observable_num_list=None,
-                             plotted_noise: str = 'MeanAndSD',
-                             plot_identical_noise_only: bool = False):
+                             plotted_noise: str = 'MeanAndSD'):
     """
     Main function for plotting data and simulations.
 
@@ -51,11 +50,11 @@ def plot_data_and_simulation(data_file_path: str,
         Only to be used if no visualization file was available.
     observable_id_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
-        contains the obersvableIds for this plot.
+        contains the observableIds for this plot.
         Only to be used if no visualization file was available.
     observable_num_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
-        contains the numbers corresponding to the obersvableIds for
+        contains the numbers corresponding to the observableIds for
         this plot.
         Only to be used if no visualization file was available.
     plotted_noise: str (optional)
