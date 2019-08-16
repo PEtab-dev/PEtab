@@ -362,13 +362,17 @@ def handle_dataset_plot(i_visu_spec,
                                            uni_condition_id, i_visu_spec,
                                            col_name_unique)
 
+    # check, whether simulation should be plotted
     plot_sim = True
     if sim_data is None:
         plot_sim = False
 
     # plot data
-    ax = plot_lowlevel(vis_spec, ax, i_row, i_col, conditions,
-                       measurement_to_plot, ind_plot, i_visu_spec, plot_sim)
+    nan_set = all([np.isnan(val) for val in measurement_to_plot['mean']])
+    if nan_set == False:
+        ax = plot_lowlevel(vis_spec, ax, i_row, i_col, conditions,
+                           measurement_to_plot, ind_plot, i_visu_spec,
+                           plot_sim)
 
     # Beautify plots
     ax[i_row, i_col].set_xlabel(

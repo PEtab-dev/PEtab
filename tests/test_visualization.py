@@ -17,8 +17,13 @@ def condition_file_Fujita():
 
 
 @pytest.fixture
-def data_file_Fujita_wrongnoise():
-    return "doc/example/example_Fujita/Fujita_measurementData_wrongnoise.tsv"
+def data_file_Fujita_wrongNoise():
+    return "doc/example/example_Fujita/Fujita_measurementData_wrongNoise.tsv"
+
+
+@pytest.fixture
+def data_file_Fujita_nanData():
+    return "doc/example/example_Fujita/Fujita_measurementData_nanData.tsv"
 
 
 @pytest.fixture
@@ -91,9 +96,16 @@ def test_visualization_without_datasets(data_file_Fujita,
                              plotted_noise='provided')
 
 
+def test_visualization_omit_empty_datasets(data_file_Fujita_nanData,
+                                           condition_file_Fujita):
+    observable_num_list = [[0, 1]]
+    plot_data_and_simulation(data_file_Fujita_nanData, condition_file_Fujita,
+                             observable_num_list=observable_num_list)
+
+
 def test_visualization_raises(data_file_Fujita,
                               condition_file_Fujita,
-                              data_file_Fujita_wrongnoise):
+                              data_file_Fujita_wrongNoise):
     sim_cond_num_list = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 5]]
     sim_cond_id_list = [['model1_data1'], ['model1_data2', 'model1_data3'],
                         ['model1_data4', 'model1_data5'], ['model1_data6']]
@@ -152,7 +164,7 @@ def test_visualization_raises(data_file_Fujita,
 
     # If no numerical noise is provided, it should not work to plot it
     try:
-        plot_measurements_by_observable(data_file_Fujita_wrongnoise,
+        plot_measurements_by_observable(data_file_Fujita_wrongNoise,
                                         condition_file_Fujita,
                                         plotted_noise='provided')
     except NotImplementedError as ErrMsg:
