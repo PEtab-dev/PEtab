@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from .helper_functions import (import_from_files,
                                create_figure,
                                handle_dataset_plot)
@@ -97,6 +98,7 @@ def plot_data_and_simulation(data_file_path: str,
 
     # finalize figure
     fig.tight_layout()
+    sns.despine()
 
     return ax
 

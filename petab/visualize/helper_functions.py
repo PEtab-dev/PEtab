@@ -247,7 +247,7 @@ def create_figure(uni_plot_ids):
     plt.rcParams['errorbar.capsize'] = 2
 
     # Set Colormap
-    sns.set_palette("colorblind")
+    sns.set(style="ticks", palette="colorblind")
 
     #  Initiate subplots
     num_subplot = len(uni_plot_ids)
