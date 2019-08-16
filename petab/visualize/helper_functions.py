@@ -129,7 +129,7 @@ def check_vis_spec_consistency(dataset_id_list,
 
     if group_by != 'dataset':
         # group plots not by dataset. Check, whether such a column would
-        # have been available an file a warning, if so
+        # have been available (and give a warning, if so)
         if 'datasetId' in exp_data.columns:
             warnings.warn("DatasetIds would have been available, but other "
                           "grouping was requested. Consider using datasetId.")
@@ -137,7 +137,7 @@ def check_vis_spec_consistency(dataset_id_list,
         if 'datasetId' not in exp_data.columns:
             raise NotImplementedError(
                 "Data should be grouped by datasetId, but no datasetId is "
-                "given in the measureents file. Stopping.")
+                "given in the measurement file. Stopping.")
 
     return group_by
 
@@ -154,7 +154,7 @@ def create_dataset_id_list(simcond_id_list,
     dataset_id_column = []
     legend_dict = {}
 
-    # loop over experimental data table, create datasetOd for each entry
+    # loop over experimental data table, create datasetId for each entry
     tmp_simcond = list(exp_data['simulationConditionId'])
     tmp_obs = list(exp_data['observableId'])
     for ind, cond_id in enumerate(tmp_simcond):
@@ -283,7 +283,8 @@ def get_default_vis_specs(exp_data,
         observable_id_list, observable_num_list, exp_data)
 
     if group_by != 'dataset':
-        # datasetId_list will be created (possibly overwriting previous list)
+        # datasetId_list will be created (possibly overwriting previous list
+        #  - only in the local variable, not in the tsv-file)
         exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
             observable_num_list, exp_data, exp_conditions, group_by)
@@ -443,9 +444,13 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         bool_noise = (m_data.noiseParameters[ind_meas[0]] ==
                       m_data.noiseParameters)
 
-        # check correct noise distribution
-        bool_noise_dist = (m_data.noiseDistribution[ind_meas[0]] ==
-                           m_data.noiseDistribution)
+        # check correct noise distribution (In older PEtab files, this field
+        # did not exist. So check for existence first.)
+        if 'noiseDistribution' in m_data.columns:
+            bool_noise_dist = (m_data.noiseDistribution[ind_meas[0]] ==
+                               m_data.noiseDistribution)
+        else:
+            bool_noise_dist = True
 
         # check correct time point
         bool_time = True

@@ -40,9 +40,9 @@ defining the parameter estimation problem.
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, those columns should provide extra
 information for example for plotting, or for more efficient parameter
-estimation, but they should not change the global optimum of the optimization
-problem. Some optional extensions are described in the last section,
-"Extensions", of this document.
+estimation, but they should not affect the optimization problem as such. 
+Some optional extensions are described in the last section, "Extensions", of
+ this document.
 
 **General remarks**
 - All model entities column and row names are case-sensitive
@@ -144,7 +144,7 @@ order:
 |...|...|...|...|...|
 
 Additional (non-standard) columns may be added. If the additional plotting 
-functionality of PEtab should be used, suhc columns could be
+functionality of PEtab should be used, such columns could be
 
 | ... | [datasetId] | [replicateId]  | ... |
 |---|---|---|---|
@@ -152,7 +152,7 @@ functionality of PEtab should be used, suhc columns could be
 |...|...|...|...|
 
 where `datasetId` is a necessary column to use particular plotting 
-funcitonality, and `replicateId` is optional, which can be used to group 
+functionality, and `replicateId` is optional, which can be used to group 
 replicates and plot error bars. 
 
 ### Detailed field description
@@ -375,18 +375,19 @@ order:
  - `plotTypeData`
  
  The type how replicates should be handled, can be `MeanAndSD`, 
- `MeanAndSEM`, or `replicate` (for plotting all replicates separately) . 
- Default is `MeanAndSD`.
+ `MeanAndSEM`, `replicate` (for plotting all replicates separately), or 
+ `provided` (if numeric values for the noise level are provided in the 
+ measurement table). Default is `MeanAndSD`.
  
  - `datasetId` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId)]
  
- The datasets, which should be groupd into one plot.
+ The datasets, which should be grouped into one plot.
  
  - `xValues` [STRING]
  
  The independent variable, which will be plotted on the x-axis. Can be 
  `time` (default, for time resolved data), or it can be `parameterOrStateId` 
- for dose-reponse plots. The coresponding nuemric values will be shown on 
+ for dose-response plots. The coresponding numeric values will be shown on 
  the x-axis. 
  
  - `xOffset` [NUMERIC]
@@ -419,7 +420,7 @@ order:
  
  - `legendEntry` [STRING]
  
- The name that should be displayed for the correpsonding dataset in the 
+ The name that should be displayed for the corresponding dataset in the 
  legend and which defaults to `datasetId`.
 
 ## Extensions

@@ -125,7 +125,7 @@ def test_visualization_raises(data_file_Fujita,
         error_counter += 1
     assert (error_counter == 2)
 
-    # Combining observable ans imsulation conditions numbers or IDs should not
+    # Combining observable and simulation conditions numbers or IDs should not
     # be allowed
     try:
         plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
