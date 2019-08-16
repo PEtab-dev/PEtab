@@ -439,11 +439,6 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
                               m_data.observableTransformation)
 
-        # check correct noise parameters
-        # TODO: This might be too restrictive. Maybe rethink this...
-        bool_noise = (m_data.noiseParameters[ind_meas[0]] ==
-                      m_data.noiseParameters)
-
         # check correct noise distribution (In older PEtab files, this field
         # did not exist. So check for existence first.)
         if 'noiseDistribution' in m_data.columns:
@@ -465,7 +460,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
             bool_preequ = np.isnan(m_data.preequilibrationConditionId)
 
         # combine all boolean vectors
-        vec_bool_allcond = (bool_preequ & bool_observable & bool_noise &
+        vec_bool_allcond = (bool_preequ & bool_observable &
                             bool_obs_transform & bool_noise_dist & bool_time)
 
         # get indices of rows with "True" values, of vec_bool_allcond
