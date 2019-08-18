@@ -3,6 +3,7 @@
 import libsbml
 import math
 import logging
+import warnings
 from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,10 @@ def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
     Raises:
 
     """
+    warnings.warn("This function will be removed in future releases "
+                  "since PEtab now allows to specify constant species in "
+                  "the condition table.", DeprecationWarning)
+
     transformables = []
     for species in sbml_model.getListOfSpecies():
         if not species.getConstant() and not species.getBoundaryCondition():
@@ -106,9 +111,13 @@ def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
     # Remove from reactants and products
     for reaction in sbml_model.getListOfReactions():
         for speciesId in transformables:
-            reaction.removeReactant(speciesId)
-            reaction.removeProduct(speciesId)
-            reaction.removeModifier(speciesId)
+            # loop, since removeX only removes one instance
+            while reaction.removeReactant(speciesId):
+                pass
+            while reaction.removeProduct(speciesId):
+                pass
+            while reaction.removeModifier(speciesId):
+                pass
 
     return transformables
 
