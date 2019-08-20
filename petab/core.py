@@ -255,6 +255,15 @@ class Problem:
                                    self.measurement_df,
                                    *args, **kwargs)
 
+    def sample_parameter_startpoints(self, n_starts: int = 100):
+        """Create starting points for optimization
+
+        See sample_parameter_startpoints
+        """
+        return sample_parameter_startpoints(self.parameter_df,
+                                            n_starts=n_starts)
+
+
 
 def get_default_condition_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
@@ -850,8 +859,7 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
     # get types and parameters of priors from dataframe
     prior_list = get_priors_from_df(parameter_df)
 
-    startpoints = [sample_from_prior(prior, n_starts)
-                   for prior in prior_list]
+    startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
 
     return np.array(startpoints)
 

@@ -93,6 +93,21 @@ def petab_problem():
     return problem
 
 
+@pytest.fixture
+def fujita_model_scaling():
+    path = 'doc/example/example_Fujita/'
+
+    sbml_file = path + 'Fujita_model.xml'
+    condition_file = path + 'Fujita_experimentalCondition.tsv'
+    measurement_file = path + 'Fujita_measurementData.tsv'
+    parameter_file = path + 'Fujita_parameters_scaling.tsv'
+
+    return petab.Problem.from_files(sbml_file=sbml_file,
+                                    condition_file=condition_file,
+                                    measurement_file=measurement_file,
+                                    parameter_file=parameter_file)
+
+
 def test_split_parameter_replacement_list():
     assert petab.split_parameter_replacement_list('') == []
     assert petab.split_parameter_replacement_list('param1') == ['param1']
@@ -184,6 +199,12 @@ def test_get_placeholders():
     assert petab.get_placeholders('3.0 * noiseParameter1_oneParam',
                                   'oneParam', 'noise') \
         == {'noiseParameter1_oneParam'}
+
+
+def test_statpoint_sampling(fujita_model_scaling):
+    startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
+
+    assert (np.isfinite(startpoints)).all
 
 
 def test_create_parameter_df(condition_df_2_conditions):
