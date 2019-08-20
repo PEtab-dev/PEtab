@@ -264,7 +264,6 @@ class Problem:
                                             n_starts=n_starts)
 
 
-
 def get_default_condition_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
     return os.path.join(folder, f"experimentalCondition_{model_name}.tsv")
@@ -770,7 +769,7 @@ def get_priors_from_df(parameter_df: pd.DataFrame):
         prior_pars = tuple([float(entry) for entry in tmp_pars])
 
         # add parameter scale, as this may be needed
-        par_scale  = row['parameterScale']
+        par_scale = row['parameterScale']
 
         # if no prior is specified, we assume a non-informative (uniform) one
         if prior_type == 'nan':
