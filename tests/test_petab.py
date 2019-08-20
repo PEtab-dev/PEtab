@@ -313,8 +313,6 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
     assert petab.lint.measurement_table_has_timepoint_specific_mappings(
         problem.measurement_df) is False
 
-    # TODO(elba) may have to sort before comparing
-
-    assert problem.measurement_df == measurement_df_expected
+    assert problem.measurement_df.equals(measurement_df_expected) is True
 
     assert petab.lint_problem(problem) is False

@@ -799,4 +799,26 @@ def flatten_timepoint_specific_output_overrides(
     #  * remove or keep (?) original rules
     #  * replace observableId in the measurement table
 
-    pass
+    df = petab_problem.measurement_df[["observableId", "preequilibrationConditionId", "simulationConditionId"]]
+    df_unique_values = df.drop_duplicates()
+    df_new = pd.DataFrame()
+    for nrow in range(len(df_unique_values.index)):
+        df = petab_problem.measurement_df.loc[(petab_problem.measurement_df['observableId'] >= df_unique_values.iloc[nrow, :].values[0])\
+                                         & (petab_problem.measurement_df['preequilibrationConditionId'] <= df_unique_values.iloc[nrow, :].values[1])\
+                                         & (petab_problem.measurement_df['simulationConditionId'] <= df_unique_values.iloc[nrow, :].values[2])]
+        df_observable_parameters = df[["observableParameters", "noiseParameters"]]
+        unique_scaling = df_observable_parameters["observableParameters"].unique()
+        unique_noise = df_observable_parameters["noiseParameters"].unique()
+
+        for n_noise in range(len(unique_noise)):
+            for n_scale in range(len(unique_scaling)):
+                idxs = (df["noiseParameters"].str.find(unique_noise[n_noise]) + df["observableParameters"].str.find(
+                            unique_scaling[n_scale]))
+                tmp = df["observableId"].loc[idxs == 0]
+                df["observableId"].loc[idxs == 0] = df["observableId"].loc[idxs == 0]+"_"+str(n_scale+n_noise+1)
+                df_new = df_new.append(df.loc[idxs == 0])
+                df["observableId"].loc[idxs == 0] = tmp
+    petab_problem.measurement_df = df_new
+    # obs = get_observables(petab_problem.sbml_model)
+
+    return petab_problem
