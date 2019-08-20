@@ -752,91 +752,92 @@ def get_priors_from_df(parameter_df: pd.DataFrame):
     par_to_estimate = parameter_df.loc[parameter_df['estimate'] == 1]
 
     prior_list = []
-    for par in par_to_estimate:
-        # retrieve info about type and parameters of priors
-        prior_type = par['priorType']
-        prior_pars = str(par['priorParameters']).split(';')
-        par_scale  = par['parameterScale']
+    for _, row in par_to_estimate.iterrows():
+        # retrieve info about type
+        prior_type = str(row['priorType'])
+
+        # retrieve info about parameters of priors, make it a tuple of floats
+        tmp_pars = str(row['priorParameters']).split(';')
+        prior_pars = tuple([float(entry) for entry in tmp_pars])
+
+        # add parameter scale, as this may be needed
+        par_scale  = row['parameterScale']
 
         # if no prior is specified, we assume a non-informative (uniform) one
-        if prior_type == '':
+        if prior_type == 'nan':
             prior_type = 'parameterScaleUniform'
-            prior_pars = (par['lowerBound'], par['upperBound'])
+            prior_pars = (row['lowerBound'], row['upperBound'])
 
         prior_list.append((prior_type, prior_pars, par_scale))
 
     return prior_list
 
 
-def create_prior_functions(prior_list: list):
-    """Create list with functions whic sample from the priors
+def sample_from_prior(prior: tuple,
+                      n_starts: int):
+    """Creates samples based on prior
 
     Arguments:
-        prior_list: @type list
+        prior: @type tuple
+        n_starts: @type int
     """
 
-    prior_funs = []
+    # unpack info
+    p_type, p_params, scaling = prior
 
     # define a function to rescale the sampled points to parameter scale
-    def scale_function(x, scale_type):
-        if scale_type == 'lin':
+    def scale(x, scale_type):
+        if scaling == 'lin':
             return x
-        elif scale_type == 'log':
-            return np.exp(x)
-        elif scale_type == 'log10':
-            return 10**x
+        elif scaling == 'log':
+            return np.log(x)
+        elif scaling == 'log10':
+            return np.log10(x)
         else:
             raise NotImplementedError('Parameter priors on the parameter '
-                                      'scale ' + scale_type + ' are currently '
+                                      'scale ' + scaling + ' are currently '
                                       'not implemented.')
 
     # define lambda functions for each parameter
-    for prior in prior_list:
-        if prior[0] == 'uniform':
-            prior_funs.append(lambda n_starts: (prior[1][1] - prior[1][0]) *
-                              np.random.random((n_starts,)) + prior[1][0])
+    if p_type == 'uniform':
+        return scale((p_params[1] - p_params[0]) * np.random.random((
+            n_starts,)) + p_params[0], scaling)
 
-        elif prior[0] == 'parameterScaleUniform':
-            prior_funs.append(lambda n_starts: scale_function(
-                (prior[1][1] - prior[1][0]) * np.random.random((n_starts,))
-                + prior[1][0], prior[2]))
+    elif p_type == 'parameterScaleUniform':
+        return (p_params[1] - p_params[0]) * np.random.random((n_starts,)) \
+               + p_params[0]
 
-        elif prior[0] == 'normal':
-            prior_funs.append(lambda n_starts: np.random.normal(
-                loc=prior[1][0], scale=prior[1][1], size=(n_starts,)))
+    elif p_type == 'normal':
+        return scale(np.random.normal(loc=p_params[0], scale=p_params[1],
+                                      size=(n_starts,)), scaling)
 
-        elif prior[0] == 'logNormal':
-            prior_funs.append(lambda n_starts: scale_function(np.random.normal(
-                loc=prior[1][0], scale=prior[1][1], size=(n_starts,)), 'log'))
+    elif p_type == 'logNormal':
+        return scale(np.exp(np.random.normal(
+            loc=p_params[0], scale=p_params[1], size=(n_starts,))), scaling)
 
-        elif prior[0] == 'parameterScaleNormal':
-            prior_funs.append(lambda n_starts: scale_function(np.random.normal(
-                loc=prior[1][0], scale=prior[1][1], size=(n_starts,)),
-                prior[2]))
+    elif p_type == 'parameterScaleNormal':
+        return np.random.normal(loc=p_params[0], scale=p_params[1],
+                                size=(n_starts,))
 
-        elif prior[0] == 'laplace':
-            prior_funs.append(lambda n_starts: np.random.laplace(
-                loc=prior[1][0], scale=prior[1][1], size=(n_starts,)))
+    elif p_type == 'laplace':
+        return scale(np.random.laplace(
+            loc=p_params[0], scale=p_params[1], size=(n_starts,)), scaling)
 
-        elif prior[0] == 'logLaplace':
-            prior_funs.append(lambda n_starts: scale_function(
-                np.random.laplace(loc=prior[1][0], scale=prior[1][1],
-                                  size=(n_starts,)), 'log'))
+    elif p_type == 'logLaplace':
+        return scale(np.exp(np.random.laplace(
+            loc=p_params[0], scale=p_params[1], size=(n_starts,))), scaling)
 
-        elif prior[0] == 'parameterLaplace':
-            prior_funs.append(lambda n_starts: scale_function(
-                np.random.laplace(loc=prior[1][0], scale=prior[1][1],
-                                  size=(n_starts,)), prior[2]))
+    elif p_type == 'parameterScaleLaplace':
+        return np.random.laplace(loc=p_params[0], scale=p_params[1],
+                                 size=(n_starts,))
 
-        else:
-            raise NotImplementedError('Parameter priors of type ' + prior[0] +
-                                      ' are crrently not implemented.')
-
-    return prior_funs
+    else:
+        raise NotImplementedError('Parameter prs of type ' + prior[0] +
+                                  ' are currently not implemented.')
 
 
-def sample_parameter_starpoints(parameter_df: pd.DataFrame,
-                                n_starts: int = 100):
+def sample_parameter_startpoints(parameter_df: pd.DataFrame,
+                                 n_starts: int = 100):
     """Create numpy.array with starting points for an optimization
 
     Dimension of output: n_optimization_parameters x n_startpoints
@@ -849,13 +850,10 @@ def sample_parameter_starpoints(parameter_df: pd.DataFrame,
     # get types and parameters of priors from dataframe
     prior_list = get_priors_from_df(parameter_df)
 
-    # create a list of sampling functions
-    prior_fun_list = create_prior_functions(prior_list)
+    startpoints = [sample_from_prior(prior, n_starts)
+                   for prior in prior_list]
 
-    # create starting points
-    startpoints = [[sample_fun(n_starts) for sample_fun in prior_fun_list]]
-
-    return np.transpose(np.array(startpoints))
+    return np.array(startpoints)
 
 
 def get_observable_id(parameter_id: str) -> str:
