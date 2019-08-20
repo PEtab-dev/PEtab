@@ -205,6 +205,7 @@ def test_statpoint_sampling(fujita_model_scaling):
     startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
 
     assert (np.isfinite(startpoints)).all
+    assert startpoints.shape == (19, 100)
 
 
 def test_create_parameter_df(condition_df_2_conditions):

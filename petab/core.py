@@ -768,15 +768,16 @@ def get_priors_from_df(parameter_df: pd.DataFrame):
         tmp_pars = str(row['priorParameters']).split(';')
         prior_pars = tuple([float(entry) for entry in tmp_pars])
 
-        # add parameter scale, as this may be needed
+        # add parameter scale and bounds, as this may be needed
         par_scale = row['parameterScale']
+        par_bounds = (row['lowerBound'], row['upperBound'])
 
         # if no prior is specified, we assume a non-informative (uniform) one
         if prior_type == 'nan':
             prior_type = 'parameterScaleUniform'
             prior_pars = (row['lowerBound'], row['upperBound'])
 
-        prior_list.append((prior_type, prior_pars, par_scale))
+        prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
 
     return prior_list
 
@@ -791,10 +792,10 @@ def sample_from_prior(prior: tuple,
     """
 
     # unpack info
-    p_type, p_params, scaling = prior
+    p_type, p_params, scaling, bounds = prior
 
     # define a function to rescale the sampled points to parameter scale
-    def scale(x, scale_type):
+    def scale(x):
         if scaling == 'lin':
             return x
         elif scaling == 'log':
@@ -806,42 +807,49 @@ def sample_from_prior(prior: tuple,
                                       'scale ' + scaling + ' are currently '
                                       'not implemented.')
 
+    def clip_to_bounds(x):
+        tmp_x = [min([bounds[1], ix]) for ix in x]
+        tmp_x = [max([bounds[0], ix]) for ix in tmp_x]
+        return np.array(tmp_x)
+
     # define lambda functions for each parameter
     if p_type == 'uniform':
-        return scale((p_params[1] - p_params[0]) * np.random.random((
-            n_starts,)) + p_params[0], scaling)
+        sp = scale((p_params[1] - p_params[0]) * np.random.random((
+             n_starts,)) + p_params[0])
 
     elif p_type == 'parameterScaleUniform':
-        return (p_params[1] - p_params[0]) * np.random.random((n_starts,)) \
-               + p_params[0]
+        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
+                                                             )) + p_params[0]
 
     elif p_type == 'normal':
-        return scale(np.random.normal(loc=p_params[0], scale=p_params[1],
-                                      size=(n_starts,)), scaling)
+        sp = scale(np.random.normal(loc=p_params[0], scale=p_params[1],
+                                    size=(n_starts,)))
 
     elif p_type == 'logNormal':
-        return scale(np.exp(np.random.normal(
-            loc=p_params[0], scale=p_params[1], size=(n_starts,))), scaling)
+        sp = scale(np.exp(np.random.normal(
+             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
     elif p_type == 'parameterScaleNormal':
-        return np.random.normal(loc=p_params[0], scale=p_params[1],
-                                size=(n_starts,))
+        sp = np.random.normal(loc=p_params[0], scale=p_params[1],
+                              size=(n_starts,))
 
     elif p_type == 'laplace':
-        return scale(np.random.laplace(
-            loc=p_params[0], scale=p_params[1], size=(n_starts,)), scaling)
+        sp = scale(np.random.laplace(
+             loc=p_params[0], scale=p_params[1], size=(n_starts,)))
 
     elif p_type == 'logLaplace':
-        return scale(np.exp(np.random.laplace(
-            loc=p_params[0], scale=p_params[1], size=(n_starts,))), scaling)
+        sp = scale(np.exp(np.random.laplace(
+             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
     elif p_type == 'parameterScaleLaplace':
-        return np.random.laplace(loc=p_params[0], scale=p_params[1],
-                                 size=(n_starts,))
+        sp = np.random.laplace(loc=p_params[0], scale=p_params[1],
+                               size=(n_starts,))
 
     else:
         raise NotImplementedError('Parameter prs of type ' + prior[0] +
                                   ' are currently not implemented.')
+
+    return clip_to_bounds(sp)
 
 
 def sample_parameter_startpoints(parameter_df: pd.DataFrame,
