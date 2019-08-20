@@ -770,3 +770,33 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
             measurement_df,
             ['observableId', 'simulationConditionId',
              'preequilibrationConditionId', 'time'])).size().values - 1)
+
+
+def flatten_timepoint_specific_output_overrides(
+        petab_problem: Problem) -> None:
+    """If the PEtab problem definition has timepoint-specific
+    observableParameters or noiseParameters for the same observable, replace
+    those by replicating the respective observable.
+
+    This is a helper function for some tools which may not support such
+    timepoint-specific mappings.
+
+    Arguments:
+        petab_problem:
+            PEtab problem to work on
+    """
+
+    # TODO(elba):
+    #  * check for observables with timepoint-specific `observableParameters`
+    #    and `noiseParameters`
+    #  * determine unique combinations of condition, preequilibration,
+    #    observable
+    #  * within each group, look unique combination of observableParameters and
+    #    noiseParameters (see also
+    #    `petab.lint.measurement_table_has_timepoint_specific_mappings`)
+    #  * if > 1: create new observable `{oldname}_{n}` and noise model
+    #    assignment rule in the SBML model for each of those combinations
+    #  * remove or keep (?) original rules
+    #  * replace observableId in the measurement table
+
+    pass
