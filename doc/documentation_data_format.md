@@ -308,18 +308,39 @@ Additional columns may be added.
 
 - `priorType`
 
-  Type of prior. Leave empty or omit column, if no priors. Normal/ Laplace etc.
-
-  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
-
+  Type of prior, which is used for sampling of initial points for 
+  a possible optimization and for the objective function. Priors which are 
+  only used for sampling of initial starting points or only for optimization
+  should be specified in the additional columns `initializationPriorType` or
+  `objectivePriorType`, respectivly. Possible prior types are (see Extensions):
+  
+    - uniform: flat prior on linear parameters
+    - normal: Gaussian prior on linear parameters
+    - laplace: Laplace prior on linear parameters
+    - logNormal: exponentiated Gaussian prior on linear parameters
+    - logLaplace: exponentiated Laplace prior on linear parameters
+    - parameterScaleUniform (default): Flat prior on original parameter 
+    scale (equivalent to "no prior")
+    - parameterScaleNormal: Gaussian prior on original parameter scale
+    - parameterScaleLaplace: Laplace prior on original parameter scale
 
 - `priorParameters`
 
-  Parameters for prior.
-
-  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
-  Numeric or also parameter names? (issue #17)
-
+  Parameters for prior specified in `priorType`, separated by a semicolon. 
+  Accordingly, there are optional columns for priors which should be used for
+  initial point sampling or optimization only. (i.e., 
+  `initializationPriorParameters` and `objectivePriorParameters`, respectively)
+  So far, only numeric values will be supported, no parameter names. 
+  Parameters for the different prior types are:
+  
+    - uniform: lower bound; upper bound
+    - normal: mean; standard deviation (**not** variance)
+    - laplace: location; scale
+    - logNormal: parameters of corresp. normal distribution (see: normal)
+    - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
+    - parameterScaleUniform: lower bound; upper bound
+    - parameterScaleNormal: mean; standard deviation (**not** variance)
+    - parameterScaleLaplace: location; scale
 
 ## Parameter estimation problems combining multiple models
 
