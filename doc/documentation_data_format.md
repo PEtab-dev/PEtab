@@ -457,3 +457,31 @@ Extra columns
 
   hierarchicalOptimization: 1 if parameter is optimized using hierarchical
   optimization approach. 0 otherwise.
+
+- `initializationPriorType` (optional)
+
+  Prior types used for sampling of initial point for optimization. Uses the 
+  entries from `priorType` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorType`.
+  
+- `initializationPriorParameters` (optional)
+
+  Prior parameters used for sampling of initial point for optimization. Uses 
+  the entries from `priorParameters` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorParameters`. 
+
+- `objectivePriorType` (optional)
+
+  Prior types used for the objective function during optimization. Uses the 
+  entries from `priorType` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorType`.
+  
+- `objectivePriorParameters` (optional)
+
+  Prior parameters used for the objective function during optimization. Uses 
+  the entries from `priorParameters` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorParameters`.   
