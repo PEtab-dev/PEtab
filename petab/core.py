@@ -255,6 +255,14 @@ class Problem:
                                    self.measurement_df,
                                    *args, **kwargs)
 
+    def sample_parameter_startpoints(self, n_starts: int = 100):
+        """Create starting points for optimization
+
+        See sample_parameter_startpoints
+        """
+        return sample_parameter_startpoints(self.parameter_df,
+                                            n_starts=n_starts)
+
 
 def get_default_condition_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
@@ -739,6 +747,128 @@ def create_parameter_df(sbml_model: libsbml.Model,
             # is potentially not present in the model
             pass
     return df
+
+
+def get_priors_from_df(parameter_df: pd.DataFrame):
+    """Create list with information about the parameter priors
+
+    Arguments:
+        parameter_df: @type pandas.DataFrame
+    """
+
+    # get types and parameters of priors from dataframe
+    par_to_estimate = parameter_df.loc[parameter_df['estimate'] == 1]
+
+    prior_list = []
+    for _, row in par_to_estimate.iterrows():
+        # retrieve info about type
+        prior_type = str(row['priorType'])
+
+        # retrieve info about parameters of priors, make it a tuple of floats
+        tmp_pars = str(row['priorParameters']).split(';')
+        prior_pars = tuple([float(entry) for entry in tmp_pars])
+
+        # add parameter scale and bounds, as this may be needed
+        par_scale = row['parameterScale']
+        par_bounds = (row['lowerBound'], row['upperBound'])
+
+        # if no prior is specified, we assume a non-informative (uniform) one
+        if prior_type == 'nan':
+            prior_type = 'parameterScaleUniform'
+            prior_pars = (row['lowerBound'], row['upperBound'])
+
+        prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
+
+    return prior_list
+
+
+def sample_from_prior(prior: tuple,
+                      n_starts: int):
+    """Creates samples based on prior
+
+    Arguments:
+        prior: @type tuple
+        n_starts: @type int
+    """
+
+    # unpack info
+    p_type, p_params, scaling, bounds = prior
+
+    # define a function to rescale the sampled points to parameter scale
+    def scale(x):
+        if scaling == 'lin':
+            return x
+        elif scaling == 'log':
+            return np.log(x)
+        elif scaling == 'log10':
+            return np.log10(x)
+        else:
+            raise NotImplementedError('Parameter priors on the parameter '
+                                      'scale ' + scaling + ' are currently '
+                                      'not implemented.')
+
+    def clip_to_bounds(x):
+        tmp_x = [min([bounds[1], ix]) for ix in x]
+        tmp_x = [max([bounds[0], ix]) for ix in tmp_x]
+        return np.array(tmp_x)
+
+    # define lambda functions for each parameter
+    if p_type == 'uniform':
+        sp = scale((p_params[1] - p_params[0]) * np.random.random((
+             n_starts,)) + p_params[0])
+
+    elif p_type == 'parameterScaleUniform':
+        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
+                                                             )) + p_params[0]
+
+    elif p_type == 'normal':
+        sp = scale(np.random.normal(loc=p_params[0], scale=p_params[1],
+                                    size=(n_starts,)))
+
+    elif p_type == 'logNormal':
+        sp = scale(np.exp(np.random.normal(
+             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
+
+    elif p_type == 'parameterScaleNormal':
+        sp = np.random.normal(loc=p_params[0], scale=p_params[1],
+                              size=(n_starts,))
+
+    elif p_type == 'laplace':
+        sp = scale(np.random.laplace(
+             loc=p_params[0], scale=p_params[1], size=(n_starts,)))
+
+    elif p_type == 'logLaplace':
+        sp = scale(np.exp(np.random.laplace(
+             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
+
+    elif p_type == 'parameterScaleLaplace':
+        sp = np.random.laplace(loc=p_params[0], scale=p_params[1],
+                               size=(n_starts,))
+
+    else:
+        raise NotImplementedError('Parameter prs of type ' + prior[0] +
+                                  ' are currently not implemented.')
+
+    return clip_to_bounds(sp)
+
+
+def sample_parameter_startpoints(parameter_df: pd.DataFrame,
+                                 n_starts: int = 100):
+    """Create numpy.array with starting points for an optimization
+
+    Dimension of output: n_optimization_parameters x n_startpoints
+
+    Arguments:
+        parameter_df: @type pandas.DataFrame
+        n_starts: @type int
+    """
+
+    # get types and parameters of priors from dataframe
+    prior_list = get_priors_from_df(parameter_df)
+
+    startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
+
+    return np.array(startpoints)
 
 
 def get_observable_id(parameter_id: str) -> str:
