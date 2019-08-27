@@ -6,6 +6,8 @@
 
 # PEtab --- a data format for specifying parameter estimation problems in systems biology
 
+![Logo](doc/logo/PEtab.png)
+
 This repository describes *PEtab* --- a data format for specifying parameter 
 estimation problems in systems biology, provides a Python library for easy 
 access and validation of *PEtab* files. See 
