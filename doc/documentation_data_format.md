@@ -1,7 +1,6 @@
 # Optimization problem data format specification
 
-This document explains the data format used for the benchmark collection.
-
+This document explains the PEtab data format.
 
 ## Purpose
 
@@ -12,10 +11,11 @@ systems biology, especially for the case of Ordinary Differential Equation
 
 ## Overview
 
-This data format specifies a parameter estimation problems using a number of
-text-based files ([Systems Biology Markup Language (SBML)](http://sbml.org)
-and [Tab-Separated Values
-(TSV)](https://www.iana.org/assignments/media-types/text/tab-separated-values)), i.e.
+The PEtab data format specifies a parameter estimation problem using a number
+of text-based files ([Systems Biology Markup Language (SBML)](http://sbml.org)
+and
+[Tab-Separated Values (TSV)](https://www.iana.org/assignments/media-types/text/tab-separated-values)),
+i.e.
 
 - An SBML model [SBML]
 
@@ -32,6 +32,8 @@ and [Tab-Separated Values
 
 - (optional) A visualization file, which contains specifications how the data
   and/or simulations should be plotted by the visualization routines [TSV]
+
+![Files constituting a PEtab problem](gfx/petab_files.png)
 
 The following sections will describe the minimum requirements of those
 components in the core standard, which should provide all information for
