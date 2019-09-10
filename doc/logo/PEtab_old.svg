@@ -15,7 +15,7 @@
    viewBox="0 0 228.49434 71.600832"
    version="1.1"
    id="svg16945"
-   inkscape:version="0.92.4 (f8dce91, 2019-08-02)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="PEtab.svg"
    inkscape:export-filename="/home/dweindl/src/PEtab/doc/logo/PEtab.png"
    inkscape:export-xdpi="300.39999"
@@ -349,14 +349,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.9899495"
-     inkscape:cx="317.63398"
-     inkscape:cy="76.615175"
+     inkscape:cx="520.67464"
+     inkscape:cy="78.63548"
      inkscape:document-units="mm"
-     inkscape:current-layer="g18303"
+     inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1866"
-     inkscape:window-height="1163"
-     inkscape:window-x="54"
+     inkscape:window-width="1920"
+     inkscape:window-height="976"
+     inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      fit-margin-top="0"
@@ -372,7 +372,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -999,31 +999,17 @@
           </g>
         </g>
       </g>
-      <g
-         aria-label="PEtab"
+      <text
+         xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.96875024px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;display:inline;fill:#0055d4;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;filter:url(#filter30529)"
-         id="text2512">
-        <path
-           d="m 53.677953,68.396622 c 1.049867,0 2.4384,-0.620889 2.4384,-2.675467 0,-2.122311 -1.286933,-2.460978 -2.754488,-2.460978 h -2.528712 v 7.902222 h 1.128889 v -2.765777 z m -0.519288,-4.176889 c 1.388533,0 1.840088,0.417688 1.840088,1.546577 0,1.061156 -0.428977,1.670756 -1.524,1.670756 h -1.512711 v -3.217333 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.28888893px;font-family:Cabin;-inkscape-font-specification:Cabin;fill:#0055d4;fill-opacity:1;stroke-width:0.26458332px"
-           id="path972" />
-        <path
-           d="m 62.215352,71.162399 v -0.970844 h -3.849511 v -2.675467 h 2.980267 v -0.970844 h -2.980267 v -2.314223 h 3.747911 v -0.970844 h -4.820355 v 7.902222 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.28888893px;font-family:Cabin;-inkscape-font-specification:Cabin;fill:#0055d4;fill-opacity:1;stroke-width:0.26458332px"
-           id="path974" />
-        <path
-           d="m 66.087618,70.462488 h -0.259645 c -1.095022,0 -1.162755,-0.06773 -1.162755,-1.128889 v -2.912533 h 1.456267 v -0.790222 h -1.456267 v -1.467556 l -1.016,0.1016 v 1.365956 h -0.857956 l -0.09031,0.790222 h 0.948267 v 3.533422 c 0,0.666045 0.395111,1.3208 1.444978,1.3208 h 0.9144 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.28888893px;font-family:Cabin;-inkscape-font-specification:Cabin;fill:#0055d4;fill-opacity:1;stroke-width:0.26458332px"
-           id="path976" />
-        <path
-           d="m 71.640516,70.462488 h -0.1016 c -0.587022,0 -0.632178,-0.372533 -0.632178,-1.162755 v -1.128889 c 0,-1.998134 -0.553155,-2.652889 -1.952977,-2.652889 -0.733778,0 -1.433689,0.237066 -1.873956,0.575733 l 0.146755,0.824089 c 0.587023,-0.4064 1.038578,-0.496711 1.456267,-0.496711 0.778934,0 1.207911,0.225778 1.207911,1.275644 -1.411111,0.02258 -3.307644,0.417689 -3.307644,1.975556 0,0.925689 0.677333,1.603022 1.704622,1.603022 0.7112,0 1.275645,-0.327378 1.693333,-0.8128 0.225778,0.519289 0.440267,0.8128 1.4224,0.8128 h 0.07902 z m -1.749778,-0.745066 c -0.327377,0.451555 -0.869244,0.745066 -1.411111,0.745066 -0.508,0 -0.857955,-0.248355 -0.857955,-0.846666 0,-0.824089 0.654755,-1.162756 2.269066,-1.2192 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.28888893px;font-family:Cabin;-inkscape-font-specification:Cabin;fill:#0055d4;fill-opacity:1;stroke-width:0.26458332px"
-           id="path978" />
-        <path
-           d="m 75.134074,71.275288 c 1.411111,0 2.506133,-1.264355 2.506133,-2.878666 0,-1.512712 -0.948266,-2.878667 -2.494844,-2.878667 -0.496711,0 -1.241778,0.135466 -1.715911,0.7112 v -3.533422 h -1.016 v 8.466666 h 0.903111 l 0.112889,-0.699911 c 0.417689,0.541867 1.207911,0.8128 1.704622,0.8128 z m -0.112889,-4.854222 c 0.970844,0 1.580444,0.846667 1.580444,1.975556 0,1.083733 -0.6096,1.975555 -1.580444,1.975555 -0.8128,0 -1.648178,-0.587022 -1.648178,-1.975555 0,-1.332089 0.835378,-1.975556 1.648178,-1.975556 z"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.28888893px;font-family:Cabin;-inkscape-font-specification:Cabin;fill:#0055d4;fill-opacity:1;stroke-width:0.26458332px"
-           id="path980" />
-      </g>
+         x="49.930042"
+         y="71.162399"
+         id="text2512"><tspan
+           sodipodi:role="line"
+           id="tspan2510"
+           x="49.930042"
+           y="71.162399"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11.28888893px;font-family:Cabin;-inkscape-font-specification:Cabin;fill:#0055d4;fill-opacity:1;stroke-width:0.26458332px">PEtab</tspan></text>
     </g>
   </g>
 </svg>
