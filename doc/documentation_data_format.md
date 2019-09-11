@@ -27,6 +27,12 @@ and [Tab-Separated Values
 - A parameter file specifying optimization parameters and related information
   [TSV]
 
+- (optional) A simulation file, which has the same format as the measurement
+  file, but contains model simulations [TSV]
+
+- (optional) A visualization file, which contains specifications how the data
+  and/or simulations should be plotted by the visualization routines [TSV]
+
 The following sections will describe the minimum requirements of those
 components in the core standard, which should provide all information for
 defining the parameter estimation problem.
@@ -34,9 +40,9 @@ defining the parameter estimation problem.
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, those columns should provide extra
 information for example for plotting, or for more efficient parameter
-estimation, but they should not change the optimum of the optimization
-problem. Some optional extensions are described in the last section,
-"Extensions", of this document.
+estimation, but they should not affect the optimization problem as such. 
+Some optional extensions are described in the last section, "Extensions", of
+ this document.
 
 **General remarks**
 - All model entities column and row names are case-sensitive
@@ -125,20 +131,29 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | ... 
-|---|---|---|---|---|
-| observableId | [conditionId] | conditionId | NUMERIC | 
-|...|...|...|...|...|
+| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time |...
+|---|---|---|---|---|---|
+| observableId | [conditionId] | conditionId | NUMERIC | NUMERIC&#124;'inf' |
+|...|...|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... | time | [observableParameters] | [noiseParameters] | [observableTransformation] | [noiseDistribution]
-|---|---|---|---|---|---|
-|... | NUMERIC&#124;'inf' |[parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | ['lin'(default)&#124;'log'&#124;'log10'] | ['laplace'&#124;'normal'] | 
-|...|...|...|...|...|...|
+| ... | [observableParameters] | [noiseParameters] | [observableTransformation] | [noiseDistribution]
+|---|---|---|---|---|
+|... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | ['lin'(default)&#124;'log'&#124;'log10'] | ['laplace'&#124;'normal'] |
+|...|...|...|...|...|
 
-Additional (non-standard) columns may be added.
+Additional (non-standard) columns may be added. If the additional plotting 
+functionality of PEtab should be used, such columns could be
 
+| ... | [datasetId] | [replicateId]  | ... |
+|---|---|---|---|
+|... | [String] | [String] | ... | 
+|...|...|...|...|
+
+where `datasetId` is a necessary column to use particular plotting 
+functionality, and `replicateId` is optional, which can be used to group 
+replicates and plot error bars. 
 
 ### Detailed field description
 
@@ -173,14 +188,14 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
   This field allows overriding or introducing condition-specific versions of
   parameters defined in the model. The model can define observables (see above)
-  containing place-holder parameters which can be replaced by 
-  condition-specific dynamic or constant parameters. Placeholder parameters 
+  containing place-holder parameters which can be replaced by
+  condition-specific dynamic or constant parameters. Placeholder parameters
   must be named `observableParameter${n}_${observableId}`
   with `n` ranging from 1 (not 0) to the number of placeholders for the given
   observable, without gaps.
   If the observable specified under `observableId` contains no placeholders,
-  this field must be empty. If it contains `n > 0` placeholders, this field 
-  must hold `n` semicolon-separated numeric values or parameter names. No 
+  this field must be empty. If it contains `n > 0` placeholders, this field
+  must hold `n` semicolon-separated numeric values or parameter names. No
   trailing semicolon must be added.
 
   Different lines for the same `observableId` may specify different
@@ -207,8 +222,22 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
    Assumed Noise distribution for the given measurement. Only normally or
   Laplace distributed noise is currently allowed. Defaults to `normal`. If
-  `normal`, the specified `noiseParameters` will be interpreted as standard 
+  `normal`, the specified `noiseParameters` will be interpreted as standard
   deviation (*not* variance).
+
+- `datasetId` [STRING, optional]
+
+   The datasetId is used to group certain measurements to datasets. This is 
+   typically the case for data points which belong to the same observable, 
+   the same simulation and preequilibration condition, the same noise model,
+   the same observable tranformation and the same observable parameters.
+   This grouping makes it possible to use the plotting routines which are 
+   provided in the PEtab repository. 
+
+- `replicateId` [STRING, optional]
+
+   The replicateId can be used to discern replicates with the same 
+   datasetId, which is helpful for plotting e.g. error bars.
 
 ## Parameter table
 
@@ -218,7 +247,7 @@ This table must include the following parameters:
 - Named parameter overrides introduced in the *conditions table*
 - Named parameter overrides introduced in the *measurement table*
 
-and must not include 
+and must not include
 - placeholder parameters (see `observableParameters` and `noiseParameters`
   above)
 - parameters included as column names in the *condition table*
@@ -232,7 +261,7 @@ One row per parameter with arbitrary order of rows and columns:
 
 Additional columns may be added.
 
-Detailed column description:
+### Detailed field description:
 
 - `parameterId` [STRING, NOT NULL, REFERENCES(sbml.parameterId)]
 
@@ -253,7 +282,7 @@ Detailed column description:
 - `parameterScale` [lin|log|log10]
 
   Scale of the parameter. The parameters and boundaries and the nominal
-  parameter value in the following fields are expected to be given in this 
+  parameter value in the following fields are expected to be given in this
   scale.
 
 - `lowerBound` [NUMERIC]
@@ -263,13 +292,13 @@ Detailed column description:
 
 - `upperBound` [NUMERIC]
 
-  Upper bound of the parameter used for optimization. 
+  Upper bound of the parameter used for optimization.
   Optional, if `estimate==0`.
 
 - `nominalValue` [NUMERIC]
 
-  Some parameter value (scale as specified in `parameterScale`) to be used if 
-  the parameter is not subject to estimation (see `estimate` below). 
+  Some parameter value (scale as specified in `parameterScale`) to be used if
+  the parameter is not subject to estimation (see `estimate` below).
   Optional, unless `estimate==0`.
 
 - `estimate` [BOOL 0|1]
@@ -279,18 +308,39 @@ Detailed column description:
 
 - `priorType`
 
-  Type of prior. Leave empty or omit column, if no priors. Normal/ Laplace etc.
-
-  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
-
+  Type of prior, which is used for sampling of initial points for 
+  a possible optimization and for the objective function. Priors which are 
+  only used for sampling of initial starting points or only for optimization
+  should be specified in the additional columns `initializationPriorType` or
+  `objectivePriorType`, respectivly. Possible prior types are (see Extensions):
+  
+    - uniform: flat prior on linear parameters
+    - normal: Gaussian prior on linear parameters
+    - laplace: Laplace prior on linear parameters
+    - logNormal: exponentiated Gaussian prior on linear parameters
+    - logLaplace: exponentiated Laplace prior on linear parameters
+    - parameterScaleUniform (default): Flat prior on original parameter 
+    scale (equivalent to "no prior")
+    - parameterScaleNormal: Gaussian prior on original parameter scale
+    - parameterScaleLaplace: Laplace prior on original parameter scale
 
 - `priorParameters`
 
-  Parameters for prior.
-
-  [**Issue #17**](https://github.com/ICB-DCM/PEtab/issues/17)
-  Numeric or also parameter names? (issue #17)
-
+  Parameters for prior specified in `priorType`, separated by a semicolon. 
+  Accordingly, there are optional columns for priors which should be used for
+  initial point sampling or optimization only. (i.e., 
+  `initializationPriorParameters` and `objectivePriorParameters`, respectively)
+  So far, only numeric values will be supported, no parameter names. 
+  Parameters for the different prior types are:
+  
+    - uniform: lower bound; upper bound
+    - normal: mean; standard deviation (**not** variance)
+    - laplace: location; scale
+    - logNormal: parameters of corresp. normal distribution (see: normal)
+    - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
+    - parameterScaleUniform: lower bound; upper bound
+    - parameterScaleNormal: mean; standard deviation (**not** variance)
+    - parameterScaleLaplace: location; scale
 
 ## Parameter estimation problems combining multiple models
 
@@ -300,42 +350,103 @@ Detailed column description:
 
 ## Visualization table
 
-A tab-separated value file containing the specification of visualisations.
-Plots are in general collections of different datasets as specified using
-their `datasetId` inside the measurement table.
+A tab-separated value file containing the specification of the visualization
+routines which come with the PEtab repository. Plots are in general 
+collections of different datasets as specified using their `datasetId` (if 
+provided) inside the measurement table.
 
 Expected to have the following columns in any (but preferably this)
 order:
 
 | plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ...
 |---|---|---|---|---|---|
-| plotId | [plotName] | LinePlot | MeanAndSD | datasetId |
+| plotId | [plotName] | LinePlot | MeanAndSD | datasetId | ...
 |...|...|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... |  independentVariable | [independentVariableOffset] | [independentVariableName] | [legendEntry] |  ...
+| ... | [xValues] | [xOffset] | [xLabel] | [xScale] | ...
 |---|---|---|---|---|---|
-|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] |
+|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] | ...
+|...|...|...|...|...|...|
+
+*(wrapped for readability)*
+
+| ... | [yValues] | [yOffset] | [yLabel] | [yScale] | [legendEntry] |  ...
+|---|---|---|---|---|---|---|
+|... |  [observableId] | [NUMERIC] | [STRING] | [STRING] | [STRING] | ...
 |...|...|...|...|...|...|...|
 
-The `independentVariable`is the variable over which the dataset is visualised.
-For time-response data, this should be `time`, for dose-response data the
-respective `parameterOrStateId`. The numerical values of the
-`independentVariable` are shown on the x-axis, while the values of the
-observables are shown on the respective y-axis.
+### Detailed field description:
 
-If different datasets are assigned to the same `plotID`, multiple datasets are
-overlaid. The name of the dataset is indicated by the corresponding
-`legendEntry`, which defaults to the `datasetId`.
-
-The visualization type is specified as `plotTypeSimulation` and
-`plotTypeData`. Possible choices include `LinePlot`, `BarPlot`, `MeanAndSD` and
-`MeanAndSEM`. In addition, `XScale` and `YScale`, `Color`, etc. may be
-specified.
-
+ - `plotId` [STRING, NOT NULL]
+ 
+ An ID which corresponds to a specific plot. All datasets with the same 
+ plotId will be plotted into the same axes object.
+ 
+ - `plotName` [STRING]
+ 
+ A name for the specific plot.
+ 
+ - `plotTypeSimulation` [STRING]
+ 
+ The type of the corresponding plot, can be `LinePlot` or `BarPlot`. Default
+ is `LinePlot`.
+ 
+ - `plotTypeData`
+ 
+ The type how replicates should be handled, can be `MeanAndSD`, 
+ `MeanAndSEM`, `replicate` (for plotting all replicates separately), or 
+ `provided` (if numeric values for the noise level are provided in the 
+ measurement table). Default is `MeanAndSD`.
+ 
+ - `datasetId` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId)]
+ 
+ The datasets, which should be grouped into one plot.
+ 
+ - `xValues` [STRING]
+ 
+ The independent variable, which will be plotted on the x-axis. Can be 
+ `time` (default, for time resolved data), or it can be `parameterOrStateId` 
+ for dose-response plots. The coresponding numeric values will be shown on 
+ the x-axis. 
+ 
+ - `xOffset` [NUMERIC]
+ 
+ Possible data-offsets for the independent variable (default is `0`).
+ 
+ - `xLabel` [STRING]
+ 
+ Label for the x-axis.
+ 
+ - `xScale` [STRING]
+ 
+ Scale of the independent variable, can be `lin`, `log`, or `log10`.
+ 
+ - `yValues` [observableId, REFERENCES(measurementTable.observableId)]
+ 
+ The observable which should be plotted on the y-axis.
+ 
+ - `yOffset` [NUMERIC]
+ 
+ Possible data-offsets for the observable (default is `0`).
+ 
+ - `yLabel` [STRING]
+ 
+ Label for the y-axis.
+ 
+ - `yScale` [STRING]
+ 
+ Scale of the observable, can be `lin`, `log`, or `log10`.
+ 
+ - `legendEntry` [STRING]
+ 
+ The name that should be displayed for the corresponding dataset in the 
+ legend and which defaults to `datasetId`.
 
 ## Extensions
+
+Additional columns, such as `Color`, etc. may be specified.
 
 
 ### Parameter table
@@ -346,3 +457,31 @@ Extra columns
 
   hierarchicalOptimization: 1 if parameter is optimized using hierarchical
   optimization approach. 0 otherwise.
+
+- `initializationPriorType` (optional)
+
+  Prior types used for sampling of initial point for optimization. Uses the 
+  entries from `priorType` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorType`.
+  
+- `initializationPriorParameters` (optional)
+
+  Prior parameters used for sampling of initial point for optimization. Uses 
+  the entries from `priorParameters` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorParameters`. 
+
+- `objectivePriorType` (optional)
+
+  Prior types used for the objective function during optimization. Uses the 
+  entries from `priorType` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorType`.
+  
+- `objectivePriorParameters` (optional)
+
+  Prior parameters used for the objective function during optimization. Uses 
+  the entries from `priorParameters` as default, but will overwrite those, if 
+  something else is specified here. For more detailed documentation, see 
+  `priorParameters`.   

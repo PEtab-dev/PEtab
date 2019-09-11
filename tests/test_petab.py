@@ -7,6 +7,7 @@ import libsbml
 import numpy as np
 import pickle
 
+
 sys.path.append(os.getcwd())
 import petab  # noqa: E402
 
@@ -92,6 +93,21 @@ def petab_problem():
     return problem
 
 
+@pytest.fixture
+def fujita_model_scaling():
+    path = 'doc/example/example_Fujita/'
+
+    sbml_file = path + 'Fujita_model.xml'
+    condition_file = path + 'Fujita_experimentalCondition.tsv'
+    measurement_file = path + 'Fujita_measurementData.tsv'
+    parameter_file = path + 'Fujita_parameters_scaling.tsv'
+
+    return petab.Problem.from_files(sbml_file=sbml_file,
+                                    condition_file=condition_file,
+                                    measurement_file=measurement_file,
+                                    parameter_file=parameter_file)
+
+
 def test_split_parameter_replacement_list():
     assert petab.split_parameter_replacement_list('') == []
     assert petab.split_parameter_replacement_list('param1') == ['param1']
@@ -131,11 +147,19 @@ def test_parameter_is_scaling_parameter():
     assert petab.parameter_is_scaling_parameter('a', 'a * a') is False
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_petab_problem(petab_problem):
     """
     Basic tests on petab problem.
     """
     assert petab_problem.get_constant_parameters() == ['fixedParameter1']
+
+
+def test_deprecation(petab_problem):
+    """
+    petab_problem.get_constant_parameters should trigger a deprecation warning
+    """
+    pytest.deprecated_call(petab_problem.get_constant_parameters)
 
 
 def test_serialization(petab_problem):
@@ -175,6 +199,13 @@ def test_get_placeholders():
     assert petab.get_placeholders('3.0 * noiseParameter1_oneParam',
                                   'oneParam', 'noise') \
         == {'noiseParameter1_oneParam'}
+
+
+def test_statpoint_sampling(fujita_model_scaling):
+    startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
+
+    assert (np.isfinite(startpoints)).all
+    assert startpoints.shape == (19, 100)
 
 
 def test_create_parameter_df(condition_df_2_conditions):
