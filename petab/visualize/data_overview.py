@@ -62,7 +62,7 @@ def get_data_per_observable(measurement_df: pd.DataFrame) -> pd.DataFrame:
     return data_per_observable
 
 
-if __name__ == '__main__':
+def main():
     # Example data from the repository for testing
     root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              '..', '..', 'doc/example/example_Fujita/')
@@ -74,3 +74,7 @@ if __name__ == '__main__':
         parameter_file=os.path.join(root_path, 'Fujita_parameters.tsv'),
     )
     create_report(problem, 'Fujita')
+
+
+if __name__ == '__main__':
+    main()
