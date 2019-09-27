@@ -7,9 +7,14 @@ def test_data_overview():
     # Ensure report creation succeeds for Fujita example model
     outfile = 'Fujita.html'
 
-    with TemporaryDirectory() as temp_dir:
-        os.chdir(temp_dir)
+    old_wd = os.getcwd()
+    try:
+        with TemporaryDirectory() as temp_dir:
+            os.chdir(temp_dir)
 
-        main()
+            main()
 
-        assert os.path.isfile(outfile)
+            assert os.path.isfile(outfile)
+    finally:
+        # for pytest
+        os.chdir(old_wd)
