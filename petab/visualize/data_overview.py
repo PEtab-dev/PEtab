@@ -68,7 +68,8 @@ if __name__ == '__main__':
                              '..', '..', 'doc/example/example_Fujita/')
     problem = petab.Problem.from_files(
         sbml_file=os.path.join(root_path, 'Fujita_model.xml'),
-        condition_file=os.path.join(root_path, 'Fujita_experimentalCondition.tsv'),
+        condition_file=os.path.join(root_path,
+                                    'Fujita_experimentalCondition.tsv'),
         measurement_file=os.path.join(root_path, 'Fujita_measurementData.tsv'),
         parameter_file=os.path.join(root_path, 'Fujita_parameters.tsv'),
     )
