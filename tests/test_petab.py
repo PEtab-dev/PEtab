@@ -338,4 +338,3 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
     assert problem.measurement_df.equals(measurement_df_expected) is True
 
     assert petab.lint_problem(problem) is False
-    
