@@ -921,9 +921,12 @@ def flatten_timepoint_specific_output_overrides(
          "preequilibrationConditionId",
          "simulationConditionId"]
     ]
-
     df_unique_values = df.drop_duplicates()
+    del df  # remove variable
+
+    # Create empty df
     df_new = pd.DataFrame()
+
     for nrow in range(len(df_unique_values.index)):
         df = petab_problem.measurement_df.loc[
             (petab_problem.measurement_df['observableId'] >=
@@ -939,7 +942,9 @@ def flatten_timepoint_specific_output_overrides(
              "noiseParameters"]
         ]
 
+        # get unique observable parameters
         unique_sc = df_observable_parameters["observableParameters"].unique()
+        # get unique noise parameters
         unique_noise = df_observable_parameters["noiseParameters"].unique()
 
         for n_noise in range(len(unique_noise)):
@@ -954,16 +959,21 @@ def flatten_timepoint_specific_output_overrides(
                 )
                 df_new = df_new.append(df.loc[idxs == 0])
                 df.loc[idxs == 0, "observableId"] = tmp
+
+    # Redefine measurement df with replicate-specific observables
     petab_problem.measurement_df = df_new
 
-    # changes in sbml model
+    # get unique observable names
     unique_observables = df["observableId"].unique()
+
+    # Remove already existing observables from the sbml model
     for obs in unique_observables:
         petab_problem.sbml_model.removeRuleByVariable("observable_" + obs)
         petab_problem.sbml_model.removeSpecies(obs)
         petab_problem.sbml_model.removeParameter(
             'observable_' + obs)
 
+    # Redefine replicate-specific observables in the sbml model
     for n_replicate in range(len(petab_problem.measurement_df.observableId)-1):
         sbml.add_global_parameter(
             sbml_model=petab_problem.sbml_model,
