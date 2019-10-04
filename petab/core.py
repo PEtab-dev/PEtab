@@ -931,10 +931,10 @@ def flatten_timepoint_specific_output_overrides(
             for n_scale in range(len(unique_scaling)):
                 idxs = (df["noiseParameters"].str.find(unique_noise[n_noise]) + df["observableParameters"].str.find(
                             unique_scaling[n_scale]))
-                tmp = df["observableId"].loc[idxs == 0]
-                df["observableId"].loc[idxs == 0] = df["observableId"].loc[idxs == 0]+"_"+str(n_scale+n_noise+1)
+                tmp = df.loc[idxs == 0, "observableId"]
+                df.loc[idxs == 0, "observableId"] = df.loc[idxs == 0, "observableId"]+"_"+str(n_scale+n_noise+1)
                 df_new = df_new.append(df.loc[idxs == 0])
-                df["observableId"].loc[idxs == 0] = tmp
+                df.loc[idxs == 0, "observableId"] = tmp
     petab_problem.measurement_df = df_new
 
     # changes in sbml model
