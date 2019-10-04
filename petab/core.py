@@ -920,9 +920,9 @@ def flatten_timepoint_specific_output_overrides(
     df_unique_values = df.drop_duplicates()
     df_new = pd.DataFrame()
     for nrow in range(len(df_unique_values.index)):
-        df = petab_problem.measurement_df.loc[(petab_problem.measurement_df['observableId'] >= df_unique_values.iloc[nrow, :].values[0])
-                                         & (petab_problem.measurement_df['preequilibrationConditionId'] <= df_unique_values.iloc[nrow, :].values[1])
-                                         & (petab_problem.measurement_df['simulationConditionId'] <= df_unique_values.iloc[nrow, :].values[2])]
+        df = petab_problem.measurement_df.loc[(petab_problem.measurement_df['observableId'] >= df_unique_values.loc[nrow, "observableId"])
+                                         & (petab_problem.measurement_df['preequilibrationConditionId'] <= df_unique_values.loc[nrow, "preequilibrationConditionId"])
+                                         & (petab_problem.measurement_df['simulationConditionId'] <= df_unique_values.loc[nrow, "simulationConditionId"])]
         df_observable_parameters = df[["observableParameters", "noiseParameters"]]
         unique_scaling = df_observable_parameters["observableParameters"].unique()
         unique_noise = df_observable_parameters["noiseParameters"].unique()
