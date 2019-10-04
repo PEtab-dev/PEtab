@@ -903,7 +903,7 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
 
 
 def flatten_timepoint_specific_output_overrides(
-        petab_problem: Problem) -> Problem:
+        petab_problem: Problem) -> None:
     """If the PEtab problem definition has timepoint-specific
     observableParameters or noiseParameters for the same observable, replace
     those by replicating the respective observable.
@@ -914,10 +914,6 @@ def flatten_timepoint_specific_output_overrides(
     Arguments:
         petab_problem:
             PEtab problem to work on
-    Returns:
-        petab_problem:
-            Updated PEtab problem replicating timepoint-specific 
-            observableParameters or noiseParameters for the same observable
     """
 
     df = petab_problem.measurement_df[["observableId", "preequilibrationConditionId", "simulationConditionId"]]
@@ -965,5 +961,3 @@ def flatten_timepoint_specific_output_overrides(
             sbml_model=petab_problem.sbml_model,
             observable_id=petab_problem.measurement_df.observableId[n_replicate],
             formula='noiseParameter1_'+petab_problem.measurement_df.observableId[n_replicate])
-
-    return petab_problem
