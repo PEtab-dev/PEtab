@@ -937,15 +937,10 @@ def flatten_timepoint_specific_output_overrides(
                df_unique_values.loc[nrow, "simulationConditionId"])
         ]
 
-        df_observable_parameters = df[
-            ["observableParameters",
-             "noiseParameters"]
-        ]
-
         # get unique observable parameters
-        unique_sc = df_observable_parameters["observableParameters"].unique()
+        unique_sc = df["observableParameters"].unique()
         # get unique noise parameters
-        unique_noise = df_observable_parameters["noiseParameters"].unique()
+        unique_noise = df["noiseParameters"].unique()
 
         for n_noise in range(len(unique_noise)):
             for n_scale in range(len(unique_sc)):
