@@ -324,8 +324,6 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
                             measurement_df=measurement_df)
 
     assert petab.lint_problem(problem) is False
-    document.setModel(problem.sbml_model)
-    libsbml.writeSBMLToFile(document, 'name_of_your_model1.xml')
 
     # Ensure having timepoint-specific overrides
     assert petab.lint.measurement_table_has_timepoint_specific_mappings(
