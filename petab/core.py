@@ -949,7 +949,7 @@ def flatten_timepoint_specific_output_overrides(
                 )
                 tmp = df.loc[idxs == 0, "observableId"]
                 df.loc[idxs == 0, "observableId"] = tmp+"_"+str(
-                    n_scale+n_noise+1
+                    n_scale + n_noise + 1
                 )
                 df_new = df_new.append(df.loc[idxs == 0])
                 df.loc[idxs == 0, "observableId"] = tmp
