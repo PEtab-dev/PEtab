@@ -968,18 +968,18 @@ def flatten_timepoint_specific_output_overrides(
             'observable_' + obs)
 
     # Redefine with replicate-specific observables in the sbml model
-    for n_obs in petab_problem.measurement_df["observableId"].unique():
+    for replicate_id in petab_problem.measurement_df["observableId"].unique():
         sbml.add_global_parameter(
             sbml_model=petab_problem.sbml_model,
-            parameter_id='observableParameter1_' + n_obs)
+            parameter_id='observableParameter1_' + replicate_id)
         sbml.add_global_parameter(
             sbml_model=petab_problem.sbml_model,
-            parameter_id='noiseParameter1_' + n_obs)
+            parameter_id='noiseParameter1_' + replicate_id)
         sbml.add_model_output(
             sbml_model=petab_problem.sbml_model,
-            observable_id=n_obs,
-            formula='observableParameter1_' + n_obs)
+            observable_id=replicate_id,
+            formula='observableParameter1_' + replicate_id)
         sbml.add_model_output_sigma(
             sbml_model=petab_problem.sbml_model,
-            observable_id=n_obs,
-            formula='noiseParameter1_' + n_obs)
+            observable_id=replicate_id,
+            formula='noiseParameter1_' + replicate_id)
