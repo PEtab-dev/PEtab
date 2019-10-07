@@ -922,7 +922,6 @@ def flatten_timepoint_specific_output_overrides(
          "simulationConditionId"]
     ]
     df_unique_values = df.drop_duplicates()
-    del df  # remove variable
 
     # Create empty df -> to be filled with replicate-specific observables
     df_new = pd.DataFrame()
