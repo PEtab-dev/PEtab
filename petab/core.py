@@ -916,19 +916,24 @@ def flatten_timepoint_specific_output_overrides(
             PEtab problem to work on
     """
 
+    # Create empty df -> to be filled with replicate-specific observables
+    df_new = pd.DataFrame()
+
+    # Get observableId, preequilibrationConditionId
+    # and simulationConditionId columns in measurement df
     df = petab_problem.measurement_df[
         ["observableId",
          "preequilibrationConditionId",
          "simulationConditionId"]
     ]
+    # Get unique combinations of observableId, preequilibrationConditionId
+    # and simulationConditionId
     df_unique_values = df.drop_duplicates()
 
-    # Create empty df -> to be filled with replicate-specific observables
-    df_new = pd.DataFrame()
-
+    # Loop over each unique combination
     for nrow in range(len(df_unique_values.index)):
         df = petab_problem.measurement_df.loc[
-            (petab_problem.measurement_df['observableId'] >=
+            (petab_problem.measurement_df['observableId'] ==
              df_unique_values.loc[nrow, "observableId"])
             & (petab_problem.measurement_df['preequilibrationConditionId'] <=
                df_unique_values.loc[nrow, "preequilibrationConditionId"])
@@ -936,22 +941,30 @@ def flatten_timepoint_specific_output_overrides(
                df_unique_values.loc[nrow, "simulationConditionId"])
         ]
 
-        # get list of unique observable parameters
+        # Get list of unique observable parameters
         unique_sc = df["observableParameters"].unique()
-        # get list of unique noise parameters
+        # Get list of unique noise parameters
         unique_noise = df["noiseParameters"].unique()
 
+        # Loop
         for n_noise in range(len(unique_noise)):
             for n_scale in range(len(unique_sc)):
+                # Find the position of all instances of n_noise and n_scale
+                # in their corresponding column
+                # (full-string matches are denoted by zero)
                 idxs = (
                         df["noiseParameters"].str.find(unique_noise[n_noise]) +
                         df["observableParameters"].str.find(unique_sc[n_scale])
                 )
                 tmp = df.loc[idxs == 0, "observableId"]
+                # Update the observable name to replicate-specific
                 df.loc[idxs == 0, "observableId"] = tmp+"_"+str(
                     n_scale + n_noise + 1
                 )
+                # Append the result in a new df
                 df_new = df_new.append(df.loc[idxs == 0])
+                # Restore the observable name in the original df
+                # (for continuation of the loop)
                 df.loc[idxs == 0, "observableId"] = tmp
 
     # Update/Redefine measurement df with replicate-specific observables
