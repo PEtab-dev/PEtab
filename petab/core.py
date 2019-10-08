@@ -947,19 +947,19 @@ def flatten_timepoint_specific_output_overrides(
         unique_noise = df["noiseParameters"].unique()
 
         # Loop
-        for n_noise in range(len(unique_noise)):
-            for n_scale in range(len(unique_sc)):
-                # Find the position of all instances of n_noise and n_scale
-                # in their corresponding column
+        for i in range(len(unique_noise)):
+            for j in range(len(unique_sc)):
+                # Find the position of all instances of unique_noise[i]
+                # and unique_sc[j] in their corresponding column
                 # (full-string matches are denoted by zero)
                 idxs = (
-                        df["noiseParameters"].str.find(unique_noise[n_noise]) +
-                        df["observableParameters"].str.find(unique_sc[n_scale])
+                        df["noiseParameters"].str.find(unique_noise[i]) +
+                        df["observableParameters"].str.find(unique_sc[j])
                 )
                 tmp = df.loc[idxs == 0, "observableId"]
                 # Update the observable name to replicate-specific
                 df.loc[idxs == 0, "observableId"] = tmp+"_"+str(
-                    n_scale + n_noise + 1
+                     i + j + 1
                 )
                 # Append the result in a new df
                 df_new = df_new.append(df.loc[idxs == 0])
