@@ -21,6 +21,8 @@ def create_report(problem: petab.Problem, model_name: str) -> None:
     template_file = "report.html"
 
     data_per_observable = get_data_per_observable(problem.measurement_df)
+    num_conditions = (len(problem.condition_df.columns)
+                      - 1 * ('conditionName' in problem.condition_df.columns))
 
     # Setup template engine
     import jinja2
@@ -31,7 +33,8 @@ def create_report(problem: petab.Problem, model_name: str) -> None:
 
     # Render and save
     output_text = template.render(problem=problem, model_name=model_name,
-                                  data_per_observable=data_per_observable)
+                                  data_per_observable=data_per_observable,
+                                  num_conditions=num_conditions)
     with open(model_name + '.html', 'w') as html_file:
         html_file.write(output_text)
     copyfile(os.path.join(template_dir, 'mystyle.css'), 'mystyle.css')
