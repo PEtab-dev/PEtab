@@ -962,7 +962,7 @@ def flatten_timepoint_specific_output_overrides(
                 # Check if replicate-specific observable name already exists
                 # in df. If true, rename replicate-specific observable
                 counter = 2
-                while (df["observableId"].str.find(tmp[0]) == 0).any():
+                while (df["observableId"].str.find(tmp.to_string()) == 0).any():
                     tmp = tmp_ + counter*"_" + str(i + j + 1)
                     counter += 1
                 df.loc[idxs == 0, "observableId"] = tmp
