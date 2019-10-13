@@ -956,11 +956,16 @@ def flatten_timepoint_specific_output_overrides(
                         df["noiseParameters"].str.find(unique_noise[i]) +
                         df["observableParameters"].str.find(unique_sc[j])
                 )
-                tmp = df.loc[idxs == 0, "observableId"]
-                # Update the observable name to replicate-specific
-                df.loc[idxs == 0, "observableId"] = tmp+"_"+str(
-                     i + j + 1
-                )
+                tmp_ = df.loc[idxs == 0, "observableId"]
+                # Create replicate-specific observable name
+                tmp = tmp_ + "_" + str(i + j + 1)
+                # Check if replicate-specific observable name already exists
+                # in df. If true, rename replicate-specific observable
+                counter = 2
+                while (df["observableId"].str.find(tmp[0]) == 0).any():
+                    tmp = tmp_ + counter*"_" + str(i + j + 1)
+                    counter += 1
+                df.loc[idxs == 0, "observableId"] = tmp
                 # Append the result in a new df
                 df_new = df_new.append(df.loc[idxs == 0])
                 # Restore the observable name in the original df
