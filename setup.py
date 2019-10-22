@@ -25,7 +25,7 @@ ENTRY_POINTS = {
 
 # project metadata
 setup(name='petab',
-        version=__version__,  # noqa: F821
+      version=__version__,  # noqa: F821
       description='Parameter estimation tabular data',
       long_description=read('README.md'),
       long_description_content_type="text/markdown",
@@ -43,4 +43,5 @@ setup(name='petab',
       tests_require=['flake8', 'pytest'],
       python_requires='>=3.6',
       entry_points=ENTRY_POINTS,
+      extras_require={'reports': ['Jinja2']},
       )

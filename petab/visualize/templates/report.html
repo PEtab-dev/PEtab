@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{model_name}}</title>
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+</head>
+<body>
+
+<h1>Summary for <emph>{{model_name}}</emph></h1>
+
+
+<h2>Basic stats</h2>
+
+    <table>
+        <tbody>
+        <tr>
+            <th>Number of conditions</th>
+            <td>{{ num_conditions }}</td>
+        </tr>
+        <tr>
+            <th>Number of data points</th>
+            <td>{{ problem.measurement_df|length }}</td>
+        </tr>
+        <tr>
+            <th>Number of observables</th>
+            <td>{{ problem.measurement_df.observableId.unique()|length }}</td>
+        </tr>
+        <tr>
+            <th>Number of parameters</th>
+            <td>{{ problem.parameter_df|length }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+<h2>Data points per observable / condition</h2>
+
+{{ data_per_observable.to_html(classes='vrt-header', border=None) }}
+
+
+</body>
+</html>
