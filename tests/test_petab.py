@@ -271,3 +271,70 @@ def test_create_parameter_df(condition_df_2_conditions):
     actual = parameter_df.index.values.tolist()
     assert actual == expected
     assert parameter_df.loc['p0', 'nominalValue'] == 3.0
+
+
+def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
+    document, model = minimal_sbml_model
+    petab.sbml.add_global_parameter(
+        sbml_model=model, parameter_id='observableParameter1_obs1')
+    petab.sbml.add_model_output_with_sigma(
+        sbml_model=model, observable_id='obs1',
+        observable_formula='observableParameter1_obs1')
+
+    # Measurement table with timepoint-specific overrides
+    measurement_df = pd.DataFrame(data={
+        'observableId':
+            ['obs1', 'obs1', 'obs1', 'obs1'],
+        'simulationConditionId':
+            ['condition1', 'condition1', 'condition1', 'condition1'],
+        'preequilibrationConditionId':
+            ['', '', '', ''],
+        'time':
+            [1.0, 1.0, 2.0, 2.0],
+        'measurement':
+            [np.nan] * 4,
+        'observableParameters':
+            ['obsParOverride1', 'obsParOverride2',
+             'obsParOverride2', 'obsParOverride2'],
+        'noiseParameters':
+            ['noiseParOverride1', 'noiseParOverride1',
+             'noiseParOverride2', 'noiseParOverride2']
+    })
+
+    measurement_df_expected = pd.DataFrame(data={
+        'observableId':
+            ['obs1_1', 'obs1_2', 'obs1_3', 'obs1_3'],
+        'simulationConditionId':
+            ['condition1', 'condition1', 'condition1', 'condition1'],
+        'preequilibrationConditionId':
+            ['', '', '', ''],
+        'time':
+            [1.0, 1.0, 2.0, 2.0],
+        'measurement':
+            [np.nan] * 4,
+        'observableParameters':
+            ['obsParOverride1', 'obsParOverride2',
+             'obsParOverride2', 'obsParOverride2'],
+        'noiseParameters':
+            ['noiseParOverride1', 'noiseParOverride1',
+             'noiseParOverride2', 'noiseParOverride2']
+    })
+
+    problem = petab.Problem(sbml_model=model,
+                            measurement_df=measurement_df)
+
+    assert petab.lint_problem(problem) is False
+
+    # Ensure having timepoint-specific overrides
+    assert petab.lint.measurement_table_has_timepoint_specific_mappings(
+        measurement_df) is True
+
+    petab.flatten_timepoint_specific_output_overrides(problem)
+
+    # Timepoint-specific overrides should be gone now
+    assert petab.lint.measurement_table_has_timepoint_specific_mappings(
+        problem.measurement_df) is False
+
+    assert problem.measurement_df.equals(measurement_df_expected) is True
+
+    assert petab.lint_problem(problem) is False
