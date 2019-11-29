@@ -28,7 +28,7 @@ def assert_no_leading_trailing_whitespace(names_list, name):
             raise AssertionError(f"Whitespace around {name}[{i}] = '{x}'.")
 
 
-def check_condition_df(df):
+def check_condition_df(df: pd.DataFrame, sbml_model: libsbml.Model):
     req_cols = []
     _check_df(df, req_cols, "condition")
 
@@ -43,6 +43,14 @@ def check_condition_df(df):
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
+
+    if sbml_model is not None:
+        for column_name in df.columns:
+            if sbml_model.getParameter(column_name) is None:
+                raise AssertionError(
+                    "Condition table contains column for unknown parameter"
+                    f" {column_name}. Column names must match parameter Ids "
+                    "defined in the SBML model.")
 
 
 def check_measurement_df(df):
@@ -381,7 +389,7 @@ def lint_problem(problem: 'core.Problem'):
     if problem.condition_df is not None:
         logger.info("Checking condition table...")
         try:
-            check_condition_df(problem.condition_df)
+            check_condition_df(problem.condition_df, problem.sbml_model)
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
