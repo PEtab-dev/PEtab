@@ -396,9 +396,11 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
     lint.assert_noise_distributions_valid(measurement_df)
 
     # read noise distributions from measurement file
-    observables = measurement_df.groupby(['observableId']) \
-        .size().reset_index()
+    grouping_cols = get_notnull_columns(
+        measurement_df, ['observableId', 'observableTransformation',
+                         'noiseDistribution'])
 
+    observables = measurement_df.groupby(grouping_cols).size().reset_index()
     noise_distrs = {}
     for _, row in observables.iterrows():
         # prefix id to get observable id
@@ -676,7 +678,8 @@ def create_parameter_df(sbml_model: libsbml.Model,
         placeholders |= get_placeholders(v['formula'], get_observable_id(k),
                                          'observable')
     for k, v in sigmas.items():
-        placeholders |= get_placeholders(v, get_observable_id(k), 'noise')
+        placeholders |= get_placeholders(v, get_observable_id(k),
+                                         'noise')
 
     # grab all from model and measurement table
     # without condition table parameters
@@ -684,12 +687,16 @@ def create_parameter_df(sbml_model: libsbml.Model,
     # and sigma assignment targets
     # and placeholder parameters (only partial overrides are not supported)
 
+    # exclude rule targets
+    assignment_targets = {ar.getVariable()
+                          for ar in sbml_model.getListOfRules()}
+
     # should not go into parameter table
     blackset = set()
     # collect assignment targets
     blackset |= set(observables.keys())
-    blackset |= {'sigma_' + get_observable_id(k) for k in sigmas.keys()}
     blackset |= placeholders
+    blackset |= assignment_targets
     blackset |= set(condition_df.columns.values) - {'conditionName'}
     # use ordered dict as proxy for ordered set
     parameter_ids = OrderedDict.fromkeys(
