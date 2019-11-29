@@ -396,9 +396,11 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
     lint.assert_noise_distributions_valid(measurement_df)
 
     # read noise distributions from measurement file
-    observables = measurement_df.groupby(['observableId']) \
-        .size().reset_index()
+    grouping_cols = get_notnull_columns(
+        measurement_df, ['observableId', 'observableTransformation',
+                         'noiseDistribution'])
 
+    observables = measurement_df.groupby(grouping_cols).size().reset_index()
     noise_distrs = {}
     for _, row in observables.iterrows():
         # prefix id to get observable id
