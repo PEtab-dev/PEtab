@@ -46,7 +46,8 @@ def check_condition_df(df: pd.DataFrame, sbml_model: libsbml.Model):
 
     if sbml_model is not None:
         for column_name in df.columns:
-            if sbml_model.getParameter(column_name) is None:
+            if column_name != 'conditionName' \
+                    and sbml_model.getParameter(column_name) is None:
                 raise AssertionError(
                     "Condition table contains column for unknown parameter"
                     f" {column_name}. Column names must match parameter Ids "
