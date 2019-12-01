@@ -119,6 +119,7 @@ def test_split_parameter_replacement_list():
         == ['param1', 2.2]
     assert petab.split_parameter_replacement_list(np.nan) == []
     assert petab.split_parameter_replacement_list(1.5) == [1.5]
+    assert petab.split_parameter_replacement_list(None) == []
 
 
 def test_get_measurement_parameter_ids():
