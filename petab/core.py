@@ -537,6 +537,8 @@ def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
         delim: delimiter
         list_string: delim-separated stringified list
     """
+    if list_string is None:
+        return []
 
     def to_float_if_float(x):
         try:
