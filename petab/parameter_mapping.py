@@ -349,11 +349,10 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
     all supposed to be overwritten.
 
     Parameters:
-    -----------
-    mapping_par_opt_to_par_sim:
-        Output of get_parameter_mapping_for_condition
-    warn:
-        If True, log warning regarding unmapped parameters
+        mapping_par_opt_to_par_sim:
+            Output of get_parameter_mapping_for_condition
+        warn:
+            If True, log warning regarding unmapped parameters
     """
     _missed_vals = []
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")

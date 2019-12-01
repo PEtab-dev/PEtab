@@ -12,12 +12,10 @@ def generate_experiment_id(measurement_data):
     noiseParameters are considered to be the same
 
     Parameters:
-    ----------
 
     measurement_data: pandas data frame for measurement data
 
     Return:
-    ----------
 
     measurement_data: pandas data frame for measurement data with column for
     experimentId added
