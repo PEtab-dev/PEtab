@@ -11,7 +11,7 @@ import logging
 from . import lint
 from . import sbml
 from . import parameter_mapping
-from typing import Optional, List, Union, Iterable
+from typing import Optional, List, Union, Iterable, Set
 import warnings
 
 
@@ -670,6 +670,43 @@ def create_parameter_df(sbml_model: libsbml.Model,
         lower_bound: lower bound for parameter value
         upper_bound: upper bound for parameter value
     """
+    parameter_ids = list(get_required_parameters_for_parameter_table(
+        sbml_model, condition_df, measurement_df))
+
+    df = pd.DataFrame(
+        data={
+            'parameterId': parameter_ids,
+            'parameterName': parameter_ids,
+            'parameterScale': parameter_scale,
+            'lowerBound': lower_bound,
+            'upperBound': upper_bound,
+            'nominalValue': np.nan,
+            'estimate': 1,
+            'priorType': '',
+            'priorParameters': ''
+        })
+    df.set_index(['parameterId'], inplace=True)
+
+    # For SBML model parameters set nominal values as defined in the model
+    for parameter_id in df.index:
+        try:
+            parameter = sbml_model.getParameter(parameter_id)
+            if parameter:
+                df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
+        except ValueError:
+            # parameter was introduced as condition-specific override and
+            # is potentially not present in the model
+            pass
+    return df
+
+
+def get_required_parameters_for_parameter_table(
+        sbml_model: libsbml.Model,
+        condition_df: pd.DataFrame,
+        measurement_df: pd.DataFrame) -> Set[str]:
+    """
+    Get set of parameters which need to go into the parameter table
+    """
 
     observables = get_observables(sbml_model)
     sigmas = get_sigmas(sbml_model)
@@ -729,33 +766,7 @@ def create_parameter_df(sbml_model: libsbml.Model,
         for overrider in overrides:
             parameter_ids[overrider] = None
 
-    parameter_ids = list(parameter_ids.keys())
-
-    df = pd.DataFrame(
-        data={
-            'parameterId': parameter_ids,
-            'parameterName': parameter_ids,
-            'parameterScale': parameter_scale,
-            'lowerBound': lower_bound,
-            'upperBound': upper_bound,
-            'nominalValue': np.nan,
-            'estimate': 1,
-            'priorType': '',
-            'priorParameters': ''
-        })
-    df.set_index(['parameterId'], inplace=True)
-
-    # For SBML model parameters set nominal values as defined in the model
-    for parameter_id in df.index:
-        try:
-            parameter = sbml_model.getParameter(parameter_id)
-            if parameter:
-                df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
-        except ValueError:
-            # parameter was introduced as condition-specific override and
-            # is potentially not present in the model
-            pass
-    return df
+    return parameter_ids.keys()
 
 
 def get_priors_from_df(parameter_df: pd.DataFrame):
