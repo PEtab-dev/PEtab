@@ -9,6 +9,7 @@ import copy
 import logging
 import libsbml
 import pandas as pd
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +78,11 @@ def check_measurement_df(df):
                 df[column_name].values, column_name)
 
 
-def check_parameter_df(df):
+def check_parameter_df(
+        df: pd.DataFrame,
+        sbml_model: Optional[libsbml.Model],
+        measurement_df: Optional[pd.DataFrame],
+        condition_df: Optional[pd.DataFrame]):
     req_cols = [
         "parameterName", "parameterScale",
         "lowerBound", "upperBound", "nominalValue", "estimate"
@@ -102,6 +107,37 @@ def check_parameter_df(df):
     assert_parameter_estimate_is_boolean(df)
     assert_parameter_id_is_unique(df)
     check_parameter_bounds(df)
+
+    if sbml_model and measurement_df is not None \
+            and condition_df is not None:
+        assert_all_parameters_present_in_parameter_df(
+            df, sbml_model, measurement_df, condition_df)
+
+
+def assert_all_parameters_present_in_parameter_df(
+        parameter_df: pd.DataFrame,
+        sbml_model: libsbml.Model,
+        measurement_df: pd.DataFrame,
+        condition_df: pd.DataFrame):
+    """Ensure all required parameters are contained in the parameter table
+    with no additional ones"""
+
+    expected = core.get_required_parameters_for_parameter_table(
+        sbml_model=sbml_model, condition_df=condition_df,
+        measurement_df=measurement_df)
+
+    actual = set(parameter_df.index)
+
+    missing = expected - actual
+    extraneous = actual - expected
+
+    if missing:
+        raise AssertionError('Missing parameter(s) in parameter table: '
+                             + str(missing))
+
+    if extraneous:
+        raise AssertionError('Extraneous parameter(s) in parameter table: '
+                             + str(extraneous))
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
@@ -409,7 +445,8 @@ def lint_problem(problem: 'core.Problem'):
     if problem.parameter_df is not None:
         logger.info("Checking parameter table...")
         try:
-            check_parameter_df(problem.parameter_df)
+            check_parameter_df(problem.parameter_df, problem.sbml_model,
+                               problem.measurement_df, problem.condition_df)
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
