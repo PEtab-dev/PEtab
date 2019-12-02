@@ -15,25 +15,27 @@ def assignment_rules_to_dict(
     """
     Turn assignment rules into dictionary.
 
-    Parameters
-    ----------
+    Parameters:
+        sbml_model:
+            a sbml model instance.
+        filter_function:
+            callback function taking assignment variable as input
+            and returning True/False to indicate if the respective rule should
+            be turned into an observable.
+        remove:
+            Remove the all matching assignment rules from the model
 
-    sbml_model:
-        an sbml model instance.
-    filter_function:
-        callback function taking assignment variable as input
-        and returning True/False to indicate if the respective rule should be
-        turned into an observable.
-    remove:
-        Remove the all matching assignment rules from the model
+    Returns:
+        ::
 
-    Returns
-    -------
+            {
+                assigneeId:
+                {
+                    'name': assigneeName,
+                    'formula': formulaString
+                }
+            }
 
-    A dictionary(assigneeId:{
-        'name': assigneeName,
-        'formula': formulaString
-    })
     """
     result = {}
 
@@ -71,9 +73,6 @@ def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
 
     Returns:
         species IDs that have been turned into constants
-
-    Raises:
-
     """
     warnings.warn("This function will be removed in future releases "
                   "since PEtab now allows to specify constant species in "
@@ -263,7 +262,7 @@ def create_assigment_rule(sbml_model: libsbml.Model,
 def add_model_output(sbml_model: libsbml.Model,
                      observable_id: str,
                      formula: str,
-                     observable_name: str = None):
+                     observable_name: str = None) -> None:
     """Add PEtab-style output to model
 
     We expect that all formula parameters are added to the model elsewhere.
@@ -271,7 +270,7 @@ def add_model_output(sbml_model: libsbml.Model,
     Arguments:
         sbml_model: Model to add output to
         formula: Formula string for model output
-        observable_id: ID without 'observable_' prefix
+        observable_id: ID without "observable\\_" prefix
         observable_name: Any observable name
     """
 
@@ -312,10 +311,14 @@ def add_model_output_with_sigma(
     We expect that all formula parameters are added to the model elsewhere.
 
     Arguments:
-        sbml_model: Model to add output to
-        observable_formula: Formula string for model output
-        observable_id: ID without 'observable_' prefix
-        observable_name: Any name
+        sbml_model:
+            Model to add output to
+        observable_formula:
+            Formula string for model output
+        observable_id:
+            ID without "observable\\_" prefix
+        observable_name:
+            Any name
     """
     add_model_output(sbml_model=sbml_model,
                      observable_id=observable_id,
