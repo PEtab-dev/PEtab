@@ -48,11 +48,11 @@ exclude_patterns = []
 autosummary_generate = True
 
 autodoc_default_options = {
-    "members": True,
-    "imported-members": 'petab',
-    "inherited-members": True,
-    "private-members": True,
-    "show-inheritance": True,
+    "members": None,
+    "imported-members": None,
+    "inherited-members": None,
+    "private-members": None,
+    "show-inheritance": None,
 }
 
 # -- Options for HTML output -------------------------------------------------
