@@ -36,7 +36,10 @@ for example:
 Where PEtab is used / supported:
 
   - Within the systems biology optimization 
-    [benchmark problem collection](https://github.com/LoosC/Benchmark-Models)
+    [benchmark problem collection](https://github.com/LeonardSchmiester/Benchmark-Models)
+
+  - A PEtab -> [COPASI](http://copasi.org/)
+    [converter](https://github.com/copasi/python-petab-importer)
 
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
 
@@ -85,15 +88,24 @@ it is running
     
 It will require Python3.6 to run.
 
+Development versions of the PEtab library can be installed using
+
+    pip3 install https://github.com/ICB-DCM/PEtab/archive/develop.zip
+
+(replace `develop` by the branch or commit you would like to install).
+
 When setting up a new parameter estimation problem, the most useful tools will
 be:
 
-  - The PEtab validator, which is now automatically installed using Python entrypoints to 
-    be available as a shell command from anywhere called `petablint`
+  - The **PEtab validator**, which is now automatically installed using Python
+    entrypoints to be available as a shell command from anywhere called
+    `petablint`
 
   - `petab.core.create_parameter_df` to create the parameter table, once you
     have set up the model, condition table and measurement table
 
+  - Functions in `petab.sbml` to define observables and error model parameters
+    in the SBML model
 
 ## Extending PEtab
 
