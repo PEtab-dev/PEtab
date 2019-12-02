@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'recommonmark',
     'sphinx.ext.autosummary',
+    'sphinx_markdown_tables',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
