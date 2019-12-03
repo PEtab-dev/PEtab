@@ -24,6 +24,7 @@ ENTRY_POINTS = {
 }
 
 # project metadata
+# noinspection PyUnresolvedReferences
 setup(name='petab',
       version=__version__,  # noqa: F821
       description='Parameter estimation tabular data',

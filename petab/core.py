@@ -1,21 +1,22 @@
 """PEtab core functions"""
 
-import pandas as pd
-import numpy as np
-import libsbml
-import sympy as sp
-import re
 import itertools
-import os
-import numbers
-from collections import OrderedDict
 import logging
-from . import lint
-from . import sbml
-from . import parameter_mapping
-from typing import Optional, List, Union, Iterable, Set
+import numbers
+import os
+import re
 import warnings
+from collections import OrderedDict
+from typing import Optional, List, Union, Iterable, Set
 
+import libsbml
+import numpy as np
+import pandas as pd
+import sympy as sp
+
+from . import lint
+from . import parameter_mapping
+from . import sbml
 
 logger = logging.getLogger(__name__)
 
