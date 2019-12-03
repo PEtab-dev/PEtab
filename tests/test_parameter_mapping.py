@@ -1,7 +1,6 @@
+import numpy as np
 import pandas as pd
 import petab
-import numpy as np
-
 from petab.sbml import add_global_parameter
 
 # import fixtures

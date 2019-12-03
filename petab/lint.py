@@ -180,10 +180,10 @@ def assert_parameter_id_is_string(parameter_df):
     are string and not empty.
     """
 
-    for parameterId in parameter_df:
-        if isinstance(parameterId, str):
-            if parameterId[0].isdigit():
-                raise AssertionError('parameterId ' + parameterId
+    for parameter_id in parameter_df:
+        if isinstance(parameter_id, str):
+            if parameter_id[0].isdigit():
+                raise AssertionError('parameterId ' + parameter_id
                                      + ' starts with integer')
         else:
             raise AssertionError('Empty parameterId found')
@@ -205,11 +205,11 @@ def assert_parameter_scale_is_valid(parameter_df):
     logarithm.
     """
 
-    for parameterScale in parameter_df['parameterScale']:
-        if parameterScale not in ['lin', 'log', 'log10']:
+    for parameter_scale in parameter_df['parameterScale']:
+        if parameter_scale not in ['lin', 'log', 'log10']:
             raise AssertionError(
                 'Expected "lin", "log" or "log10" but got "' +
-                parameterScale + '"')
+                parameter_scale + '"')
 
 
 def assert_parameter_bounds_are_numeric(parameter_df):
@@ -241,7 +241,7 @@ def assert_parameter_estimate_is_boolean(parameter_df):
     0 or 1.
     """
     for estimate in parameter_df['estimate']:
-        if not int(estimate) in [True, False]:
+        if int(estimate) not in [True, False]:
             raise AssertionError(
                 f"Expected 0 or 1 but got {estimate} in estimate column.")
 
