@@ -440,7 +440,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                            m_data.observableParameters)
         # special handling, if column in m_data.observableParameters is empty
         if np.isnan(m_data.observableParameters[ind_meas[0]]):
-            bool_observable = (np.isnan(m_data.observableParameters))
+            bool_observable = np.isnan(m_data.observableParameters)
 
         # check correct observable transformation
         bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
