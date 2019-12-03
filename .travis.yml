@@ -2,14 +2,18 @@ language: python
 
 python:
 - '3.6'
+
 install:
-- pip install -U pytest pytest-cov codecov flake8
+- pip install -U -r ./.travis_pip_reqs.txt
 - pip install -e .[reports]
+
 script:
 - pytest --cov
 - python3 -m flake8 --exclude=build,doc,example,tmp
+
 after_success:
 - codecov
+
 deploy:
   provider: pypi
   username: yannik.schaelte

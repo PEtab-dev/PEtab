@@ -1,0 +1,5 @@
+sphinx
+sphinxcontrib-napoleon
+sphinx-markdown-tables
+sphinx-rtd-theme
+recommonmark

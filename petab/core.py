@@ -1,3 +1,5 @@
+"""PEtab core functions"""
+
 import pandas as pd
 import numpy as np
 import libsbml
@@ -122,6 +124,7 @@ class Problem:
         """
         Factory method to use the standard folder structure
         and file names, i.e.
+
             ${model_name}/
               +-- experimentalCondition_${model_name}.tsv
               +-- measurementData_${model_name}.tsv
@@ -893,6 +896,7 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
 
 def get_observable_id(parameter_id: str) -> str:
     """Get observable id from sigma or observable parameter_id
+
     e.g. for observable_obs1 -> obs1
              sigma_obs1 -> obs1
     """
