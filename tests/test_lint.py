@@ -201,3 +201,22 @@ def test_assert_noise_distributions_valid():
     measurement_df['noiseDistribution'] = ['Normal', '']
     with pytest.raises(ValueError):
         lint.assert_noise_distributions_valid(measurement_df)
+
+
+def test_check_parameter_bounds():
+    lint.check_parameter_bounds(pd.DataFrame(
+        {'lowerBound': [1], 'upperBound': [2], 'estimate': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [3], 'upperBound': [2], 'estimate': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2],
+             'estimate': [1], 'parameterScale': ['log10']}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2],
+             'estimate': [1], 'parameterScale': ['log']}))
