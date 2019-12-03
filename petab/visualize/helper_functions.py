@@ -436,12 +436,11 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
         # check that all entries for all columns-conditions are the same:
         # check correct observable
-        # if column in m_data.observableParameters is empty
+        bool_observable = (m_data.observableParameters[ind_meas[0]] ==
+                           m_data.observableParameters)
+        # special handling, if column in m_data.observableParameters is empty
         if np.isnan(m_data.observableParameters[ind_meas[0]]):
             bool_observable = (np.isnan(m_data.observableParameters))
-        else:
-            bool_observable = (m_data.observableParameters[ind_meas[0]] ==
-                               m_data.observableParameters)
 
         # check correct observable transformation
         bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
