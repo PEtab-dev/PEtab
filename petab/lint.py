@@ -56,17 +56,26 @@ def check_condition_df(df: pd.DataFrame, sbml_model: libsbml.Model):
 
 
 def check_measurement_df(df):
-    req_cols = [
-        "observableId", "preequilibrationConditionId", "simulationConditionId",
-        "measurement", "time", "observableParameters", "noiseParameters"
+    required_columns = [
+        "observableId", "simulationConditionId", "measurement", "time"
+    ]
+    optional_columns = [
+        "preequilibrationConditionId",
+        "observableParameters", "noiseParameters"
     ]
 
-    for column_name in req_cols:
+    _check_df(df, required_columns, "measurement")
+
+    for column_name in required_columns:
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
-    _check_df(df, req_cols, "measurement")
+    for column_name in optional_columns:
+        if column_name in df \
+                and not np.issubdtype(df[column_name].dtype, np.number):
+            assert_no_leading_trailing_whitespace(
+                df[column_name].values, column_name)
 
 
 def check_parameter_df(
