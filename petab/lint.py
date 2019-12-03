@@ -1,15 +1,17 @@
 """Integrity checks and tests for specific features used"""
 
-from . import core
-from . import sbml
-import numpy as np
-import numbers
-import re
 import copy
 import logging
-import libsbml
-import pandas as pd
+import numbers
+import re
 from typing import Optional
+
+import libsbml
+import numpy as np
+import pandas as pd
+
+from . import core
+from . import sbml
 
 logger = logging.getLogger(__name__)
 
