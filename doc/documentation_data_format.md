@@ -1,4 +1,4 @@
-# Optimization problem data format specification
+# PEtab data format specification
 
 This document explains the PEtab data format.
 
