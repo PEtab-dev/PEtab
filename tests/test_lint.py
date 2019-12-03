@@ -188,6 +188,7 @@ def test_assert_noise_distributions_valid():
         'simulationConditionId': ['condition1', 'condition1'],
         'preequilibrationConditionId': ['', ''],
         'time': [1.0, 2.0],
+        'measurement': [1.0, 2.0],
         'observableParameters': ['', ''],
         'noiseParameters': ['', ''],
         'noiseDistribution': ['', ''],
@@ -199,6 +200,12 @@ def test_assert_noise_distributions_valid():
     lint.assert_noise_distributions_valid(measurement_df)
 
     measurement_df['noiseDistribution'] = ['Normal', '']
+    with pytest.raises(ValueError):
+        lint.assert_noise_distributions_valid(measurement_df)
+
+    measurement_df['noiseDistribution'] = ['', '']
+    measurement_df['observableTransformation'] = ['log', '']
+    measurement_df['measurement'] = [-1.0, 0.0]
     with pytest.raises(ValueError):
         lint.assert_noise_distributions_valid(measurement_df)
 

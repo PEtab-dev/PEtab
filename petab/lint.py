@@ -331,6 +331,13 @@ def assert_noise_distributions_valid(measurement_df):
                 f"Unrecognized noise distribution in measurement "
                 f"file: {distr}.")
 
+    # Check for positivity of measurements in case of log-transformation
+    for mes, trafo in zip(df['measurement'],
+                          df['observableTransformation']):
+        if mes <= 0.0 and trafo in ['log', 'log10']:
+            raise ValueError('Measurements with observable transformation '
+                             f'{trafo} must be positive, but {mes} <= 0.')
+
     # check for unique values per observable
 
     distrs = df.groupby(['observableId']).size().reset_index()
