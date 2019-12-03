@@ -21,7 +21,7 @@ Library:
 * Setup documentation for RTD (#161)
 * Handle None in petab.core.split_parameter_replacement_list (Closes #121) 
 * Fix(lint) correct handling of optional columns. Check before access.
-
+* Remove obsolete generate_experiment_id.py (Closes #111) #166 
 
 ### 0.0.0a16 and earlier
 
