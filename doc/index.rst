@@ -17,6 +17,7 @@ Welcome to PEtab's documentation!
    :maxdepth: 2
    :caption: About
 
+   Changelog <CHANGELOG.md>
    license
    logo/LICENSE.md
 
