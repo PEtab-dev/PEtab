@@ -1,5 +1,12 @@
 # PEtab changelog
 
+### Unreleased
+
+Data format:
+* Update format and documentation with respect to data and parameter scales
+  (#169)
+
+
 ### 0.0.0a17
 
 Data format: *No changes*
