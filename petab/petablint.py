@@ -3,10 +3,11 @@
 """Command line tool to check for correct format"""
 
 import argparse
-import os
-import petab
-import sys
 import logging
+import os
+import sys
+
+import petab
 from colorama import (init as init_colorama, Fore)
 
 logger = logging.getLogger(__name__)

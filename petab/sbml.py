@@ -1,10 +1,11 @@
 """Functions for direct access of SBML models"""
 
-import libsbml
-import math
 import logging
+import math
 import warnings
 from typing import Dict, Any
+
+import libsbml
 
 logger = logging.getLogger(__name__)
 

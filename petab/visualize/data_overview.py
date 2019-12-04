@@ -2,10 +2,11 @@
 Functions for creating an overview report of a PEtab problem
 """
 
-import petab
 import os
-import pandas as pd
 from shutil import copyfile
+
+import pandas as pd
+import petab
 
 
 def create_report(problem: petab.Problem, model_name: str) -> None:
