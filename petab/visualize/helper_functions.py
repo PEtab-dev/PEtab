@@ -438,6 +438,10 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # check correct observable
         bool_observable = (m_data.observableParameters[ind_meas[0]] ==
                            m_data.observableParameters)
+        # special handling, if column in m_data.observableParameters is empty
+        if (type(m_data.observableParameters[ind_meas[0]]) == np.float64) \
+                and np.isnan(m_data.observableParameters[ind_meas[0]]):
+            bool_observable = np.isnan(m_data.observableParameters)
 
         # check correct observable transformation
         bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
