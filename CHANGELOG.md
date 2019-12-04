@@ -1,8 +1,8 @@
 # PEtab changelog
 
-### [Unreleased]
+### 0.0.0a17
 
-Data format:
+Data format: *No changes*
 
 Library:
 * Extended visualization support
