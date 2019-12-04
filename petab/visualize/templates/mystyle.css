@@ -1,0 +1,25 @@
+/* Vertical table column headers */
+.vrt-header thead th {
+  writing-mode: vertical-lr;
+  min-width: 50px; /* for firefox */
+}
+
+.vrt-header tbody th {
+  white-space: nowrap;
+}
+
+table {
+  border-collapse: collapse;
+  text-align: right;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+ th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}

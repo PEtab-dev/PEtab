@@ -1,14 +1,17 @@
 """Integrity checks and tests for specific features used"""
 
-from . import core
-from . import sbml
-import numpy as np
-import numbers
-import re
 import copy
 import logging
+import numbers
+import re
+from typing import Optional
+
 import libsbml
+import numpy as np
 import pandas as pd
+
+from . import core
+from . import sbml
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +31,7 @@ def assert_no_leading_trailing_whitespace(names_list, name):
             raise AssertionError(f"Whitespace around {name}[{i}] = '{x}'.")
 
 
-def check_condition_df(df):
+def check_condition_df(df: pd.DataFrame, sbml_model: libsbml.Model):
     req_cols = []
     _check_df(df, req_cols, "condition")
 
@@ -44,22 +47,44 @@ def check_condition_df(df):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
+    if sbml_model is not None:
+        for column_name in df.columns:
+            if column_name != 'conditionName' \
+                    and sbml_model.getParameter(column_name) is None:
+                raise AssertionError(
+                    "Condition table contains column for unknown parameter"
+                    f" {column_name}. Column names must match parameter Ids "
+                    "defined in the SBML model.")
+
 
 def check_measurement_df(df):
-    req_cols = [
-        "observableId", "preequilibrationConditionId", "simulationConditionId",
-        "measurement", "time", "observableParameters", "noiseParameters"
+    required_columns = [
+        "observableId", "simulationConditionId", "measurement", "time"
+    ]
+    optional_columns = [
+        "preequilibrationConditionId",
+        "observableParameters", "noiseParameters"
     ]
 
-    for column_name in req_cols:
+    _check_df(df, required_columns, "measurement")
+
+    for column_name in required_columns:
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
-    _check_df(df, req_cols, "measurement")
+    for column_name in optional_columns:
+        if column_name in df \
+                and not np.issubdtype(df[column_name].dtype, np.number):
+            assert_no_leading_trailing_whitespace(
+                df[column_name].values, column_name)
 
 
-def check_parameter_df(df):
+def check_parameter_df(
+        df: pd.DataFrame,
+        sbml_model: Optional[libsbml.Model],
+        measurement_df: Optional[pd.DataFrame],
+        condition_df: Optional[pd.DataFrame]):
     req_cols = [
         "parameterName", "parameterScale",
         "lowerBound", "upperBound", "nominalValue", "estimate"
@@ -84,6 +109,37 @@ def check_parameter_df(df):
     assert_parameter_estimate_is_boolean(df)
     assert_parameter_id_is_unique(df)
     check_parameter_bounds(df)
+
+    if sbml_model and measurement_df is not None \
+            and condition_df is not None:
+        assert_all_parameters_present_in_parameter_df(
+            df, sbml_model, measurement_df, condition_df)
+
+
+def assert_all_parameters_present_in_parameter_df(
+        parameter_df: pd.DataFrame,
+        sbml_model: libsbml.Model,
+        measurement_df: pd.DataFrame,
+        condition_df: pd.DataFrame):
+    """Ensure all required parameters are contained in the parameter table
+    with no additional ones"""
+
+    expected = core.get_required_parameters_for_parameter_table(
+        sbml_model=sbml_model, condition_df=condition_df,
+        measurement_df=measurement_df)
+
+    actual = set(parameter_df.index)
+
+    missing = expected - actual
+    extraneous = actual - expected
+
+    if missing:
+        raise AssertionError('Missing parameter(s) in parameter table: '
+                             + str(missing))
+
+    if extraneous:
+        raise AssertionError('Extraneous parameter(s) in parameter table: '
+                             + str(extraneous))
 
 
 def assert_measured_observables_present_in_model(measurement_df, sbml_model):
@@ -124,10 +180,10 @@ def assert_parameter_id_is_string(parameter_df):
     are string and not empty.
     """
 
-    for parameterId in parameter_df:
-        if isinstance(parameterId, str):
-            if parameterId[0].isdigit():
-                raise AssertionError('parameterId ' + parameterId
+    for parameter_id in parameter_df:
+        if isinstance(parameter_id, str):
+            if parameter_id[0].isdigit():
+                raise AssertionError('parameterId ' + parameter_id
                                      + ' starts with integer')
         else:
             raise AssertionError('Empty parameterId found')
@@ -149,11 +205,11 @@ def assert_parameter_scale_is_valid(parameter_df):
     logarithm.
     """
 
-    for parameterScale in parameter_df['parameterScale']:
-        if parameterScale not in ['lin', 'log', 'log10']:
+    for parameter_scale in parameter_df['parameterScale']:
+        if parameter_scale not in ['lin', 'log', 'log10']:
             raise AssertionError(
                 'Expected "lin", "log" or "log10" but got "' +
-                parameterScale + '"')
+                parameter_scale + '"')
 
 
 def assert_parameter_bounds_are_numeric(parameter_df):
@@ -185,7 +241,7 @@ def assert_parameter_estimate_is_boolean(parameter_df):
     0 or 1.
     """
     for estimate in parameter_df['estimate']:
-        if not int(estimate) in [True, False]:
+        if int(estimate) not in [True, False]:
             raise AssertionError(
                 f"Expected 0 or 1 but got {estimate} in estimate column.")
 
@@ -381,7 +437,7 @@ def lint_problem(problem: 'core.Problem'):
     if problem.condition_df is not None:
         logger.info("Checking condition table...")
         try:
-            check_condition_df(problem.condition_df)
+            check_condition_df(problem.condition_df, problem.sbml_model)
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
@@ -391,7 +447,8 @@ def lint_problem(problem: 'core.Problem'):
     if problem.parameter_df is not None:
         logger.info("Checking parameter table...")
         try:
-            check_parameter_df(problem.parameter_df)
+            check_parameter_df(problem.parameter_df, problem.sbml_model,
+                               problem.measurement_df, problem.condition_df)
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True

@@ -119,6 +119,7 @@ def test_split_parameter_replacement_list():
         == ['param1', 2.2]
     assert petab.split_parameter_replacement_list(np.nan) == []
     assert petab.split_parameter_replacement_list(1.5) == [1.5]
+    assert petab.split_parameter_replacement_list(None) == []
 
 
 def test_get_measurement_parameter_ids():
@@ -241,6 +242,12 @@ def test_create_parameter_df(condition_df_2_conditions):
         observable_id='obs2',
         observable_name='Observable 2',
         observable_formula='2*x1')
+
+    # Add assignment rule target which should be ignored
+    petab.add_global_parameter(sbml_model=model,
+                               parameter_id='assignment_target')
+    petab.create_assigment_rule(sbml_model=model,
+                                assignee_id='assignment_target', formula='1.0')
 
     measurement_df = pd.DataFrame(data={
         'observableId': ['obs1', 'obs2'],

@@ -1,19 +1,22 @@
-import pandas as pd
-import numpy as np
-import libsbml
-import sympy as sp
-import re
-import itertools
-import os
-import numbers
-from collections import OrderedDict
-import logging
-from . import lint
-from . import sbml
-from . import parameter_mapping
-from typing import Optional, List, Union, Iterable
-import warnings
+"""PEtab core functions"""
 
+import itertools
+import logging
+import numbers
+import os
+import re
+import warnings
+from collections import OrderedDict
+from typing import Optional, List, Union, Iterable, Set
+
+import libsbml
+import numpy as np
+import pandas as pd
+import sympy as sp
+
+from . import lint
+from . import parameter_mapping
+from . import sbml
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +125,7 @@ class Problem:
         """
         Factory method to use the standard folder structure
         and file names, i.e.
+
             ${model_name}/
               +-- experimentalCondition_${model_name}.tsv
               +-- measurementData_${model_name}.tsv
@@ -396,9 +400,11 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
     lint.assert_noise_distributions_valid(measurement_df)
 
     # read noise distributions from measurement file
-    observables = measurement_df.groupby(['observableId']) \
-        .size().reset_index()
+    grouping_cols = get_notnull_columns(
+        measurement_df, ['observableId', 'observableTransformation',
+                         'noiseDistribution'])
 
+    observables = measurement_df.groupby(grouping_cols).size().reset_index()
     noise_distrs = {}
     for _, row in observables.iterrows():
         # prefix id to get observable id
@@ -535,6 +541,8 @@ def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
         delim: delimiter
         list_string: delim-separated stringified list
     """
+    if list_string is None:
+        return []
 
     def to_float_if_float(x):
         try:
@@ -666,6 +674,43 @@ def create_parameter_df(sbml_model: libsbml.Model,
         lower_bound: lower bound for parameter value
         upper_bound: upper bound for parameter value
     """
+    parameter_ids = list(get_required_parameters_for_parameter_table(
+        sbml_model, condition_df, measurement_df))
+
+    df = pd.DataFrame(
+        data={
+            'parameterId': parameter_ids,
+            'parameterName': parameter_ids,
+            'parameterScale': parameter_scale,
+            'lowerBound': lower_bound,
+            'upperBound': upper_bound,
+            'nominalValue': np.nan,
+            'estimate': 1,
+            'priorType': '',
+            'priorParameters': ''
+        })
+    df.set_index(['parameterId'], inplace=True)
+
+    # For SBML model parameters set nominal values as defined in the model
+    for parameter_id in df.index:
+        try:
+            parameter = sbml_model.getParameter(parameter_id)
+            if parameter:
+                df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
+        except ValueError:
+            # parameter was introduced as condition-specific override and
+            # is potentially not present in the model
+            pass
+    return df
+
+
+def get_required_parameters_for_parameter_table(
+        sbml_model: libsbml.Model,
+        condition_df: pd.DataFrame,
+        measurement_df: pd.DataFrame) -> Set[str]:
+    """
+    Get set of parameters which need to go into the parameter table
+    """
 
     observables = get_observables(sbml_model)
     sigmas = get_sigmas(sbml_model)
@@ -676,7 +721,8 @@ def create_parameter_df(sbml_model: libsbml.Model,
         placeholders |= get_placeholders(v['formula'], get_observable_id(k),
                                          'observable')
     for k, v in sigmas.items():
-        placeholders |= get_placeholders(v, get_observable_id(k), 'noise')
+        placeholders |= get_placeholders(v, get_observable_id(k),
+                                         'noise')
 
     # grab all from model and measurement table
     # without condition table parameters
@@ -684,12 +730,16 @@ def create_parameter_df(sbml_model: libsbml.Model,
     # and sigma assignment targets
     # and placeholder parameters (only partial overrides are not supported)
 
+    # exclude rule targets
+    assignment_targets = {ar.getVariable()
+                          for ar in sbml_model.getListOfRules()}
+
     # should not go into parameter table
     blackset = set()
     # collect assignment targets
     blackset |= set(observables.keys())
-    blackset |= {'sigma_' + get_observable_id(k) for k in sigmas.keys()}
     blackset |= placeholders
+    blackset |= assignment_targets
     blackset |= set(condition_df.columns.values) - {'conditionName'}
     # use ordered dict as proxy for ordered set
     parameter_ids = OrderedDict.fromkeys(
@@ -720,33 +770,7 @@ def create_parameter_df(sbml_model: libsbml.Model,
         for overrider in overrides:
             parameter_ids[overrider] = None
 
-    parameter_ids = list(parameter_ids.keys())
-
-    df = pd.DataFrame(
-        data={
-            'parameterId': parameter_ids,
-            'parameterName': parameter_ids,
-            'parameterScale': parameter_scale,
-            'lowerBound': lower_bound,
-            'upperBound': upper_bound,
-            'nominalValue': np.nan,
-            'estimate': 1,
-            'priorType': '',
-            'priorParameters': ''
-        })
-    df.set_index(['parameterId'], inplace=True)
-
-    # For SBML model parameters set nominal values as defined in the model
-    for parameter_id in df.index:
-        try:
-            parameter = sbml_model.getParameter(parameter_id)
-            if parameter:
-                df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
-        except ValueError:
-            # parameter was introduced as condition-specific override and
-            # is potentially not present in the model
-            pass
-    return df
+    return parameter_ids.keys()
 
 
 def get_priors_from_df(parameter_df: pd.DataFrame):
@@ -873,6 +897,7 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
 
 def get_observable_id(parameter_id: str) -> str:
     """Get observable id from sigma or observable parameter_id
+
     e.g. for observable_obs1 -> obs1
              sigma_obs1 -> obs1
     """
@@ -916,51 +941,90 @@ def flatten_timepoint_specific_output_overrides(
             PEtab problem to work on
     """
 
-    df = petab_problem.measurement_df[["observableId", "preequilibrationConditionId", "simulationConditionId"]]
-    df_unique_values = df.drop_duplicates()
+    # Create empty df -> to be filled with replicate-specific observables
     df_new = pd.DataFrame()
-    for nrow in range(len(df_unique_values.index)):
-        df = petab_problem.measurement_df.loc[(petab_problem.measurement_df['observableId'] >=
-                                               df_unique_values.loc[nrow, "observableId"])
-                                              & (petab_problem.measurement_df['preequilibrationConditionId'] <=
-                                                 df_unique_values.loc[nrow, "preequilibrationConditionId"])
-                                              & (petab_problem.measurement_df['simulationConditionId'] <=
-                                                 df_unique_values.loc[nrow, "simulationConditionId"])]
-        df_observable_parameters = df[["observableParameters", "noiseParameters"]]
-        unique_scaling = df_observable_parameters["observableParameters"].unique()
-        unique_noise = df_observable_parameters["noiseParameters"].unique()
 
-        for n_noise in range(len(unique_noise)):
-            for n_scale in range(len(unique_scaling)):
-                idxs = (df["noiseParameters"].str.find(unique_noise[n_noise]) + df["observableParameters"].str.find(
-                            unique_scaling[n_scale]))
-                tmp = df.loc[idxs == 0, "observableId"]
-                df.loc[idxs == 0, "observableId"] = df.loc[idxs == 0, "observableId"]+"_"+str(n_scale+n_noise+1)
-                df_new = df_new.append(df.loc[idxs == 0])
+    # Get observableId, preequilibrationConditionId
+    # and simulationConditionId columns in measurement df
+    df = petab_problem.measurement_df[
+        ["observableId",
+         "preequilibrationConditionId",
+         "simulationConditionId"]
+    ]
+    # Get unique combinations of observableId, preequilibrationConditionId
+    # and simulationConditionId
+    df_unique_values = df.drop_duplicates()
+
+    # Loop over each unique combination
+    for nrow in range(len(df_unique_values.index)):
+        df = petab_problem.measurement_df.loc[
+            (petab_problem.measurement_df['observableId'] ==
+             df_unique_values.loc[nrow, "observableId"])
+            & (petab_problem.measurement_df['preequilibrationConditionId'] <=
+               df_unique_values.loc[nrow, "preequilibrationConditionId"])
+            & (petab_problem.measurement_df['simulationConditionId'] <=
+               df_unique_values.loc[nrow, "simulationConditionId"])
+        ]
+
+        # Get list of unique observable parameters
+        unique_sc = df["observableParameters"].unique()
+        # Get list of unique noise parameters
+        unique_noise = df["noiseParameters"].unique()
+
+        # Loop
+        for i_noise, cur_noise in enumerate(unique_noise):
+            for i_sc, cur_sc in enumerate(unique_sc):
+                # Find the position of all instances of cur_noise
+                # and unique_sc[j] in their corresponding column
+                # (full-string matches are denoted by zero)
+                idxs = (
+                        df["noiseParameters"].str.find(cur_noise) +
+                        df["observableParameters"].str.find(cur_sc)
+                )
+                tmp_ = df.loc[idxs == 0, "observableId"]
+                # Create replicate-specific observable name
+                tmp = tmp_ + "_" + str(i_noise + i_sc + 1)
+                # Check if replicate-specific observable name already exists
+                # in df. If true, rename replicate-specific observable
+                counter = 2
+                while (df["observableId"].str.find(
+                        tmp.to_string()
+                ) == 0).any():
+                    tmp = tmp_ + counter*"_" + str(i_noise + i_sc + 1)
+                    counter += 1
                 df.loc[idxs == 0, "observableId"] = tmp
+                # Append the result in a new df
+                df_new = df_new.append(df.loc[idxs == 0])
+                # Restore the observable name in the original df
+                # (for continuation of the loop)
+                df.loc[idxs == 0, "observableId"] = tmp
+
+    # Update/Redefine measurement df with replicate-specific observables
     petab_problem.measurement_df = df_new
 
-    # changes in sbml model
+    # Get list of already existing unique observable names
     unique_observables = df["observableId"].unique()
+
+    # Remove already existing observables from the sbml model
     for obs in unique_observables:
         petab_problem.sbml_model.removeRuleByVariable("observable_" + obs)
         petab_problem.sbml_model.removeSpecies(obs)
         petab_problem.sbml_model.removeParameter(
             'observable_' + obs)
 
-    for n_replicate in range(len(petab_problem.measurement_df.observableId)-1):
+    # Redefine with replicate-specific observables in the sbml model
+    for replicate_id in petab_problem.measurement_df["observableId"].unique():
         sbml.add_global_parameter(
             sbml_model=petab_problem.sbml_model,
-            parameter_id='observableParameter1_'+petab_problem.measurement_df.observableId[n_replicate])
+            parameter_id='observableParameter1_' + replicate_id)
         sbml.add_global_parameter(
             sbml_model=petab_problem.sbml_model,
-            parameter_id='noiseParameter1_' + petab_problem.measurement_df.observableId[n_replicate])
-
+            parameter_id='noiseParameter1_' + replicate_id)
         sbml.add_model_output(
             sbml_model=petab_problem.sbml_model,
-            observable_id=petab_problem.measurement_df.observableId[n_replicate],
-            formula='observableParameter1_'+petab_problem.measurement_df.observableId[n_replicate])
+            observable_id=replicate_id,
+            formula='observableParameter1_' + replicate_id)
         sbml.add_model_output_sigma(
             sbml_model=petab_problem.sbml_model,
-            observable_id=petab_problem.measurement_df.observableId[n_replicate],
-            formula='noiseParameter1_'+petab_problem.measurement_df.observableId[n_replicate])
+            observable_id=replicate_id,
+            formula='noiseParameter1_' + replicate_id)

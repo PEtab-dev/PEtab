@@ -197,7 +197,14 @@ def _apply_overrides_for_observable(
     """
     for i, override in enumerate(overrides):
         overridee_id = f'{override_type}Parameter{i+1}_{observable_id}'
-        mapping[overridee_id] = override
+        try:
+            mapping[overridee_id] = override
+        except KeyError as e:
+            raise TypeError(f'Cannot override {override_type} parameter '
+                            f'{overridee_id} for observable {observable_id}.'
+                            f'Ensure there exists an {override_type} '
+                            'definition containing the correct number of '
+                            'placeholder parameters.') from e
 
 
 def _apply_dynamic_parameter_overrides(mapping: ParMappingDict,
@@ -342,11 +349,10 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
     all supposed to be overwritten.
 
     Parameters:
-    -----------
-    mapping_par_opt_to_par_sim:
-        Output of get_parameter_mapping_for_condition
-    warn:
-        If True, log warning regarding unmapped parameters
+        mapping_par_opt_to_par_sim:
+            Output of get_parameter_mapping_for_condition
+        warn:
+            If True, log warning regarding unmapped parameters
     """
     _missed_vals = []
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
