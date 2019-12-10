@@ -188,6 +188,7 @@ def test_assert_noise_distributions_valid():
         'simulationConditionId': ['condition1', 'condition1'],
         'preequilibrationConditionId': ['', ''],
         'time': [1.0, 2.0],
+        'measurement': [1.0, 2.0],
         'observableParameters': ['', ''],
         'noiseParameters': ['', ''],
         'noiseDistribution': ['', ''],
@@ -201,3 +202,28 @@ def test_assert_noise_distributions_valid():
     measurement_df['noiseDistribution'] = ['Normal', '']
     with pytest.raises(ValueError):
         lint.assert_noise_distributions_valid(measurement_df)
+
+    measurement_df['noiseDistribution'] = ['', '']
+    measurement_df['observableTransformation'] = ['log', '']
+    measurement_df['measurement'] = [-1.0, 0.0]
+    with pytest.raises(ValueError):
+        lint.assert_noise_distributions_valid(measurement_df)
+
+
+def test_check_parameter_bounds():
+    lint.check_parameter_bounds(pd.DataFrame(
+        {'lowerBound': [1], 'upperBound': [2], 'estimate': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [3], 'upperBound': [2], 'estimate': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2],
+             'estimate': [1], 'parameterScale': ['log10']}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2],
+             'estimate': [1], 'parameterScale': ['log']}))

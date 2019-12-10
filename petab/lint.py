@@ -224,15 +224,20 @@ def assert_parameter_bounds_are_numeric(parameter_df):
 def check_parameter_bounds(parameter_df):
     """
     Check if all entries in the lowerBound are smaller than upperBound column
-    in the parameter table.
+    in the parameter table and that bounds are positive for parameterScale
+    log|log10.
     """
-    for element in range(len(parameter_df['lowerBound'])):
-        if int(parameter_df['estimate'][element]):
-            if not parameter_df['lowerBound'][element] \
-                    <= parameter_df['upperBound'][element]:
+    for _, row in parameter_df.iterrows():
+        if int(row['estimate']):
+            if not row['lowerBound'] <= row['upperBound']:
                 raise AssertionError(
-                    f"lowerbound greater than upperBound for parameterId "
-                    f"{parameter_df.index[element]}.")
+                    f"lowerBound greater than upperBound for parameterId "
+                    f"{row.name}.")
+            if (row['lowerBound'] <= 0.0 or row['upperBound'] < 0.0) \
+                    and row['parameterScale'] in ['log', 'log10']:
+                raise AssertionError(
+                    f'Bounds for {row["parameterScale"]} scaled parameter'
+                    f' {row.name} must be positive.')
 
 
 def assert_parameter_estimate_is_boolean(parameter_df):
@@ -325,6 +330,13 @@ def assert_noise_distributions_valid(measurement_df):
             raise ValueError(
                 f"Unrecognized noise distribution in measurement "
                 f"file: {distr}.")
+
+    # Check for positivity of measurements in case of log-transformation
+    for mes, trafo in zip(df['measurement'],
+                          df['observableTransformation']):
+        if mes <= 0.0 and trafo in ['log', 'log10']:
+            raise ValueError('Measurements with observable transformation '
+                             f'{trafo} must be positive, but {mes} <= 0.')
 
     # check for unique values per observable
 
