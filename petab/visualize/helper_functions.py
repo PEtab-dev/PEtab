@@ -165,8 +165,12 @@ def create_dataset_id_list(simcond_id_list,
         # create nicer legend entries from condition names instead of IDs
         if dataset_id not in legend_dict.keys():
             tmp = exp_conditions.loc[exp_conditions.index == cond_id]
-            legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
-                tmp_obs[ind]
+            try:
+                legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
+                    tmp_obs[ind]
+            except AttributeError:
+                legend_dict[dataset_id] = tmp.index[0] + ' - ' + \
+                    tmp_obs[ind]
 
     # add these column to the measurement table (possibly overwrite)
     if 'datasetId' in exp_data.columns:
