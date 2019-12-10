@@ -6,6 +6,9 @@ Data format:
 * Update format and documentation with respect to data and parameter scales
   (#169)
 
+Library:
+* Refactor library. Reorganize `petab.core` functions.
+
 
 ### 0.0.0a17
 

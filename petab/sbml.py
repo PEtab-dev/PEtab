@@ -1,11 +1,14 @@
-"""Functions for direct access of SBML models"""
+"""Functions for interacting with SBML models"""
 
 import logging
 import math
+import re
 import warnings
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import libsbml
+
+from . import sbml
 
 logger = logging.getLogger(__name__)
 
@@ -333,3 +336,57 @@ def add_model_output_with_sigma(
     add_model_output_sigma(sbml_model=sbml_model,
                            observable_id=observable_id,
                            formula=noise_parameter_id)
+
+
+def sbml_parameter_is_observable(sbml_parameter: libsbml.Parameter) -> bool:
+    """
+    Returns whether the `libsbml.Parameter` `sbml_parameter`
+    matches the defined observable format.
+    """
+    return sbml_parameter.getId().startswith('observable_')
+
+
+def sbml_parameter_is_sigma(sbml_parameter: libsbml.Parameter) -> bool:
+    """
+    Returns whether the `libsbml.Parameter` `sbml_parameter`
+    matches the defined sigma format.
+    """
+    return sbml_parameter.getId().startswith('sigma_')
+
+
+def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
+    """
+    Returns dictionary of observable definitions.
+    See `assignment_rules_to_dict` for details.
+    """
+    observables = sbml.assignment_rules_to_dict(
+        sbml_model,
+        filter_function=sbml_parameter_is_observable,
+        remove=remove
+    )
+    return observables
+
+
+def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
+    """
+    Returns dictionary of sigma definitions.
+
+    Keys are observable IDs, for values see `assignment_rules_to_dict` for
+    details.
+    """
+    sigmas = sbml.assignment_rules_to_dict(
+        sbml_model,
+        filter_function=sbml_parameter_is_sigma,
+        remove=remove
+    )
+    # set correct observable name
+    sigmas = {re.sub(f'^sigma_', 'observable_', key): value['formula']
+              for key, value in sigmas.items()}
+    return sigmas
+
+
+def get_model_parameters(sbml_model: libsbml.Model) -> List[str]:
+    """Return list of SBML model parameter IDs which are not AssignmentRule
+    targets for observables or sigmas"""
+    return [p.getId() for p in sbml_model.getListOfParameters()
+            if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]

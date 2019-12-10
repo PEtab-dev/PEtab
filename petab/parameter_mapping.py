@@ -1,15 +1,16 @@
 """Functions related to mapping parameter from model to parameter estimation
 problem"""
 
-import pandas as pd
-import numpy as np
-import libsbml
+import logging
 import numbers
 import re
-from . import lint
-from . import core
-from typing import List, Tuple, Dict, Union, Any
-import logging
+from typing import Tuple, Dict, Union, Any, List
+
+import libsbml
+import numpy as np
+import pandas as pd
+
+from . import lint, measurements, sbml
 
 logger = logging.getLogger(__name__)
 
@@ -63,11 +64,12 @@ def get_optimization_to_simulation_parameter_mapping(
     perform_mapping_checks(measurement_df)
 
     if simulation_conditions is None:
-        simulation_conditions = core.get_simulation_conditions(measurement_df)
+        simulation_conditions = measurements.get_simulation_conditions(
+            measurement_df)
 
     mapping = []
     for condition_ix, condition in simulation_conditions.iterrows():
-        cur_measurement_df = core.get_rows_for_condition(
+        cur_measurement_df = measurements.get_rows_for_condition(
             measurement_df, condition)
 
         if 'preequilibrationConditionId' not in condition \
@@ -136,7 +138,7 @@ def get_parameter_mapping_for_condition(
     """
     perform_mapping_checks(cur_measurement_df)
 
-    par_sim_ids = core.get_model_parameters(sbml_model)
+    par_sim_ids = sbml.get_model_parameters(sbml_model)
 
     # initialize mapping dict
     # for the case of matching simulation and optimization parameter vector
@@ -170,12 +172,13 @@ def _apply_output_parameter_overrides(
     """
     for _, row in cur_measurement_df.iterrows():
         # we trust that the number of overrides matches (see above)
-        overrides = core.split_parameter_replacement_list(
+        overrides = measurements.split_parameter_replacement_list(
             row.observableParameters)
         _apply_overrides_for_observable(mapping, row.observableId,
                                         'observable', overrides)
 
-        overrides = core.split_parameter_replacement_list(row.noiseParameters)
+        overrides = measurements.split_parameter_replacement_list(
+            row.noiseParameters)
         _apply_overrides_for_observable(mapping, row.observableId, 'noise',
                                         overrides)
 
@@ -275,7 +278,8 @@ def get_optimization_to_simulation_scale_mapping(
     mapping_scale_opt_to_scale_sim = []
 
     if simulation_conditions is None:
-        simulation_conditions = core.get_simulation_conditions(measurement_df)
+        simulation_conditions = measurements.get_simulation_conditions(
+            measurement_df)
 
     # iterate over conditions
     for condition_ix, condition in simulation_conditions.iterrows():

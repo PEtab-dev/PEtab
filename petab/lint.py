@@ -12,6 +12,10 @@ import pandas as pd
 
 from . import core
 from . import sbml
+from .parameters import get_required_parameters_for_parameter_table
+from .sbml import get_observables, get_sigmas
+from .measurements import (split_parameter_replacement_list,
+                           assert_overrides_match_parameter_count)
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +128,7 @@ def assert_all_parameters_present_in_parameter_df(
     """Ensure all required parameters are contained in the parameter table
     with no additional ones"""
 
-    expected = core.get_required_parameters_for_parameter_table(
+    expected = get_required_parameters_for_parameter_table(
         sbml_model=sbml_model, condition_df=condition_df,
         measurement_df=measurement_df)
 
@@ -149,7 +153,7 @@ def assert_measured_observables_present_in_model(measurement_df, sbml_model):
     measurement_observables = [f'observable_{x}' for x in
                                measurement_df.observableId.values]
 
-    model_observables = core.get_observables(sbml_model)
+    model_observables = get_observables(sbml_model)
     undefined_observables = set(measurement_observables) - set(
         model_observables.keys())
 
@@ -293,7 +297,7 @@ def measurement_table_has_observable_parameter_numeric_overrides(
     """Are there any numbers to override observable parameters?"""
 
     for i, row in measurement_df.iterrows():
-        for override in core.split_parameter_replacement_list(
+        for override in split_parameter_replacement_list(
                 row.observableParameters):
             if isinstance(override, numbers.Number):
                 return True
@@ -349,71 +353,6 @@ def assert_noise_distributions_valid(measurement_df):
         raise AssertionError(
             f"The noiseDistribution for an observable in the measurement "
             f"file is not unique: \n{distrs_check}")
-
-
-def assert_overrides_match_parameter_count(measurement_df, observables, noise):
-    """Ensure that number of parameters in the observable definition matches
-    the number of overrides in `measurement_df`
-
-    Arguments:
-        :param measurement_df:
-        :param observables: dict: obsId => {obsFormula}
-        :param noise: dict: obsId => {obsFormula}
-    """
-
-    # sympify only once and save number of parameters
-    observable_parameters_count = {oid[len('observable_'):]:
-                                   len(core.get_placeholders(
-                                       value['formula'],
-                                       oid[len('observable_'):],
-                                       'observable'))
-                                   for oid, value in observables.items()}
-    noise_parameters_count = {
-        oid[len('observable_'):]: len(core.get_placeholders(
-            value, oid[len('observable_'):], 'noise'))
-        for oid, value in noise.items()
-    }
-
-    for _, row in measurement_df.iterrows():
-        # check observable parameters
-        try:
-            expected = observable_parameters_count[row.observableId]
-        except KeyError:
-            raise ValueError(
-                f"Observable {row.observableId} used in measurement table "
-                f"but not defined in model {observables.keys()}.")
-        actual = len(
-            core.split_parameter_replacement_list(row.observableParameters))
-        # No overrides are also allowed
-        if not (actual == 0 or actual == expected):
-            raise AssertionError(
-                f'Mismatch of observable parameter overrides for '
-                f'{observables[f"observable_{row.observableId}"]} '
-                f'in:\n{row}\n'
-                f'Expected 0 or {expected} but got {actual}')
-
-        # check noise parameters
-        replacements = core.split_parameter_replacement_list(
-            row.noiseParameters)
-        try:
-            expected = noise_parameters_count[row.observableId]
-
-            # No overrides are also allowed
-            if not (len(replacements) == 0 or len(replacements) == expected):
-                raise AssertionError(
-                    f'Mismatch of noise parameter overrides in:\n{row}\n'
-                    f'Expected 0 or {expected} but got {actual}')
-        except KeyError:
-            # no overrides defined, but a numerical sigma can be provided
-            # anyways
-            if not len(replacements) == 1 \
-                    or not isinstance(replacements[0], numbers.Number):
-                raise AssertionError(
-                    f'No placeholders have been specified in the noise model '
-                    f'SBML AssigmentRule for: '
-                    f'\n{row}\n'
-                    f'But parameter name or multiple overrides were specified '
-                    'in the noiseParameters column.')
 
 
 def lint_problem(problem: 'core.Problem'):
@@ -474,8 +413,8 @@ def lint_problem(problem: 'core.Problem'):
                 problem.measurement_df, problem.sbml_model)
             assert_overrides_match_parameter_count(
                 problem.measurement_df,
-                core.get_observables(problem.sbml_model, remove=False),
-                core.get_sigmas(problem.sbml_model, remove=False)
+                get_observables(problem.sbml_model, remove=False),
+                get_sigmas(problem.sbml_model, remove=False)
             )
         except AssertionError as e:
             logger.error(e)
