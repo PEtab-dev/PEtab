@@ -227,3 +227,16 @@ def test_check_parameter_bounds():
         lint.check_parameter_bounds(pd.DataFrame(
             {'lowerBound': [-1], 'upperBound': [2],
              'estimate': [1], 'parameterScale': ['log']}))
+
+
+def test_parameter_positivity():
+    lint.assert_parameter_values_and_bounds_are_positive(pd.DataFrame(
+        {'lowerBound': [1], 'upperBound': [2], 'nominalValue': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.assert_parameter_values_and_bounds_are_positive(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2], 'nominalValue': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.assert_parameter_values_and_bounds_are_positive(pd.DataFrame(
+            {'lowerBound': [1], 'upperBound': [-2], 'nominalValue': [-1]}))
