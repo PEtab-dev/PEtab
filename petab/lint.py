@@ -229,9 +229,9 @@ def assert_parameter_values_and_bounds_are_positive(parameter_df):
     parameter table are positive values.
     """
 
-    (parameter_df["lowerBound"] > 0).all()
-    (parameter_df["upperBound"] > 0).all()
-    (parameter_df["nominalValue"] > 0).all()
+    (parameter_df["lowerBound"] >= 0).all()
+    (parameter_df["upperBound"] >= 0).all()
+    (parameter_df["nominalValue"] >= 0).all()
     
 
 def check_parameter_bounds(parameter_df):
