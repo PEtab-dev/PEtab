@@ -228,9 +228,17 @@ def assert_parameter_values_and_bounds_are_positive(parameter_df):
     Check if all entries in the nominalValue, lowerBound and
     upperBound columns of the parameter table are positive values.
     """
-    (parameter_df["lowerBound"] >= 0).all()
-    (parameter_df["upperBound"] >= 0).all()
-    (parameter_df["nominalValue"] >= 0).all()
+    if not (parameter_df["lowerBound"] >= 0).all():
+        raise AssertionError(
+            f'Values for "lowerBound" must be positive.')
+
+    if not (parameter_df["upperBound"] >= 0).all():
+        raise AssertionError(
+            f'Values for "upperBound" must be positive.')
+
+    if not (parameter_df["nominalValue"] >= 0).all():
+        raise AssertionError(
+            f'Values for "nominalValue" must be positive.')
 
 
 def check_parameter_bounds(parameter_df):
