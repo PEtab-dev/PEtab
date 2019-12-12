@@ -215,8 +215,8 @@ def assert_parameter_scale_is_valid(parameter_df):
 
 def assert_parameter_values_and_bounds_are_numeric(parameter_df):
     """
-    Check if all entries in the nominalValue, lowerBound and upperBound columns of the
-    parameter table are numeric.
+    Check if all entries in the nominalValue, lowerBound and
+    upperBound columns of the parameter table are numeric.
     """
     parameter_df["lowerBound"].apply(float).all()
     parameter_df["upperBound"].apply(float).all()
@@ -225,14 +225,13 @@ def assert_parameter_values_and_bounds_are_numeric(parameter_df):
 
 def assert_parameter_values_and_bounds_are_positive(parameter_df):
     """
-    Check if all entries in the nominalValue, lowerBound and upperBound columns of the
-    parameter table are positive values.
+    Check if all entries in the nominalValue, lowerBound and
+    upperBound columns of the parameter table are positive values.
     """
-
     (parameter_df["lowerBound"] >= 0).all()
     (parameter_df["upperBound"] >= 0).all()
     (parameter_df["nominalValue"] >= 0).all()
-    
+
 
 def check_parameter_bounds(parameter_df):
     """
