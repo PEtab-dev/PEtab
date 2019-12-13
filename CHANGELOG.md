@@ -8,6 +8,7 @@ Data format:
 
 Library:
 * Refactor library. Reorganize `petab.core` functions.
+* Fix visualization w/o condition names #142
 
 
 ### 0.0.0a17
