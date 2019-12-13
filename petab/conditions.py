@@ -43,7 +43,7 @@ def create_condition_df(parameter_ids: Iterable[str],
     data = {'conditionId': []}
     for p in parameter_ids:
         if not parameters.parameter_id_is_valid(p):
-            raise ValueError()
+            raise ValueError("Invalid parameter name: " + p)
         data[p] = []
 
     df = pd.DataFrame(data)
