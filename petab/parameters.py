@@ -187,3 +187,14 @@ def get_priors_from_df(parameter_df: pd.DataFrame):
         prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
 
     return prior_list
+
+
+def parameter_id_is_valid(parameter_id: str) -> bool:
+    """Check whether parameter_id is a valid PEtab parameter ID
+
+    This should pretty much correspond to what is allowed for SBML identifiers.
+
+    # TODO(#179) improve checking
+    """
+
+    return parameter_id != ''

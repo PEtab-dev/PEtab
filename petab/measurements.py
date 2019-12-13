@@ -216,6 +216,8 @@ def create_measurement_df() -> pd.DataFrame:
         'noiseParameters': [],
         'observableTransformation': [],
         'noiseDistribution': [],
+        'datasetId': [],
+        'replicateId': []
     })
 
     return df

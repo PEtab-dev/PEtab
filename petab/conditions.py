@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from . import lint
+from . import parameters
 
 
 def get_condition_df(condition_file_name: str) -> pd.DataFrame:
@@ -41,6 +42,8 @@ def create_condition_df(parameter_ids: Iterable[str],
 
     data = {'conditionId': []}
     for p in parameter_ids:
+        if not parameters.parameter_id_is_valid(p):
+            raise ValueError()
         data[p] = []
 
     df = pd.DataFrame(data)
