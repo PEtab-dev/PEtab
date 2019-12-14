@@ -15,7 +15,7 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
 
-    Parameters:
+    Parameters
     ----------
 
     vis_spec:
@@ -40,8 +40,8 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     plot_sim:
         bool, tells whether or not simulated data should be plotted as well
 
-    Return:
-    ----------
+    Returns
+    -------
     ax: matplotlib.Axes
     """
 

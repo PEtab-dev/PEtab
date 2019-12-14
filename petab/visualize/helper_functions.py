@@ -1,10 +1,10 @@
 """
 helper_functions.py
-=========
+===================
 
 This file should contain the functions, which PEtab internally needs for
 plotting, but which are not meant to be used by non-developers and should
-hence not be direclty visible/usable when using import `petab.visualize`
+hence not be directly visible/usable when using import `petab.visualize`
 
 """
 
@@ -398,7 +398,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
     'ms'.
 
     Parameters:
-    ----------
+    -----------
 
     vis_spec:
         pandas data frame, contains defined data format (visualization file)

@@ -15,8 +15,15 @@ logger = logging.getLogger(__name__)
 
 def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:
     """
-    Returns true if parameter `parameter` is a scaling
-    parameter in formula `formula`.
+    Check if is scaling parameter.
+
+    Arguments:
+        parameter: Some identifier.
+        formula: Some sympy-compatible formula.
+
+    Returns:
+        ``True`` if parameter ``parameter`` is a scaling parameter in formula
+         ``formula``.
     """
 
     sym_parameter = sp.sympify(parameter)
@@ -27,8 +34,15 @@ def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:
 
 def parameter_is_offset_parameter(parameter: str, formula: str) -> bool:
     """
-    Returns true if parameter `parameter` is an offset
-    parameter with positive sign in formula `formula`.
+    Check if is offset parameter.
+
+    Arguments:
+        parameter: Some identifier.
+        formula: Some sympy-compatible formula.
+
+    Returns:
+         ``True`` if parameter ``parameter`` is an offset parameter with
+         positive sign in formula ``formula``.
     """
 
     sym_parameter = sp.sympify(parameter)
@@ -39,18 +53,31 @@ def parameter_is_offset_parameter(parameter: str, formula: str) -> bool:
 
 def get_notnull_columns(df: pd.DataFrame, candidates: Iterable):
     """
-    Return list of df-columns in candidates which are not all null/nan.
-    The output can e.g. be used as input for pandas.DataFrame.groupby.
+    Return list of ``df``-columns in ``candidates`` which are not all null/nan.
+
+    The output can e.g. be used as input for ``pandas.DataFrame.groupby``.
+
+    Arguments:
+        df:
+            Dataframe
+        candidates:
+            Columns of ``df`` to consider
     """
     return [col for col in candidates
             if col in df and not np.all(df[col].isnull())]
 
 
 def get_observable_id(parameter_id: str) -> str:
-    """Get observable id from sigma or observable parameter_id
+    """Get PEtab observable ID from PEtab-style sigma or observable
+    `AssignmentRule`-target ``parameter_id``.
 
-    e.g. for observable_obs1 -> obs1
-             sigma_obs1 -> obs1
+    e.g. for 'observable_obs1' -> 'obs1', for 'sigma_obs1' -> 'obs1'
+
+    Arguments:
+        parameter_id: Some parameter ID
+
+    Returns:
+        Observable ID
     """
 
     if parameter_id.startswith(r'observable_'):
@@ -64,12 +91,14 @@ def get_observable_id(parameter_id: str) -> str:
 
 def flatten_timepoint_specific_output_overrides(
         petab_problem: problem.Problem) -> None:
-    """If the PEtab problem definition has timepoint-specific
-    observableParameters or noiseParameters for the same observable, replace
-    those by replicating the respective observable.
+    """Flatten timepoint-specific output parameter overrides.
+
+    If the PEtab problem definition has timepoint-specific
+    `observableParameters` or `noiseParameters` for the same observable,
+    replace those by replicating the respective observable.
 
     This is a helper function for some tools which may not support such
-    timepoint-specific mappings.
+    timepoint-specific mappings. The measurement table is modified in place.
 
     Arguments:
         petab_problem:

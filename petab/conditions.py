@@ -1,6 +1,6 @@
 """Functions operating on the PEtab condition table"""
 
-from typing import Iterable
+from typing import Iterable, Optional
 
 import numpy as np
 import pandas as pd
@@ -10,9 +10,12 @@ from . import parameters
 
 
 def get_condition_df(condition_file_name: str) -> pd.DataFrame:
-    """Read the provided condition file into a `pandas.Dataframe`
+    """Read the provided condition file into a ``pandas.Dataframe``
 
     Conditions are rows, parameters are columns, conditionId is index.
+
+    Arguments:
+        condition_file_name: File name of PEtab condition file
     """
 
     condition_df = pd.read_csv(condition_file_name, sep='\t')
@@ -29,14 +32,15 @@ def get_condition_df(condition_file_name: str) -> pd.DataFrame:
 
 
 def create_condition_df(parameter_ids: Iterable[str],
-                        condition_ids: Iterable[str] = None) -> pd.DataFrame:
-    """Create empty condition dataframe
+                        condition_ids: Optional[Iterable[str]] = None
+                        ) -> pd.DataFrame:
+    """Create empty condition DataFrame
 
     Arguments:
         parameter_ids: the columns
         condition_ids: the rows
     Returns:
-        An pandas.DataFrame with empty given rows and columns and all nan
+        A ``pandas.DataFrame`` with empty given rows and columns and all nan
         values
     """
 
