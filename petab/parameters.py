@@ -4,7 +4,7 @@ import numbers
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-from typing import Iterable, Set, List
+from typing import Iterable, Set, List, Tuple
 
 import libsbml
 
@@ -13,7 +13,13 @@ from . import lint, core, measurements, sbml
 
 def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
     """
-    Read the provided parameter file into a `pandas.Dataframe`.
+    Read the provided parameter file into a ``pandas.Dataframe``.
+
+    Arguments:
+        parameter_file_name: Name of the file to read from.
+
+    Returns:
+        Parameter DataFrame
     """
 
     parameter_df = pd.read_csv(parameter_file_name, sep='\t')
@@ -32,6 +38,12 @@ def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
 def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     """
     Get list of optimization parameter ids from parameter dataframe.
+
+    Arguments:
+        parameter_df: PEtab parameter DataFrame
+
+    Returns:
+        List of parameter IDs in the parameter table
     """
     return list(parameter_df.reset_index()['parameterId'])
 
@@ -48,12 +60,15 @@ def create_parameter_df(sbml_model: libsbml.Model,
     matching the number of parameters
 
     Arguments:
-        sbml_model: @type libsbml.Model
-        condition_df: @type pandas.DataFrame
-        measurement_df: @type pandas.DataFrame
+        sbml_model: SBML Model
+        condition_df: PEtab condition DataFrame
+        measurement_df: PEtab measurement DataFrame
         parameter_scale: parameter scaling
         lower_bound: lower bound for parameter value
         upper_bound: upper bound for parameter value
+
+    Returns:
+        The created parameter DataFrame
     """
     parameter_ids = list(get_required_parameters_for_parameter_table(
         sbml_model, condition_df, measurement_df))
@@ -91,6 +106,15 @@ def get_required_parameters_for_parameter_table(
         measurement_df: pd.DataFrame) -> Set[str]:
     """
     Get set of parameters which need to go into the parameter table
+
+    Arguments:
+        sbml_model: PEtab SBML model
+        condition_df: PEtab condition table
+        measurement_df: PEtab measurement table
+
+    Returns:
+        Set of parameter IDs which PEtab requires to be present in the
+        parameter table
     """
 
     observables = sbml.get_observables(sbml_model)
@@ -156,11 +180,15 @@ def get_required_parameters_for_parameter_table(
     return parameter_ids.keys()
 
 
-def get_priors_from_df(parameter_df: pd.DataFrame):
+def get_priors_from_df(parameter_df: pd.DataFrame
+                       ) -> List[Tuple]:
     """Create list with information about the parameter priors
 
     Arguments:
-        parameter_df: @type pandas.DataFrame
+        parameter_df: PEtab parameter table
+
+    Returns:
+        List with prior information.
     """
 
     # get types and parameters of priors from dataframe
@@ -194,7 +222,13 @@ def parameter_id_is_valid(parameter_id: str) -> bool:
 
     This should pretty much correspond to what is allowed for SBML identifiers.
 
-    # TODO(#179) improve checking
+    TODO(#179) improve checking
+
+    Arguments:
+        parameter_id: Parameter ID to validate
+
+    Returns:
+        ``True`` if valid, ``False`` otherwise
     """
 
     return parameter_id != ''

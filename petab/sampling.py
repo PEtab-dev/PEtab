@@ -3,16 +3,21 @@
 import numpy as np
 import pandas as pd
 
+from typing import Tuple
+
 from .parameters import get_priors_from_df
 
 
-def sample_from_prior(prior: tuple,
-                      n_starts: int):
-    """Creates samples based on prior
+def sample_from_prior(prior: Tuple[str, list, str, list],
+                      n_starts: int) -> np.array:
+    """Creates samples for one parameter based on prior
 
     Arguments:
-        prior: @type tuple
-        n_starts: @type int
+        prior: A tuple as obtained from ``petab.parameter.get_priors_from_df``
+        n_starts: Number of samples
+
+    Returns:
+        Array with sampled values
     """
 
     # unpack info
@@ -31,7 +36,8 @@ def sample_from_prior(prior: tuple,
                                       'scale ' + scaling + ' are currently '
                                       'not implemented.')
 
-    def clip_to_bounds(x):
+    def clip_to_bounds(x: np.array):
+        """Clip values in array x to bounds"""
         tmp_x = [min([bounds[1], ix]) for ix in x]
         tmp_x = [max([bounds[0], ix]) for ix in tmp_x]
         return np.array(tmp_x)
@@ -77,14 +83,16 @@ def sample_from_prior(prior: tuple,
 
 
 def sample_parameter_startpoints(parameter_df: pd.DataFrame,
-                                 n_starts: int = 100):
+                                 n_starts: int = 100) -> np.array:
     """Create numpy.array with starting points for an optimization
-
-    Dimension of output: n_optimization_parameters x n_startpoints
 
     Arguments:
         parameter_df: @type pandas.DataFrame
         n_starts: @type int
+
+    Returns:
+        Array of sampled starting points with dimensions
+        n_optimization_parameters x n_startpoints
     """
 
     # get types and parameters of priors from dataframe

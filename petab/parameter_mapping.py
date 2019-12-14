@@ -4,7 +4,7 @@ problem"""
 import logging
 import numbers
 import re
-from typing import Tuple, Dict, Union, Any, List
+from typing import Tuple, Dict, Union, Any, List, Optional
 
 import libsbml
 import numpy as np
@@ -27,41 +27,37 @@ ScaleMappingDictTuple = Tuple[ScaleMappingDict, ScaleMappingDict]
 def get_optimization_to_simulation_parameter_mapping(
         condition_df: pd.DataFrame,
         measurement_df: pd.DataFrame,
-        parameter_df: pd.DataFrame = None,
-        sbml_model: libsbml.Model = None,
-        simulation_conditions=None,
-        warn_unmapped: bool = True) -> List[ParMappingDictTuple]:
+        parameter_df: Optional[pd.DataFrame] = None,
+        sbml_model: Optional[libsbml.Model] = None,
+        simulation_conditions: Optional[pd.DataFrame] = None,
+        warn_unmapped: Optional[bool] = True) -> List[ParMappingDictTuple]:
     """
     Create list of mapping dicts from PEtab-problem to SBML parameters.
 
-    Parameters
-    ----------
-    condition_df, measurement_df, parameter_df:
-        The dataframes in the PEtab format.
+    Parameters:
+        condition_df, measurement_df, parameter_df:
+            The dataframes in the PEtab format.
 
-        parameter_df is optional if par_sim_ids is provided
+        sbml_model:
+            The sbml model with observables and noise specified according to
+            the PEtab format.
 
-    sbml_model:
-        The sbml model with observables and noise specified according to the
-        petab format. Optional if par_sim_ids is provided.
+        simulation_conditions:
+            Table of simulation conditions as created by
+            ``petab.get_simulation_conditions``.
 
-    simulation_conditions: pd.DataFrame
-        Table of simulation conditions as created by
-        `petab.get_simulation_conditions`.
+        warn_unmapped:
+            If ``True``, log warning regarding unmapped parameters
 
-    warn_unmapped:
-        If True, log warning regarding unmapped parameters
-
-    Returns
-    -------
-    The length of the returned array is n_conditions, each entry is a tuple of
-    two dicts of length n_par_sim, listing the optimization parameters or
-    constants to be mapped to the simulation parameters, first for
-    preequilibration (empty if no preequilibration condition is specified),
-    second for simulation. NaN is used where no mapping exists.
+    Returns:
+        The length of the returned array is n_conditions, each entry is a tuple
+        of two dicts of length n_par_sim, listing the optimization parameters
+        or constants to be mapped to the simulation parameters, first for
+        preequilibration (empty if no preequilibration condition is specified),
+        second for simulation. ``NaN`` is used where no mapping exists.
     """
     # Ensure inputs are okay
-    perform_mapping_checks(measurement_df)
+    _perform_mapping_checks(measurement_df)
 
     if simulation_conditions is None:
         simulation_conditions = measurements.get_simulation_conditions(
@@ -111,32 +107,32 @@ def get_parameter_mapping_for_condition(
     Create dictionary of mappings from PEtab-problem to SBML parameters for the
     given condition.
 
-    Parameters
-    ----------
-    condition_id: Condition ID for which to perform mapping
+    Parameters:
+        condition_id: Condition ID for which to perform mapping
 
-    is_preeq: If true, output parameters will not be mapped
+        is_preeq: If ``True``, output parameters will not be mapped
 
-    cur_measurement_df: Measurement sub-table for current condition
+        cur_measurement_df: Measurement sub-table for current condition
 
-    condition_df, parameter_df:
-        The dataframes in the PEtab format.
-        parameter_df is optional if par_sim_ids is provided
+        condition_df:
+            PEtab condition DataFrame
 
-    sbml_model:
-        The sbml model with observables and noise specified according to the
-        petab format. Optional if par_sim_ids is provided.
+        parameter_df:
+            PEtab parameter DataFrame
 
-    warn_unmapped:
-        If True, log warning regarding unmapped parameters
+        sbml_model:
+            The sbml model with observables and noise specified according to
+            the PEtab format.
 
-    Returns
-    -------
-    Dictionary of parameter IDs with mapped parameters IDs to be estimated or
-    filled in values in case of non-estimated parameters. NaN is used where no
-    mapping exists.
+        warn_unmapped:
+            If ``True``, log warning regarding unmapped parameters
+
+    Returns:
+        Dictionary of parameter IDs with mapped parameters IDs to be estimated
+        or filled in values in case of non-estimated parameters. NaN is used
+        where no mapping exists.
     """
-    perform_mapping_checks(cur_measurement_df)
+    _perform_mapping_checks(cur_measurement_df)
 
     par_sim_ids = sbml.get_model_parameters(sbml_model)
 
@@ -162,11 +158,12 @@ def _apply_output_parameter_overrides(
         cur_measurement_df: pd.DataFrame) -> None:
     """
     Apply output parameter overrides to the parameter mapping dict for a given
-    condition as defined in the measurement table (observableParameter,
-    noiseParameters).
+    condition as defined in the measurement table (``observableParameter``,
+    ``noiseParameters``).
 
     Arguments:
-        mapping: parameter mapping dict
+        mapping: parameter mapping dict as obtained from
+            ``get_parameter_mapping_for_condition``
         cur_measurement_df:
             Subset of the measurement table for the current condition
     """
@@ -187,7 +184,7 @@ def _apply_overrides_for_observable(
         mapping: ParMappingDict,
         observable_id: str,
         override_type: str,
-        overrides: list) -> None:
+        overrides: List[str]) -> None:
     """
     Apply parameter-overrides for observables and noises to mapping
     matrix.
@@ -216,9 +213,10 @@ def _apply_dynamic_parameter_overrides(mapping: ParMappingDict,
     """Apply dynamic parameter overrides from condition table (in-place).
 
     Arguments:
-        mapping, par_sim_id_to_ix:
+        mapping:
             see get_parameter_mapping_for_condition
-        condition_df: PEtab condition and parameter table
+        condition_id: ID of condition to work on
+        condition_df: PEtab condition table
     """
     for overridee_id in condition_df.columns:
         if overridee_id == 'conditionName':
@@ -233,7 +231,7 @@ def _apply_dynamic_parameter_overrides(mapping: ParMappingDict,
 def fill_in_nominal_values(mapping: ParMappingDict,
                            parameter_df: pd.DataFrame) -> None:
     """Replace non-estimated parameters in mapping list for a given condition
-    by nominalValues provided in parameter table.
+    by ``nominalValues`` provided in parameter table.
 
     Arguments:
         mapping:
@@ -272,9 +270,25 @@ def get_optimization_to_simulation_scale_mapping(
         parameter_df: pd.DataFrame,
         mapping_par_opt_to_par_sim: List[ParMappingDictTuple],
         measurement_df: pd.DataFrame,
-        simulation_conditions: Union[dict, pd.DataFrame] = None
+        simulation_conditions: Optional[pd.DataFrame] = None
 ) -> List[ScaleMappingDictTuple]:
-    """Get parameter scale mapping for all conditions"""
+    """Get parameter scale mapping for all conditions
+
+    Arguments:
+        parameter_df:
+            PEtab parameter DataFrame
+        mapping_par_opt_to_par_sim:
+            Parameter mapping as obtained from
+            ``get_optimization_to_simulation_parameter_mapping``
+        measurement_df:
+            PEtab measurement DataFrame
+        simulation_conditions:
+            Result of ``petab.measurements.get_simulation_conditions`` to
+            avoid reevaluation.
+
+    Returns:
+        List of tuples with mapping dictionaries.
+    """
     mapping_scale_opt_to_scale_sim = []
 
     if simulation_conditions is None:
@@ -314,7 +328,10 @@ def get_scale_mapping_for_condition(
     Arguments:
         parameter_df: PEtab parameter table
         mapping_par_opt_to_par_sim:
-            Mapping as obtained from get_parameter_mapping_for_condition
+            Mapping as obtained from ``get_parameter_mapping_for_condition``
+
+    Returns:
+        Mapping dictionary: parameterId => parameterScale
     """
     def get_scale(par_id_or_val):
         if isinstance(par_id_or_val, numbers.Number):
@@ -334,7 +351,10 @@ def get_scale_mapping_for_condition(
             for par, val in mapping_par_opt_to_par_sim.items()}
 
 
-def perform_mapping_checks(measurement_df: pd.DataFrame) -> None:
+def _perform_mapping_checks(measurement_df: pd.DataFrame) -> None:
+    """Check for PEtab features which we can't account for during parameter
+    mapping."""
+
     if lint.measurement_table_has_timepoint_specific_mappings(measurement_df):
         # we could allow that for floats, since they don't matter in this
         # function and would be simply ignored
@@ -357,6 +377,8 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
             Output of get_parameter_mapping_for_condition
         warn:
             If True, log warning regarding unmapped parameters
+        condition_id:
+            Optional condition ID for more informative output
     """
     _missed_vals = []
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
@@ -389,7 +411,7 @@ def merge_preeq_and_sim_pars_condition(
     This function is meant for the case where we cannot have different
     parameters (and scales) for preequilibration and simulation. Therefore,
     merge both and ensure matching scales and parameters.
-    `condition_map_sim` and `condition_scale_map_sim` will ne modified in
+    ``condition_map_sim`` and ``condition_scale_map_sim`` will ne modified in
     place.
 
     Arguments:
@@ -420,10 +442,11 @@ def merge_preeq_and_sim_pars_condition(
                 # unmapped for preeq is okay
                 pass
             else:
-                raise ('Cannot handle different values for dynamic '
-                       f'parameters: for condition {condition} '
-                       f'parameter {idx} is {par_preeq} for preeq '
-                       f'and {par_sim} for simulation.')
+                raise ValueError(
+                    'Cannot handle different values for dynamic '
+                    f'parameters: for condition {condition} '
+                    f'parameter {idx} is {par_preeq} for preeq '
+                    f'and {par_sim} for simulation.')
         if scale_preeq != scale_sim:
             # both identical is okay
             if np.isnan(par_sim):
@@ -433,8 +456,8 @@ def merge_preeq_and_sim_pars_condition(
                 # unmapped for preeq is okay
                 pass
             else:
-                raise ('Cannot handle different parameter scales '
-                       f'parameters: for condition {condition} '
-                       f'scale for parameter {idx} is '
-                       f'{scale_preeq} for preeq '
-                       f'and {scale_sim} for simulation.')
+                raise ValueError(
+                    'Cannot handle different parameter scales '
+                    f'parameters: for condition {condition} '
+                    f'scale for parameter {idx} is {scale_preeq} for preeq '
+                    f'and {scale_sim} for simulation.')

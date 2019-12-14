@@ -15,20 +15,19 @@ from typing import Optional, List
 class Problem:
     """
     PEtab parameter estimation problem as defined by
+
     - SBML model
     - condition table
     - measurement table
-    - parameter table [optional]
+    - parameter table
 
     Attributes:
-        condition_df: @type pandas.DataFrame
-        measurement_df: @type pandas.DataFrame
-        parameter_df: @type pandas.DataFrame
-        sbml_reader: @type libsbml.SBMLReader
-            Stored to keep object alive.
-        sbml_document: @type libsbml.Document
-            Stored to keep object alive.
-        sbml_model: @type libsbml.Model
+        condition_df: PEtab condition table
+        measurement_df: PEtab measurement table
+        parameter_df: PEtab parameter table
+        sbml_reader: Stored to keep object alive.
+        sbml_document: Stored to keep object alive.
+        sbml_model: PEtab SBML model
     """
 
     def __init__(self,
@@ -117,6 +116,8 @@ class Problem:
         Factory method to use the standard folder structure
         and file names, i.e.
 
+        ::
+
             ${model_name}/
               +-- experimentalCondition_${model_name}.tsv
               +-- measurementData_${model_name}.tsv
@@ -128,7 +129,7 @@ class Problem:
                 Path to the directory in which the files are located.
             model_name:
                 If specified, overrides the model component in the file names.
-                Defaults to the last component of `folder`.
+                Defaults to the last component of ``folder``.
         """
 
         folder = os.path.abspath(folder)

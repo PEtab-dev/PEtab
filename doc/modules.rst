@@ -8,9 +8,9 @@ API Reference
    petab.core
    petab.conditions
    petab.lint
+   petab.measurements
    petab.parameter_mapping
    petab.parameters
-   petab.petablint
    petab.problem
    petab.sampling
    petab.sbml

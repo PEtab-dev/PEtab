@@ -65,7 +65,7 @@ def assignment_rules_to_dict(
     return result
 
 
-def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
+def constant_species_to_parameters(sbml_model: libsbml.Model) -> List[str]:
     """Convert constant species in the SBML model to constant parameters.
 
     This can be used e.g. for setting up models with condition-specific
@@ -126,12 +126,13 @@ def constant_species_to_parameters(sbml_model: libsbml.Model) -> list:
 
 
 def is_sbml_consistent(sbml_document: libsbml.SBMLDocument,
-                       check_units: bool = False):
+                       check_units: bool = False) -> bool:
     """Check for SBML validity / consistency
 
     Arguments:
         sbml_document: SBML document to check
         check_units: Also check for unit-related issues
+
     Returns:
         False if problems were detected, otherwise True
     """
@@ -220,7 +221,19 @@ def add_global_parameter(sbml_model: libsbml.Model,
                          constant: bool = False,
                          units: str = 'dimensionless',
                          value: float = 0.0) -> libsbml.Parameter:
-    """Add new global parameter to SBML model"""
+    """Add new global parameter to SBML model
+
+    Arguments:
+        sbml_model: SBML model
+        parameter_id: ID of the new parameter
+        parameter_name: Name of the new parameter
+        constant: Is parameter constant?
+        units: SBML unit ID
+        value: parameter value
+
+    Returns:
+        The created parameter
+    """
 
     if parameter_name is None:
         parameter_name = parameter_id
@@ -247,6 +260,9 @@ def create_assigment_rule(sbml_model: libsbml.Model,
         formula: Formula string for model output
         rule_id: SBML id for created rule
         rule_name: SBML name for created rule
+
+    Returns:
+        The created ``AssignmentRule``
     """
     if rule_id is None:
         rule_id = assignee_id
@@ -290,7 +306,7 @@ def add_model_output(sbml_model: libsbml.Model,
 
 def add_model_output_sigma(sbml_model: libsbml.Model,
                            observable_id: str,
-                           formula: str):
+                           formula: str) -> None:
     """Add PEtab-style sigma for the given observable id
 
     We expect that all formula parameters are added to the model elsewhere.
@@ -308,7 +324,7 @@ def add_model_output_with_sigma(
         sbml_model: libsbml.Model,
         observable_id: str,
         observable_formula: str,
-        observable_name: str = None):
+        observable_name: str = None) -> None:
     """Add PEtab-style output and corresponding sigma with single
     (newly created) parameter
 
@@ -340,7 +356,7 @@ def add_model_output_with_sigma(
 
 def sbml_parameter_is_observable(sbml_parameter: libsbml.Parameter) -> bool:
     """
-    Returns whether the `libsbml.Parameter` `sbml_parameter`
+    Returns whether the ``libsbml.Parameter`` ``sbml_parameter``
     matches the defined observable format.
     """
     return sbml_parameter.getId().startswith('observable_')
@@ -348,7 +364,7 @@ def sbml_parameter_is_observable(sbml_parameter: libsbml.Parameter) -> bool:
 
 def sbml_parameter_is_sigma(sbml_parameter: libsbml.Parameter) -> bool:
     """
-    Returns whether the `libsbml.Parameter` `sbml_parameter`
+    Returns whether the ``libsbml.Parameter`` ``sbml_parameter``
     matches the defined sigma format.
     """
     return sbml_parameter.getId().startswith('sigma_')
@@ -356,8 +372,11 @@ def sbml_parameter_is_sigma(sbml_parameter: libsbml.Parameter) -> bool:
 
 def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     """
-    Returns dictionary of observable definitions.
-    See `assignment_rules_to_dict` for details.
+    Get observables defined in SBML model according to PEtab format.
+
+    Returns:
+        Dictionary of observable definitions.
+        See `assignment_rules_to_dict` for details.
     """
     observables = sbml.assignment_rules_to_dict(
         sbml_model,
@@ -369,10 +388,13 @@ def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
 
 def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     """
-    Returns dictionary of sigma definitions.
+    Get sigmas defined in SBML model according to PEtab format.
 
-    Keys are observable IDs, for values see `assignment_rules_to_dict` for
-    details.
+    Returns:
+        Dictionary of sigma definitions.
+
+        Keys are observable IDs, for values see `assignment_rules_to_dict` for
+        details.
     """
     sigmas = sbml.assignment_rules_to_dict(
         sbml_model,
