@@ -4,7 +4,6 @@ import os
 
 import pandas as pd
 
-import warnings
 from . import (parameter_mapping, measurements, conditions, parameters,
                sampling, sbml)
 
@@ -143,18 +142,6 @@ class Problem:
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
-
-    def get_constant_parameters(self):
-        """
-        Provide list of IDs of parameters which are fixed (i.e. not subject
-        to optimization, no sensitivities w.r.t. these parameters are
-        required).
-        """
-        warnings.warn("This function will be removed in future releases. ",
-                      DeprecationWarning)
-
-        columns_set = set(self.condition_df.columns.values)
-        return list(columns_set - {'conditionId', 'conditionName'})
 
     def get_optimization_parameters(self):
         """
