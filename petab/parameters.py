@@ -87,7 +87,7 @@ def create_parameter_df(sbml_model: libsbml.Model,
         })
     df.set_index(['parameterId'], inplace=True)
 
-    # For SBML model parameters set nominal values as defined in the model
+    # For SBML model parameters, set nominal values as defined in the model
     for parameter_id in df.index:
         try:
             parameter = sbml_model.getParameter(parameter_id)
