@@ -1,0 +1,41 @@
+# For syntax see: https://json-schema.org/understanding-json-schema/index.html
+#$schema: "https://json-schema.org/draft/2019-09/meta/core"
+$schema: "http://json-schema.org/draft-06/schema"
+description: PEtab parameter estimation problem config file schema
+
+properties:
+
+  petab_version:
+    type: string
+    description: Version of the PEtab format
+
+  parameter_file:
+    type: string
+    description: PEtab parameter file
+
+  problems:
+    type: array
+    description: PEtab problem
+    items:
+
+      type: object
+      description: PEtab SBML, condition and measurement tables
+      properties:
+        sbml_file:
+          type: string
+          description: PEtab SBML file
+        measurement_file:
+          type: string
+          description: PEtab measurement file
+        condition_file:
+          type: string
+          description: PEtab condition file
+      required:
+        - sbml_file
+        - measurement_file
+        - condition_file
+
+required:
+  - petab_version
+  - parameter_file
+  - problems

@@ -366,9 +366,42 @@ Additional columns may be added.
     - parameterScaleLaplace: location; scale
 
 
-## Parameter estimation problems combining multiple models
+### Additional optional columns
 
-[**Issue #49**](https://github.com/ICB-DCM/PEtab/issues/49)
+Extra columns:
+
+- `hierarchicalOptimization` (optional)
+
+  hierarchicalOptimization: 1 if parameter is optimized using hierarchical
+  optimization approach. 0 otherwise.
+
+- `initializationPriorType` (optional)
+
+  Prior types used for sampling of initial point for optimization. Uses the
+  entries from `priorType` as default, but will overwrite those, if
+  something else is specified here. For more detailed documentation, see
+  `priorType`.
+
+- `initializationPriorParameters` (optional)
+
+  Prior parameters used for sampling of initial point for optimization. Uses
+  the entries from `priorParameters` as default, but will overwrite those, if
+  something else is specified here. For more detailed documentation, see
+  `priorParameters`.
+
+- `objectivePriorType` (optional)
+
+  Prior types used for the objective function during optimization. Uses the
+  entries from `priorType` as default, but will overwrite those, if
+  something else is specified here. For more detailed documentation, see
+  `priorType`.
+
+- `objectivePriorParameters` (optional)
+
+  Prior parameters used for the objective function during optimization. Uses
+  the entries from `priorParameters` as default, but will overwrite those, if
+  something else is specified here. For more detailed documentation, see
+  `priorParameters`.   
 
 
 ## Visualization table
@@ -469,44 +502,31 @@ order:
   legend and which defaults to `datasetId`.
 
 
-## Extensions
+### Extensions
 
 Additional columns, such as `Color`, etc. may be specified.
 
 
-### Parameter table
+## YAML file for grouping files
 
-Extra columns:
+To link the SBML model, measurement table, condition table, etc. in an
+unambiguous way, we use a [YAML](https://yaml.org/) file.
 
-- `hierarchicalOptimization` (optional)
+This file also allows specifying a PEtab version (as the format is not unlikely
+to change in future).
 
-  hierarchicalOptimization: 1 if parameter is optimized using hierarchical
-  optimization approach. 0 otherwise.
+Furthermore, this can be used to describe parameter estimation problems
+comprising multiple models (more details below).
 
-- `initializationPriorType` (optional)
+The format is described in the schema
+[../petab/petab_schema.yaml](../petab/petab_schema.yaml), which allows for
+easy validation.
 
-  Prior types used for sampling of initial point for optimization. Uses the
-  entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
 
-- `initializationPriorParameters` (optional)
+### Parameter estimation problems combining multiple models
 
-  Prior parameters used for sampling of initial point for optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.
-
-- `objectivePriorType` (optional)
-
-  Prior types used for the objective function during optimization. Uses the
-  entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
-
-- `objectivePriorParameters` (optional)
-
-  Prior parameters used for the objective function during optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.   
+Parameter estimation problems can comprise multiple models. For now, PEtab
+allows to specify multiple SBML models with corresponding condition and
+measurement tables, and one joint parameter table. This means that parameter
+namespace is global. Therefore, parameters with the same ID in different models
+will be considered identical.
