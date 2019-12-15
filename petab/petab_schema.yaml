@@ -7,32 +7,37 @@ properties:
 
   petab_version:
     type: string
-    description: Version of the PEtab format
+    description: Version of the PEtab format (e.g. 0.0.0a16)
 
   parameter_file:
     type: string
-    description: PEtab parameter file
+    description: |
+      PEtab parameter file name containing parameters of all models listed in
+      `problems`. Absolute or relative path.
 
   problems:
     type: array
-    description: PEtab problem
+    description: |
+      One or more (SBML model, measurement, condition files) tuples.
     items:
-
       type: object
       description: PEtab SBML, condition and measurement tables
       properties:
         sbml_file:
           type: string
           description: PEtab SBML file
-        measurement_file:
-          type: string
-          description: PEtab measurement file
+        measurement_files:
+          type: array
+          description: List of PEtab measurement files
+          items:
+            type: string
+            description: PEtab measurement file
         condition_file:
           type: string
           description: PEtab condition file
       required:
         - sbml_file
-        - measurement_file
+        - measurement_files
         - condition_file
 
 required:
