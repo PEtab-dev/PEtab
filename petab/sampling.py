@@ -83,17 +83,21 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
 
 
 def sample_parameter_startpoints(parameter_df: pd.DataFrame,
-                                 n_starts: int = 100) -> np.array:
+                                 n_starts: int = 100,
+                                 seed: int = None) -> np.array:
     """Create numpy.array with starting points for an optimization
 
     Arguments:
-        parameter_df: @type pandas.DataFrame
-        n_starts: @type int
+        parameter_df: PEtab parameter DataFrame
+        n_starts: Number of points to be sampled
+        seed: Random number generator seed (see numpy.random.seed)
 
     Returns:
         Array of sampled starting points with dimensions
         n_optimization_parameters x n_startpoints
     """
+    if seed is not None:
+        np.random.seed(seed)
 
     # get types and parameters of priors from dataframe
     prior_list = get_priors_from_df(parameter_df)
