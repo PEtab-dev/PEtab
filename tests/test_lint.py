@@ -1,10 +1,7 @@
-import pytest
 import libsbml
-import sys
-import os
 import pandas as pd
-
-sys.path.append(os.getcwd())
+import petab
+import pytest
 from petab import (lint, sbml)  # noqa: E402
 
 
@@ -89,35 +86,35 @@ def test_assert_overrides_match_parameter_count():
     })
 
     # No overrides
-    lint.assert_overrides_match_parameter_count(measurement_df_orig,
-                                                observables, noise)
+    petab.assert_overrides_match_parameter_count(
+        measurement_df_orig, observables, noise)
 
     # Sigma override
     measurement_df = measurement_df_orig.copy()
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride'
-    lint.assert_overrides_match_parameter_count(
+    petab.assert_overrides_match_parameter_count(
         measurement_df, observables, noise)
 
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride;oneTooMuch'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(
+        petab.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
 
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride'
     measurement_df.loc[1, 'noiseParameters'] = 'oneTooMuch'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(
+        petab.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
 
     # Observable override
     measurement_df = measurement_df_orig.copy()
     measurement_df.loc[1, 'observableParameters'] = 'override1;override2'
-    lint.assert_overrides_match_parameter_count(
+    petab.assert_overrides_match_parameter_count(
         measurement_df, observables, noise)
 
     measurement_df.loc[1, 'observableParameters'] = 'oneMissing'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(
+        petab.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
 
 
