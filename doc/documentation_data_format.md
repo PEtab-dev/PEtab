@@ -513,7 +513,7 @@ To link the SBML model, measurement table, condition table, etc. in an
 unambiguous way, we use a [YAML](https://yaml.org/) file.
 
 This file also allows specifying a PEtab version (as the format is not unlikely
-to change in future).
+to change in the future).
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
