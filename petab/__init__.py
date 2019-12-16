@@ -1,5 +1,6 @@
 """PEtab exports"""
 
+from .composite_problem import *  # noqa: F403, F401
 from .conditions import *  # noqa: F403, F401
 from .core import *  # noqa: F403, F401
 from .lint import *  # noqa: F403, F401

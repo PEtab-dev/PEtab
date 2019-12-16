@@ -5,6 +5,7 @@ API Reference
    :toctree: build/_autosummary
 
    petab
+   petab.composite_problem
    petab.core
    petab.conditions
    petab.lint

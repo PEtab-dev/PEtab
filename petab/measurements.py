@@ -3,7 +3,7 @@
 import itertools
 import numbers
 import re
-from typing import List, Union, Set, Dict
+from typing import List, Union, Set, Dict, Iterable
 
 import numpy as np
 import pandas as pd
@@ -333,3 +333,25 @@ def assert_overrides_match_parameter_count(
                     f'\n{row}\n'
                     f'But parameter name or multiple overrides were specified '
                     'in the noiseParameters column.')
+
+
+def concat_measurements(
+        measurement_tables: Iterable[Union[pd.DataFrame, str]]
+) -> pd.DataFrame:
+    """Concatenate measurement tables
+
+    Arguments:
+        measurement_tables:
+            Iterable of measurement tables to join, as DataFrame or filename.
+    """
+    measurement_df = pd.DataFrame()
+
+    for tmp_df in measurement_tables:
+        # load from file, if necessary
+        if isinstance(tmp_df, str):
+            tmp_df = get_measurement_df(tmp_df)
+
+        measurement_df = measurement_df.append(tmp_df, sort=False,
+                                               ignore_index=True)
+
+    return measurement_df

@@ -490,7 +490,7 @@ def assert_noise_distributions_valid(measurement_df: pd.DataFrame) -> None:
             f"file is not unique: \n{distrs_check}")
 
 
-def lint_problem(problem: 'core.Problem') -> None:
+def lint_problem(problem: 'core.Problem') -> bool:
     """Run PEtab validation on problem
 
     Arguments:

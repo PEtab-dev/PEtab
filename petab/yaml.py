@@ -46,13 +46,8 @@ def validate_yaml_syntax(
     if schema is None:
         schema = SCHEMA
 
-    if isinstance(schema, str):
-        with open(schema) as f:
-            schema = yaml.load(f)
-
-    if isinstance(yaml_config, str):
-        with open(yaml_config) as f:
-            yaml_config = yaml.load(f)
+    schema = load_yaml(schema)
+    yaml_config = load_yaml(yaml_config)
 
     jsonschema.validate(instance=yaml_config, schema=schema)
 
@@ -76,11 +71,10 @@ def validate_yaml_semantics(
     Raises:
         AssertionError: in case of problems
     """
-    if isinstance(yaml_config, str):
-        if not wd:
-            wd = os.path.dirname(yaml_config)
-        with open(yaml_config) as f:
-            yaml_config = yaml.load(f)
+    if isinstance(yaml_config, str) and not wd:
+        wd = os.path.dirname(yaml_config)
+
+    yaml_config = load_yaml(yaml_config)
 
     if wd:
         old_wd = os.getcwd()
@@ -101,3 +95,36 @@ def validate_yaml_semantics(
     finally:
         if wd:
             os.chdir(old_wd)
+
+
+def load_yaml(yaml_config: Union[Dict, str]) -> Dict:
+    """Load YAML
+
+    Convenience function to allow for providing YAML inputs either as filename
+    or as dictionary.
+
+    Arguments:
+        yaml_config:
+            PEtab YAML config as filename or dict.
+
+    Returns:
+        The unmodified dictionary if ``yaml_config`` was dictionary.
+        Otherwise the parsed the YAML file.
+    """
+
+    if isinstance(yaml_config, str):
+        with open(yaml_config) as f:
+            return yaml.load(f)
+
+    return yaml_config
+
+
+def is_composite_problem(yaml_config: Union[Dict, str]) -> bool:
+    """Does this YAML file comprise multiple models?
+
+    Arguments:
+        yaml_config: PEtab configuration as dictionary or YAML file name
+    """
+
+    yaml_config = load_yaml(yaml_config)
+    return len(yaml_config['problems']) > 1
