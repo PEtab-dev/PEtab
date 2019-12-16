@@ -111,7 +111,7 @@ def load_yaml(yaml_config: Union[Dict, str]) -> Dict:
 
     if isinstance(yaml_config, str):
         with open(yaml_config) as f:
-            return yaml.load(f)
+            return yaml.full_load(f)
 
     return yaml_config
 
