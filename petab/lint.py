@@ -423,12 +423,15 @@ def measurement_table_has_observable_parameter_numeric_overrides(
         True if there any numbers to override observable parameters,
         False otherwise.
     """
+    if 'observableParameters' not in measurement_df:
+        return False
 
     for i, row in measurement_df.iterrows():
         for override in measurements.split_parameter_replacement_list(
                 row.observableParameters):
             if isinstance(override, numbers.Number):
                 return True
+
     return False
 
 
