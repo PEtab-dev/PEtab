@@ -6,6 +6,10 @@ Data format:
 * Update format and documentation with respect to data and parameter scales
   (#169)
 
+Library:
+* Refactor library. Reorganize `petab.core` functions.
+* Fix visualization w/o condition names #142
+
 
 ### 0.0.0a17
 

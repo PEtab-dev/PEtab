@@ -57,6 +57,12 @@ autodoc_default_options = {
     "show-inheritance": None,
 }
 
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'restructuredtext',
+    '.md': 'markdown',
+}
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -76,3 +82,5 @@ html_context = {
     "github_version": "develop",
     "conf_py_path": "/doc",
 }
+
+html_logo = 'logo/PEtab.png'
