@@ -12,20 +12,21 @@ SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                       "petab_schema.yaml")
 
 
-def validate(yaml_config: Union[Dict, str], wd: Optional[str] = None):
+def validate(yaml_config: Union[Dict, str], path_prefix: Optional[str] = None):
     """Validate syntax and semantics of PEtab config YAML
 
     Arguments:
         yaml_config:
             PEtab YAML config as filename or dict.
-        wd:
-            Working directory for relative paths. Defaults to location of YAML
+        path_prefix:
+            Base location for relative paths. Defaults to location of YAML
             file if a filename was provided for ``yaml_config`` or the current
             working directory.
     """
 
     validate_yaml_syntax(yaml_config)
-    validate_yaml_semantics(yaml_config, wd)
+    validate_yaml_semantics(yaml_config=yaml_config,
+                            path_prefix=path_prefix)
 
 
 def validate_yaml_syntax(
@@ -53,7 +54,7 @@ def validate_yaml_syntax(
 
 
 def validate_yaml_semantics(
-        yaml_config: Union[Dict, str], wd: Optional[str] = None):
+        yaml_config: Union[Dict, str], path_prefix: Optional[str] = None):
     """Validate PEtab YAML file semantics
 
     Check for existence of files. Assumes valid syntax.
@@ -63,38 +64,34 @@ def validate_yaml_semantics(
     Arguments:
         yaml_config:
             PEtab YAML config as filename or dict.
-        wd:
-            Working directory for relative paths. Defaults to location of YAML
+        path_prefix:
+            Base location for relative paths. Defaults to location of YAML
             file if a filename was provided for ``yaml_config`` or the current
             working directory.
 
     Raises:
         AssertionError: in case of problems
     """
-    if isinstance(yaml_config, str) and not wd:
-        wd = os.path.dirname(yaml_config)
+    if not path_prefix:
+        if isinstance(yaml_config, str):
+            path_prefix = os.path.dirname(yaml_config)
+        else:
+            path_prefix = ""
 
     yaml_config = load_yaml(yaml_config)
-
-    if wd:
-        old_wd = os.getcwd()
-        os.chdir(wd)
 
     def _check_file(_filename: str, _field: str):
         if not os.path.isfile(_filename):
             raise AssertionError(f"File '{_filename}' provided as '{_field}' "
                                  "does not exist.")
 
-    try:
-        for problem_config in yaml_config['problems']:
-            for field in ['sbml_files', 'condition_files',
-                          'measurement_files']:
-                for filename in problem_config[field]:
-                    _check_file(filename, field)
-
-    finally:
-        if wd:
-            os.chdir(old_wd)
+    _check_file(os.path.join(path_prefix, yaml_config['parameter_file']),
+                'parameter_file')
+    for problem_config in yaml_config['problems']:
+        for field in ['sbml_files', 'condition_files',
+                      'measurement_files']:
+            for filename in problem_config[field]:
+                _check_file(os.path.join(path_prefix, filename), field)
 
 
 def load_yaml(yaml_config: Union[Dict, str]) -> Dict:

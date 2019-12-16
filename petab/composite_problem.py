@@ -46,32 +46,29 @@ class CompositeProblem:
             yaml_config: PEtab configuration as dictionary or YAML file name
         """
 
-        old_wd = os.getcwd()
         if isinstance(yaml_config, str):
-            new_wd = os.path.dirname(yaml_config)
+            path_prefix = os.path.dirname(yaml_config)
             yaml_config = yaml.load_yaml(yaml_config)
+        else:
+            path_prefix = ""
 
-        yaml_config = yaml.load_yaml(yaml_config)
+        parameter_df = parameters.get_parameter_df(
+            os.path.join(path_prefix, yaml_config['parameter_file']))
 
-        try:
-            if new_wd:
-                os.chdir(new_wd)
+        problems = []
+        for problem_config in yaml_config['problems']:
+            yaml.assert_single_condition_and_sbml_file(problem_config)
 
-            parameter_df = parameters.get_parameter_df(
-                yaml_config['parameter_file'])
-            problems = []
-            for problem_config in yaml_config['problems']:
-                yaml.assert_single_condition_and_sbml_file(problem_config)
+            # don't set parameter file if we have multiple models
+            cur_problem = problem.Problem.from_files(
+                sbml_file=os.path.join(
+                    path_prefix, problem_config['sbml_files'][0]),
+                measurement_file=os.path.join(
+                    path_prefix, problem_config['measurement_files']),
+                condition_file=os.path.join(
+                    path_prefix, problem_config['condition_files'][0]),
+            )
+            problems.append(cur_problem)
 
-                # don't set parameter file if we have multiple models
-                cur_problem = problem.Problem.from_files(
-                    sbml_file=problem_config['sbml_files'][0],
-                    measurement_file=problem_config['measurement_files'],
-                    condition_file=problem_config['condition_files'][0],
-                )
-                problems.append(cur_problem)
-
-            return CompositeProblem(parameter_df=parameter_df,
-                                    problems=problems)
-        finally:
-            os.chdir(old_wd)
+        return CompositeProblem(parameter_df=parameter_df,
+                                problems=problems)

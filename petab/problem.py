@@ -123,32 +123,31 @@ class Problem:
         Arguments:
             yaml_config: PEtab configuration as dictionary or YAML file name
         """
-        old_wd = os.getcwd()
         if isinstance(yaml_config, str):
-            new_wd = os.path.dirname(yaml_config)
+            path_prefix = os.path.dirname(yaml_config)
             yaml_config = yaml.load_yaml(yaml_config)
+        else:
+            path_prefix = ""
 
         if yaml.is_composite_problem(yaml_config):
             raise ValueError('petab.Problem.from_yaml() can only be used for '
                              'yaml files comprising a single model. '
                              'Consider using '
                              'petab.CompositeProblem.from_yaml() instead.')
-        try:
-            if new_wd:
-                os.chdir(new_wd)
 
-            problem0 = yaml_config['problems'][0]
+        problem0 = yaml_config['problems'][0]
 
-            yaml.assert_single_condition_and_sbml_file(problem0)
+        yaml.assert_single_condition_and_sbml_file(problem0)
 
-            return Problem.from_files(
-                sbml_file=problem0['sbml_files'][0],
-                measurement_file=problem0['measurement_files'],
-                condition_file=problem0['condition_files'][0],
-                parameter_file=yaml_config['parameter_file']
-            )
-        finally:
-            os.chdir(old_wd)
+        return Problem.from_files(
+            sbml_file=os.path.join(path_prefix, problem0['sbml_files'][0]),
+            measurement_file=os.path.join(
+                path_prefix, problem0['measurement_files']),
+            condition_file=os.path.join(
+                path_prefix, problem0['condition_files'][0]),
+            parameter_file=os.path.join(
+                path_prefix, yaml_config['parameter_file'])
+        )
 
     @staticmethod
     def from_folder(folder: str, model_name: str = None) -> 'Problem':
