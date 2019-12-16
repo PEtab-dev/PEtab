@@ -136,7 +136,8 @@ def assert_single_condition_and_sbml_file(problem_config: Dict) -> None:
             Dictionary as defined in the YAML schema inside the `problems`
             list.
     Raises:
-
+        NotImplementedError:
+            If multiple condition or SBML files specified.
     """
     if (len(problem_config['sbml_files']) > 1
             or len(problem_config['condition_files']) > 1):

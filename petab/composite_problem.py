@@ -35,8 +35,7 @@ class CompositeProblem:
         self.parameter_df: pd.DataFrame = parameter_df
 
     @staticmethod
-    def from_yaml(yaml_config: Union[Dict, str]
-                  ) -> 'CompositeProblem':
+    def from_yaml(yaml_config: Union[Dict, str]) -> 'CompositeProblem':
         """Create from YAML file
 
         Factory method to create a CompositeProblem instance from a PEtab

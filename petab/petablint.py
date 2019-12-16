@@ -87,14 +87,15 @@ def parse_cli_args():
             )
 
     if (args.yaml_file_name
-            and (args.sbml_file_name or args.condition_file_name
-                 or args.measurement_file_name or args.parameter_file_name)):
+            and any((args.sbml_file_name, args.condition_file_name,
+                     args.measurement_file_name, args.parameter_file_name))):
         parser.error('When providing a yaml file, no other files may '
                      'be specified.')
 
-    if (not args.model_name and not args.sbml_file_name
-            and not args.condition_file_name and not args.measurement_file_name
-            and not args.parameter_file_name and not args.yaml_file_name):
+    if (not args.model_name
+            and not any(args.sbml_file_name, args.condition_file_name,
+                        args.measurement_file_name, args.parameter_file_name,
+                        args.yaml_file_name)):
         parser.error('Neither model name nor any filename specified. '
                      'What shall I do?')
 
@@ -118,7 +119,8 @@ def main():
             from petab.yaml import validate
             validate(args.yaml_file_name)
 
-            # TODO: further checking
+            # TODO: further checking:
+            #  https://github.com/ICB-DCM/PEtab/issues/191
             #  problem = petab.CompositeProblem.from_yaml(args.yaml_file_name)
             return
         else:

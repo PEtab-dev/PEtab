@@ -391,8 +391,8 @@ Extra columns:
 
 - `objectivePriorType` (optional)
 
-  Prior types used for the objective function during optimization. Uses the
-  entries from `priorType` as default, but will overwrite those, if
+  Prior types used for the objective function during optimization or sampling.
+  Uses the entries from `priorType` as default, but will overwrite those, if
   something else is specified here. For more detailed documentation, see
   `priorType`.
 
