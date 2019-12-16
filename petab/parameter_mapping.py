@@ -4,7 +4,7 @@ problem"""
 import logging
 import numbers
 import re
-from typing import Tuple, Dict, Union, Any, List, Optional
+from typing import Tuple, Dict, Union, Any, List, Optional, Iterable
 
 import libsbml
 import numpy as np
@@ -405,8 +405,8 @@ def merge_preeq_and_sim_pars_condition(
         condition_scale_map_preeq: ScaleMappingDict,
         condition_scale_map_sim: ScaleMappingDict,
         condition: Any) -> None:
-    """Merge preequilibration and simulation parameters and scales while
-    checking for compatibility.
+    """Merge preequilibration and simulation parameters and scales for a single
+    condition while checking for compatibility.
 
     This function is meant for the case where we cannot have different
     parameters (and scales) for preequilibration and simulation. Therefore,
@@ -461,3 +461,36 @@ def merge_preeq_and_sim_pars_condition(
                     f'parameters: for condition {condition} '
                     f'scale for parameter {idx} is {scale_preeq} for preeq '
                     f'and {scale_sim} for simulation.')
+
+
+def merge_preeq_and_sim_pars(
+        parameter_mappings: Iterable[ParMappingDictTuple],
+        scale_mappings: Iterable[ScaleMappingDictTuple]
+) -> Tuple[List[ParMappingDictTuple], List[ScaleMappingDictTuple]]:
+    """Merge preequilibration and simulation parameters and scales for a list
+    of conditions while checking for compatibility.
+
+    Parameters:
+        parameter_mappings:
+            As returned by
+            petab.get_optimization_to_simulation_parameter_mapping
+        scale_mappings:
+            As returned by petab.get_optimization_to_simulation_scale_mapping.
+
+    Returns:
+        The parameter and scale simulation mappings, modified and checked.
+    """
+    parameter_mapping = []
+    scale_mapping = []
+    for ic, ((map_preeq, map_sim), (scale_map_preeq, scale_map_sim)) in \
+            enumerate(zip(parameter_mappings, scale_mappings)):
+        merge_preeq_and_sim_pars_condition(
+            condition_map_preeq=map_preeq,
+            condition_map_sim=map_sim,
+            condition_scale_map_preeq=scale_map_preeq,
+            condition_scale_map_sim=scale_map_sim,
+            condition=ic)
+        parameter_mapping.append(map_sim)
+        scale_mapping.append(scale_map_sim)
+
+    return parameter_mapping, scale_mapping
