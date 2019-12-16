@@ -5,6 +5,7 @@ API Reference
    :toctree: build/_autosummary
 
    petab
+   petab.composite_problem
    petab.core
    petab.conditions
    petab.lint
@@ -14,8 +15,8 @@ API Reference
    petab.problem
    petab.sampling
    petab.sbml
+   petab.yaml
    petab.visualize.data_overview
    petab.visualize.helper_functions
    petab.visualize.plot_data_and_simulation
    petab.visualize.plotting_config
-

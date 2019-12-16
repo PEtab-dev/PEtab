@@ -10,12 +10,8 @@ import libsbml
 import numpy as np
 import pandas as pd
 
-from . import core
-from . import sbml
-from .parameters import get_required_parameters_for_parameter_table
-from .sbml import get_observables, get_sigmas
-from .measurements import (split_parameter_replacement_list,
-                           assert_overrides_match_parameter_count)
+import petab
+from . import (core, parameters, sbml, measurements)
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +185,7 @@ def assert_all_parameters_present_in_parameter_df(
         AssertionError: in case of problems
     """
 
-    expected = get_required_parameters_for_parameter_table(
+    expected = parameters.get_required_parameters_for_parameter_table(
         sbml_model=sbml_model, condition_df=condition_df,
         measurement_df=measurement_df)
 
@@ -224,7 +220,7 @@ def assert_measured_observables_present_in_model(
     measurement_observables = [f'observable_{x}' for x in
                                measurement_df.observableId.values]
 
-    model_observables = get_observables(sbml_model)
+    model_observables = sbml.get_observables(sbml_model)
     undefined_observables = set(measurement_observables) - set(
         model_observables.keys())
 
@@ -234,16 +230,17 @@ def assert_measured_observables_present_in_model(
             f"{undefined_observables}.")
 
 
-def condition_table_is_parameter_free(condition_df: pd.DataFrame) -> None:
+def condition_table_is_parameter_free(condition_df: pd.DataFrame) -> bool:
     """Check if all entries in the condition table are numeric
     (no parameter IDs)
 
     Arguments:
         condition_df: PEtab condition table
 
-    Raises:
-        AssertionError: in case of problems
-"""
+    Returns:
+        True if there are no parameter overrides in the condition table,
+        False otherweise.
+    """
 
     constant_parameters = list(
         set(condition_df.columns.values.tolist()) - {'conditionId',
@@ -371,7 +368,7 @@ def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
 
 
 def measurement_table_has_timepoint_specific_mappings(
-        measurement_df: pd.DataFrame) -> None:
+        measurement_df: pd.DataFrame) -> bool:
     """
     Are there time-point or replicate specific parameter assignments in the
     measurement table.
@@ -379,8 +376,9 @@ def measurement_table_has_timepoint_specific_mappings(
     Arguments:
         measurement_df: PEtab measurement table
 
-    Raises:
-        AssertionError: in case of problems
+    Returns:
+        True if there are time-point or replicate specific parameter
+        assignments in the measurement table, False otherwise.
     """
     # since we edit it, copy it first
     measurement_df = copy.deepcopy(measurement_df)
@@ -415,18 +413,19 @@ def measurement_table_has_timepoint_specific_mappings(
 
 
 def measurement_table_has_observable_parameter_numeric_overrides(
-        measurement_df: pd.DataFrame) -> None:
+        measurement_df: pd.DataFrame) -> bool:
     """Are there any numbers to override observable parameters?
 
     Arguments:
         measurement_df: PEtab measurement table
 
-    Raises:
-        AssertionError: in case of problems
+    Returns:
+        True if there any numbers to override observable parameters,
+        False otherwise.
     """
 
     for i, row in measurement_df.iterrows():
-        for override in split_parameter_replacement_list(
+        for override in measurements.split_parameter_replacement_list(
                 row.observableParameters):
             if isinstance(override, numbers.Number):
                 return True
@@ -490,7 +489,7 @@ def assert_noise_distributions_valid(measurement_df: pd.DataFrame) -> None:
             f"file is not unique: \n{distrs_check}")
 
 
-def lint_problem(problem: 'core.Problem') -> None:
+def lint_problem(problem: 'petab.Problem') -> bool:
     """Run PEtab validation on problem
 
     Arguments:
@@ -546,10 +545,10 @@ def lint_problem(problem: 'core.Problem') -> None:
         try:
             assert_measured_observables_present_in_model(
                 problem.measurement_df, problem.sbml_model)
-            assert_overrides_match_parameter_count(
+            measurements.assert_overrides_match_parameter_count(
                 problem.measurement_df,
-                get_observables(problem.sbml_model, remove=False),
-                get_sigmas(problem.sbml_model, remove=False)
+                sbml.get_observables(problem.sbml_model, remove=False),
+                sbml.get_sigmas(problem.sbml_model, remove=False)
             )
         except AssertionError as e:
             logger.error(e)
