@@ -141,8 +141,8 @@ class Problem:
 
         return Problem.from_files(
             sbml_file=os.path.join(path_prefix, problem0['sbml_files'][0]),
-            measurement_file=os.path.join(
-                path_prefix, problem0['measurement_files']),
+            measurement_file=[os.path.join(path_prefix, f)
+                              for f in problem0['measurement_files']],
             condition_file=os.path.join(
                 path_prefix, problem0['condition_files'][0]),
             parameter_file=os.path.join(
