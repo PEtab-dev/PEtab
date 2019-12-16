@@ -5,7 +5,7 @@ import pandas as pd
 
 from typing import Tuple
 
-from. import parameters
+from . import parameters
 
 
 def sample_from_prior(prior: Tuple[str, list, str, list],

@@ -373,18 +373,18 @@ Extra columns:
 - `hierarchicalOptimization` (optional)
 
   hierarchicalOptimization: 1 if parameter is optimized using hierarchical
-  optimization approach. 0 otherwise.
+  optimization approach, 0 otherwise.
 
 - `initializationPriorType` (optional)
 
-  Prior types used for sampling of initial point for optimization. Uses the
+  Prior types used for sampling of initial points for optimization. Uses the
   entries from `priorType` as default, but will overwrite those, if
   something else is specified here. For more detailed documentation, see
   `priorType`.
 
 - `initializationPriorParameters` (optional)
 
-  Prior parameters used for sampling of initial point for optimization. Uses
+  Prior parameters used for sampling of initial points for optimization. Uses
   the entries from `priorParameters` as default, but will overwrite those, if
   something else is specified here. For more detailed documentation, see
   `priorParameters`.
@@ -527,6 +527,6 @@ easy validation.
 
 Parameter estimation problems can comprise multiple models. For now, PEtab
 allows to specify multiple SBML models with corresponding condition and
-measurement tables, and one joint parameter table. This means that parameter
+measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.

@@ -377,8 +377,8 @@ def measurement_table_has_timepoint_specific_mappings(
         measurement_df: PEtab measurement table
 
     Returns:
-        True, if there time-point or replicate specific parameter assignments
-        in the measurement table, False otherwise.
+        True if there are time-point or replicate specific parameter
+        assignments in the measurement table, False otherwise.
     """
     # since we edit it, copy it first
     measurement_df = copy.deepcopy(measurement_df)
