@@ -12,8 +12,8 @@ properties:
   parameter_file:
     type: string
     description: |
-      PEtab parameter file name containing parameters of all models listed in
-      `problems`. Absolute or relative path.
+      File name (absolute or relative) or URL to PEtab parameter table
+      containing parameters of all models listed in `problems`.
 
   problems:
     type: array
@@ -25,16 +25,16 @@ properties:
       properties:
         sbml_file:
           type: string
-          description: PEtab SBML file
+          description: PEtab SBML file name or URL
         measurement_files:
           type: array
           description: List of PEtab measurement files
           items:
             type: string
-            description: PEtab measurement file
+            description: PEtab measurement file name or URL
         condition_file:
           type: string
-          description: PEtab condition file
+          description: PEtab condition file name or URL
       required:
         - sbml_file
         - measurement_files
