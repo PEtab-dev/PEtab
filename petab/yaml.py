@@ -87,10 +87,10 @@ def validate_yaml_semantics(
 
     try:
         for problem_config in yaml_config['problems']:
-            for field in ['sbml_file', 'condition_file']:
-                _check_file(problem_config[field], field)
-            for filename in problem_config['measurement_files']:
-                _check_file(filename, 'measurement_files')
+            for field in ['sbml_files', 'condition_files',
+                          'measurement_files']:
+                for filename in problem_config[field]:
+                    _check_file(filename, field)
 
     finally:
         if wd:
@@ -128,3 +128,23 @@ def is_composite_problem(yaml_config: Union[Dict, str]) -> bool:
 
     yaml_config = load_yaml(yaml_config)
     return len(yaml_config['problems']) > 1
+
+
+def assert_single_condition_and_sbml_file(problem_config: Dict) -> None:
+    """Check that there is only a single condition file and a single SBML
+    file specified.
+
+    Arguments:
+        problem_config:
+            Dictionary as defined in the YAML schema inside the `problems`
+            list.
+    Raises:
+
+    """
+    if (len(problem_config['sbml_files']) > 1
+            or len(problem_config['condition_files']) > 1):
+        # TODO https://github.com/ICB-DCM/PEtab/issues/188
+        # TODO https://github.com/ICB-DCM/PEtab/issues/189
+        raise NotImplementedError(
+            'Support for multiple models or condition files is not yet '
+            ' implemented.')

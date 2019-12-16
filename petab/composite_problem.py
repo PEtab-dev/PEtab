@@ -61,11 +61,13 @@ class CompositeProblem:
                 yaml_config['parameter_file'])
             problems = []
             for problem_config in yaml_config['problems']:
+                yaml.assert_single_condition_and_sbml_file(problem_config)
+
                 # don't set parameter file if we have multiple models
                 cur_problem = problem.Problem.from_files(
-                    sbml_file=problem_config['sbml_file'],
+                    sbml_file=problem_config['sbml_files'][0],
                     measurement_file=problem_config['measurement_files'],
-                    condition_file=problem_config['condition_file'],
+                    condition_file=problem_config['condition_files'][0],
                 )
                 problems.append(cur_problem)
 

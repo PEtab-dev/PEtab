@@ -138,10 +138,13 @@ class Problem:
                 os.chdir(new_wd)
 
             problem0 = yaml_config['problems'][0]
+
+            yaml.assert_single_condition_and_sbml_file(problem0)
+
             return Problem.from_files(
-                sbml_file=problem0['sbml_file'],
+                sbml_file=problem0['sbml_files'][0],
                 measurement_file=problem0['measurement_files'],
-                condition_file=problem0['condition_file'],
+                condition_file=problem0['condition_files'][0],
                 parameter_file=yaml_config['parameter_file']
             )
         finally:
