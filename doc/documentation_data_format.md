@@ -519,7 +519,7 @@ Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
 
 The format is described in the schema
-[../petab/petab_schema.yaml](../petab/petab_schema.yaml), which allows for
+[../petab/petab_schema.yaml](_static/petab_schema.yaml), which allows for
 easy validation.
 
 
