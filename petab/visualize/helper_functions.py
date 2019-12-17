@@ -1,7 +1,4 @@
 """
-helper_functions.py
-===================
-
 This file should contain the functions, which PEtab internally needs for
 plotting, but which are not meant to be used by non-developers and should
 hence not be directly visible/usable when using import `petab.visualize`
@@ -400,31 +397,29 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
     'ms'.
 
     Parameters:
-    -----------
+        vis_spec:
+            pandas data frame, contains defined data format
+            (visualization file)
+        m_data:
+            pandas data frame, contains defined data format (measurement file)
+        simulation_data:
+            pandas data frame, contains defined data format (simulation file)
+        condition_ids:
+            numpy array, containing all unique condition IDs which should be
+            plotted in one figure (can be found in measurementData file,
+            column simulationConditionId)
+        i_visu_spec:
+            int, current index (row number) of row which should be plotted in
+            visualizationSpecification file
+        col_id:
+            str, the name of the column in visualization file, whose entries
+            should be unique (depends on condition in column
+            independentVariableName)
 
-    vis_spec:
-        pandas data frame, contains defined data format (visualization file)
-    m_data:
-        pandas data frame, contains defined data format (measurement file)
-    simulation_data:
-        pandas data frame, contains defined data format (simulation file)
-    condition_ids:
-        numpy array, containing all unique condition IDs which should be
-        plotted in one figure (can be found in measurementData file,
-        column simulationConditionId)
-    i_visu_spec:
-        int, current index (row number) of row which should be plotted in
-        visualizationSpecification file
-    col_id:
-        str, the name of the column in visualization file, whose entries
-        should be unique (depends on condition in column
-        independentVariableName)
-
-    Return:
-    ----------
-
-    data_to_plot: pandas data frame containing the data which should be plotted
-    (Mean and Std)
+    Returns:
+        data_to_plot:
+            pandas.DataFrame containing the data which should be plotted
+            (Mean and Std)
     """
 
     # create empty dataframe for means and SDs

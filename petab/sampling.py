@@ -5,7 +5,7 @@ import pandas as pd
 
 from typing import Tuple
 
-from .parameters import get_priors_from_df
+from . import parameters
 
 
 def sample_from_prior(prior: Tuple[str, list, str, list],
@@ -100,7 +100,7 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
         np.random.seed(seed)
 
     # get types and parameters of priors from dataframe
-    prior_list = get_priors_from_df(parameter_df)
+    prior_list = parameters.get_priors_from_df(parameter_df)
 
     startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
 

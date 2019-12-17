@@ -5,10 +5,10 @@ import os
 import pandas as pd
 
 from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml)
+               sampling, sbml, yaml)
 
 import libsbml
-from typing import Optional, List
+from typing import Optional, List, Union, Dict
 
 
 class Problem:
@@ -94,7 +94,13 @@ class Problem:
         if condition_file:
             condition_df = conditions.get_condition_df(condition_file)
         if measurement_file:
-            measurement_df = measurements.get_measurement_df(measurement_file)
+            if isinstance(measurement_file, str):
+                measurement_df = measurements.get_measurement_df(
+                    measurement_file)
+            else:
+                # If there are multiple tables, we will merge them
+                measurement_df = measurements.concat_measurements(
+                    measurement_file)
         if parameter_file:
             parameter_df = parameters.get_parameter_df(parameter_file)
         if sbml_file:
@@ -108,6 +114,40 @@ class Problem:
                        sbml_model=sbml_model,
                        sbml_document=sbml_document,
                        sbml_reader=sbml_reader)
+
+    @staticmethod
+    def from_yaml(yaml_config: Union[Dict, str]) -> 'Problem':
+        """
+        Factory method to load model and tables as specified by YAML file.
+
+        Arguments:
+            yaml_config: PEtab configuration as dictionary or YAML file name
+        """
+        if isinstance(yaml_config, str):
+            path_prefix = os.path.dirname(yaml_config)
+            yaml_config = yaml.load_yaml(yaml_config)
+        else:
+            path_prefix = ""
+
+        if yaml.is_composite_problem(yaml_config):
+            raise ValueError('petab.Problem.from_yaml() can only be used for '
+                             'yaml files comprising a single model. '
+                             'Consider using '
+                             'petab.CompositeProblem.from_yaml() instead.')
+
+        problem0 = yaml_config['problems'][0]
+
+        yaml.assert_single_condition_and_sbml_file(problem0)
+
+        return Problem.from_files(
+            sbml_file=os.path.join(path_prefix, problem0['sbml_files'][0]),
+            measurement_file=[os.path.join(path_prefix, f)
+                              for f in problem0['measurement_files']],
+            condition_file=os.path.join(
+                path_prefix, problem0['condition_files'][0]),
+            parameter_file=os.path.join(
+                path_prefix, yaml_config['parameter_file'])
+        )
 
     @staticmethod
     def from_folder(folder: str, model_name: str = None) -> 'Problem':
@@ -199,6 +239,24 @@ class Problem:
     def ub(self) -> List:
         """Parameter table upper bounds"""
         return list(self.parameter_df['upperBound'])
+
+    @property
+    def x_nominal_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling"""
+        return list(parameters.map_scale(self.parameter_df['nominalValue'],
+                                         self.parameter_df['parameterScale']))
+
+    @property
+    def lb_scaled(self) -> List:
+        """Parameter table lower bounds with applied parameter scaling"""
+        return list(parameters.map_scale(self.parameter_df['lowerBound'],
+                                         self.parameter_df['parameterScale']))
+
+    @property
+    def ub_scaled(self) -> List:
+        """Parameter table upper bounds with applied parameter scaling"""
+        return list(parameters.map_scale(self.parameter_df['upperBound'],
+                                         self.parameter_df['parameterScale']))
 
     @property
     def x_fixed_indices(self) -> List[int]:

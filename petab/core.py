@@ -90,7 +90,7 @@ def get_observable_id(parameter_id: str) -> str:
 
 
 def flatten_timepoint_specific_output_overrides(
-        petab_problem: problem.Problem) -> None:
+        petab_problem: 'problem.Problem') -> None:
     """Flatten timepoint-specific output parameter overrides.
 
     If the PEtab problem definition has timepoint-specific
