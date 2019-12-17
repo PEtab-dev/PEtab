@@ -1,10 +1,7 @@
-import pytest
 import libsbml
-import sys
-import os
 import pandas as pd
-
-sys.path.append(os.getcwd())
+import petab
+import pytest
 from petab import (lint, sbml)  # noqa: E402
 
 
@@ -89,35 +86,35 @@ def test_assert_overrides_match_parameter_count():
     })
 
     # No overrides
-    lint.assert_overrides_match_parameter_count(measurement_df_orig,
-                                                observables, noise)
+    petab.assert_overrides_match_parameter_count(
+        measurement_df_orig, observables, noise)
 
     # Sigma override
     measurement_df = measurement_df_orig.copy()
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride'
-    lint.assert_overrides_match_parameter_count(
+    petab.assert_overrides_match_parameter_count(
         measurement_df, observables, noise)
 
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride;oneTooMuch'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(
+        petab.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
 
     measurement_df.loc[0, 'noiseParameters'] = 'noiseParOverride'
     measurement_df.loc[1, 'noiseParameters'] = 'oneTooMuch'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(
+        petab.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
 
     # Observable override
     measurement_df = measurement_df_orig.copy()
     measurement_df.loc[1, 'observableParameters'] = 'override1;override2'
-    lint.assert_overrides_match_parameter_count(
+    petab.assert_overrides_match_parameter_count(
         measurement_df, observables, noise)
 
     measurement_df.loc[1, 'observableParameters'] = 'oneMissing'
     with pytest.raises(AssertionError):
-        lint.assert_overrides_match_parameter_count(
+        petab.assert_overrides_match_parameter_count(
             measurement_df, observables, noise)
 
 
@@ -188,6 +185,7 @@ def test_assert_noise_distributions_valid():
         'simulationConditionId': ['condition1', 'condition1'],
         'preequilibrationConditionId': ['', ''],
         'time': [1.0, 2.0],
+        'measurement': [1.0, 2.0],
         'observableParameters': ['', ''],
         'noiseParameters': ['', ''],
         'noiseDistribution': ['', ''],
@@ -201,3 +199,28 @@ def test_assert_noise_distributions_valid():
     measurement_df['noiseDistribution'] = ['Normal', '']
     with pytest.raises(ValueError):
         lint.assert_noise_distributions_valid(measurement_df)
+
+    measurement_df['noiseDistribution'] = ['', '']
+    measurement_df['observableTransformation'] = ['log', '']
+    measurement_df['measurement'] = [-1.0, 0.0]
+    with pytest.raises(ValueError):
+        lint.assert_noise_distributions_valid(measurement_df)
+
+
+def test_check_parameter_bounds():
+    lint.check_parameter_bounds(pd.DataFrame(
+        {'lowerBound': [1], 'upperBound': [2], 'estimate': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [3], 'upperBound': [2], 'estimate': [1]}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2],
+             'estimate': [1], 'parameterScale': ['log10']}))
+
+    with pytest.raises(AssertionError):
+        lint.check_parameter_bounds(pd.DataFrame(
+            {'lowerBound': [-1], 'upperBound': [2],
+             'estimate': [1], 'parameterScale': ['log']}))

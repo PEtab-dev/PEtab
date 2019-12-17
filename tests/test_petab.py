@@ -148,21 +148,6 @@ def test_parameter_is_scaling_parameter():
     assert petab.parameter_is_scaling_parameter('a', 'a * a') is False
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-def test_petab_problem(petab_problem):
-    """
-    Basic tests on petab problem.
-    """
-    assert petab_problem.get_constant_parameters() == ['fixedParameter1']
-
-
-def test_deprecation(petab_problem):
-    """
-    petab_problem.get_constant_parameters should trigger a deprecation warning
-    """
-    pytest.deprecated_call(petab_problem.get_constant_parameters)
-
-
 def test_serialization(petab_problem):
     # serialize and back
     problem_recreated = pickle.loads(pickle.dumps(petab_problem))

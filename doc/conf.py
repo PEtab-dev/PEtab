@@ -51,10 +51,19 @@ autosummary_generate = True
 
 autodoc_default_options = {
     "members": None,
-    "imported-members": None,
+    "imported-members": ['petab'],
     "inherited-members": None,
     "private-members": None,
     "show-inheritance": None,
+}
+
+# For some reason causes sphinx import errors otherwise
+autodoc_mock_imports = ['yaml']
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'restructuredtext',
+    '.md': 'markdown',
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -76,3 +85,5 @@ html_context = {
     "github_version": "develop",
     "conf_py_path": "/doc",
 }
+
+html_logo = 'logo/PEtab.png'
