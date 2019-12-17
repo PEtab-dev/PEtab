@@ -232,3 +232,28 @@ def parameter_id_is_valid(parameter_id: str) -> bool:
     """
 
     return parameter_id != ''
+
+
+def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
+    """Scale parameter according to scale_str
+
+    Arguments:
+        parameter:
+            Parameter to be scaled
+        scale_str:
+            One of 'lin' (synonymous with ''), 'log', 'log10'
+    """
+
+    if scale_str == 'lin' or not scale_str:
+        return parameter
+    if scale_str == 'log':
+        return np.log(parameter)
+    if scale_str == 'log10':
+        return np.log10(parameter)
+    raise ValueError("Invalid parameter scaling: " + scale_str)
+
+
+def map_scale(parameters: Iterable[numbers.Number],
+              scale_strs: Iterable[str]) -> Iterable[numbers.Number]:
+    """As scale(), but for Iterables"""
+    return map(lambda x: scale(x[0], x[1]), zip(parameters, scale_strs))

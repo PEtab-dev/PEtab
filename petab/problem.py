@@ -241,6 +241,24 @@ class Problem:
         return list(self.parameter_df['upperBound'])
 
     @property
+    def x_nominal_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling"""
+        return list(parameters.map_scale(self.parameter_df['nominalValue'],
+                                         self.parameter_df['parameterScale']))
+
+    @property
+    def lb_scaled(self) -> List:
+        """Parameter table lower bounds with applied parameter scaling"""
+        return list(parameters.map_scale(self.parameter_df['lowerBound'],
+                                         self.parameter_df['parameterScale']))
+
+    @property
+    def ub_scaled(self) -> List:
+        """Parameter table upper bounds with applied parameter scaling"""
+        return list(parameters.map_scale(self.parameter_df['upperBound'],
+                                         self.parameter_df['parameterScale']))
+
+    @property
     def x_fixed_indices(self) -> List[int]:
         """Parameter table non-estimated parameter indices"""
         estimated = list(self.parameter_df['estimate'])
