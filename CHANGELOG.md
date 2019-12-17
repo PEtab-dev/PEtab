@@ -1,14 +1,20 @@
 # PEtab changelog
 
-### Unreleased
+### 0.0.1
 
 Data format:
 * Update format and documentation with respect to data and parameter scales
   (#169)
+* Define YAML schema for grouping PEtab files, also allowing for more complex
+  combinations of files (#183)
 
 Library:
 * Refactor library. Reorganize `petab.core` functions.
 * Fix visualization w/o condition names #142
+* Extend validator
+* Removed deprecated functions petab.Problem.get_constant_parameters
+  and petab.sbml.constant_species_to_parameters
+* Minor fixes and extensions
 
 
 ### 0.0.0a17
