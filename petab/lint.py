@@ -516,6 +516,7 @@ def lint_problem(problem: 'petab.Problem') -> bool:
         logger.info("Checking measurement table...")
         try:
             check_measurement_df(problem.measurement_df)
+            assert_noise_distributions_valid(problem.measurement_df)
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
