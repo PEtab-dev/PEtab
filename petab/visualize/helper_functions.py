@@ -262,6 +262,8 @@ def create_figure(uni_plot_ids):
 
     # initialize figure
     fig, ax = plt.subplots(int(num_row), int(num_col), squeeze=False)
+    for axes in ax.flat[num_subplot:]:  # trim subplots output to the correct size
+        axes.remove()
 
     return fig, ax, num_row, num_col
 
