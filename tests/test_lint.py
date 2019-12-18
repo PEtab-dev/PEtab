@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 import libsbml
 import pandas as pd
 import petab
@@ -224,3 +227,16 @@ def test_check_parameter_bounds():
         lint.check_parameter_bounds(pd.DataFrame(
             {'lowerBound': [-1], 'upperBound': [2],
              'estimate': [1], 'parameterScale': ['log']}))
+
+
+def test_petablint_succeeds():
+    """Run petablint and ensure we exit successfully for a file that should
+    contain no errors"""
+
+    script_path = os.path.abspath(os.path.dirname(__file__))
+    test_mes_file = os.path.join(
+        script_path, '..',
+        'doc/example/example_Isensee/Isensee_measurementData.tsv')
+
+    result = subprocess.run(['petablint', '-m', test_mes_file])
+    assert result.returncode == 0

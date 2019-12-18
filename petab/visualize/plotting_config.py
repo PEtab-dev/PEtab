@@ -76,18 +76,18 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
         label_base = vis_spec[ind_plot].legendEntry[i_visu_spec]
         if vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSD':
             p = ax[axx, axy].errorbar(
-                conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
+                conditions, ms['mean'], ms['sd'], linestyle='-.', marker='.',
                 label=label_base)
             colors = p[0].get_color()
             if plot_sim:
                 ax[axx, axy].plot(
-                    conditions, ms['sim'], linestyle='-.', marker='o',
+                    conditions, ms['sim'], linestyle='-', marker='o',
                     label=label_base + " simulation", color=colors)
 
         # construct errorbar-plots: Mean and standard error of mean
         elif vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSEM':
             ax[axx, axy].errorbar(
-                conditions, ms['mean'], ms['sem'], linestyle='-', marker='.',
+                conditions, ms['mean'], ms['sem'], linestyle='-.', marker='.',
                 label=label_base)
 
         # plotting all measurement data
@@ -102,11 +102,11 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
         elif vis_spec.plotTypeData[i_visu_spec] == 'provided':
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['noise_model'],
-                linestyle='-', marker='.', label=label_base)
+                linestyle='-.', marker='.', label=label_base)
             colors = p[0].get_color()
             if plot_sim:
                 ax[axx, axy].plot(
-                    conditions, ms['sim'], linestyle='-.', marker='o',
+                    conditions, ms['sim'], linestyle='-', marker='o',
                     label=label_base + " simulation", color=colors)
 
         ax[axx, axy].legend()
