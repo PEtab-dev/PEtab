@@ -1,5 +1,13 @@
 # PEtab changelog
 
+### 0.0.2
+
+Bugfix release
+
+* Fix `petablint` error
+* Fix minor issues in `petab.visualize`
+
+
 ### 0.0.1
 
 Data format:
