@@ -93,9 +93,9 @@ def parse_cli_args():
                      'be specified.')
 
     if (not args.model_name
-            and not any(args.sbml_file_name, args.condition_file_name,
+            and not any([args.sbml_file_name, args.condition_file_name,
                         args.measurement_file_name, args.parameter_file_name,
-                        args.yaml_file_name)):
+                        args.yaml_file_name])):
         parser.error('Neither model name nor any filename specified. '
                      'What shall I do?')
 
