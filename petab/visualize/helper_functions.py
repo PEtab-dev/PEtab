@@ -394,8 +394,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                      i_visu_spec: int,
                      col_id: str):
     """
-    group the data, which should be plotted and save it in pd.dataframe called
-    'ms'.
+    group the data, which should be plotted and return it as dataframe.
 
     Parameters:
     ----------
