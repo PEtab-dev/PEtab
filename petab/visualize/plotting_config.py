@@ -71,43 +71,43 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
 
         # add xOffset
         conditions = conditions + vis_spec.xOffset[i_visu_spec]
+        
+        # TODO sort mean and sd/sem by x values (as for simulatedData below) 
+        # to avoid crazy lineplots in case x values are not sorted by default. 
 
         # construct errorbar-plots: Mean and standard deviation
         label_base = vis_spec[ind_plot].legendEntry[i_visu_spec]
         if vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSD':
             p = ax[axx, axy].errorbar(
-                conditions, ms['mean'], ms['sd'], linestyle='-', marker='.',
+                conditions, ms['mean'], ms['sd'], linestyle='-.', marker='.',
                 label=label_base)
-            colors = p[0].get_color()
-            if plot_sim:
-                ax[axx, axy].plot(
-                    conditions, ms['sim'], linestyle='-.', marker='o',
-                    label=label_base + " simulation", color=colors)
 
         # construct errorbar-plots: Mean and standard error of mean
         elif vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSEM':
-            ax[axx, axy].errorbar(
-                conditions, ms['mean'], ms['sem'], linestyle='-', marker='.',
+            p = ax[axx, axy].errorbar(
+                conditions, ms['mean'], ms['sem'], linestyle='-.', marker='.',
                 label=label_base)
 
         # plotting all measurement data
         elif vis_spec.plotTypeData[i_visu_spec] == 'replicate':
-            for ii in range(0, len(ms['repl'])):
-                for k in range(0, len(ms.repl[ii])):
-                    ax[axx, axy].plot(
-                        conditions[conditions.index.values[ii]],
-                        ms.repl[ii][ms.repl[ii].index.values[k]], 'x')
-
+            p = ax[axx, axy].plot(
+                conditions[conditions.index.values],
+                ms.repl[ms.repl.index.values], 'x',
+                label=label_base)
+            
         # construct errorbar-plots: Mean and noise provided in measurement file
         elif vis_spec.plotTypeData[i_visu_spec] == 'provided':
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['noise_model'],
-                linestyle='-', marker='.', label=label_base)
-            colors = p[0].get_color()
-            if plot_sim:
-                ax[axx, axy].plot(
-                    conditions, ms['sim'], linestyle='-.', marker='o',
-                    label=label_base + " simulation", color=colors)
+                linestyle='-.', marker='.', label=label_base)
+        
+        # construct simulation plot        
+        colors = p[0].get_color()
+        if plot_sim:
+            xs, ys = zip(*sorted(zip(conditions, ms['sim'])))
+            ax[axx, axy].plot(
+                xs, ys, linestyle='-', marker='o',
+                label=label_base + " simulation", color=colors)
 
         ax[axx, axy].legend()
         ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
