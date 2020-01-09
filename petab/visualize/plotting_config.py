@@ -71,10 +71,10 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
 
         # add xOffset
         conditions = conditions + vis_spec.xOffset[i_visu_spec]
-        
-        # TODO sort mean and sd/sem by x values (as for simulatedData below) 
-        # to avoid crazy lineplots in case x values are not sorted by default. 
 
+        # TODO sort mean and sd/sem by x values (as for simulatedData below)
+        # to avoid crazy lineplots in case x values are not sorted by default.
+        #
         # construct errorbar-plots: Mean and standard deviation
         label_base = vis_spec[ind_plot].legendEntry[i_visu_spec]
         if vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSD':
@@ -94,14 +94,14 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                 conditions[conditions.index.values],
                 ms.repl[ms.repl.index.values], 'x',
                 label=label_base)
-            
+
         # construct errorbar-plots: Mean and noise provided in measurement file
         elif vis_spec.plotTypeData[i_visu_spec] == 'provided':
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['noise_model'],
                 linestyle='-.', marker='.', label=label_base)
-        
-        # construct simulation plot        
+
+        # construct simulation plot
         colors = p[0].get_color()
         if plot_sim:
             xs, ys = zip(*sorted(zip(conditions, ms['sim'])))
