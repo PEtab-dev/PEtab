@@ -268,6 +268,9 @@ def test_assert_measurement_conditions_present_in_condition_table():
     measurement_df['preequilibrationConditionId'] = ['condition1',
                                                      'condition2']
 
+    lint.assert_measurement_conditions_present_in_condition_table(
+        measurement_df=measurement_df, condition_df=condition_df)
+
     # check we detect missing condition
     measurement_df['preequilibrationConditionId'] = ['missing_condition1',
                                                      'missing_condition2']
