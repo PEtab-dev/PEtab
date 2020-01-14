@@ -1,21 +1,27 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from .helper_functions import (import_from_files,
+import petab.problem
+from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot)
+from typing import Union, Optional, List
+
+IdsList = List[str]
+NumList = List[int]
 
 
-def plot_data_and_simulation(data_file_path: str,
-                             condition_file_path: str,
-                             visualization_file_path: str = '',
-                             simulation_file_path: str = '',
-                             dataset_id_list=None,
-                             sim_cond_id_list=None,
-                             sim_cond_num_list=None,
-                             observable_id_list=None,
-                             observable_num_list=None,
-                             plotted_noise: str = 'MeanAndSD'):
+def plot_data_and_simulation(
+        exp_data: Union[str, pd.DataFrame],
+        exp_conditions: Union[str, pd.DataFrame],
+        visualization_file_path: str = '',
+        sim_data: Optional[Union[str, pd.DataFrame]] = None,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None,
+        plotted_noise: Optional[str] = 'MeanAndSD'):
     """
     Main function for plotting data and simulations.
 
@@ -28,14 +34,15 @@ def plot_data_and_simulation(data_file_path: str,
 
     Parameters
     ----------
-    data_file_path: str
-        Path to the data file.
-    condition_file_path: str
-        Path to the condition file.
+    exp_data: str
+        measurement DataFrame in the PEtab format or path to the data file.
+    exp_conditions: str
+        condition DataFrame in the PEtab format or path to the condition file.
     visualization_file_path: str (optional)
         Path to the visualization specification file.
-    simulation_file_path: str (optional)
-        Path to the simulation output data file.
+    sim_data: str (optional)
+        simulation DataFrame in the PEtab format
+        or path to the simulation output data file.
     dataset_id_list: list (optional)
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the datasetIds for this plot.
@@ -67,12 +74,32 @@ def plot_data_and_simulation(data_file_path: str,
     ax: Axis object of the created plot.
     """
 
-    # import data from PEtab files
-    exp_data, exp_conditions, vis_spec, sim_data = import_from_files(
-        data_file_path, condition_file_path, visualization_file_path,
-        simulation_file_path, dataset_id_list, sim_cond_id_list,
-        sim_cond_num_list, observable_id_list, observable_num_list,
-        plotted_noise)
+    if isinstance(exp_data, str):
+        # import from file
+        exp_data = petab.get_measurement_df(exp_data)
+
+    if isinstance(exp_conditions, str):
+        exp_conditions = petab.get_condition_df(exp_conditions)
+
+    # import visualization specification, if file was specified
+    if visualization_file_path != '':
+        vis_spec = pd.read_csv(visualization_file_path, sep="\t",
+                               index_col=None)
+    else:
+        # create them based on simulation conditions
+        vis_spec, exp_data = get_default_vis_specs(exp_data,
+                                                   exp_conditions,
+                                                   dataset_id_list,
+                                                   sim_cond_id_list,
+                                                   sim_cond_num_list,
+                                                   observable_id_list,
+                                                   observable_num_list,
+                                                   plotted_noise)
+
+    # import simulation file, if file was specified
+    if isinstance(sim_data, str):
+        sim_data = pd.read_csv(sim_data,
+                               sep="\t", index_col=None)
 
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
@@ -103,10 +130,35 @@ def plot_data_and_simulation(data_file_path: str,
     return ax
 
 
+def plot_petab_problem(petab_problem: petab.problem.Problem,
+                       visualization_file_path: str = '',
+                       sim_data: Optional[Union[str, pd.DataFrame]] = None,
+                       dataset_id_list: Optional[List[IdsList]] = None,
+                       sim_cond_id_list: Optional[List[IdsList]] = None,
+                       sim_cond_num_list: Optional[List[NumList]] = None,
+                       observable_id_list: Optional[List[IdsList]] = None,
+                       observable_num_list: Optional[List[NumList]] = None,
+                       plotted_noise: Optional[str] = 'MeanAndSD',):
+    """
+    Visualization using petab problem.
+    For documentation, see function plot_data_and_simulation()
+    """
+    return plot_data_and_simulation(petab_problem.measurement_df,
+                                    petab_problem.condition_df,
+                                    visualization_file_path,
+                                    sim_data,
+                                    dataset_id_list,
+                                    sim_cond_id_list,
+                                    sim_cond_num_list,
+                                    observable_id_list,
+                                    observable_num_list,
+                                    plotted_noise)
+
+
 def plot_measurements_by_observable(data_file_path: str,
                                     condition_file_path: str,
                                     plotted_noise: str = 'MeanAndSD'):
-    '''
+    """
     plot measurement data grouped by observable ID.
     A simple wrapper around the more complex function plot_data_and_simulation.
 
@@ -125,7 +177,7 @@ def plot_measurements_by_observable(data_file_path: str,
     ----------
 
     ax: axis of figures
-    '''
+    """
 
     # import measurement data
     measurement_data = pd.read_csv(
