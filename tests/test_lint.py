@@ -240,3 +240,40 @@ def test_petablint_succeeds():
 
     result = subprocess.run(['petablint', '-m', test_mes_file])
     assert result.returncode == 0
+
+
+def test_assert_measurement_conditions_present_in_condition_table():
+    condition_df = pd.DataFrame(data={
+        'conditionId': ['condition1', 'condition2'],
+        'conditionName': ['', 'Condition 2'],
+        'fixedParameter1': [1.0, 2.0]
+    })
+    condition_df.set_index('conditionId', inplace=True)
+
+    measurement_df = pd.DataFrame(data={
+        'observableId': ['', ''],
+        'simulationConditionId': ['condition1', 'condition1'],
+        'time': [1.0, 2.0],
+        'measurement': [1.0, 2.0],
+        'observableParameters': ['', ''],
+        'noiseParameters': ['', ''],
+        'noiseDistribution': ['', ''],
+    })
+
+    # check we can handle missing preeq condition
+    lint.assert_measurement_conditions_present_in_condition_table(
+        measurement_df=measurement_df, condition_df=condition_df)
+
+    # check we can handle preeq condition
+    measurement_df['preequilibrationConditionId'] = ['condition1',
+                                                     'condition2']
+
+    lint.assert_measurement_conditions_present_in_condition_table(
+        measurement_df=measurement_df, condition_df=condition_df)
+
+    # check we detect missing condition
+    measurement_df['preequilibrationConditionId'] = ['missing_condition1',
+                                                     'missing_condition2']
+    with pytest.raises(AssertionError):
+        lint.assert_measurement_conditions_present_in_condition_table(
+            measurement_df=measurement_df, condition_df=condition_df)
