@@ -110,7 +110,6 @@ def plot_data_and_simulation(
         sim_data = pd.read_csv(sim_data,
                                sep="\t", index_col=None)
 
-
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
 
