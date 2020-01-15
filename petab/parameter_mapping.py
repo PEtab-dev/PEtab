@@ -3,6 +3,7 @@ problem"""
 
 import logging
 import numbers
+import os
 import re
 from typing import Tuple, Dict, Union, Any, List, Optional, Iterable
 
@@ -11,6 +12,8 @@ import numpy as np
 import pandas as pd
 
 from . import lint, measurements, sbml
+from . import ENV_NUM_THREADS
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +36,9 @@ def get_optimization_to_simulation_parameter_mapping(
         warn_unmapped: Optional[bool] = True) -> List[ParMappingDictTuple]:
     """
     Create list of mapping dicts from PEtab-problem to SBML parameters.
+
+    Mapping can be performed in parallel. The number of threads is controlled
+    by the environment variable with the name of petab.ENV_NUM_THREADS.
 
     Parameters:
         condition_df, measurement_df, parameter_df:
@@ -63,36 +69,68 @@ def get_optimization_to_simulation_parameter_mapping(
         simulation_conditions = measurements.get_simulation_conditions(
             measurement_df)
 
-    mapping = []
-    for condition_ix, condition in simulation_conditions.iterrows():
-        cur_measurement_df = measurements.get_rows_for_condition(
-            measurement_df, condition)
+    simulation_parameter_ids = sbml.get_model_parameters(sbml_model)
 
-        if 'preequilibrationConditionId' not in condition \
-                or not isinstance(condition.preequilibrationConditionId, str) \
-                or not condition.preequilibrationConditionId:
-            preeq_map = {}
-        else:
-            preeq_map = get_parameter_mapping_for_condition(
-                condition_id=condition.preequilibrationConditionId,
-                is_preeq=True,
-                cur_measurement_df=cur_measurement_df,
-                condition_df=condition_df,
-                parameter_df=parameter_df, sbml_model=sbml_model,
-                warn_unmapped=warn_unmapped
-            )
+    num_processes = 1
+    if ENV_NUM_THREADS in os.environ:
+        num_processes = int(os.environ[ENV_NUM_THREADS])
 
-        sim_map = get_parameter_mapping_for_condition(
-            condition_id=condition.simulationConditionId,
-            is_preeq=False,
+    from multiprocessing import Pool
+    pool = Pool(processes=num_processes)
+    mapping = pool.map(_map_condition,
+                       _map_condition_arg_packer(
+                           simulation_conditions, measurement_df, condition_df,
+                           parameter_df, simulation_parameter_ids,
+                           warn_unmapped))
+    return mapping
+
+
+def _map_condition_arg_packer(simulation_conditions, measurement_df,
+                              condition_df, parameter_df,
+                              simulation_parameter_ids, warn_unmapped):
+    """Helper function to pack extra arguments for _map_condition"""
+    for _, condition in simulation_conditions.iterrows():
+        yield(condition, measurement_df, condition_df, parameter_df,
+              simulation_parameter_ids, warn_unmapped)
+
+
+def _map_condition(packed_args):
+    """Helper function for parallel condition mapping.
+
+    For arguments see get_optimization_to_simulation_parameter_mapping"""
+
+    (condition, measurement_df, condition_df, parameter_df,
+     simulation_parameter_ids, warn_unmapped) = packed_args
+
+    cur_measurement_df = measurements.get_rows_for_condition(
+        measurement_df, condition)
+
+    if 'preequilibrationConditionId' not in condition \
+            or not isinstance(condition.preequilibrationConditionId, str) \
+            or not condition.preequilibrationConditionId:
+        preeq_map = {}
+    else:
+        preeq_map = get_parameter_mapping_for_condition(
+            condition_id=condition.preequilibrationConditionId,
+            is_preeq=True,
             cur_measurement_df=cur_measurement_df,
             condition_df=condition_df,
-            parameter_df=parameter_df, sbml_model=sbml_model,
+            parameter_df=parameter_df,
+            simulation_parameter_ids=simulation_parameter_ids,
             warn_unmapped=warn_unmapped
         )
-        mapping.append((preeq_map, sim_map),)
 
-    return mapping
+    sim_map = get_parameter_mapping_for_condition(
+        condition_id=condition.simulationConditionId,
+        is_preeq=False,
+        cur_measurement_df=cur_measurement_df,
+        condition_df=condition_df,
+        parameter_df=parameter_df,
+        simulation_parameter_ids=simulation_parameter_ids,
+        warn_unmapped=warn_unmapped
+    )
+
+    return preeq_map, sim_map
 
 
 def get_parameter_mapping_for_condition(
@@ -101,7 +139,8 @@ def get_parameter_mapping_for_condition(
         cur_measurement_df: pd.DataFrame,
         condition_df: pd.DataFrame,
         parameter_df: pd.DataFrame = None,
-        sbml_model: libsbml.Model = None,
+        sbml_model: Optional[libsbml.Model] = None,
+        simulation_parameter_ids: Optional[List[str]] = None,
         warn_unmapped: bool = True) -> ParMappingDict:
     """
     Create dictionary of mappings from PEtab-problem to SBML parameters for the
@@ -122,7 +161,13 @@ def get_parameter_mapping_for_condition(
 
         sbml_model:
             The sbml model with observables and noise specified according to
-            the PEtab format.
+            the PEtab format used to retrieve simulation parameter IDs.
+            Mutually exclusive with ``simulation_parameter_ids``.
+
+        simulation_parameter_ids:
+            Simulation parameter IDs used for mapping (output of
+            ``petab.sbml.get_model_parameters``). Mutually exclusive with
+            ``sbml_model``.
 
         warn_unmapped:
             If ``True``, log warning regarding unmapped parameters
@@ -134,11 +179,17 @@ def get_parameter_mapping_for_condition(
     """
     _perform_mapping_checks(cur_measurement_df)
 
-    par_sim_ids = sbml.get_model_parameters(sbml_model)
+    if simulation_parameter_ids is not None and sbml_model is None:
+        pass
+    elif simulation_parameter_ids is None and sbml_model is not None:
+        simulation_parameter_ids = sbml.get_model_parameters(sbml_model)
+    else:
+        raise ValueError("Must provide exactly one of `sbml_model` and "
+                         "`simulation_parameter_ids`.")
 
     # initialize mapping dict
     # for the case of matching simulation and optimization parameter vector
-    mapping = {par: par for par in par_sim_ids}
+    mapping = {par: par for par in simulation_parameter_ids}
 
     _apply_dynamic_parameter_overrides(mapping, condition_id, condition_df)
 
@@ -146,7 +197,6 @@ def get_parameter_mapping_for_condition(
         _apply_output_parameter_overrides(mapping, cur_measurement_df)
 
     fill_in_nominal_values(mapping, parameter_df)
-
     # TODO fill in fixed parameters (#103)
 
     handle_missing_overrides(mapping, warn=warn_unmapped)

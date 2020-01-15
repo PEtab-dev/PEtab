@@ -138,6 +138,13 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             sbml_model=sbml_model
         )
 
+        # Comparison with NaN containing expected results fails after pickling!
+        # Need to test first for correct NaNs, then for the rest.
+        assert np.isnan(expected[0][1]['observableParameter1_obs2'])
+        assert np.isnan(actual[0][1]['observableParameter1_obs2'])
+        expected[0][1]['observableParameter1_obs2'] = 0.0
+        actual[0][1]['observableParameter1_obs2'] = 0.0
+
         assert actual == expected
 
     @staticmethod
