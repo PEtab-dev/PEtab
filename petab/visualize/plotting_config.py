@@ -117,9 +117,10 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
 
         p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
         ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
-        
+
         if plot_sim:
             colors = p[0].get_facecolor()
-            ax[axx, axy].bar(x_name + " simulation", ms['sim'], color='white', edgecolor=colors)
+            ax[axx, axy].bar(x_name + " simulation", ms['sim'], color='white',
+                             edgecolor=colors)
 
     return ax
