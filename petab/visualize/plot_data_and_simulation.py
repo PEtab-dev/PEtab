@@ -6,6 +6,8 @@ from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot)
 from typing import Union, Optional, List
+import matplotlib.pyplot as plt
+
 
 IdsList = List[str]
 NumList = List[int]
@@ -14,14 +16,15 @@ NumList = List[int]
 def plot_data_and_simulation(
         exp_data: Union[str, pd.DataFrame],
         exp_conditions: Union[str, pd.DataFrame],
-        visualization_file_path: str = '',
+        vis_spec: str = '',
         sim_data: Optional[Union[str, pd.DataFrame]] = None,
         dataset_id_list: Optional[List[IdsList]] = None,
         sim_cond_id_list: Optional[List[IdsList]] = None,
         sim_cond_num_list: Optional[List[NumList]] = None,
         observable_id_list: Optional[List[IdsList]] = None,
         observable_num_list: Optional[List[NumList]] = None,
-        plotted_noise: Optional[str] = 'MeanAndSD'):
+        plotted_noise: Optional[str] = 'MeanAndSD',
+        subplot_file_path: str = ''):
     """
     Main function for plotting data and simulations.
 
@@ -38,9 +41,10 @@ def plot_data_and_simulation(
         measurement DataFrame in the PEtab format or path to the data file.
     exp_conditions: str
         condition DataFrame in the PEtab format or path to the condition file.
-    visualization_file_path: str (optional)
-        Path to the visualization specification file.
-    sim_data: str (optional)
+    vis_spec: str or pandas.Dataframe (optional)
+        Visualization specification DataFrame in the PEtab format or path to
+         visualization file.
+    sim_data: str or pandas.DataFrame (optional)
         simulation DataFrame in the PEtab format
         or path to the simulation output data file.
     dataset_id_list: list (optional)
@@ -68,10 +72,14 @@ def plot_data_and_simulation(
     plotted_noise: str (optional)
         String indicating how noise should be visualized:
         ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
+    subplot_file_path: str (optional)
+        String which is taken as file path to which single subplots are saved.
+        PlotIDs will be taken as file names.
 
     Returns
     -------
     ax: Axis object of the created plot.
+    None: In case subplots are save to file
     """
 
     if isinstance(exp_data, str):
@@ -82,36 +90,49 @@ def plot_data_and_simulation(
         exp_conditions = petab.get_condition_df(exp_conditions)
 
     # import visualization specification, if file was specified
-    if visualization_file_path != '':
-        vis_spec = pd.read_csv(visualization_file_path, sep="\t",
-                               index_col=None)
-    else:
-        # create them based on simulation conditions
-        vis_spec, exp_data = get_default_vis_specs(exp_data,
-                                                   exp_conditions,
-                                                   dataset_id_list,
-                                                   sim_cond_id_list,
-                                                   sim_cond_num_list,
-                                                   observable_id_list,
-                                                   observable_num_list,
-                                                   plotted_noise)
+    if isinstance(vis_spec, str):
+        if vis_spec != '':
+            vis_spec = pd.read_csv(vis_spec, sep="\t",
+                                   index_col=None)
+        else:
+            # create them based on simulation conditions
+            vis_spec, exp_data = get_default_vis_specs(exp_data,
+                                                       exp_conditions,
+                                                       dataset_id_list,
+                                                       sim_cond_id_list,
+                                                       sim_cond_num_list,
+                                                       observable_id_list,
+                                                       observable_num_list,
+                                                       plotted_noise)
 
     # import simulation file, if file was specified
     if isinstance(sim_data, str):
         sim_data = pd.read_csv(sim_data,
                                sep="\t", index_col=None)
 
+
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
 
-    fig, ax, num_row, num_col = create_figure(uni_plot_ids)
+    # Switch saving plots to file on or get axes
+    plots_to_file = False
+    if subplot_file_path != '':
+        plots_to_file = True
+    else:
+        fig, ax, num_row, num_col = create_figure(uni_plot_ids, plots_to_file)
 
     # loop over unique plotIds
     for i_plot_id, var_plot_id in enumerate(uni_plot_ids):
 
-        # setting axis indices
-        i_row = int(np.ceil((i_plot_id + 1) / num_col)) - 1
-        i_col = int(((i_plot_id + 1) - i_row * num_col)) - 1
+        if plots_to_file:
+            fig, ax, num_row, num_col = create_figure(uni_plot_ids,
+                                                      plots_to_file)
+            i_row = 0
+            i_col = 0
+        else:
+            # setting axis indices
+            i_row = int(np.ceil((i_plot_id + 1) / num_col)) - 1
+            i_col = int(((i_plot_id + 1) - i_row * num_col)) - 1
 
         # get indices for specific plotId
         ind_plot = (vis_spec['plotId'] == var_plot_id)
@@ -122,12 +143,21 @@ def plot_data_and_simulation(
             ax = handle_dataset_plot(i_visu_spec, ind_plot, ax, i_row, i_col,
                                      exp_data, exp_conditions, vis_spec,
                                      sim_data)
+        if plots_to_file:
+            sns.despine()
+            plt.xticks(rotation=45, ha="right")
+            plt.tight_layout()
+            plt.savefig(f'{subplot_file_path}/{var_plot_id}.png')
+            plt.close()
 
     # finalize figure
-    fig.tight_layout()
-    sns.despine()
+    if plots_to_file:
+        return
+    else:
+        fig.tight_layout()
+        sns.despine()
 
-    return ax
+        return ax
 
 
 def plot_petab_problem(petab_problem: petab.problem.Problem,

@@ -223,7 +223,7 @@ def create_dataset_id_list(simcond_id_list,
     return exp_data, dataset_id_list, legend_dict
 
 
-def create_figure(uni_plot_ids):
+def create_figure(uni_plot_ids, plots_to_file):
     """
     Helper function for plotting data and simulations, open figure and axes
 
@@ -231,6 +231,8 @@ def create_figure(uni_plot_ids):
     ----------
     uni_plot_ids: ndarray
         Array with unique plot indices
+    plots_to_file: bool
+        Indicator if plots are saved to file
 
     Returns
     -------
@@ -249,6 +251,11 @@ def create_figure(uni_plot_ids):
 
     # Set Colormap
     sns.set(style="ticks", palette="colorblind")
+
+    # Check if plots are saved to file and return single subplot axis
+    if plots_to_file:
+        fig, ax = plt.subplots(1, 1, squeeze=False)
+        return fig, ax, 1, 1
 
     #  Initiate subplots
     num_subplot = len(uni_plot_ids)
