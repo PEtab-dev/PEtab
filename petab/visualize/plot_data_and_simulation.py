@@ -34,7 +34,7 @@ def plot_data_and_simulation(
 
     Parameters
     ----------
-    exp_data: str
+    exp_data:
         measurement DataFrame in the PEtab format or path to the data file.
     exp_conditions: str
         condition DataFrame in the PEtab format or path to the condition file.
