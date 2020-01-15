@@ -325,7 +325,7 @@ def get_default_vis_specs(exp_data,
     for pos, col, val in fill_vis_spec:
         vis_spec.insert(loc=pos, column=col, value=val)
 
-    return vis_spec
+    return vis_spec, exp_data
 
 
 def handle_dataset_plot(i_visu_spec,
