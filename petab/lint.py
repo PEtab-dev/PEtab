@@ -517,6 +517,10 @@ def lint_problem(problem: 'petab.Problem') -> bool:
         try:
             check_measurement_df(problem.measurement_df)
             assert_noise_distributions_valid(problem.measurement_df)
+            if problem.condition_df is not None:
+                assert_measurement_conditions_present_in_condition_table(
+                    problem.measurement_df, problem.condition_df
+                )
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
@@ -623,3 +627,30 @@ def assert_model_parameters_in_condition_or_parameter_table(
             raise AssertionError(f"Model parameter '{parameter_id}' present "
                                  "in both condition table and parameter "
                                  "table.")
+
+
+def assert_measurement_conditions_present_in_condition_table(
+        measurement_df: pd.DataFrame, condition_df: pd.DataFrame) -> None:
+    """Ensure that all entries from measurement_df.simulationConditionId and
+    measurement_df.preequilibrationConditionId are present in
+    condition_df.index.
+
+    Arguments:
+        measurement_df: PEtab measurement table
+        condition_df: PEtab condition table
+
+    Raises:
+        AssertionError: in case of problems
+    """
+
+    used_conditions = set(measurement_df.simulationConditionId.values)
+    if 'preequilibrationConditionId' in measurement_df:
+        used_conditions |= \
+            set(measurement_df.preequilibrationConditionId.dropna().values)
+    available_conditions = set(condition_df.index.values)
+    missing_conditions = used_conditions - available_conditions
+
+    if missing_conditions:
+        raise AssertionError("Measurement table references conditions that "
+                             "are not specified in the condition table: "
+                             + str(missing_conditions))
