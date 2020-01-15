@@ -1,10 +1,7 @@
 """
-helper_functions.py
-=========
-
 This file should contain the functions, which PEtab internally needs for
 plotting, but which are not meant to be used by non-developers and should
-hence not be direclty visible/usable when using import `petab.visualize`
+hence not be directly visible/usable when using import `petab.visualize`
 
 """
 
@@ -262,6 +259,9 @@ def create_figure(uni_plot_ids):
 
     # initialize figure
     fig, ax = plt.subplots(int(num_row), int(num_col), squeeze=False)
+    # trim subplots output to the correct size
+    for axes in ax.flat[num_subplot:]:
+        axes.remove()
 
     return fig, ax, num_row, num_col
 
@@ -325,7 +325,7 @@ def get_default_vis_specs(exp_data,
     for pos, col, val in fill_vis_spec:
         vis_spec.insert(loc=pos, column=col, value=val)
 
-    return vis_spec
+    return vis_spec, exp_data
 
 
 def handle_dataset_plot(i_visu_spec,
@@ -397,31 +397,29 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
     group the data, which should be plotted and return it as dataframe.
 
     Parameters:
-    ----------
+        vis_spec:
+            pandas data frame, contains defined data format
+            (visualization file)
+        m_data:
+            pandas data frame, contains defined data format (measurement file)
+        simulation_data:
+            pandas data frame, contains defined data format (simulation file)
+        condition_ids:
+            numpy array, containing all unique condition IDs which should be
+            plotted in one figure (can be found in measurementData file,
+            column simulationConditionId)
+        i_visu_spec:
+            int, current index (row number) of row which should be plotted in
+            visualizationSpecification file
+        col_id:
+            str, the name of the column in visualization file, whose entries
+            should be unique (depends on condition in column
+            independentVariableName)
 
-    vis_spec:
-        pandas data frame, contains defined data format (visualization file)
-    m_data:
-        pandas data frame, contains defined data format (measurement file)
-    simulation_data:
-        pandas data frame, contains defined data format (simulation file)
-    condition_ids:
-        numpy array, containing all unique condition IDs which should be
-        plotted in one figure (can be found in measurementData file,
-        column simulationConditionId)
-    i_visu_spec:
-        int, current index (row number) of row which should be plotted in
-        visualizationSpecification file
-    col_id:
-        str, the name of the column in visualization file, whose entries
-        should be unique (depends on condition in column
-        independentVariableName)
-
-    Return:
-    ----------
-
-    data_to_plot: pandas data frame containing the data which should be plotted
-    (Mean and Std)
+    Returns:
+        data_to_plot:
+            pandas.DataFrame containing the data which should be plotted
+            (Mean and Std)
     """
 
     # create empty dataframe for means and SDs

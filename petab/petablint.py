@@ -50,11 +50,15 @@ def parse_cli_args():
     parser.add_argument('-p', '--parameters', dest='parameter_file_name',
                         help='Parameter table')
 
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-y', '--yaml', dest='yaml_file_name',
+                       help='PEtab YAML problem filename')
+
     # or with model name, following default naming
-    parser.add_argument('-n', '--model-name', dest='model_name',
-                        help='Model name where all files are in the working '
-                        'directory and follow PEtab naming convention. '
-                        'Specifying -[smcp] will override defaults')
+    group.add_argument('-n', '--model-name', dest='model_name',
+                       help='Model name where all files are in the working '
+                            'directory and follow PEtab naming convention. '
+                            'Specifying -[smcp] will override defaults')
     parser.add_argument('-d', '--directory', dest='directory',
                         default=os.getcwd())
     args = parser.parse_args()
@@ -82,9 +86,16 @@ def parse_cli_args():
                 folder=args.directory,
             )
 
-    if not args.model_name and not args.sbml_file_name \
-        and not args.condition_file_name and not args.measurement_file_name \
-            and not args.parameter_file_name:
+    if (args.yaml_file_name
+            and any((args.sbml_file_name, args.condition_file_name,
+                     args.measurement_file_name, args.parameter_file_name))):
+        parser.error('When providing a yaml file, no other files may '
+                     'be specified.')
+
+    if (not args.model_name
+            and not any([args.sbml_file_name, args.condition_file_name,
+                        args.measurement_file_name, args.parameter_file_name,
+                        args.yaml_file_name])):
         parser.error('Neither model name nor any filename specified. '
                      'What shall I do?')
 
@@ -103,26 +114,39 @@ def main():
     ch.setFormatter(LintFormatter())
     logging.basicConfig(level=logging.DEBUG, handlers=[ch])
 
-    logger.debug('Looking for...')
-    if args.sbml_file_name:
-        logger.debug(f'\tSBML model: {args.sbml_file_name}')
-    if args.condition_file_name:
-        logger.debug(f'\tCondition table: {args.condition_file_name}')
-    if args.measurement_file_name:
-        logger.debug(f'\tMeasurement table: {args.measurement_file_name}')
-    if args.parameter_file_name:
-        logger.debug(f'\tParameter table: {args.parameter_file_name}')
+    if args.yaml_file_name:
+        if petab.is_composite_problem(args.yaml_file_name):
+            from petab.yaml import validate
+            validate(args.yaml_file_name)
 
-    try:
-        problem = petab.Problem.from_files(
-            sbml_file=args.sbml_file_name,
-            condition_file=args.condition_file_name,
-            measurement_file=args.measurement_file_name,
-            parameter_file=args.parameter_file_name,
-        )
-    except FileNotFoundError as e:
-        logger.error(e)
-        sys.exit(1)
+            # TODO: further checking:
+            #  https://github.com/ICB-DCM/PEtab/issues/191
+            #  problem = petab.CompositeProblem.from_yaml(args.yaml_file_name)
+            return
+        else:
+            problem = petab.Problem.from_yaml(args.yaml_file_name)
+
+    else:
+        logger.debug('Looking for...')
+        if args.sbml_file_name:
+            logger.debug(f'\tSBML model: {args.sbml_file_name}')
+        if args.condition_file_name:
+            logger.debug(f'\tCondition table: {args.condition_file_name}')
+        if args.measurement_file_name:
+            logger.debug(f'\tMeasurement table: {args.measurement_file_name}')
+        if args.parameter_file_name:
+            logger.debug(f'\tParameter table: {args.parameter_file_name}')
+
+        try:
+            problem = petab.Problem.from_files(
+                sbml_file=args.sbml_file_name,
+                condition_file=args.condition_file_name,
+                measurement_file=args.measurement_file_name,
+                parameter_file=args.parameter_file_name,
+            )
+        except FileNotFoundError as e:
+            logger.error(e)
+            sys.exit(1)
 
     ret = petab.lint.lint_problem(problem)
     sys.exit(ret)
