@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pandas as pd
 import petab
 from petab.sbml import add_global_parameter
@@ -93,6 +94,15 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             condition_df=condition_df,
             sbml_model=sbml_model)
 
+        assert actual == expected
+
+        # For one case we test parallel execution, which must yield the same
+        # result
+        os.environ[petab.ENV_NUM_THREADS] = "4"
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
+            measurement_df=measurement_df,
+            condition_df=condition_df,
+            sbml_model=sbml_model)
         assert actual == expected
 
     @staticmethod

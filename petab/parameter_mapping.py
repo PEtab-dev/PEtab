@@ -71,9 +71,7 @@ def get_optimization_to_simulation_parameter_mapping(
 
     simulation_parameter_ids = sbml.get_model_parameters(sbml_model)
 
-    num_processes = 1
-    if ENV_NUM_THREADS in os.environ:
-        num_processes = int(os.environ[ENV_NUM_THREADS])
+    num_processes = int(os.environ.get(ENV_NUM_THREADS, 1))
 
     from multiprocessing import Pool
     pool = Pool(processes=num_processes)
