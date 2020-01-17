@@ -239,18 +239,10 @@ def condition_table_is_parameter_free(condition_df: pd.DataFrame) -> bool:
 
     Returns:
         True if there are no parameter overrides in the condition table,
-        False otherweise.
+        False otherwise.
     """
 
-    constant_parameters = list(
-        set(condition_df.columns.values.tolist()) - {'conditionId',
-                                                     'conditionName'})
-
-    for column in constant_parameters:
-        if np.any(np.invert(condition_df.loc[:, column].apply(
-                isinstance, args=(numbers.Number,)))):
-            return False
-    return True
+    return len(petab.get_parametric_overrides(condition_df)) == 0
 
 
 def assert_parameter_id_is_string(parameter_df: pd.DataFrame) -> None:

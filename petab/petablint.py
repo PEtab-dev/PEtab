@@ -115,10 +115,16 @@ def main():
     logging.basicConfig(level=logging.DEBUG, handlers=[ch])
 
     if args.yaml_file_name:
-        if petab.is_composite_problem(args.yaml_file_name):
-            from petab.yaml import validate
+        from petab.yaml import validate
+        from jsonschema.exceptions import ValidationError
+        try:
             validate(args.yaml_file_name)
+        except ValidationError as e:
+            logger.error("Provided YAML file does not adhere to PEtab schema: "
+                         + str(e))
+            sys.exit(1)
 
+        if petab.is_composite_problem(args.yaml_file_name):
             # TODO: further checking:
             #  https://github.com/ICB-DCM/PEtab/issues/191
             #  problem = petab.CompositeProblem.from_yaml(args.yaml_file_name)
