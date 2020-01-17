@@ -326,11 +326,11 @@ Additional columns may be added.
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see `nominalValue`).
 
-- `initializationPriorType` [STRING]
+- `initializationPriorType` [STRING, optional]
 
   Prior types used for sampling of initial points for optimization. Sampled
   points are clipped to lie inside the parameter boundaries specified by
-  `lowerBound` and `upperBound`.
+  `lowerBound` and `upperBound`. Defaults to `uniform`.
 
   Possible prior types are (see also Extensions):
 
@@ -344,10 +344,10 @@ Additional columns may be added.
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- `initializationPriorParameters` [NUMERIC]
+- `initializationPriorParameters` [STRING, optional]
 
   Prior parameters used for sampling of initial points for optimization,
-  separated by a semicolon.
+  separated by a semicolon. Defaults to `lowerBound;upperBound`.
 
   So far, only numeric values will be supported, no parameter names. 
   Parameters for the different prior types are:
@@ -361,12 +361,12 @@ Additional columns may be added.
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
 
-- `objectivePriorType` (optional)
+- `objectivePriorType` [STRING, optional]
 
   Prior types used for the objective function during optimization or sampling.
   For possible values, see `initializationPriorType`.
 
-- `objectivePriorParameters` (optional)
+- `objectivePriorParameters` [STRING, optional]
 
   Prior parameters used for the objective function during optimization.
   For more detailed documentation, see `initializationPriorParameters`.   
@@ -376,7 +376,7 @@ Additional columns may be added.
 
 Extra columns:
 
-- `hierarchicalOptimization` (optional)
+- `hierarchicalOptimization` [BOOL 0|1, optional]
 
   hierarchicalOptimization: 1 if parameter is optimized using hierarchical
   optimization approach, 0 otherwise.
