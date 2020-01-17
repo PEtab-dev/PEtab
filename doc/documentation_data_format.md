@@ -328,7 +328,9 @@ Additional columns may be added.
 
 - `initializationPriorType` [STRING]
 
-  Prior types used for sampling of initial points for optimization.
+  Prior types used for sampling of initial points for optimization. Sampled
+  points are clipped to lie inside the parameter boundaries specified by
+  `lowerBound` and `upperBound`.
 
   Possible prior types are (see also Extensions):
 
