@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import pandas as pd
 import petab
 from petab.sbml import add_global_parameter
@@ -95,6 +96,15 @@ class TestGetSimulationToOptimizationParameterMapping(object):
 
         assert actual == expected
 
+        # For one case we test parallel execution, which must yield the same
+        # result
+        os.environ[petab.ENV_NUM_THREADS] = "4"
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
+            measurement_df=measurement_df,
+            condition_df=condition_df,
+            sbml_model=sbml_model)
+        assert actual == expected
+
     @staticmethod
     def test_partial_override(condition_df_2_conditions,
                               minimal_sbml_model):
@@ -137,6 +147,13 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             condition_df=condition_df,
             sbml_model=sbml_model
         )
+
+        # Comparison with NaN containing expected results fails after pickling!
+        # Need to test first for correct NaNs, then for the rest.
+        assert np.isnan(expected[0][1]['observableParameter1_obs2'])
+        assert np.isnan(actual[0][1]['observableParameter1_obs2'])
+        expected[0][1]['observableParameter1_obs2'] = 0.0
+        actual[0][1]['observableParameter1_obs2'] = 0.0
 
         assert actual == expected
 
