@@ -13,6 +13,30 @@ from . import problem
 logger = logging.getLogger(__name__)
 
 
+def get_simulation_df(simulation_file: str) -> pd.DataFrame:
+    """Read PEtab simulation table
+
+    Arguments:
+        simulation_file: URL or filename of PEtab simulation table
+
+    Returns:
+        Simulation DataFrame
+    """
+    return pd.read_csv(simulation_file, sep="\t", index_col=None)
+
+
+def get_visualization_df(visualization_file: str) -> pd.DataFrame:
+    """Read PEtab visualization table
+
+    Arguments:
+        visualization_file: URL or filename of PEtab visualization table
+
+    Returns:
+        Visualization DataFrame
+    """
+    return pd.read_csv(visualization_file, sep="\t", index_col=None)
+
+
 def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:
     """
     Check if is scaling parameter.
