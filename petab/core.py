@@ -1,7 +1,7 @@
 """PEtab core functions (or functions that don't fit anywhere else)"""
 
 import logging
-from typing import Iterable
+from typing import Iterable, Optional, Callable, Union
 
 import numpy as np
 import pandas as pd
@@ -216,3 +216,31 @@ def flatten_timepoint_specific_output_overrides(
             sbml_model=petab_problem.sbml_model,
             observable_id=replicate_id,
             formula='noiseParameter1_' + replicate_id)
+
+
+def concat_tables(
+        tables: Iterable[Union[pd.DataFrame, str]],
+        parser: Optional[Callable] = None
+) -> pd.DataFrame:
+    """Concatenate DataFrames provided as DataFrames of filenames and a parser
+
+    Arguments:
+        tables:
+            Iterable of tables to join, as DataFrame or filename.
+        parser:
+            Function used to read the table in case filenames are provided,
+            accepting a filename as only argument.
+
+    Returns:
+        The concatenated DataFrames
+    """
+    df = pd.DataFrame()
+
+    for tmp_df in tables:
+        # load from file, if necessary
+        if isinstance(tmp_df, str):
+            tmp_df = parser(tmp_df)
+
+        df = df.append(tmp_df, sort=False, ignore_index=True)
+
+    return df
