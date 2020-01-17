@@ -21,6 +21,13 @@ Welcome to PEtab's documentation!
    license
    logo/LICENSE.md
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
+
+   example
+
+
 Indices and tables
 ==================
 

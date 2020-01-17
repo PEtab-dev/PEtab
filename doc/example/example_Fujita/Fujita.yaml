@@ -1,0 +1,9 @@
+parameter_file: Fujita_parameters.tsv
+petab_version: 0.0.0a17
+problems:
+- condition_files:
+  - Fujita_experimentalCondition.tsv
+  measurement_files:
+  - Fujita_measurementData.tsv
+  sbml_files:
+  - Fujita_model.xml
