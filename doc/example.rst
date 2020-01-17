@@ -8,5 +8,5 @@ The following examples should help to get a better idea of how to use the PEtab 
 .. toctree::
    :maxdepth: 1
 
-   example/petablint.ipynb
-   example/visualization.ipynb
+   example/example_petablint.ipynb
+   example/example_visualization.ipynb
