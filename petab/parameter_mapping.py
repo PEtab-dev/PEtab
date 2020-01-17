@@ -71,16 +71,27 @@ def get_optimization_to_simulation_parameter_mapping(
 
     simulation_parameter_ids = sbml.get_model_parameters(sbml_model)
 
-    num_processes = int(os.environ.get(ENV_NUM_THREADS, 1))
+    num_threads = int(os.environ.get(ENV_NUM_THREADS, 1))
 
-    from multiprocessing import Pool
-    pool = Pool(processes=num_processes)
-    mapping = pool.map(_map_condition,
-                       _map_condition_arg_packer(
-                           simulation_conditions, measurement_df, condition_df,
-                           parameter_df, simulation_parameter_ids,
-                           warn_unmapped))
-    return mapping
+    # If sequential execution is request, let's not create any
+    # thread-allocation overhead
+    if num_threads == 1:
+        mapping = map(
+            _map_condition,
+            _map_condition_arg_packer(
+                simulation_conditions, measurement_df, condition_df,
+                parameter_df, simulation_parameter_ids, warn_unmapped))
+        return list(mapping)
+
+    # Run multi-threaded
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        mapping = executor.map(
+            _map_condition,
+            _map_condition_arg_packer(
+                simulation_conditions, measurement_df, condition_df,
+                parameter_df, simulation_parameter_ids, warn_unmapped))
+    return list(mapping)
 
 
 def _map_condition_arg_packer(simulation_conditions, measurement_df,
