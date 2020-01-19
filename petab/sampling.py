@@ -100,7 +100,8 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
         np.random.seed(seed)
 
     # get types and parameters of priors from dataframe
-    prior_list = parameters.get_priors_from_df(parameter_df)
+    prior_list = parameters.get_priors_from_df(
+        parameter_df, mode='initialization')
 
     startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
 
