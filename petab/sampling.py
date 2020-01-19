@@ -38,9 +38,8 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
 
     def clip_to_bounds(x: np.array):
         """Clip values in array x to bounds"""
-        tmp_x = [min([bounds[1], ix]) for ix in x]
-        tmp_x = [max([bounds[0], ix]) for ix in tmp_x]
-        return np.array(tmp_x)
+        x = np.maximum(np.minimum(scale(bounds[1]), x), scale(bounds[0]))
+        return x
 
     # define lambda functions for each parameter
     if p_type == 'uniform':
@@ -105,4 +104,4 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
 
     startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
 
-    return np.array(startpoints)
+    return np.array(startpoints).T
