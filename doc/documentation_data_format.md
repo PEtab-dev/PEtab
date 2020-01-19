@@ -332,7 +332,7 @@ Additional columns may be added.
   points are clipped to lie inside the parameter boundaries specified by
   `lowerBound` and `upperBound`. Defaults to `parameterScaleUniform`.
 
-  Possible prior types are (see also Extensions):
+  Possible prior types are:
 
     - *uniform*: flat prior on linear parameters
     - *normal*: Gaussian prior on linear parameters
@@ -370,16 +370,6 @@ Additional columns may be added.
 
   Prior parameters used for the objective function during optimization.
   For more detailed documentation, see `initializationPriorParameters`.   
-
-
-### Additional optional columns
-
-Extra columns:
-
-- `hierarchicalOptimization` [BOOL 0|1, optional]
-
-  hierarchicalOptimization: 1 if parameter is optimized using hierarchical
-  optimization approach, 0 otherwise.
 
 
 ## Visualization table
