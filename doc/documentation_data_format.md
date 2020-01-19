@@ -330,7 +330,7 @@ Additional columns may be added.
 
   Prior types used for sampling of initial points for optimization. Sampled
   points are clipped to lie inside the parameter boundaries specified by
-  `lowerBound` and `upperBound`. Defaults to `uniform`.
+  `lowerBound` and `upperBound`. Defaults to `parameterScaleUniform`.
 
   Possible prior types are (see also Extensions):
 
