@@ -1,4 +1,13 @@
-"""PEtab exports"""
+"""PEtab exports
+
+Attributes:
+    ENV_NUM_THREADS:
+        Name of environment variable to set number of threads or processes
+        PEtab should use for operations that can be performed in parallel.
+        By default, all operations are performed sequentially.
+"""
+
+ENV_NUM_THREADS = "PETAB_NUM_THREADS"
 
 from .composite_problem import *  # noqa: F403, F401
 from .conditions import *  # noqa: F403, F401
