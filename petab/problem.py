@@ -163,8 +163,9 @@ class Problem:
                 path_prefix, problem0[CONDITION_FILES][0]),
             parameter_file=os.path.join(
                 path_prefix, yaml_config[PARAMETER_FILE]),
-            visualization_files=[os.path.join(path_prefix, f)
-                                 for f in problem0[VISUALIZATION_FILES]]
+            visualization_files=[
+                os.path.join(path_prefix, f)
+                for f in problem0.get(VISUALIZATION_FILES, [])]
         )
 
     @staticmethod

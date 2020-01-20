@@ -238,13 +238,24 @@ def test_assert_parameter_prior_type_is_valid():
 def test_petablint_succeeds():
     """Run petablint and ensure we exit successfully for a file that should
     contain no errors"""
+    dir_isensee = '../doc/example/example_Isensee/'
+    dir_fujita = '../doc/example/example_Fujita/'
 
+    # run with measurement file
     script_path = os.path.abspath(os.path.dirname(__file__))
-    test_mes_file = os.path.join(
-        script_path, '..',
-        'doc/example/example_Isensee/Isensee_measurementData.tsv')
+    measurement_file = os.path.join(
+        script_path, dir_isensee, 'Isensee_measurementData.tsv')
+    result = subprocess.run(['petablint', '-m', measurement_file])
+    assert result.returncode == 0
 
-    result = subprocess.run(['petablint', '-m', test_mes_file])
+    # run with yaml
+    yaml_file = os.path.join(script_path, dir_fujita, 'Fujita.yaml')
+    result = subprocess.run(['petablint', '-v', '-y', yaml_file])
+    assert result.returncode == 0
+
+    parameter_file = os.path.join(
+        script_path, dir_fujita, 'Fujita_parameters.tsv')
+    result = subprocess.run(['petablint', '-v', '-p', parameter_file])
     assert result.returncode == 0
 
 

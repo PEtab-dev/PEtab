@@ -18,4 +18,3 @@ reaction_9_k1	reaction_{9,k1}	log10	1E-08	100000000	0.028510798479438	1
 scaling_pAkt_tot	scaling_{pAkt}_tot	log10	1E-08	100000000	41.377103160384	1
 scaling_pEGFR_tot	scaling_{pEGFR}_tot	log10	1E-08	100000000	5.64785460492811E-08	1
 scaling_pS6_tot	scaling_{pS6}_tot	log10	1E-08	100000000	78521.9513232784	1
->>>>>>> develop
