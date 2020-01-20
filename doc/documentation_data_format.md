@@ -240,7 +240,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   `normal`, the specified `noiseParameters` will be interpreted as standard
   deviation (*not* variance).
 
-- `datasetId` [STRING, optional]
+- `datasetId` [STRING, OPTIONAL]
 
   The datasetId is used to group certain measurements to datasets. This is
   typically the case for data points which belong to the same observable,
@@ -249,7 +249,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   This grouping makes it possible to use the plotting routines which are
   provided in the PEtab repository.
 
-- `replicateId` [STRING, optional]
+- `replicateId` [STRING, OPTIONAL]
 
   The replicateId can be used to discern replicates with the same
   datasetId, which is helpful for plotting e.g. error bars.
@@ -326,7 +326,7 @@ Additional columns may be added.
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see `nominalValue`).
 
-- `initializationPriorType` [STRING, optional]
+- `initializationPriorType` [STRING, OPTIONAL]
 
   Prior types used for sampling of initial points for optimization. Sampled
   points are clipped to lie inside the parameter boundaries specified by
@@ -344,7 +344,7 @@ Additional columns may be added.
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- `initializationPriorParameters` [STRING, optional]
+- `initializationPriorParameters` [STRING, OPTIONAL]
 
   Prior parameters used for sampling of initial points for optimization,
   separated by a semicolon. Defaults to `lowerBound;upperBound`.
@@ -361,12 +361,12 @@ Additional columns may be added.
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
 
-- `objectivePriorType` [STRING, optional]
+- `objectivePriorType` [STRING, OPTIONAL]
 
   Prior types used for the objective function during optimization or sampling.
   For possible values, see `initializationPriorType`.
 
-- `objectivePriorParameters` [STRING, optional]
+- `objectivePriorParameters` [STRING, OPTIONAL]
 
   Prior parameters used for the objective function during optimization.
   For more detailed documentation, see `initializationPriorParameters`.   
