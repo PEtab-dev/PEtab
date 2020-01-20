@@ -1,5 +1,5 @@
 parameter_file: Fujita_parameters.tsv
-petab_version: 0.0.0a17
+format_version: 1
 problems:
 - condition_files:
   - Fujita_experimentalCondition.tsv
