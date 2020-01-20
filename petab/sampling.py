@@ -32,9 +32,9 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
         elif scaling == 'log10':
             return np.log10(x)
         else:
-            raise NotImplementedError('Parameter priors on the parameter '
-                                      'scale ' + scaling + ' are currently '
-                                      'not implemented.')
+            raise NotImplementedError(
+                f"Parameter priors on the parameter scale {scaling} are "
+                "currently not implemented.")
 
     def clip_to_bounds(x: np.array):
         """Clip values in array x to bounds"""
@@ -93,7 +93,7 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
 
     Returns:
         Array of sampled starting points with dimensions
-        n_optimization_parameters x n_startpoints
+        n_startpoints x n_optimization_parameters
     """
     if seed is not None:
         np.random.seed(seed)
