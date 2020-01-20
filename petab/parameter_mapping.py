@@ -13,6 +13,7 @@ import pandas as pd
 
 from . import lint, measurements, sbml
 from . import ENV_NUM_THREADS
+from .C import *  # noqa: F403
 
 
 logger = logging.getLogger(__name__)
@@ -114,7 +115,7 @@ def _map_condition(packed_args):
     cur_measurement_df = measurements.get_rows_for_condition(
         measurement_df, condition)
 
-    if 'preequilibrationConditionId' not in condition \
+    if PREEQUILIBRATION_CONDITION_ID not in condition \
             or not isinstance(condition.preequilibrationConditionId, str) \
             or not condition.preequilibrationConditionId:
         preeq_map = {}
@@ -278,7 +279,7 @@ def _apply_dynamic_parameter_overrides(mapping: ParMappingDict,
         condition_df: PEtab condition table
     """
     for overridee_id in condition_df.columns:
-        if overridee_id == 'conditionName':
+        if overridee_id == CONDITION_NAME:
             continue
         if condition_df[overridee_id].dtype != 'O':
             continue
@@ -301,7 +302,7 @@ def fill_in_nominal_values(mapping: ParMappingDict,
 
     if parameter_df is None:
         return
-    if 'estimate' not in parameter_df:
+    if ESTIMATE not in parameter_df:
         return
 
     overrides = {row.name: row.nominalValue for _, row
@@ -314,11 +315,11 @@ def fill_in_nominal_values(mapping: ParMappingDict,
         try:
             mapping[par] = overrides[overridee]
             # all overrides will be scaled to 'lin'
-            if 'parameterScale' in parameter_df:
-                scale = parameter_df.loc[overridee, 'parameterScale']
-                if scale == 'log':
+            if PARAMETER_SCALE in parameter_df:
+                scale = parameter_df.loc[overridee, PARAMETER_SCALE]
+                if scale == LOG:
                     mapping[par] = np.exp(mapping[par])
-                elif scale == 'log10':
+                elif scale == LOG10:
                     mapping[par] = np.power(10, mapping[par])
         except KeyError:
             # parameter is to be estimated
@@ -356,7 +357,7 @@ def get_optimization_to_simulation_scale_mapping(
 
     # iterate over conditions
     for condition_ix, condition in simulation_conditions.iterrows():
-        if 'preequilibrationConditionId' not in condition \
+        if PREEQUILIBRATION_CONDITION_ID not in condition \
                 or not isinstance(condition.preequilibrationConditionId, str) \
                 or not condition.preequilibrationConditionId:
             preeq_map = {}
@@ -395,16 +396,16 @@ def get_scale_mapping_for_condition(
     def get_scale(par_id_or_val):
         if isinstance(par_id_or_val, numbers.Number):
             # fixed value assignment
-            return 'lin'
+            return LIN
         else:
             # is par opt id, thus extract its scale
             try:
-                return parameter_df.loc[par_id_or_val, 'parameterScale']
+                return parameter_df.loc[par_id_or_val, PARAMETER_SCALE]
             except KeyError:
                 # This is a condition-table parameter which is not
                 # present in the parameter table. Those are assumed to be
                 # 'lin'
-                return 'lin'
+                return LIN
 
     return {par: get_scale(val)
             for par, val in mapping_par_opt_to_par_sim.items()}

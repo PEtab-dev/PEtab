@@ -7,6 +7,7 @@ import pandas as pd
 from . import parameters
 from . import problem
 from . import yaml
+from .C import *  # noqa: F403
 
 
 class CompositeProblem:
@@ -52,22 +53,22 @@ class CompositeProblem:
             path_prefix = ""
 
         parameter_df = parameters.get_parameter_df(
-            os.path.join(path_prefix, yaml_config['parameter_file']))
+            os.path.join(path_prefix, yaml_config[PARAMETER_FILE]))
 
         problems = []
-        for problem_config in yaml_config['problems']:
+        for problem_config in yaml_config[PROBLEMS]:
             yaml.assert_single_condition_and_sbml_file(problem_config)
 
             # don't set parameter file if we have multiple models
             cur_problem = problem.Problem.from_files(
                 sbml_file=os.path.join(
-                    path_prefix, problem_config['sbml_files'][0]),
+                    path_prefix, problem_config[SBML_FILES][0]),
                 measurement_file=os.path.join(
                     path_prefix,
                     [os.path.join(path_prefix, f)
-                     for f in problem_config['measurement_files']]),
+                     for f in problem_config[MEASUREMENT_FILES]]),
                 condition_file=os.path.join(
-                    path_prefix, problem_config['condition_files'][0]),
+                    path_prefix, problem_config[CONDITION_FILES][0]),
             )
             problems.append(cur_problem)
 

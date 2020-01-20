@@ -12,14 +12,9 @@ import pandas as pd
 
 import petab
 from . import (core, parameters, sbml, measurements)
+from .C import *  # noqa: F403
 
 logger = logging.getLogger(__name__)
-
-
-PRIOR_TYPES = [
-    "uniform", "normal", "laplace", "logNormal", "logLaplace",
-    "parameterScaleUniform", "parameterScaleNormal", "parameterScaleLaplace"
-]
 
 
 def _check_df(df: pd.DataFrame, req_cols: Iterable, name: str) -> None:
@@ -71,12 +66,12 @@ def check_condition_df(
     req_cols = []
     _check_df(df, req_cols, "condition")
 
-    if not df.index.name == 'conditionId':
+    if not df.index.name == CONDITION_ID:
         raise AssertionError(
             f"Condition table has wrong index {df.index.name}."
-            "expected 'conditionId'.")
+            f"expected {CONDITION_ID}.")
 
-    assert_no_leading_trailing_whitespace(df.index.values, "conditionId")
+    assert_no_leading_trailing_whitespace(df.index.values, CONDITION_ID)
 
     for column_name in req_cols:
         if not np.issubdtype(df[column_name].dtype, np.number):
@@ -85,7 +80,7 @@ def check_condition_df(
 
     if sbml_model is not None:
         for column_name in df.columns:
-            if column_name != 'conditionName' \
+            if column_name != CONDITION_NAME \
                     and sbml_model.getParameter(column_name) is None:
                 raise AssertionError(
                     "Condition table contains column for unknown parameter"
@@ -103,22 +98,14 @@ def check_measurement_df(df: pd.DataFrame) -> None:
         AssertionError: in case of problems
     """
 
-    required_columns = [
-        "observableId", "simulationConditionId", "measurement", "time"
-    ]
-    optional_columns = [
-        "preequilibrationConditionId",
-        "observableParameters", "noiseParameters"
-    ]
+    _check_df(df, MEASUREMENT_DF_REQUIRED_COLS, "measurement")
 
-    _check_df(df, required_columns, "measurement")
-
-    for column_name in required_columns:
+    for column_name in MEASUREMENT_DF_REQUIRED_COLS:
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
-    for column_name in optional_columns:
+    for column_name in MEASUREMENT_DF_OPTIONAL_COLS:
         if column_name in df \
                 and not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
@@ -142,20 +129,16 @@ def check_parameter_df(
         AssertionError: in case of problems
     """
 
-    req_cols = [
-        "parameterScale", "lowerBound", "upperBound", "nominalValue",
-        "estimate"
-    ]
-    _check_df(df, req_cols, "parameter")
+    _check_df(df, PARAMETER_DF_REQUIRED_COLS[1:], "parameter")
 
-    if not df.index.name == 'parameterId':
+    if not df.index.name == PARAMETER_ID:
         raise AssertionError(
             f"Parameter table has wrong index {df.index.name}."
-            "expected 'parameterId'.")
+            f"expected {PARAMETER_ID}.")
 
-    assert_no_leading_trailing_whitespace(df.index.values, "parameterId")
+    assert_no_leading_trailing_whitespace(df.index.values, PARAMETER_ID)
 
-    for column_name in req_cols:
+    for column_name in PARAMETER_DF_REQUIRED_COLS[1:]:  # 0 is PARAMETER_ID
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
@@ -267,10 +250,10 @@ def assert_parameter_id_is_string(parameter_df: pd.DataFrame) -> None:
     for parameter_id in parameter_df:
         if isinstance(parameter_id, str):
             if parameter_id[0].isdigit():
-                raise AssertionError('parameterId ' + parameter_id
-                                     + ' starts with integer')
+                raise AssertionError(
+                    f"{PARAMETER_ID} {parameter_id} starts with integer.")
         else:
-            raise AssertionError('Empty parameterId found')
+            raise AssertionError(f"Empty {PARAMETER_ID} found.")
 
 
 def assert_parameter_id_is_unique(parameter_df: pd.DataFrame) -> None:
@@ -285,7 +268,7 @@ def assert_parameter_id_is_unique(parameter_df: pd.DataFrame) -> None:
     """
     if len(parameter_df.index) != len(set(parameter_df.index)):
         raise AssertionError(
-            'parameterId column in parameter table is not unique')
+            f"{PARAMETER_ID} column in parameter table is not unique.")
 
 
 def assert_parameter_scale_is_valid(parameter_df: pd.DataFrame) -> None:
@@ -301,11 +284,10 @@ def assert_parameter_scale_is_valid(parameter_df: pd.DataFrame) -> None:
         AssertionError: in case of problems
     """
 
-    for parameter_scale in parameter_df['parameterScale']:
-        if parameter_scale not in ['lin', 'log', 'log10']:
-            raise AssertionError(
-                'Expected "lin", "log" or "log10" but got "' +
-                parameter_scale + '"')
+    for parameter_scale in parameter_df[PARAMETER_SCALE]:
+        if parameter_scale not in [LIN, LOG, LOG10]:
+            raise AssertionError(f"Expected {LIN}, {LOG}, or {LOG10}, but "
+                                 f"got {parameter_scale}.")
 
 
 def assert_parameter_bounds_are_numeric(parameter_df: pd.DataFrame) -> None:
@@ -319,8 +301,8 @@ def assert_parameter_bounds_are_numeric(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-    parameter_df["lowerBound"].apply(float).all()
-    parameter_df["upperBound"].apply(float).all()
+    parameter_df[LOWER_BOUND].apply(float).all()
+    parameter_df[UPPER_BOUND].apply(float).all()
 
 
 def check_parameter_bounds(parameter_df: pd.DataFrame) -> None:
@@ -337,21 +319,21 @@ def check_parameter_bounds(parameter_df: pd.DataFrame) -> None:
 
     """
     for _, row in parameter_df.iterrows():
-        if int(row['estimate']):
-            if not row['lowerBound'] <= row['upperBound']:
+        if int(row[ESTIMATE]):
+            if not row[LOWER_BOUND] <= row[UPPER_BOUND]:
                 raise AssertionError(
-                    f"lowerBound greater than upperBound for parameterId "
-                    f"{row.name}.")
-            if (row['lowerBound'] <= 0.0 or row['upperBound'] < 0.0) \
-                    and row['parameterScale'] in ['log', 'log10']:
+                    f"{LOWER_BOUND} greater than {UPPER_BOUND} for "
+                    f"{PARAMETER_ID} {row.name}.")
+            if (row[LOWER_BOUND] <= 0.0 or row[UPPER_BOUND] < 0.0) \
+                    and row[PARAMETER_SCALE] in [LOG, LOG10]:
                 raise AssertionError(
-                    f'Bounds for {row["parameterScale"]} scaled parameter'
-                    f' {row.name} must be positive.')
+                    f"Bounds for {row[PARAMETER_SCALE]} scaled parameter "
+                    f"{ row.name} must be positive.")
 
 
 def assert_parameter_prior_type_is_valid(
         parameter_df: pd.DataFrame) -> None:
-    for prefix in ['initialization', 'objective']:
+    for prefix in [INITIALIZATION, OBJECTIVE]:
         col_name = f"{prefix}PriorType"
         if col_name not in parameter_df.columns:
             continue
@@ -373,10 +355,10 @@ def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-    for estimate in parameter_df['estimate']:
+    for estimate in parameter_df[ESTIMATE]:
         if int(estimate) not in [True, False]:
             raise AssertionError(
-                f"Expected 0 or 1 but got {estimate} in estimate column.")
+                f"Expected 0 or 1 but got {estimate} in {ESTIMATE} column.")
 
 
 def measurement_table_has_timepoint_specific_mappings(
@@ -397,23 +379,23 @@ def measurement_table_has_timepoint_specific_mappings(
 
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(
-            numbers.Number,)), 'noiseParameters'] = np.nan
+            numbers.Number,)), NOISE_PARAMETERS] = np.nan
 
     grouping_cols = core.get_notnull_columns(
         measurement_df,
-        ['observableId',
-         'simulationConditionId',
-         'preequilibrationConditionId',
-         'observableParameters',
-         'noiseParameters'
+        [OBSERVABLE_ID,
+         SIMULATION_CONDITION_ID,
+         PREEQUILIBRATION_CONDITION_ID,
+         OBSERVABLE_PARAMETERS,
+         NOISE_PARAMETERS,
          ])
     grouped_df = measurement_df.groupby(grouping_cols).size().reset_index()
 
     grouping_cols = core.get_notnull_columns(
         grouped_df,
-        ['observableId',
-         'simulationConditionId',
-         'preequilibrationConditionId'])
+        [OBSERVABLE_ID,
+         SIMULATION_CONDITION_ID,
+         PREEQUILIBRATION_CONDITION_ID])
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
@@ -435,7 +417,7 @@ def measurement_table_has_observable_parameter_numeric_overrides(
         True if there any numbers to override observable parameters,
         False otherwise.
     """
-    if 'observableParameters' not in measurement_df:
+    if OBSERVABLE_PARAMETERS not in measurement_df:
         return False
 
     for i, row in measurement_df.iterrows():
@@ -462,22 +444,22 @@ def assert_noise_distributions_valid(measurement_df: pd.DataFrame) -> None:
 
     # insert optional columns into copied df
 
-    if 'observableTransformation' not in df:
-        df['observableTransformation'] = ''
-    if 'noiseDistribution' not in df:
-        df['noiseDistribution'] = ''
+    if OBSERVABLE_TRANSFORMATION not in df:
+        df[OBSERVABLE_TRANSFORMATION] = ''
+    if NOISE_DISTRIBUTION not in df:
+        df[NOISE_DISTRIBUTION] = ''
 
     # check for valid values
 
-    for trafo in df['observableTransformation']:
-        if trafo not in ['', 'lin', 'log', 'log10'] \
+    for trafo in df[OBSERVABLE_TRANSFORMATION]:
+        if trafo not in ['', LIN, LOG, LOG10] \
                 and not (isinstance(trafo, numbers.Number)
                          and np.isnan(trafo)):
             raise ValueError(
                 f"Unrecognized observable transformation in measurement "
                 f"file: {trafo}.")
-    for distr in df['noiseDistribution']:
-        if distr not in ['', 'normal', 'laplace'] \
+    for distr in df[NOISE_DISTRIBUTION]:
+        if distr not in ['', *NOISE_MODELS] \
                 and not (isinstance(distr, numbers.Number)
                          and np.isnan(distr)):
             raise ValueError(
@@ -485,22 +467,22 @@ def assert_noise_distributions_valid(measurement_df: pd.DataFrame) -> None:
                 f"file: {distr}.")
 
     # Check for positivity of measurements in case of log-transformation
-    for mes, trafo in zip(df['measurement'],
-                          df['observableTransformation']):
-        if mes <= 0.0 and trafo in ['log', 'log10']:
+    for mes, trafo in zip(df[MEASUREMENT],
+                          df[OBSERVABLE_TRANSFORMATION]):
+        if mes <= 0.0 and trafo in [LOG, LOG10]:
             raise ValueError('Measurements with observable transformation '
                              f'{trafo} must be positive, but {mes} <= 0.')
 
     # check for unique values per observable
 
-    distrs = df.groupby(['observableId']).size().reset_index()
+    distrs = df.groupby([OBSERVABLE_ID]).size().reset_index()
 
     distrs_check = df.groupby(
-        ['observableId', 'observableTransformation', 'noiseDistribution'])
+        [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION, NOISE_DISTRIBUTION])
 
     if len(distrs) != len(distrs_check):
         raise AssertionError(
-            f"The noiseDistribution for an observable in the measurement "
+            f"The {NOISE_DISTRIBUTION} for an observable in the measurement "
             f"file is not unique: \n{distrs_check}")
 
 
@@ -656,7 +638,7 @@ def assert_measurement_conditions_present_in_condition_table(
     """
 
     used_conditions = set(measurement_df.simulationConditionId.values)
-    if 'preequilibrationConditionId' in measurement_df:
+    if PREEQUILIBRATION_CONDITION_ID in measurement_df:
         used_conditions |= \
             set(measurement_df.preequilibrationConditionId.dropna().values)
     available_conditions = set(condition_df.index.values)

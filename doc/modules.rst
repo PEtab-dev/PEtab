@@ -8,6 +8,7 @@ API Reference
    petab.composite_problem
    petab.core
    petab.conditions
+   petab.C
    petab.lint
    petab.measurements
    petab.parameter_mapping
