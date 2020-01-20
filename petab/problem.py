@@ -4,9 +4,9 @@ import os
 
 import pandas as pd
 import libsbml
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Iterable
 from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml)
+               sampling, sbml, yaml, core)
 from .C import *  # noqa: F403
 
 
@@ -19,10 +19,13 @@ class Problem:
     - measurement table
     - parameter table
 
+    Optionally it may contain visualization tables.
+
     Attributes:
         condition_df: PEtab condition table
         measurement_df: PEtab measurement table
         parameter_df: PEtab parameter table
+        visualization_df: PEtab visualization table
         sbml_reader: Stored to keep object alive.
         sbml_document: Stored to keep object alive.
         sbml_model: PEtab SBML model
@@ -34,11 +37,13 @@ class Problem:
                  sbml_document: libsbml.SBMLDocument = None,
                  condition_df: pd.DataFrame = None,
                  measurement_df: pd.DataFrame = None,
-                 parameter_df: pd.DataFrame = None):
+                 parameter_df: pd.DataFrame = None,
+                 visualization_df: pd.DataFrame = None):
 
         self.condition_df: Optional[pd.DataFrame] = condition_df
         self.measurement_df: Optional[pd.DataFrame] = measurement_df
         self.parameter_df: Optional[pd.DataFrame] = parameter_df
+        self.visualization_df: Optional[pd.DataFrame] = visualization_df
 
         self.sbml_reader: Optional[libsbml.SBMLReader] = sbml_reader
         self.sbml_document: Optional[libsbml.SBMLDocument] = sbml_document
@@ -75,8 +80,10 @@ class Problem:
     @staticmethod
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
-                   measurement_file: str = None,
-                   parameter_file: str = None) -> 'Problem':
+                   measurement_file: Union[str, Iterable] = None,
+                   parameter_file: str = None,
+                   visualization_files: Union[str, Iterable] = None
+                   ) -> 'Problem':
         """
         Factory method to load model and tables from files.
 
@@ -85,34 +92,44 @@ class Problem:
             condition_file: PEtab condition table
             measurement_file: PEtab measurement table
             parameter_file: PEtab parameter table
+            visualization_files: PEtab visualization tables
         """
 
         sbml_model = sbml_document = sbml_reader = None
-        condition_df = measurement_df = parameter_df = None
+        condition_df = measurement_df = parameter_df = visualization_df = None
 
         if condition_file:
             condition_df = conditions.get_condition_df(condition_file)
+
         if measurement_file:
             if isinstance(measurement_file, str):
                 measurement_df = measurements.get_measurement_df(
                     measurement_file)
             else:
                 # If there are multiple tables, we will merge them
-                measurement_df = measurements.concat_measurements(
-                    measurement_file)
+                measurement_df = core.concat_tables(
+                    measurement_file, measurements.get_measurement_df)
+
         if parameter_file:
             parameter_df = parameters.get_parameter_df(parameter_file)
+
         if sbml_file:
             sbml_reader = libsbml.SBMLReader()
             sbml_document = sbml_reader.readSBML(sbml_file)
             sbml_model = sbml_document.getModel()
+
+        if visualization_files:
+            # If there are multiple tables, we will merge them
+            visualization_df = core.concat_tables(
+                visualization_files, core.get_visualization_df)
 
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,
                        parameter_df=parameter_df,
                        sbml_model=sbml_model,
                        sbml_document=sbml_document,
-                       sbml_reader=sbml_reader)
+                       sbml_reader=sbml_reader,
+                       visualization_df=visualization_df)
 
     @staticmethod
     def from_yaml(yaml_config: Union[Dict, str]) -> 'Problem':
@@ -145,7 +162,9 @@ class Problem:
             condition_file=os.path.join(
                 path_prefix, problem0[CONDITION_FILES][0]),
             parameter_file=os.path.join(
-                path_prefix, yaml_config[PARAMETER_FILE])
+                path_prefix, yaml_config[PARAMETER_FILE]),
+            visualization_files=[os.path.join(path_prefix, f)
+                                 for f in problem0[VISUALIZATION_FILES]]
         )
 
     @staticmethod

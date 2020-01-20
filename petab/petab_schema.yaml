@@ -49,6 +49,14 @@ properties:
             type: string
             description: PEtab condition file name or URL
 
+        visualization_files:
+          type: array
+          description: List of PEtab visualization files
+
+          items:
+            type: string
+            description: PEtab visualization file name or URL
+
       required:
         - sbml_files
         - measurement_files

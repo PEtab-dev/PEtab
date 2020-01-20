@@ -63,12 +63,14 @@ class CompositeProblem:
             cur_problem = problem.Problem.from_files(
                 sbml_file=os.path.join(
                     path_prefix, problem_config[SBML_FILES][0]),
-                measurement_file=os.path.join(
-                    path_prefix,
-                    [os.path.join(path_prefix, f)
-                     for f in problem_config[MEASUREMENT_FILES]]),
+                measurement_file=[
+                    os.path.join(path_prefix, f)
+                    for f in problem_config[MEASUREMENT_FILES]],
                 condition_file=os.path.join(
                     path_prefix, problem_config[CONDITION_FILES][0]),
+                visualization_files=[
+                    os.path.join(path_prefix, f)
+                    for f in problem_config[VISUALIZATION_FILES]]
             )
             problems.append(cur_problem)
 
