@@ -188,11 +188,13 @@ def test_get_placeholders():
         == {'noiseParameter1_oneParam'}
 
 
-def test_statpoint_sampling(fujita_model_scaling):
+def test_startpoint_sampling(fujita_model_scaling):
     startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
-
     assert (np.isfinite(startpoints)).all
-    assert startpoints.shape == (19, 100)
+    assert startpoints.shape == (100, 19)
+    for sp in startpoints:
+        assert sp[0] >= np.log10(31.62) and sp[0] <= np.log10(316.23)
+        assert sp[1] >= -3 and sp[1] <= 3
 
 
 def test_create_parameter_df(condition_df_2_conditions):

@@ -224,6 +224,17 @@ def test_check_parameter_bounds():
              'estimate': [1], 'parameterScale': ['log']}))
 
 
+def test_assert_parameter_prior_type_is_valid():
+    lint.assert_parameter_prior_type_is_valid(pd.DataFrame(
+        {'initializationPriorType': ['uniform', 'laplace'],
+         'objectivePriorType': ['normal', 'logNormal']}))
+    lint.assert_parameter_prior_type_is_valid(pd.DataFrame())
+
+    with pytest.raises(AssertionError):
+        lint.assert_parameter_prior_type_is_valid(pd.DataFrame(
+            {'initializationPriorType': ['normal', '']}))
+
+
 def test_petablint_succeeds():
     """Run petablint and ensure we exit successfully for a file that should
     contain no errors"""

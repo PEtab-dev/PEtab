@@ -82,8 +82,10 @@ def create_parameter_df(sbml_model: libsbml.Model,
             'upperBound': upper_bound,
             'nominalValue': np.nan,
             'estimate': 1,
-            'priorType': '',
-            'priorParameters': ''
+            'initializationPriorType': '',
+            'initializationPriorParameters': '',
+            'objectivePriorType': '',
+            'objectivePriorParameters': '',
         })
     df.set_index(['parameterId'], inplace=True)
 
@@ -174,12 +176,13 @@ def get_required_parameters_for_parameter_table(
     return parameter_ids.keys()
 
 
-def get_priors_from_df(parameter_df: pd.DataFrame
-                       ) -> List[Tuple]:
+def get_priors_from_df(parameter_df: pd.DataFrame,
+                       mode: str) -> List[Tuple]:
     """Create list with information about the parameter priors
 
     Arguments:
         parameter_df: PEtab parameter table
+        mode: 'initialization' or 'objective'
 
     Returns:
         List with prior information.
@@ -191,11 +194,12 @@ def get_priors_from_df(parameter_df: pd.DataFrame
     prior_list = []
     for _, row in par_to_estimate.iterrows():
         # retrieve info about type
-        prior_type = str(row['priorType'])
+        prior_type = str(row.get(f'{mode}PriorType', 'parameterScaleUniform'))
 
         # retrieve info about parameters of priors, make it a tuple of floats
-        tmp_pars = str(row['priorParameters']).split(';')
-        prior_pars = tuple([float(entry) for entry in tmp_pars])
+        pars_str = str(row.get(f'{mode}PriorParameters',
+                       f'{row["lowerBound"]};{row["upperBound"]}'))
+        prior_pars = tuple([float(entry) for entry in pars_str.split(';')])
 
         # add parameter scale and bounds, as this may be needed
         par_scale = row['parameterScale']

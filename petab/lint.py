@@ -16,6 +16,12 @@ from . import (core, parameters, sbml, measurements)
 logger = logging.getLogger(__name__)
 
 
+PRIOR_TYPES = [
+    "uniform", "normal", "laplace", "logNormal", "logLaplace",
+    "parameterScaleUniform", "parameterScaleNormal", "parameterScaleLaplace"
+]
+
+
 def _check_df(df: pd.DataFrame, req_cols: Iterable, name: str) -> None:
     """Check if given columns are present in DataFrame
 
@@ -137,8 +143,8 @@ def check_parameter_df(
     """
 
     req_cols = [
-        "parameterName", "parameterScale",
-        "lowerBound", "upperBound", "nominalValue", "estimate"
+        "parameterScale", "lowerBound", "upperBound", "nominalValue",
+        "estimate"
     ]
     _check_df(df, req_cols, "parameter")
 
@@ -160,6 +166,7 @@ def check_parameter_df(
     assert_parameter_estimate_is_boolean(df)
     assert_parameter_id_is_unique(df)
     check_parameter_bounds(df)
+    assert_parameter_prior_type_is_valid(df)
 
     if sbml_model and measurement_df is not None \
             and condition_df is not None:
@@ -340,6 +347,19 @@ def check_parameter_bounds(parameter_df: pd.DataFrame) -> None:
                 raise AssertionError(
                     f'Bounds for {row["parameterScale"]} scaled parameter'
                     f' {row.name} must be positive.')
+
+
+def assert_parameter_prior_type_is_valid(
+        parameter_df: pd.DataFrame) -> None:
+    for prefix in ['initialization', 'objective']:
+        col_name = f"{prefix}PriorType"
+        if col_name not in parameter_df.columns:
+            continue
+        for _, row in parameter_df.iterrows():
+            if row[col_name] not in PRIOR_TYPES:
+                raise AssertionError(
+                    f"{col_name} must be one of {PRIOR_TYPES} but is "
+                    f"{row[col_name]}.")
 
 
 def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
