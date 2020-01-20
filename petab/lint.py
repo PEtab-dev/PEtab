@@ -287,7 +287,6 @@ def assert_parameter_scale_is_valid(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-
     for parameter_scale in parameter_df[PARAMETER_SCALE]:
         if parameter_scale not in [LIN, LOG, LOG10]:
             raise AssertionError(f"Expected {LIN}, {LOG}, or {LOG10}, but "
