@@ -3,12 +3,11 @@
 import os
 
 import pandas as pd
-
-from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml, core)
-
 import libsbml
 from typing import Optional, List, Union, Dict, Iterable
+from . import (parameter_mapping, measurements, conditions, parameters,
+               sampling, sbml, yaml, core)
+from .C import *  # noqa: F403
 
 
 class Problem:
@@ -157,15 +156,15 @@ class Problem:
         yaml.assert_single_condition_and_sbml_file(problem0)
 
         return Problem.from_files(
-            sbml_file=os.path.join(path_prefix, problem0['sbml_files'][0]),
+            sbml_file=os.path.join(path_prefix, problem0[SBML_FILES][0]),
             measurement_file=[os.path.join(path_prefix, f)
-                              for f in problem0['measurement_files']],
+                              for f in problem0[MEASUREMENT_FILES]],
             condition_file=os.path.join(
-                path_prefix, problem0['condition_files'][0]),
+                path_prefix, problem0[CONDITION_FILES][0]),
             parameter_file=os.path.join(
-                path_prefix, yaml_config['parameter_file']),
+                path_prefix, yaml_config[PARAMETER_FILE]),
             visualization_files=[os.path.join(path_prefix, f)
-                                 for f in problem0['visualization_files']]
+                                 for f in problem0[VISUALIZATION_FILES]]
         )
 
     @staticmethod
@@ -242,45 +241,45 @@ class Problem:
     @property
     def x_ids(self) -> List[str]:
         """Parameter table parameter IDs"""
-        return list(self.parameter_df.reset_index()['parameterId'])
+        return list(self.parameter_df.reset_index()[PARAMETER_ID])
 
     @property
     def x_nominal(self) -> List:
         """Parameter table nominal values"""
-        return list(self.parameter_df['nominalValue'])
+        return list(self.parameter_df[NOMINAL_VALUE])
 
     @property
     def lb(self) -> List:
         """Parameter table lower bounds"""
-        return list(self.parameter_df['lowerBound'])
+        return list(self.parameter_df[LOWER_BOUND])
 
     @property
     def ub(self) -> List:
         """Parameter table upper bounds"""
-        return list(self.parameter_df['upperBound'])
+        return list(self.parameter_df[UPPER_BOUND])
 
     @property
     def x_nominal_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['nominalValue'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[NOMINAL_VALUE],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def lb_scaled(self) -> List:
         """Parameter table lower bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['lowerBound'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[LOWER_BOUND],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def ub_scaled(self) -> List:
         """Parameter table upper bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['upperBound'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[UPPER_BOUND],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def x_fixed_indices(self) -> List[int]:
         """Parameter table non-estimated parameter indices"""
-        estimated = list(self.parameter_df['estimate'])
+        estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val == 0]
 
     @property
