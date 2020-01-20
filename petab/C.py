@@ -50,14 +50,12 @@ parameter_df_cols = [
 
 # TRANSFORMATIONS
 
-
 lin = 'lin'
 log = 'log'
 log10 = 'log10'
 
 
 # NOISE MODELS
-
 
 uniform = 'uniform'
 normal = 'normal'
