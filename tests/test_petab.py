@@ -1,12 +1,13 @@
-import pytest
-import tempfile
-import pandas as pd
-import sys
 import os
+import pickle
+import sys
+import tempfile
+from math import nan
+
 import libsbml
 import numpy as np
-import pickle
-
+import pandas as pd
+import pytest
 
 sys.path.append(os.getcwd())
 import petab  # noqa: E402
@@ -332,6 +333,28 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
     assert problem.measurement_df.equals(measurement_df_expected) is True
 
     assert petab.lint_problem(problem) is False
+
+
+def test_concat_measurements():
+    a = pd.DataFrame({'measurement': [1.0]})
+    b = pd.DataFrame({'time': [1.0]})
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        filename_a = fh.name
+        a.to_csv(fh, sep='\t', index=False)
+
+    expected = pd.DataFrame({
+        'measurement': [1.0, nan],
+        'time': [nan, 1.0]
+    })
+
+    assert expected.equals(
+        petab.concat_tables([a, b],
+                            petab.measurements.get_measurement_df))
+
+    assert expected.equals(
+        petab.concat_tables([filename_a, b],
+                            petab.measurements.get_measurement_df))
 
 
 def test_to_float_if_float():

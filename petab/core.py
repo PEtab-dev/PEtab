@@ -1,7 +1,7 @@
 """PEtab core functions (or functions that don't fit anywhere else)"""
 
 import logging
-from typing import Iterable, Any
+from typing import Iterable, Optional, Callable, Union, Any
 
 import numpy as np
 import pandas as pd
@@ -11,6 +11,30 @@ from . import sbml
 from . import problem
 
 logger = logging.getLogger(__name__)
+
+
+def get_simulation_df(simulation_file: str) -> pd.DataFrame:
+    """Read PEtab simulation table
+
+    Arguments:
+        simulation_file: URL or filename of PEtab simulation table
+
+    Returns:
+        Simulation DataFrame
+    """
+    return pd.read_csv(simulation_file, sep="\t", index_col=None)
+
+
+def get_visualization_df(visualization_file: str) -> pd.DataFrame:
+    """Read PEtab visualization table
+
+    Arguments:
+        visualization_file: URL or filename of PEtab visualization table
+
+    Returns:
+        Visualization DataFrame
+    """
+    return pd.read_csv(visualization_file, sep="\t", index_col=None)
 
 
 def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:
@@ -192,6 +216,41 @@ def flatten_timepoint_specific_output_overrides(
             sbml_model=petab_problem.sbml_model,
             observable_id=replicate_id,
             formula='noiseParameter1_' + replicate_id)
+
+
+def concat_tables(
+        tables: Union[str, pd.DataFrame, Iterable[Union[pd.DataFrame, str]]],
+        file_parser: Optional[Callable] = None
+) -> pd.DataFrame:
+    """Concatenate DataFrames provided as DataFrames or filenames, and a parser
+
+    Arguments:
+        tables:
+            Iterable of tables to join, as DataFrame or filename.
+        file_parser:
+            Function used to read the table in case filenames are provided,
+            accepting a filename as only argument.
+
+    Returns:
+        The concatenated DataFrames
+    """
+
+    if isinstance(tables, pd.DataFrame):
+        return tables
+
+    if isinstance(tables, str):
+        return file_parser(tables)
+
+    df = pd.DataFrame()
+
+    for tmp_df in tables:
+        # load from file, if necessary
+        if isinstance(tmp_df, str):
+            tmp_df = file_parser(tmp_df)
+
+        df = df.append(tmp_df, sort=False, ignore_index=True)
+
+    return df
 
 
 def to_float_if_float(x: Any) -> Any:
