@@ -110,7 +110,7 @@ Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 ## Condition table
 
 The condition table specifies parameters or *constant* species for specific
-simulation condition (generally corresponding to different experimental
+simulation conditions (generally corresponding to different experimental
 conditions).
 
 This is specified as tab-separated value file with condition-specific
@@ -127,8 +127,13 @@ Column names are global parameter IDs or IDs of constant species as given in
 the SBML model. These parameters will override any parameter values specified
 in the model. `parameterOrStateId`s and `conditionId`s must be unique.
 
+Values for condition parameters may be provided either as numeric values, or
+as parameter IDs. In case parameter IDs are provided, they need to be defined
+in the SBML model, the parameter table or both. 
+
 Row- and column-ordering are arbitrary, although specifying `parameterId`
 first may improve human readability. The `conditionName` column is optional.
+
 Additional columns are *not* allowed.
 
 *Note 1:* Instead of adding additional columns to the condition table, they
@@ -262,14 +267,20 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
 A tab-separated value text file containing information on model parameters.
 
-This table must include the following parameters:
-- Named parameter overrides introduced in the *conditions table*
+This table *must* include the following parameters:
+- Named parameter overrides introduced in the *conditions table*,
+  unless defined in the SBML model
 - Named parameter overrides introduced in the *measurement table*
 
-and must not include
-- placeholder parameters (see `observableParameters` and `noiseParameters`
+and *must not* include:
+- Placeholder parameters (see `observableParameters` and `noiseParameters`
   above)
-- parameters included as column names in the *condition table*
+- Parameters included as column names in the *condition table*
+- Parameters that are AssignmentRule targets in the SBML model
+
+it *may* include:
+- Any SBML model parameter that was not excluded above
+- Named parameter overrides introduced in the *conditions table*
 
 One row per parameter with arbitrary order of rows and columns:
 
