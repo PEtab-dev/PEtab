@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 
 import libsbml
 
@@ -345,8 +345,22 @@ def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     return sigmas
 
 
-def get_model_parameters(sbml_model: libsbml.Model) -> List[str]:
-    """Return list of SBML model parameter IDs which are not AssignmentRule
-    targets for observables or sigmas"""
-    return [p.getId() for p in sbml_model.getListOfParameters()
-            if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
+def get_model_parameters(sbml_model: libsbml.Model, with_values=False
+                         ) -> Union[List[str], Dict[str, float]]:
+    """Return SBML model parameters which are not AssignmentRule
+    targets for observables or sigmas
+
+    Arguments:
+        sbml_model: SBML model
+        with_values: If false, returns list of SBML model parameter IDs which
+        are not AssignmentRule targets for observables or sigmas. If true,
+        returns a dictionary with those parameter IDs as keys and parameter
+        values from the SBML model as values.
+    """
+    if with_values is False:
+        return [p.getId() for p in sbml_model.getListOfParameters()
+                if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
+    else:
+        return {p.getId(): p.getValue()
+                for p in sbml_model.getListOfParameters()
+                if sbml_model.getAssignmentRuleByVariable(p.getId()) is None}

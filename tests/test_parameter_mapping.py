@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import petab
 from petab.sbml import add_global_parameter
+from petab.parameter_mapping import _apply_parameter_table
 
 # import fixtures
 pytest_plugins = [
@@ -28,23 +29,55 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         })
 
         _, sbml_model = minimal_sbml_model
-        add_global_parameter(sbml_model, 'dynamicParameter1')
-        add_global_parameter(sbml_model, 'dynamicParameter2')
-        add_global_parameter(sbml_model, 'dynamicParameter3')
+        add_global_parameter(sbml_model, 'dynamicParameter1').setValue(1.0)
+        add_global_parameter(sbml_model, 'dynamicParameter2').setValue(2.0)
+        add_global_parameter(sbml_model, 'dynamicParameter3').setValue(3.0)
 
+        # Test without parameter table
         expected = [({},
-                     {'dynamicParameter1': 'dynamicParameter1',
-                      'dynamicParameter2': 'dynamicParameter2',
-                      'dynamicParameter3': 'dynamicParameter3'}),
+                     {'dynamicParameter1': 1.0,
+                      'dynamicParameter2': 2.0,
+                      'dynamicParameter3': 3.0,
+                      'fixedParameter1': 1.0}),
                     ({},
-                     {'dynamicParameter1': 'dynamicParameter1',
-                      'dynamicParameter2': 'dynamicParameter2',
-                      'dynamicParameter3': 'dynamicParameter3'})]
+                     {'dynamicParameter1': 1.0,
+                      'dynamicParameter2': 2.0,
+                      'dynamicParameter3': 3.0,
+                      'fixedParameter1': 2.0})]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             sbml_model=sbml_model,
             measurement_df=measurement_df,
             condition_df=condition_df,
+        )
+
+        assert actual == expected
+
+        # Test with parameter table
+        parameter_df = pd.DataFrame(data={
+            petab.PARAMETER_ID: ['dynamicParameter1', 'dynamicParameter2',
+                                 'dynamicParameter3'],
+            petab.ESTIMATE: [0, 1, 1],
+            petab.NOMINAL_VALUE: [11.0, 12.0, None]
+        })
+        parameter_df.set_index('parameterId', inplace=True)
+
+        expected = [({},
+                     {'dynamicParameter1': 11.0,
+                      'dynamicParameter2': 'dynamicParameter2',
+                      'dynamicParameter3': 'dynamicParameter3',
+                      'fixedParameter1': 1.0}),
+                    ({},
+                     {'dynamicParameter1': 11.0,
+                      'dynamicParameter2': 'dynamicParameter2',
+                      'dynamicParameter3': 'dynamicParameter3',
+                      'fixedParameter1': 2.0})]
+
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
+            sbml_model=sbml_model,
+            measurement_df=measurement_df,
+            condition_df=condition_df,
+            parameter_df=parameter_df
         )
 
         assert actual == expected
@@ -74,15 +107,26 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
+        parameter_df = pd.DataFrame(data={
+            petab.PARAMETER_ID: [
+                'dynamicParameter1', 'dynamicParameter2', 'obs1par1override',
+                'obs1par2cond1override', 'obs1par2cond2override',
+                'obs2par1cond2override'
+            ],
+        })
+        parameter_df.set_index('parameterId', inplace=True)
+
         expected = [({},
-                     {'dynamicParameter1': 'dynamicParameter1',
+                     {'fixedParameter1': 1.0,
+                      'dynamicParameter1': 'dynamicParameter1',
                       'dynamicParameter2': 'dynamicParameter2',
                       'observableParameter1_obs1': 'obs1par1override',
                       'observableParameter2_obs1': 'obs1par2cond1override',
                       'observableParameter1_obs2': 'obs2par1cond1override',
                       }),
                     ({},
-                     {'dynamicParameter1': 'dynamicParameter1',
+                     {'fixedParameter1': 2.0,
+                      'dynamicParameter1': 'dynamicParameter1',
                       'dynamicParameter2': 'dynamicParameter2',
                       'observableParameter1_obs1': 'obs1par1override',
                       'observableParameter2_obs1': 'obs1par2cond2override',
@@ -92,7 +136,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_model=sbml_model)
+            sbml_model=sbml_model, parameter_df=parameter_df)
 
         assert actual == expected
 
@@ -102,7 +146,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_model=sbml_model)
+            sbml_model=sbml_model, parameter_df=parameter_df)
         assert actual == expected
 
     @staticmethod
@@ -129,14 +173,25 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             'noiseParameters': ['', '', '', '']
         })
 
+        parameter_df = pd.DataFrame(data={
+            petab.PARAMETER_ID: [
+                'dynamicParameter1', 'obs1par1override',
+                'obs1par2cond1override', 'obs1par2cond2override',
+                'obs2par1cond2override'],
+            petab.ESTIMATE: [1, 1, 1, 1, 1],
+        })
+        parameter_df.set_index('parameterId', inplace=True)
+
         expected = [({},
-                     {'dynamicParameter1': 'dynamicParameter1',
+                     {'fixedParameter1': 1.0,
+                      'dynamicParameter1': 'dynamicParameter1',
                       'observableParameter1_obs1': 'obs1par1override',
                       'observableParameter2_obs1': 'obs1par2cond1override',
                       'observableParameter1_obs2': np.nan,
                       }),
                     ({},
-                     {'dynamicParameter1': 'dynamicParameter1',
+                     {'fixedParameter1': 2.0,
+                      'dynamicParameter1': 'dynamicParameter1',
                       'observableParameter1_obs1': 'obs1par1override',
                       'observableParameter2_obs1': 'obs1par2cond2override',
                       'observableParameter1_obs2': 'obs2par1cond2override'
@@ -145,7 +200,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             measurement_df=measurement_df,
             condition_df=condition_df,
-            sbml_model=sbml_model
+            sbml_model=sbml_model, parameter_df=parameter_df
         )
 
         # Comparison with NaN containing expected results fails after pickling!
@@ -209,8 +264,12 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         - constant override (condition 4)"""
 
         document, model = minimal_sbml_model
-        model.createParameter().setId('overridee')
+        p = model.createParameter()
+        p.setId('overridee')
+        p.setValue(2.0)
         assert petab.get_model_parameters(model) == ['overridee']
+        assert petab.get_model_parameters(model, with_values=True) \
+            == {'overridee': 2.0}
 
         condition_df = pd.DataFrame(data={
             'conditionId':
@@ -258,8 +317,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
 
         expected_par_map = [({}, {'overridee': 'dynamicOverrideLog10'}),
                             ({}, {'overridee': 2.0}),
-                            # rescaled:
-                            ({}, {'overridee': 0.01}),
+                            # not scaled:
+                            ({}, {'overridee': -2.0}),
                             ({}, {'overridee': 10.0})]
 
         expected_scale_map = [({}, {'overridee': 'log10'}),
@@ -291,9 +350,9 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                              {'overridee': 'dynamicOverrideLog10'}),
                             ({'overridee': 'dynamicOverrideLog10'},
                              {'overridee': 2.0}),
-                            # rescaled:
-                            ({'overridee': 0.01}, {'overridee': 0.01}),
-                            ({'overridee': 0.01}, {'overridee': 10.0})]
+                            # not rescaled:
+                            ({'overridee': -2.0}, {'overridee': -2.0}),
+                            ({'overridee': -2.0}, {'overridee': 10.0})]
         expected_scale_map = [({'overridee': 'log10'}, {'overridee': 'log10'}),
                               ({'overridee': 'log10'}, {'overridee': 'lin'}),
                               ({'overridee': 'lin'}, {'overridee': 'lin'}),
@@ -313,20 +372,13 @@ def test_fill_in_nominal_values():
 
     mapping = {'estimated': 'estimated', 'not_estimated': 'not_estimated'}
     actual = mapping.copy()
-    petab.fill_in_nominal_values(actual, parameter_df)
+    _apply_parameter_table(actual, parameter_df)
     expected = {'estimated': 'estimated', 'not_estimated': 2.0}
     assert expected == actual
 
     del parameter_df['estimate']
-    # should not replace
-    mapping = {'estimated': 1.0, 'not_estimated': 1.0}
-    actual = mapping.copy()
-    petab.fill_in_nominal_values(actual, parameter_df)
-    expected = mapping.copy()
-    assert expected == actual
-
     mapping = {'estimated': 'estimated', 'not_estimated': 'not_estimated'}
     actual = mapping.copy()
-    petab.fill_in_nominal_values(actual, parameter_df)
+    _apply_parameter_table(actual, parameter_df)
     expected = mapping.copy()
     assert expected == actual
