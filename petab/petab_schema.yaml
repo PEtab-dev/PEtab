@@ -5,9 +5,9 @@ description: PEtab parameter estimation problem config file schema
 
 properties:
 
-  petab_version:
-    type: string
-    description: Version of the PEtab format (e.g. 0.0.0a16)
+  format_version:
+    type: integer
+    description: Version of the PEtab format (e.g. 1).
 
   parameter_file:
     type: string
@@ -22,40 +22,40 @@ properties:
     items:
 
       type: object
-      description: PEtab SBML, condition and measurement tables
+      description: PEtab SBML, condition and measurement tables.
       properties:
 
         sbml_files:
           type: array
-          description: List of PEtab SBML files
+          description: List of PEtab SBML files.
 
           items:
             type: string
-            description: PEtab SBML file name or URL
+            description: PEtab SBML file name or URL.
 
         measurement_files:
           type: array
-          description: List of PEtab measurement files
+          description: List of PEtab measurement files.
 
           items:
             type: string
-            description: PEtab measurement file name or URL
+            description: PEtab measurement file name or URL.
 
         condition_files:
           type: array
-          description: List of PEtab condition files
+          description: List of PEtab condition files.
 
           items:
             type: string
-            description: PEtab condition file name or URL
+            description: PEtab condition file name or URL.
 
         visualization_files:
           type: array
-          description: List of PEtab visualization files
+          description: List of PEtab visualization files.
 
           items:
             type: string
-            description: PEtab visualization file name or URL
+            description: PEtab visualization file name or URL.
 
       required:
         - sbml_files
@@ -63,6 +63,6 @@ properties:
         - condition_files
 
 required:
-  - petab_version
+  - format_version
   - parameter_file
   - problems

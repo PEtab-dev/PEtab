@@ -1,5 +1,8 @@
 # PEtab data format specification
 
+
+## Version: 1
+
 This document explains the PEtab data format.
 
 
