@@ -120,13 +120,9 @@ class Problem:
             sbml_model = sbml_document.getModel()
 
         if visualization_files:
-            if isinstance(visualization_files, str):
-                visualization_df = core.get_visualization_df(
-                    visualization_files)
-            else:
-                # If there are multiple tables, we will merge them
-                visualization_df = core.concat_tables(
-                    visualization_files, core.get_visualization_df)
+            # If there are multiple tables, we will merge them
+            visualization_df = core.concat_tables(
+                visualization_files, core.get_visualization_df)
 
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,
