@@ -5,9 +5,9 @@ description: PEtab parameter estimation problem config file schema
 
 properties:
 
-  petab_version:
+  format_version:
     type: string
-    description: Version of the PEtab format (e.g. 0.0.0a16)
+    description: Version of the PEtab format (e.g. 1)
 
   parameter_file:
     type: string
