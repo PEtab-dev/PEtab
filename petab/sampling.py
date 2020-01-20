@@ -32,15 +32,14 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
         elif scaling == 'log10':
             return np.log10(x)
         else:
-            raise NotImplementedError('Parameter priors on the parameter '
-                                      'scale ' + scaling + ' are currently '
-                                      'not implemented.')
+            raise NotImplementedError(
+                f"Parameter priors on the parameter scale {scaling} are "
+                "currently not implemented.")
 
     def clip_to_bounds(x: np.array):
         """Clip values in array x to bounds"""
-        tmp_x = [min([bounds[1], ix]) for ix in x]
-        tmp_x = [max([bounds[0], ix]) for ix in tmp_x]
-        return np.array(tmp_x)
+        x = np.maximum(np.minimum(scale(bounds[1]), x), scale(bounds[0]))
+        return x
 
     # define lambda functions for each parameter
     if p_type == 'uniform':
@@ -94,14 +93,15 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
 
     Returns:
         Array of sampled starting points with dimensions
-        n_optimization_parameters x n_startpoints
+        n_startpoints x n_optimization_parameters
     """
     if seed is not None:
         np.random.seed(seed)
 
     # get types and parameters of priors from dataframe
-    prior_list = parameters.get_priors_from_df(parameter_df)
+    prior_list = parameters.get_priors_from_df(
+        parameter_df, mode='initialization')
 
     startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
 
-    return np.array(startpoints)
+    return np.array(startpoints).T

@@ -326,15 +326,13 @@ Additional columns may be added.
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see `nominalValue`).
 
-- `priorType`
+- `initializationPriorType` [STRING, optional]
 
-  Type of prior, which is used for sampling of initial points for 
-  a possible optimization and for the objective function. Priors which are 
-  only used for sampling of initial starting points or only for optimization
-  should be specified in the additional columns `initializationPriorType` or
-  `objectivePriorType`, respectively.
+  Prior types used for sampling of initial points for optimization. Sampled
+  points are clipped to lie inside the parameter boundaries specified by
+  `lowerBound` and `upperBound`. Defaults to `parameterScaleUniform`.
 
-  Possible prior types are (see also Extensions):
+  Possible prior types are:
 
     - *uniform*: flat prior on linear parameters
     - *normal*: Gaussian prior on linear parameters
@@ -346,13 +344,11 @@ Additional columns may be added.
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- `priorParameters`
+- `initializationPriorParameters` [STRING, optional]
 
-  Parameters for prior specified in `priorType`, separated by a semicolon. 
-  Accordingly, there are optional columns for priors which should be used for
-  initial point sampling or optimization only. (i.e., 
-  `initializationPriorParameters` and `objectivePriorParameters`,
-  respectively).
+  Prior parameters used for sampling of initial points for optimization,
+  separated by a semicolon. Defaults to `lowerBound;upperBound`.
+
   So far, only numeric values will be supported, no parameter names. 
   Parameters for the different prior types are:
   
@@ -365,43 +361,15 @@ Additional columns may be added.
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
 
-
-### Additional optional columns
-
-Extra columns:
-
-- `hierarchicalOptimization` (optional)
-
-  hierarchicalOptimization: 1 if parameter is optimized using hierarchical
-  optimization approach, 0 otherwise.
-
-- `initializationPriorType` (optional)
-
-  Prior types used for sampling of initial points for optimization. Uses the
-  entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
-
-- `initializationPriorParameters` (optional)
-
-  Prior parameters used for sampling of initial points for optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.
-
-- `objectivePriorType` (optional)
+- `objectivePriorType` [STRING, optional]
 
   Prior types used for the objective function during optimization or sampling.
-  Uses the entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
+  For possible values, see `initializationPriorType`.
 
-- `objectivePriorParameters` (optional)
+- `objectivePriorParameters` [STRING, optional]
 
-  Prior parameters used for the objective function during optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.   
+  Prior parameters used for the objective function during optimization.
+  For more detailed documentation, see `initializationPriorParameters`.   
 
 
 ## Visualization table
