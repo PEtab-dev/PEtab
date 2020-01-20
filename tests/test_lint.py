@@ -253,6 +253,11 @@ def test_petablint_succeeds():
     result = subprocess.run(['petablint', '-v', '-y', yaml_file])
     assert result.returncode == 0
 
+    parameter_file = os.path.join(
+        script_path, dir_fujita, 'Fujita_parameters.tsv')
+    result = subprocess.run(['petablint', '-v', '-p', parameter_file])
+    assert result.returncode == 0
+
 
 def test_assert_measurement_conditions_present_in_condition_table():
     condition_df = pd.DataFrame(data={
