@@ -1,7 +1,7 @@
 """PEtab core functions (or functions that don't fit anywhere else)"""
 
 import logging
-from typing import Iterable, Optional, Callable, Union
+from typing import Iterable, Optional, Callable, Union, Any
 
 import numpy as np
 import pandas as pd
@@ -244,3 +244,20 @@ def concat_tables(
         df = df.append(tmp_df, sort=False, ignore_index=True)
 
     return df
+
+
+def to_float_if_float(x: Any) -> Any:
+    """Return input as float if possible, otherwise return as is
+
+    Arguments:
+        x: Anything
+
+    Returns:
+        ``x`` as float if possible, otherwise ``x``
+    """
+
+    try:
+        return float(x)
+    except (ValueError, TypeError):
+        return x
+

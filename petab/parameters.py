@@ -8,7 +8,7 @@ from typing import Iterable, Set, List, Tuple
 
 import libsbml
 
-from . import lint, core, measurements, sbml
+from . import lint, core, measurements, sbml, conditions
 
 
 def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
@@ -131,6 +131,7 @@ def get_required_parameters_for_parameter_table(
         placeholders |= measurements.get_placeholders(
             v, core.get_observable_id(k), 'noise')
 
+    # TODO(
     # grab all from model and measurement table
     # without condition table parameters
     # and observables assigment targets
@@ -167,15 +168,8 @@ def get_required_parameters_for_parameter_table(
             row.noiseParameters))
 
     # Append parameter overrides from condition table
-    condition_parameters = list(
-        set(condition_df.columns.values.tolist()) - {'conditionId',
-                                                     'conditionName'})
-    for overridee in condition_parameters:
-        # non-numeric entries are parameter overrides
-        overrides = condition_df[overridee][
-            ~condition_df[overridee].apply(isinstance, args=(numbers.Number,))]
-        for overrider in overrides:
-            parameter_ids[overrider] = None
+    for p in conditions.get_parametric_overrides(condition_df):
+        parameter_ids[p] = None
 
     return parameter_ids.keys()
 

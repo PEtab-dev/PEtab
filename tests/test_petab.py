@@ -353,3 +353,14 @@ def test_concat_measurements():
     assert expected.equals(
         petab.concat_tables([filename_a, b],
                             petab.measurements.get_measurement_df))
+
+
+def test_to_float_if_float():
+    to_float_if_float = petab.core.to_float_if_float
+
+    assert to_float_if_float(1) == 1.0
+    assert to_float_if_float("1") == 1.0
+    assert to_float_if_float("-1.0") == -1.0
+    assert to_float_if_float("1e1") == 10.0
+    assert to_float_if_float("abc") == "abc"
+    assert to_float_if_float([]) == []

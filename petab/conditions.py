@@ -1,12 +1,11 @@
 """Functions operating on the PEtab condition table"""
 
-from typing import Iterable, Optional
+from typing import Iterable, Optional, List
 
 import numpy as np
 import pandas as pd
 
-from . import lint
-from . import parameters
+from . import lint, parameters, core
 
 
 def get_condition_df(condition_file_name: str) -> pd.DataFrame:
@@ -60,3 +59,29 @@ def create_condition_df(parameter_ids: Iterable[str],
         df[c] = np.nan
 
     return df
+
+
+def get_parametric_overrides(condition_df: pd.DataFrame) -> List[str]:
+    """Get parametric overrides from condition table
+
+    Arguments:
+        condition_df: PEtab condition table
+
+    Returns:
+        List of parameter IDs that are mapped in a condition-specific way
+    """
+    constant_parameters = list(
+        set(condition_df.columns.values.tolist()) - {'conditionId',
+                                                     'conditionName'})
+    result = []
+
+    for column in constant_parameters:
+        if np.issubdtype(condition_df[column].dtype, np.number):
+            continue
+
+        floatified = condition_df.loc[:, column].apply(core.to_float_if_float)
+
+        for x in floatified:
+            if not isinstance(x, float):
+                result.append(x)
+    return result
