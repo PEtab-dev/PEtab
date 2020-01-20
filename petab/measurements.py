@@ -185,12 +185,6 @@ def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
     if list_string is None:
         return []
 
-    def to_float_if_float(x):
-        try:
-            return float(x)
-        except ValueError:
-            return x
-
     if isinstance(list_string, numbers.Number):
         # Empty cells in pandas might be turned into nan
         # We might want to allow nan as replacement...
@@ -199,7 +193,7 @@ def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
         return [list_string]
 
     result = [x.strip() for x in list_string.split(delim) if len(x.strip())]
-    return [to_float_if_float(x) for x in result]
+    return [core.to_float_if_float(x) for x in result]
 
 
 def get_placeholders(formula_string: str, observable_id: str,
