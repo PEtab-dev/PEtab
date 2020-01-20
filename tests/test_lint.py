@@ -1,5 +1,6 @@
 import os
 import subprocess
+from unittest.mock import patch
 
 import libsbml
 import pandas as pd
@@ -24,22 +25,16 @@ def test_assert_measured_observables_present_in_model():
 
 
 def test_condition_table_is_parameter_free():
-    condition_df = pd.DataFrame(data={
-        'conditionId': ['condition1', 'condition2'],
-        'conditionName': ['', 'Condition 2'],
-        'fixedParameter1': [1.0, 2.0]
-    })
+    with patch('petab.get_parametric_overrides') \
+            as mock_get_parametric_overrides:
+        mock_get_parametric_overrides.return_value = []
+        assert lint.condition_table_is_parameter_free(pd.DataFrame()) is True
+        mock_get_parametric_overrides.assert_called_once()
 
-    assert lint.condition_table_is_parameter_free(condition_df) is True
-
-    condition_df.fixedParameter1 = \
-        condition_df.fixedParameter1.values.astype(int)
-
-    assert lint.condition_table_is_parameter_free(condition_df) is True
-
-    condition_df.loc[0, 'fixedParameter1'] = 'parameterId'
-
-    assert lint.condition_table_is_parameter_free(condition_df) is False
+        mock_get_parametric_overrides.reset_mock()
+        mock_get_parametric_overrides.return_value = ['p1']
+        assert lint.condition_table_is_parameter_free(pd.DataFrame()) is False
+        mock_get_parametric_overrides.assert_called_once()
 
 
 def test_measurement_table_has_timepoint_specific_mappings():
