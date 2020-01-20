@@ -14,6 +14,7 @@ def test_validate():
     # should fail because we miss some information
     with pytest.raises(ValidationError):
         validate(data)
-    
-    data = "doc/example/example_Fujita/Fujita.yaml"
-    validate(data)
+
+    # should be well-formed
+    file_ = "doc/example/example_Fujita/Fujita.yaml"
+    validate(file_)
