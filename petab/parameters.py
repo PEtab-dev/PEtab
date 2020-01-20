@@ -52,6 +52,7 @@ def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
 def create_parameter_df(sbml_model: libsbml.Model,
                         condition_df: pd.DataFrame,
                         measurement_df: pd.DataFrame,
+                        include_optional: bool = False,
                         parameter_scale: str = LOG10,
                         lower_bound: Iterable = None,
                         upper_bound: Iterable = None) -> pd.DataFrame:
@@ -64,6 +65,11 @@ def create_parameter_df(sbml_model: libsbml.Model,
         sbml_model: SBML Model
         condition_df: PEtab condition DataFrame
         measurement_df: PEtab measurement DataFrame
+        include_optional: By default this only returns parameters that are
+            required to be present in the parameter table. If set to True,
+            this returns all parameters that are allowed to be present in the
+            parameter table (i.e. also including parameters specified in the
+            SBML model).
         parameter_scale: parameter scaling
         lower_bound: lower bound for parameter value
         upper_bound: upper bound for parameter value
@@ -71,8 +77,15 @@ def create_parameter_df(sbml_model: libsbml.Model,
     Returns:
         The created parameter DataFrame
     """
-    parameter_ids = list(get_required_parameters_for_parameter_table(
-        sbml_model, condition_df, measurement_df))
+
+    if include_optional:
+        parameter_ids = list(get_valid_parameters_for_parameter_table(
+            sbml_model=sbml_model, condition_df=condition_df,
+            measurement_df=measurement_df))
+    else:
+        parameter_ids = list(get_required_parameters_for_parameter_table(
+            sbml_model=sbml_model, condition_df=condition_df,
+            measurement_df=measurement_df))
 
     df = pd.DataFrame(
         data={
@@ -117,13 +130,67 @@ def get_required_parameters_for_parameter_table(
 
     Returns:
         Set of parameter IDs which PEtab requires to be present in the
-        parameter table
+        parameter table. That is all {observable,noise}Parameters from the
+        measurement table as well as all parametric condition table overrides
+        that are not defined in the SBML model.
     """
+
+    # use ordered dict as proxy for ordered set
+    parameter_ids = OrderedDict()
+
+    # Add parameters from measurement table, unless they are fixed parameters
+    def append_overrides(overrides):
+        for p in overrides:
+            if isinstance(p, str) and p not in condition_df.columns:
+                parameter_ids[p] = None
+
+    for _, row in measurement_df.iterrows():
+        # we trust that the number of overrides matches
+        append_overrides(measurements.split_parameter_replacement_list(
+            row.observableParameters))
+        append_overrides(measurements.split_parameter_replacement_list(
+            row.noiseParameters))
+
+    # Add condition table parametric overrides unless already defined in the
+    # SBML model
+    for p in conditions.get_parametric_overrides(condition_df):
+        if sbml_model.getParameter(p) is None:
+            parameter_ids[p] = None
+
+    return parameter_ids.keys()
+
+
+def get_valid_parameters_for_parameter_table(
+        sbml_model: libsbml.Model,
+        condition_df: pd.DataFrame,
+        measurement_df: pd.DataFrame) -> Set[str]:
+    """
+    Get set of parameters which may be present inside the parameter table
+
+    Arguments:
+        sbml_model: PEtab SBML model
+        condition_df: PEtab condition table
+        measurement_df: PEtab measurement table
+
+    Returns:
+        Set of parameter IDs which PEtab allows to be present in the
+        parameter table.
+    """
+
+    # - grab all model parameters
+    # - grab all parameters from measurement table
+    # - grab all parametric overrides from condition table
+    # - remove parameters for which condition table columns exist
+    # - remove observables assigment targets
+    # - remove sigma assignment targets
+    # - remove placeholder parameters
+    #   (only partial overrides are not supported)
 
     observables = sbml.get_observables(sbml_model)
     sigmas = sbml.get_sigmas(sbml_model)
 
-    # collect placeholder parameters
+    # collect placeholder parameters overwritten by
+    # {observable,noise}Parameters
     placeholders = set()
     for k, v in observables.items():
         placeholders |= measurements.get_placeholders(
@@ -134,35 +201,30 @@ def get_required_parameters_for_parameter_table(
         placeholders |= measurements.get_placeholders(
             v, core.get_observable_id(k), 'noise')
 
-    # TODO(
-    # grab all from model and measurement table
-    # without condition table parameters
-    # and observables assigment targets
-    # and sigma assignment targets
-    # and placeholder parameters (only partial overrides are not supported)
-
     # exclude rule targets
     assignment_targets = {ar.getVariable()
                           for ar in sbml_model.getListOfRules()}
 
-    # should not go into parameter table
+    # must not go into parameter table
     blackset = set()
     # collect assignment targets
     blackset |= set(observables.keys())
     blackset |= placeholders
     blackset |= assignment_targets
     blackset |= set(condition_df.columns.values) - {CONDITION_NAME}
+
     # use ordered dict as proxy for ordered set
     parameter_ids = OrderedDict.fromkeys(
         p.getId() for p in sbml_model.getListOfParameters()
         if p.getId() not in blackset)
 
-    # Append parameters from measurement table,
-    # unless they are fixed parameters
+    # Append parameters from measurement table, unless they occur as condition
+    # table columns
     def append_overrides(overrides):
         for p in overrides:
-            if isinstance(p, str) and p not in condition_df.columns:
+            if isinstance(p, str) and p not in blackset:
                 parameter_ids[p] = None
+
     for _, row in measurement_df.iterrows():
         # we trust that the number of overrides matches
         append_overrides(measurements.split_parameter_replacement_list(

@@ -249,20 +249,30 @@ def test_create_parameter_df(condition_df_2_conditions):
         measurement_df)
 
     # first model parameters, then row by row noise and sigma overrides
-    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5']
+    expected = ['p3', 'p4', 'p1', 'p2', 'p5']
     actual = parameter_df.index.values.tolist()
     assert actual == expected
-    assert parameter_df.loc['p0', 'nominalValue'] == 3.0
 
     # test with condition parameter override:
     condition_df_2_conditions.loc['condition2', 'fixedParameter1'] \
         = 'overrider'
-    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
+    expected = ['p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
 
     parameter_df = petab.create_parameter_df(
         model,
         condition_df_2_conditions,
         measurement_df)
+    actual = parameter_df.index.values.tolist()
+    assert actual == expected
+
+    # test with optional parameters
+    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
+
+    parameter_df = petab.create_parameter_df(
+        model,
+        condition_df_2_conditions,
+        measurement_df,
+        include_optional=True)
     actual = parameter_df.index.values.tolist()
     assert actual == expected
     assert parameter_df.loc['p0', 'nominalValue'] == 3.0

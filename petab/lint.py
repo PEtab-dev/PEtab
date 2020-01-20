@@ -175,14 +175,18 @@ def assert_all_parameters_present_in_parameter_df(
         AssertionError: in case of problems
     """
 
-    expected = parameters.get_required_parameters_for_parameter_table(
+    required = parameters.get_required_parameters_for_parameter_table(
+        sbml_model=sbml_model, condition_df=condition_df,
+        measurement_df=measurement_df)
+
+    allowed = parameters.get_valid_parameters_for_parameter_table(
         sbml_model=sbml_model, condition_df=condition_df,
         measurement_df=measurement_df)
 
     actual = set(parameter_df.index)
 
-    missing = expected - actual
-    extraneous = actual - expected
+    missing = required - actual
+    extraneous = actual - allowed
 
     if missing:
         raise AssertionError('Missing parameter(s) in parameter table: '
