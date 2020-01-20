@@ -1,48 +1,48 @@
 # MEASUREMENTS
 
-observableId = 'observableId'
-preequilibrationConditionId = 'preequilibrationConditionId'
-simulationConditionId = 'simulationConditionId'
-measurement = 'measurement'
-time = 'time'
-observableParameters = 'observableParameters'
-observableTransformation = 'observableTransformation'
-noiseDistribution = 'noiseDistribution'
-noiseParameters = 'noiseParameters'
-datasetId = 'datasetId'
-replicateId = 'replicateId'
+OBSERVABLE_ID = 'observableId'
+PREEQUILIBRATION_CONDITION_ID = 'preequilibrationConditionId'
+SIMULATION_CONDITION_ID = 'simulationConditionId'
+MEASUREMENT = 'measurement'
+TIME = 'time'
+OBSERVABLE_PARAMETERS = 'observableParameters'
+OBSERVABLE_TRANSFORMATION = 'observableTransformation'
+NOISE_DISTRIBUTION = 'noiseDistribution'
+NOISE_PARAMETERS = 'noiseParameters'
+DATASET_ID = 'datasetId'
+REPLICATE_ID = 'replicateId'
 
-measurement_df_req_cols = [
-    observableId, preequilibrationConditionId, simulationConditionId,
-    measurement, time, observableParameters, noiseParameters,
-    noiseDistribution]
+MEASUREMENT_DF_REQ_COLS = [
+    OBSERVABLE_ID, PREEQUILIBRATION_CONDITION_ID, SIMULATION_CONDITION_ID,
+    MEASUREMENT, OBSERVABLE_PARAMETERS, NOISE_PARAMETERS,
+    NOISE_DISTRIBUTION]
 
-measurement_df_cols = [
-    *measurement_df_req_cols, datasetId, replicateId]
+MEASUREMENT_DF_COLS = [
+    *MEASUREMENT_DF_REQ_COLS, DATASET_ID, REPLICATE_ID]
 
 
 # PARAMETERS
 
-parameterId = 'parameterId'
-parameterName = 'parameterName'
-parameterScale = 'parameterScale'
-lowerBound = 'lowerBound'
-upperBound = 'upperBound'
-nominalValue = 'nominalValue'
-estimate = 'estimate'
-priorType = 'priorType'
-priorParameters = 'priorParameters'
-objectivePriorType = 'objectivePriorType'
-objectivePriorParameters = 'objectivePriorParameters'
+PARAMETER_ID = 'parameterId'
+PARAMETER_NAME = 'parameterName'
+PARAMETER_SCALE = 'parameterScale'
+LOWER_BOUND = 'lowerBound'
+UPPER_BOUND = 'upperBound'
+NOMINAL_VALUE = 'nominalValue'
+ESTIMATE = 'estimate'
+PRIOR_TYPE = 'priorType'
+PRIOR_PARAMETERS = 'priorParameters'
+OBJECTIVE_PRIOR_TYPE = 'objectivePriorType'
+OBJECTIVE_PRIOR_PARAMETERS = 'objectivePriorParameters'
 
-parameter_df_req_cols = [
-    parameterId, parameterScale, lowerBound, upperBound, nominalValue,
-    estimate]
+PARAMETER_DF_REQ_COLS = [
+    PARAMETER_ID, PARAMETER_SCALE, LOWER_BOUND, UPPER_BOUND, NOMINAL_VALUE,
+    ESTIMATE]
 
-parameter_df_cols = [
-    parameterId, parameterName, *parameter_df_req_cols[1:],
-    priorType, priorParameters,
-    objectivePriorType, objectivePriorParameters]
+PARAMETER_DF_COLS = [
+    PARAMETER_ID, PARAMETER_NAME, PARAMETER_DF_REQ_COLS[1:],
+    PRIOR_TYPE, PRIOR_PARAMETERS,
+    OBJECTIVE_PRIOR_TYPE, OBJECTIVE_PRIOR_PARAMETERS]
 
 
 # CONDITIONS
@@ -50,13 +50,13 @@ parameter_df_cols = [
 
 # TRANSFORMATIONS
 
-lin = 'lin'
-log = 'log'
-log10 = 'log10'
+LIN = 'lin'
+LOG = 'log'
+LOG10 = 'log10'
 
 
 # NOISE MODELS
 
-uniform = 'uniform'
-normal = 'normal'
-laplace = 'laplace'
+UNIFORM = 'uniform'
+NORMAL = 'normal'
+LAPLACE = 'laplace'

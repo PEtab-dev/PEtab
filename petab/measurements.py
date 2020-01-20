@@ -1,4 +1,6 @@
 """Functions operating on the PEtab measurement table"""
+# noqa: F405
+
 
 import itertools
 import numbers
@@ -11,7 +13,7 @@ import sympy as sp
 
 from . import lint
 from . import core
-from . import C
+from .C import *  # noqa: F403
 
 
 def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
@@ -27,7 +29,7 @@ def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        measurement_df.columns.values, C.measurement)
+        measurement_df.columns.values, MEASUREMENT)
 
     return measurement_df
 
@@ -49,8 +51,8 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
 
     # read noise distributions from measurement file
     grouping_cols = core.get_notnull_columns(
-        measurement_df, [C.observableId, C.observableTransformation,
-                         C.noiseDistribution])
+        measurement_df, [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION,
+                         NOISE_DISTRIBUTION])
 
     observables = measurement_df.groupby(grouping_cols).size().reset_index()
     noise_distrs = {}
@@ -61,17 +63,17 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
         # extract observable transformation and noise distribution,
         # use lin+normal as default if none provided
         obs_trafo = row.observableTransformation \
-            if C.observableTransformation in row \
+            if OBSERVABLE_TRANSFORMATION in row \
             and row.observableTransformation \
-            else C.lin
+            else LIN
         noise_distr = row.noiseDistribution \
-            if C.noiseDistribution in row \
+            if NOISE_DISTRIBUTION in row \
             and row.noiseDistribution \
-            else C.normal
+            else NORMAL
         # add to noise distributions
         noise_distrs[id_] = {
-            C.observableTransformation: obs_trafo,
-            C.noiseDistribution: noise_distr}
+            OBSERVABLE_TRANSFORMATION: obs_trafo,
+            NOISE_DISTRIBUTION: noise_distr}
 
     return noise_distrs
 
@@ -93,7 +95,7 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     # can be improved by checking for identical condition vectors
     grouping_cols = core.get_notnull_columns(
         measurement_df,
-        [C.simulationConditionId, C.preequilibrationConditionId])
+        [SIMULATION_CONDITION_ID, PREEQUILIBRATION_CONDITION_ID])
 
     # group by cols and return dataframe containing each combination
     # of those rows only once (and an additional counting row)
@@ -126,12 +128,12 @@ def get_rows_for_condition(measurement_df: pd.DataFrame,
     # filter rows for condition
     row_filter = 1
     # check for equality in all grouping cols
-    if C.preequilibrationConditionId in condition:
+    if PREEQUILIBRATION_CONDITION_ID in condition:
         row_filter = (measurement_df.preequilibrationConditionId ==
-                      condition[C.preequilibrationConditionId]) & row_filter
-    if C.simulationConditionId in condition:
+                      condition[PREEQUILIBRATION_CONDITION_ID]) & row_filter
+    if SIMULATION_CONDITION_ID in condition:
         row_filter = (measurement_df.simulationConditionId ==
-                      condition[C.simulationConditionId]) & row_filter
+                      condition[SIMULATION_CONDITION_ID]) & row_filter
     # apply filter
     cur_measurement_df = measurement_df.loc[row_filter, :]
 
@@ -233,17 +235,17 @@ def create_measurement_df() -> pd.DataFrame:
     """
 
     df = pd.DataFrame(data={
-        C.observableId: [],
-        C.preequilibrationConditionId: [],
-        C.simulationConditionId: [],
-        C.measurement: [],
-        C.time: [],
-        C.observableParameters: [],
-        C.noiseParameters: [],
-        C.observableTransformation: [],
-        C.noiseDistribution: [],
-        C.datasetId: [],
-        C.replicateId: []
+        OBSERVABLE_ID: [],
+        PREEQUILIBRATION_CONDITION_ID: [],
+        SIMULATION_CONDITION_ID: [],
+        MEASUREMENT: [],
+        TIME: [],
+        OBSERVABLE_PARAMETERS: [],
+        NOISE_PARAMETERS: [],
+        OBSERVABLE_TRANSFORMATION: [],
+        NOISE_DISTRIBUTION: [],
+        DATASET_ID: [],
+        REPLICATE_ID: []
     })
 
     return df
@@ -261,8 +263,8 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
     return np.any(measurement_df.groupby(
         core.get_notnull_columns(
             measurement_df,
-            [C.observableId, C.simulationConditionId,
-             C.preequilibrationConditionId, C.time])).size().values - 1)
+            [OBSERVABLE_ID, SIMULATION_CONDITION_ID,
+             PREEQUILIBRATION_CONDITION_ID, TIME])).size().values - 1)
 
 
 def assert_overrides_match_parameter_count(
