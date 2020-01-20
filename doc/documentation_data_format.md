@@ -177,7 +177,7 @@ replicates and plot error bars.
 `observable_${observableId}`
 
 - `preequilibrationConditionId` [STRING OR NULL,
-REFERENCES(conditionsTable.conditionID)]
+REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
   The `conditionId` to be used for preequilibration. E.g. for drug
   treatments the model would be preequilibrated with the no-drug condition.
@@ -198,7 +198,7 @@ condition-specific parameters used for simulation.
   Time point of the measurement in the time unit specified in the SBML model,
 numeric value or `inf` (lower-case) for steady-state measurements.
 
-- `observableParameters` [STRING OR NULL]
+- `observableParameters` [STRING OR NULL, OPTIONAL]
 
   This field allows overriding or introducing condition-specific versions of
   parameters defined in the model. The model can define observables (see above)
@@ -220,7 +220,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   All placeholders defined in the model must be overwritten here. If there are
   not placeholders in the model, this column may be omitted.
 
-- `noiseParameters` [STRING]
+- `noiseParameters` [STRING, OPTIONAL]
 
   The measurement standard deviation or `NaN` if the corresponding sigma is a
   model parameter.
@@ -228,7 +228,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   Numeric values or parameter names are allowed. Same rules apply as for
   `observableParameters` in the previous point.
 
-- `observableTransformation` [STRING]
+- `observableTransformation` [STRING, OPTIONAL]
 
   Transformation of the observable and measurement for computing the objective
   function.
@@ -236,14 +236,14 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   The measurements and model outputs are both assumed to be provided in linear
   space.
 
-- `noiseDistribution` [STRING: 'normal' or 'laplace']
+- `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed Noise distribution for the given measurement. Only normally or
   Laplace distributed noise is currently allowed. Defaults to `normal`. If
   `normal`, the specified `noiseParameters` will be interpreted as standard
   deviation (*not* variance).
 
-- `datasetId` [STRING, optional]
+- `datasetId` [STRING, OPTIONAL]
 
   The datasetId is used to group certain measurements to datasets. This is
   typically the case for data points which belong to the same observable,
@@ -252,7 +252,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   This grouping makes it possible to use the plotting routines which are
   provided in the PEtab repository.
 
-- `replicateId` [STRING, optional]
+- `replicateId` [STRING, OPTIONAL]
 
   The replicateId can be used to discern replicates with the same
   datasetId, which is helpful for plotting e.g. error bars.
@@ -329,7 +329,7 @@ Additional columns may be added.
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see `nominalValue`).
 
-- `initializationPriorType` [STRING, optional]
+- `initializationPriorType` [STRING, OPTIONAL]
 
   Prior types used for sampling of initial points for optimization. Sampled
   points are clipped to lie inside the parameter boundaries specified by
@@ -347,7 +347,7 @@ Additional columns may be added.
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- `initializationPriorParameters` [STRING, optional]
+- `initializationPriorParameters` [STRING, OPTIONAL]
 
   Prior parameters used for sampling of initial points for optimization,
   separated by a semicolon. Defaults to `lowerBound;upperBound`.
@@ -364,12 +364,12 @@ Additional columns may be added.
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
 
-- `objectivePriorType` [STRING, optional]
+- `objectivePriorType` [STRING, OPTIONAL]
 
   Prior types used for the objective function during optimization or sampling.
   For possible values, see `initializationPriorType`.
 
-- `objectivePriorParameters` [STRING, optional]
+- `objectivePriorParameters` [STRING, OPTIONAL]
 
   Prior parameters used for the objective function during optimization.
   For more detailed documentation, see `initializationPriorParameters`.   
