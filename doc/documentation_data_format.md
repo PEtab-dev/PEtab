@@ -174,7 +174,7 @@ replicates and plot error bars.
 `observable_${observableId}`
 
 - `preequilibrationConditionId` [STRING OR NULL,
-REFERENCES(conditionsTable.conditionID)]
+REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
   The `conditionId` to be used for preequilibration. E.g. for drug
   treatments the model would be preequilibrated with the no-drug condition.
@@ -195,7 +195,7 @@ condition-specific parameters used for simulation.
   Time point of the measurement in the time unit specified in the SBML model,
 numeric value or `inf` (lower-case) for steady-state measurements.
 
-- `observableParameters` [STRING OR NULL]
+- `observableParameters` [STRING OR NULL, OPTIONAL]
 
   This field allows overriding or introducing condition-specific versions of
   parameters defined in the model. The model can define observables (see above)
@@ -217,7 +217,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   All placeholders defined in the model must be overwritten here. If there are
   not placeholders in the model, this column may be omitted.
 
-- `noiseParameters` [STRING]
+- `noiseParameters` [STRING, OPTIONAL]
 
   The measurement standard deviation or `NaN` if the corresponding sigma is a
   model parameter.
@@ -225,7 +225,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   Numeric values or parameter names are allowed. Same rules apply as for
   `observableParameters` in the previous point.
 
-- `observableTransformation` [STRING]
+- `observableTransformation` [STRING, OPTIONAL]
 
   Transformation of the observable and measurement for computing the objective
   function.
@@ -233,7 +233,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   The measurements and model outputs are both assumed to be provided in linear
   space.
 
-- `noiseDistribution` [STRING: 'normal' or 'laplace']
+- `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed Noise distribution for the given measurement. Only normally or
   Laplace distributed noise is currently allowed. Defaults to `normal`. If
