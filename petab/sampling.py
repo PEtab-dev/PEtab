@@ -6,6 +6,7 @@ import pandas as pd
 from typing import Tuple
 
 from . import parameters
+from .C import *  # noqa: F403
 
 
 def sample_from_prior(prior: Tuple[str, list, str, list],
@@ -25,11 +26,11 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
 
     # define a function to rescale the sampled points to parameter scale
     def scale(x):
-        if scaling == 'lin':
+        if scaling == LIN:
             return x
-        elif scaling == 'log':
+        elif scaling == LOG:
             return np.log(x)
-        elif scaling == 'log10':
+        elif scaling == LOG10:
             return np.log10(x)
         else:
             raise NotImplementedError(
@@ -42,41 +43,41 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
         return x
 
     # define lambda functions for each parameter
-    if p_type == 'uniform':
+    if p_type == UNIFORM:
         sp = scale((p_params[1] - p_params[0]) * np.random.random((
              n_starts,)) + p_params[0])
 
-    elif p_type == 'parameterScaleUniform':
+    elif p_type == PARAMETER_SCALE_UNIFORM:
         sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
                                                              )) + p_params[0]
 
-    elif p_type == 'normal':
+    elif p_type == NORMAL:
         sp = scale(np.random.normal(loc=p_params[0], scale=p_params[1],
                                     size=(n_starts,)))
 
-    elif p_type == 'logNormal':
+    elif p_type == LOG_NORMAL:
         sp = scale(np.exp(np.random.normal(
              loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
-    elif p_type == 'parameterScaleNormal':
+    elif p_type == PARAMETER_SCALE_NORMAL:
         sp = np.random.normal(loc=p_params[0], scale=p_params[1],
                               size=(n_starts,))
 
-    elif p_type == 'laplace':
+    elif p_type == LAPLACE:
         sp = scale(np.random.laplace(
              loc=p_params[0], scale=p_params[1], size=(n_starts,)))
 
-    elif p_type == 'logLaplace':
+    elif p_type == LOG_LAPLACE:
         sp = scale(np.exp(np.random.laplace(
              loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
-    elif p_type == 'parameterScaleLaplace':
+    elif p_type == PARAMETER_SCALE_LAPLACE:
         sp = np.random.laplace(loc=p_params[0], scale=p_params[1],
                                size=(n_starts,))
 
     else:
-        raise NotImplementedError('Parameter prs of type ' + prior[0] +
-                                  ' are currently not implemented.')
+        raise NotImplementedError(
+            f"Parameter priors of type {prior[0]} are not implemented.")
 
     return clip_to_bounds(sp)
 
@@ -100,7 +101,7 @@ def sample_parameter_startpoints(parameter_df: pd.DataFrame,
 
     # get types and parameters of priors from dataframe
     prior_list = parameters.get_priors_from_df(
-        parameter_df, mode='initialization')
+        parameter_df, mode=INITIALIZATION)
 
     startpoints = [sample_from_prior(prior, n_starts) for prior in prior_list]
 

@@ -9,6 +9,7 @@ from typing import Iterable, Set, List, Tuple
 import libsbml
 
 from . import lint, core, measurements, sbml, conditions
+from .C import *  # noqa: F403
 
 
 def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
@@ -27,10 +28,10 @@ def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
         parameter_df.columns.values, "parameter")
 
     try:
-        parameter_df.set_index(['parameterId'], inplace=True)
+        parameter_df.set_index([PARAMETER_ID], inplace=True)
     except KeyError:
         raise KeyError(
-            'Parameter table missing mandatory field `parameterId`.')
+            f"Parameter table missing mandatory field {PARAMETER_ID}.")
 
     return parameter_df
 
@@ -45,14 +46,14 @@ def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     Returns:
         List of parameter IDs in the parameter table
     """
-    return list(parameter_df.reset_index()['parameterId'])
+    return list(parameter_df.reset_index()[PARAMETER_ID])
 
 
 def create_parameter_df(sbml_model: libsbml.Model,
                         condition_df: pd.DataFrame,
                         measurement_df: pd.DataFrame,
                         include_optional: bool = False,
-                        parameter_scale: str = 'log10',
+                        parameter_scale: str = LOG10,
                         lower_bound: Iterable = None,
                         upper_bound: Iterable = None) -> pd.DataFrame:
     """Create a new PEtab parameter table
@@ -88,26 +89,26 @@ def create_parameter_df(sbml_model: libsbml.Model,
 
     df = pd.DataFrame(
         data={
-            'parameterId': parameter_ids,
-            'parameterName': parameter_ids,
-            'parameterScale': parameter_scale,
-            'lowerBound': lower_bound,
-            'upperBound': upper_bound,
-            'nominalValue': np.nan,
-            'estimate': 1,
-            'initializationPriorType': '',
-            'initializationPriorParameters': '',
-            'objectivePriorType': '',
-            'objectivePriorParameters': '',
+            PARAMETER_ID: parameter_ids,
+            PARAMETER_NAME: parameter_ids,
+            PARAMETER_SCALE: parameter_scale,
+            LOWER_BOUND: lower_bound,
+            UPPER_BOUND: upper_bound,
+            NOMINAL_VALUE: np.nan,
+            ESTIMATE: 1,
+            INITIALIZATION_PRIOR_TYPE: '',
+            INITIALIZATION_PRIOR_PARAMETERS: '',
+            OBJECTIVE_PRIOR_TYPE: '',
+            OBJECTIVE_PRIOR_PARAMETERS: '',
         })
-    df.set_index(['parameterId'], inplace=True)
+    df.set_index([PARAMETER_ID], inplace=True)
 
     # For SBML model parameters, set nominal values as defined in the model
     for parameter_id in df.index:
         try:
             parameter = sbml_model.getParameter(parameter_id)
             if parameter:
-                df.loc[parameter_id, 'nominalValue'] = parameter.getValue()
+                df.loc[parameter_id, NOMINAL_VALUE] = parameter.getValue()
         except ValueError:
             # parameter was introduced as condition-specific override and
             # is potentially not present in the model
@@ -211,7 +212,7 @@ def get_valid_parameters_for_parameter_table(
     blackset |= set(observables.keys())
     blackset |= placeholders
     blackset |= assignment_targets
-    blackset |= set(condition_df.columns.values) - {'conditionName'}
+    blackset |= set(condition_df.columns.values) - {CONDITION_NAME}
 
     # use ordered dict as proxy for ordered set
     parameter_ids = OrderedDict.fromkeys(
@@ -252,26 +253,26 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
     """
 
     # get types and parameters of priors from dataframe
-    par_to_estimate = parameter_df.loc[parameter_df['estimate'] == 1]
+    par_to_estimate = parameter_df.loc[parameter_df[ESTIMATE] == 1]
 
     prior_list = []
     for _, row in par_to_estimate.iterrows():
         # retrieve info about type
-        prior_type = str(row.get(f'{mode}PriorType', 'parameterScaleUniform'))
+        prior_type = str(row.get(f'{mode}PriorType', PARAMETER_SCALE_UNIFORM))
 
         # retrieve info about parameters of priors, make it a tuple of floats
         pars_str = str(row.get(f'{mode}PriorParameters',
-                       f'{row["lowerBound"]};{row["upperBound"]}'))
+                       f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'))
         prior_pars = tuple([float(entry) for entry in pars_str.split(';')])
 
         # add parameter scale and bounds, as this may be needed
-        par_scale = row['parameterScale']
-        par_bounds = (row['lowerBound'], row['upperBound'])
+        par_scale = row[PARAMETER_SCALE]
+        par_bounds = (row[LOWER_BOUND], row[UPPER_BOUND])
 
         # if no prior is specified, we assume a non-informative (uniform) one
         if prior_type == 'nan':
-            prior_type = 'parameterScaleUniform'
-            prior_pars = (row['lowerBound'], row['upperBound'])
+            prior_type = PARAMETER_SCALE_UNIFORM
+            prior_pars = (row[LOWER_BOUND], row[UPPER_BOUND])
 
         prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
 
@@ -305,11 +306,11 @@ def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
             One of 'lin' (synonymous with ''), 'log', 'log10'
     """
 
-    if scale_str == 'lin' or not scale_str:
+    if scale_str == LIN or not scale_str:
         return parameter
-    if scale_str == 'log':
+    if scale_str == LOG:
         return np.log(parameter)
-    if scale_str == 'log10':
+    if scale_str == LOG10:
         return np.log10(parameter)
     raise ValueError("Invalid parameter scaling: " + scale_str)
 
