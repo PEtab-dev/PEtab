@@ -177,15 +177,14 @@ def get_valid_parameters_for_parameter_table(
         parameter table.
     """
 
-    '''
-    - grab all model parameters
-    - grab all parameters from measurement table
-    - grab all parametric overrides from condition table
-    - remove parameters for which condition table columns exist
-    - remove observables assigment targets
-    - remove sigma assignment targets
-    - remove placeholder parameters (only partial overrides are not supported)
-    '''
+    # - grab all model parameters
+    # - grab all parameters from measurement table
+    # - grab all parametric overrides from condition table
+    # - remove parameters for which condition table columns exist
+    # - remove observables assigment targets
+    # - remove sigma assignment targets
+    # - remove placeholder parameters
+    #   (only partial overrides are not supported)
 
     observables = sbml.get_observables(sbml_model)
     sigmas = sbml.get_sigmas(sbml_model)
