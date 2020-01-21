@@ -206,7 +206,7 @@ def get_parameter_mapping_for_condition(
     # for the case of matching simulation and optimization parameter vector
     mapping = simulation_parameters.copy()
 
-    _output_parameter_to_nan(mapping)
+    _output_parameters_to_nan(mapping)
     if not is_preeq:
         _apply_output_parameter_overrides(mapping, cur_measurement_df)
         handle_missing_overrides(mapping, warn=warn_unmapped)
@@ -216,7 +216,7 @@ def get_parameter_mapping_for_condition(
     return mapping
 
 
-def _output_parameter_to_nan(mapping: ParMappingDict) -> None:
+def _output_parameters_to_nan(mapping: ParMappingDict) -> None:
     """Set output parameters in mapping dictionary to nan"""
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
     for key in mapping.keys():
