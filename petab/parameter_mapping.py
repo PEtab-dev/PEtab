@@ -326,7 +326,8 @@ def _apply_parameter_table(mapping: ParMappingDict,
         if row.Index not in mapping:
             # The current parameter is not required for this condition
             continue
-        if ESTIMATE in row._fields and getattr(row, ESTIMATE) == 0:
+
+        if getattr(row, ESTIMATE) == 0:
             mapping[row.Index] = getattr(row, NOMINAL_VALUE)
         else:
             mapping[row.Index] = row.Index
