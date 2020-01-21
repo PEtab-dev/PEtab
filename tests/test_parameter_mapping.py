@@ -4,6 +4,7 @@ import pandas as pd
 import petab
 from petab.sbml import add_global_parameter
 from petab.parameter_mapping import _apply_parameter_table
+from petab.C import *
 
 # import fixtures
 pytest_plugins = [
@@ -60,7 +61,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             petab.ESTIMATE: [0, 1, 1],
             petab.NOMINAL_VALUE: [11.0, 12.0, None]
         })
-        parameter_df.set_index('parameterId', inplace=True)
+        parameter_df.set_index(PARAMETER_ID, inplace=True)
 
         expected = [({},
                      {'dynamicParameter1': 11.0,
@@ -96,23 +97,24 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         add_global_parameter(sbml_model, 'observableParameter1_obs2')
 
         measurement_df = pd.DataFrame(data={
-            'observableId': ['obs1', 'obs2', 'obs1', 'obs2'],
-            'simulationConditionId': ['condition1', 'condition1',
+            OBSERVABLE_ID: ['obs1', 'obs2', 'obs1', 'obs2'],
+            SIMULATION_CONDITION_ID: ['condition1', 'condition1',
                                       'condition2', 'condition2'],
-            'preequilibrationConditionId': ['', '', '', ''],
-            'observableParameters': ['obs1par1override;obs1par2cond1override',
-                                     'obs2par1cond1override',
-                                     'obs1par1override;obs1par2cond2override',
-                                     'obs2par1cond2override'],
-            'noiseParameters': ['', '', '', '']
+            PREEQUILIBRATION_CONDITION_ID: ['', '', '', ''],
+            OBSERVABLE_PARAMETERS: ['obs1par1override;obs1par2cond1override',
+                                    'obs2par1cond1override',
+                                    'obs1par1override;obs1par2cond2override',
+                                    'obs2par1cond2override'],
+            NOISE_PARAMETERS: ['', '', '', '']
         })
 
         parameter_df = pd.DataFrame(data={
-            petab.PARAMETER_ID: [
+            PARAMETER_ID: [
                 'dynamicParameter1', 'dynamicParameter2', 'obs1par1override',
                 'obs1par2cond1override', 'obs1par2cond2override',
-                'obs2par1cond2override'
+                'obs2par1cond1override', 'obs2par1cond2override'
             ],
+            ESTIMATE: [1] * 7
         })
         parameter_df.set_index('parameterId', inplace=True)
 
@@ -162,23 +164,23 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         add_global_parameter(sbml_model, 'observableParameter1_obs2')
 
         measurement_df = pd.DataFrame(data={
-            'observableId': ['obs1', 'obs2', 'obs1', 'obs2'],
-            'simulationConditionId': ['condition1', 'condition1',
+            OBSERVABLE_ID: ['obs1', 'obs2', 'obs1', 'obs2'],
+            SIMULATION_CONDITION_ID: ['condition1', 'condition1',
                                       'condition2', 'condition2'],
-            'preequilibrationConditionId': ['', '', '', ''],
-            'observableParameters': ['obs1par1override;obs1par2cond1override',
-                                     '',
-                                     'obs1par1override;obs1par2cond2override',
-                                     'obs2par1cond2override'],
-            'noiseParameters': ['', '', '', '']
+            PREEQUILIBRATION_CONDITION_ID: ['', '', '', ''],
+            OBSERVABLE_PARAMETERS: ['obs1par1override;obs1par2cond1override',
+                                    '',
+                                    'obs1par1override;obs1par2cond2override',
+                                    'obs2par1cond2override'],
+            NOISE_PARAMETERS: ['', '', '', '']
         })
 
         parameter_df = pd.DataFrame(data={
-            petab.PARAMETER_ID: [
+            PARAMETER_ID: [
                 'dynamicParameter1', 'obs1par1override',
                 'obs1par2cond1override', 'obs1par2cond2override',
                 'obs2par1cond2override'],
-            petab.ESTIMATE: [1, 1, 1, 1, 1],
+            ESTIMATE: [1, 1, 1, 1, 1],
         })
         parameter_df.set_index('parameterId', inplace=True)
 
@@ -215,26 +217,27 @@ class TestGetSimulationToOptimizationParameterMapping(object):
     @staticmethod
     def test_parameterized_condition_table(minimal_sbml_model):
         condition_df = pd.DataFrame(data={
-            'conditionId': ['condition1', 'condition2', 'condition3'],
-            'conditionName': ['', 'Condition 2', ''],
+            CONDITION_ID: ['condition1', 'condition2', 'condition3'],
+            CONDITION_NAME: ['', 'Condition 2', ''],
             'dynamicParameter1': ['dynamicOverride1_1',
                                   'dynamicOverride1_2', 0]
         })
-        condition_df.set_index('conditionId', inplace=True)
+        condition_df.set_index(CONDITION_ID, inplace=True)
 
         measurement_df = pd.DataFrame(data={
-            'simulationConditionId': ['condition1', 'condition2',
+            SIMULATION_CONDITION_ID: ['condition1', 'condition2',
                                       'condition3'],
-            'observableId': ['obs1', 'obs2', 'obs1'],
-            'observableParameters': '',
-            'noiseParameters': '',
+            OBSERVABLE_ID: ['obs1', 'obs2', 'obs1'],
+            OBSERVABLE_PARAMETERS: '',
+            NOISE_PARAMETERS: '',
         })
 
         parameter_df = pd.DataFrame(data={
-            'parameterId': ['dynamicOverride1_1', 'dynamicOverride1_2'],
-            'parameterName': ['', '...'],  # ...
+            PARAMETER_ID: ['dynamicOverride1_1', 'dynamicOverride1_2'],
+            PARAMETER_NAME: ['', '...'],
+            ESTIMATE: [1, 1]
         })
-        parameter_df.set_index('parameterId', inplace=True)
+        parameter_df.set_index(PARAMETER_ID, inplace=True)
 
         document, model = minimal_sbml_model
         model.createParameter().setId('dynamicParameter1')
@@ -272,9 +275,9 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             == {'overridee': 2.0}
 
         condition_df = pd.DataFrame(data={
-            'conditionId':
+            CONDITION_ID:
                 ['condition1', 'condition2', 'condition3', 'condition4'],
-            'conditionName': '',
+            CONDITION_NAME: '',
             'overridee':
                 ['dynamicOverrideLog10', 'fixedOverrideLin',
                  'fixedOverrideLog10', 10.0]
@@ -282,24 +285,24 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         condition_df.set_index('conditionId', inplace=True)
 
         measurement_df = pd.DataFrame(data={
-            'simulationConditionId':
+            SIMULATION_CONDITION_ID:
                 ['condition1', 'condition2', 'condition3', 'condition4'],
-            'observableId':
+            OBSERVABLE_ID:
                 ['obs1', 'obs2', 'obs1', 'obs2'],
-            'observableParameters': '',
-            'noiseParameters': '',
+            OBSERVABLE_PARAMETERS: '',
+            NOISE_PARAMETERS: '',
         })
 
         parameter_df = pd.DataFrame(data={
-            'parameterId': ['dynamicOverrideLog10',
-                            'fixedOverrideLin',
-                            'fixedOverrideLog10'],
-            'parameterName': '',
-            'estimate': [1, 0, 0],
-            'nominalValue': [np.nan, 2, -2],
-            'parameterScale': ['log10', 'lin', 'log10']
+            PARAMETER_ID: ['dynamicOverrideLog10',
+                           'fixedOverrideLin',
+                           'fixedOverrideLog10'],
+            PARAMETER_NAME: '',
+            ESTIMATE: [1, 0, 0],
+            NOMINAL_VALUE: [np.nan, 2, -2],
+            PARAMETER_SCALE: ['log10', 'lin', 'log10']
         })
-        parameter_df.set_index('parameterId', inplace=True)
+        parameter_df.set_index(PARAMETER_ID, inplace=True)
 
         actual_par_map = \
             petab.get_optimization_to_simulation_parameter_mapping(
@@ -321,16 +324,16 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                             ({}, {'overridee': -2.0}),
                             ({}, {'overridee': 10.0})]
 
-        expected_scale_map = [({}, {'overridee': 'log10'}),
-                              ({}, {'overridee': 'lin'}),
-                              ({}, {'overridee': 'lin'}),
-                              ({}, {'overridee': 'lin'})]
+        expected_scale_map = [({}, {'overridee': LOG10}),
+                              ({}, {'overridee': LIN}),
+                              ({}, {'overridee': LIN}),
+                              ({}, {'overridee': LIN})]
 
         assert actual_par_map == expected_par_map
         assert actual_scale_map == expected_scale_map
 
         # Add preeq condition
-        measurement_df['preequilibrationConditionId'] = \
+        measurement_df[PREEQUILIBRATION_CONDITION_ID] = \
             ['condition1', 'condition1', 'condition3', 'condition3']
         actual_par_map = \
             petab.get_optimization_to_simulation_parameter_mapping(
@@ -353,32 +356,25 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                             # not rescaled:
                             ({'overridee': -2.0}, {'overridee': -2.0}),
                             ({'overridee': -2.0}, {'overridee': 10.0})]
-        expected_scale_map = [({'overridee': 'log10'}, {'overridee': 'log10'}),
-                              ({'overridee': 'log10'}, {'overridee': 'lin'}),
-                              ({'overridee': 'lin'}, {'overridee': 'lin'}),
-                              ({'overridee': 'lin'}, {'overridee': 'lin'})]
+        expected_scale_map = [({'overridee': LOG10}, {'overridee': LOG10}),
+                              ({'overridee': LOG10}, {'overridee': LIN}),
+                              ({'overridee': LIN}, {'overridee': LIN}),
+                              ({'overridee': LIN}, {'overridee': LIN})]
         assert actual_par_map == expected_par_map
         assert actual_scale_map == expected_scale_map
 
 
 def test_fill_in_nominal_values():
     parameter_df = pd.DataFrame(data={
-        'parameterId': ['estimated', 'not_estimated'],
-        'parameterName': ['', '...'],  # ...
-        'nominalValue': [0.0, 2.0],
-        'estimate': [1, 0]
+        PARAMETER_ID: ['estimated', 'not_estimated'],
+        PARAMETER_NAME: ['', '...'],  # ...
+        NOMINAL_VALUE: [0.0, 2.0],
+        ESTIMATE: [1, 0]
     })
-    parameter_df.set_index(['parameterId'], inplace=True)
+    parameter_df.set_index([PARAMETER_ID], inplace=True)
 
     mapping = {'estimated': 'estimated', 'not_estimated': 'not_estimated'}
     actual = mapping.copy()
     _apply_parameter_table(actual, parameter_df)
     expected = {'estimated': 'estimated', 'not_estimated': 2.0}
-    assert expected == actual
-
-    del parameter_df['estimate']
-    mapping = {'estimated': 'estimated', 'not_estimated': 'not_estimated'}
-    actual = mapping.copy()
-    _apply_parameter_table(actual, parameter_df)
-    expected = mapping.copy()
     assert expected == actual
