@@ -70,7 +70,8 @@ def get_optimization_to_simulation_parameter_mapping(
         simulation_conditions = measurements.get_simulation_conditions(
             measurement_df)
 
-    simulation_parameter_ids = sbml.get_model_parameters(sbml_model)
+    simulation_parameters = sbml.get_model_parameters(sbml_model,
+                                                      with_values=True)
 
     num_threads = int(os.environ.get(ENV_NUM_THREADS, 1))
 
@@ -81,7 +82,7 @@ def get_optimization_to_simulation_parameter_mapping(
             _map_condition,
             _map_condition_arg_packer(
                 simulation_conditions, measurement_df, condition_df,
-                parameter_df, simulation_parameter_ids, warn_unmapped))
+                parameter_df, simulation_parameters, warn_unmapped))
         return list(mapping)
 
     # Run multi-threaded
@@ -91,17 +92,17 @@ def get_optimization_to_simulation_parameter_mapping(
             _map_condition,
             _map_condition_arg_packer(
                 simulation_conditions, measurement_df, condition_df,
-                parameter_df, simulation_parameter_ids, warn_unmapped))
+                parameter_df, simulation_parameters, warn_unmapped))
     return list(mapping)
 
 
 def _map_condition_arg_packer(simulation_conditions, measurement_df,
                               condition_df, parameter_df,
-                              simulation_parameter_ids, warn_unmapped):
+                              simulation_parameters, warn_unmapped):
     """Helper function to pack extra arguments for _map_condition"""
     for _, condition in simulation_conditions.iterrows():
         yield(condition, measurement_df, condition_df, parameter_df,
-              simulation_parameter_ids, warn_unmapped)
+              simulation_parameters, warn_unmapped)
 
 
 def _map_condition(packed_args):
@@ -110,7 +111,7 @@ def _map_condition(packed_args):
     For arguments see get_optimization_to_simulation_parameter_mapping"""
 
     (condition, measurement_df, condition_df, parameter_df,
-     simulation_parameter_ids, warn_unmapped) = packed_args
+     simulation_parameters, warn_unmapped) = packed_args
 
     cur_measurement_df = measurements.get_rows_for_condition(
         measurement_df, condition)
@@ -126,7 +127,7 @@ def _map_condition(packed_args):
             cur_measurement_df=cur_measurement_df,
             condition_df=condition_df,
             parameter_df=parameter_df,
-            simulation_parameter_ids=simulation_parameter_ids,
+            simulation_parameters=simulation_parameters,
             warn_unmapped=warn_unmapped
         )
 
@@ -136,7 +137,7 @@ def _map_condition(packed_args):
         cur_measurement_df=cur_measurement_df,
         condition_df=condition_df,
         parameter_df=parameter_df,
-        simulation_parameter_ids=simulation_parameter_ids,
+        simulation_parameters=simulation_parameters,
         warn_unmapped=warn_unmapped
     )
 
@@ -150,7 +151,7 @@ def get_parameter_mapping_for_condition(
         condition_df: pd.DataFrame,
         parameter_df: pd.DataFrame = None,
         sbml_model: Optional[libsbml.Model] = None,
-        simulation_parameter_ids: Optional[List[str]] = None,
+        simulation_parameters: Optional[Dict[str, str]] = None,
         warn_unmapped: bool = True) -> ParMappingDict:
     """
     Create dictionary of mappings from PEtab-problem to SBML parameters for the
@@ -174,10 +175,10 @@ def get_parameter_mapping_for_condition(
             the PEtab format used to retrieve simulation parameter IDs.
             Mutually exclusive with ``simulation_parameter_ids``.
 
-        simulation_parameter_ids:
-            Simulation parameter IDs used for mapping (output of
-            ``petab.sbml.get_model_parameters``). Mutually exclusive with
-            ``sbml_model``.
+        simulation_parameters:
+            Model simulation parameter IDs mapped to parameter values (output
+            of ``petab.sbml.get_model_parameters(.., with_values=True)``).
+            Mutually exclusive with ``sbml_model``.
 
         warn_unmapped:
             If ``True``, log warning regarding unmapped parameters
@@ -189,28 +190,43 @@ def get_parameter_mapping_for_condition(
     """
     _perform_mapping_checks(cur_measurement_df)
 
-    if simulation_parameter_ids is not None and sbml_model is None:
+    if simulation_parameters is not None and sbml_model is None:
         pass
-    elif simulation_parameter_ids is None and sbml_model is not None:
-        simulation_parameter_ids = sbml.get_model_parameters(sbml_model)
+    elif simulation_parameters is None and sbml_model is not None:
+        simulation_parameters = sbml.get_model_parameters(sbml_model,
+                                                          with_values=True)
     else:
         raise ValueError("Must provide exactly one of `sbml_model` and "
                          "`simulation_parameter_ids`.")
 
+    # NOTE: order matters here - the former is overwritten by the latter:
+    #  SBML model < condition table < measurement < table parameter table
+
     # initialize mapping dict
     # for the case of matching simulation and optimization parameter vector
-    mapping = {par: par for par in simulation_parameter_ids}
+    mapping = simulation_parameters.copy()
 
-    _apply_dynamic_parameter_overrides(mapping, condition_id, condition_df)
-
+    _output_parameters_to_nan(mapping)
     if not is_preeq:
         _apply_output_parameter_overrides(mapping, cur_measurement_df)
+        handle_missing_overrides(mapping, warn=warn_unmapped)
 
-    fill_in_nominal_values(mapping, parameter_df)
-    # TODO fill in fixed parameters (#103)
-
-    handle_missing_overrides(mapping, warn=warn_unmapped)
+    _apply_condition_parameters(mapping, condition_id, condition_df)
+    _apply_parameter_table(mapping, parameter_df)
     return mapping
+
+
+def _output_parameters_to_nan(mapping: ParMappingDict) -> None:
+    """Set output parameters in mapping dictionary to nan"""
+    rex = re.compile("^(noise|observable)Parameter[0-9]+_")
+    for key in mapping.keys():
+        try:
+            matches = rex.match(key)
+        except TypeError:
+            continue
+
+        if matches:
+            mapping[key] = np.nan
 
 
 def _apply_output_parameter_overrides(
@@ -267,10 +283,11 @@ def _apply_overrides_for_observable(
                             'placeholder parameters.') from e
 
 
-def _apply_dynamic_parameter_overrides(mapping: ParMappingDict,
-                                       condition_id: str,
-                                       condition_df: pd.DataFrame) -> None:
-    """Apply dynamic parameter overrides from condition table (in-place).
+def _apply_condition_parameters(mapping: ParMappingDict,
+                                condition_id: str,
+                                condition_df: pd.DataFrame) -> None:
+    """Replace parameter IDs in parameter mapping dictionary by condition
+    table parameter values (in-place).
 
     Arguments:
         mapping:
@@ -281,49 +298,55 @@ def _apply_dynamic_parameter_overrides(mapping: ParMappingDict,
     for overridee_id in condition_df.columns:
         if overridee_id == CONDITION_NAME:
             continue
-        if condition_df[overridee_id].dtype != 'O':
-            continue
 
-        overrider_id = condition_df.loc[condition_id, overridee_id]
-        mapping[overridee_id] = overrider_id
+        mapping[overridee_id] = condition_df.loc[condition_id, overridee_id]
 
 
-def fill_in_nominal_values(mapping: ParMappingDict,
-                           parameter_df: pd.DataFrame) -> None:
-    """Replace non-estimated parameters in mapping list for a given condition
-    by ``nominalValues`` provided in parameter table.
+def _apply_parameter_table(mapping: ParMappingDict,
+                           parameter_df: Optional[pd.DataFrame] = None
+                           ) -> None:
+    """Replace parameters from parameter table in mapping list for a given
+    condition.
+
+    Replace non-estimated parameters by ``nominalValues``
+    (un-scaled / lin-scaled), replace estimated parameters by the respective
+    ID.
 
     Arguments:
         mapping:
-            mapping dict obtained from get_parameter_mapping_for_condition
+            mapping dict obtained from ``get_parameter_mapping_for_condition``
         parameter_df:
             PEtab parameter table
     """
 
     if parameter_df is None:
         return
-    if ESTIMATE not in parameter_df:
-        return
 
-    overrides = {row.name: row.nominalValue for _, row
-                 in parameter_df.iterrows() if row.estimate != 1}
-
-    for par, overridee in mapping.items():
-        if not isinstance(overridee, str):
+    for row in parameter_df.itertuples():
+        if row.Index not in mapping:
+            # The current parameter is not required for this condition
             continue
 
-        try:
-            mapping[par] = overrides[overridee]
-            # all overrides will be scaled to 'lin'
-            if PARAMETER_SCALE in parameter_df:
-                scale = parameter_df.loc[overridee, PARAMETER_SCALE]
-                if scale == LOG:
-                    mapping[par] = np.exp(mapping[par])
-                elif scale == LOG10:
-                    mapping[par] = np.power(10, mapping[par])
-        except KeyError:
-            # parameter is to be estimated
-            pass
+        if getattr(row, ESTIMATE) == 0:
+            mapping[row.Index] = getattr(row, NOMINAL_VALUE)
+        else:
+            mapping[row.Index] = row.Index
+
+    # Replace any leftover mapped parameter coming from condition table
+    for key, value in mapping.items():
+        # string indicates unmapped
+        if isinstance(value, str):
+            try:
+                # the overridee is a model parameter
+                mapping[key] = mapping[value]
+            except KeyError:
+                if parameter_df is not None:
+                    # or the overridee is only defined in the parameter table
+                    if ESTIMATE in parameter_df \
+                            and parameter_df.loc[value, ESTIMATE] == 0:
+                        mapping[key] = parameter_df.loc[value, NOMINAL_VALUE]
+                else:
+                    raise
 
 
 def get_optimization_to_simulation_scale_mapping(
