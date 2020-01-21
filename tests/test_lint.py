@@ -322,7 +322,7 @@ def test_check_condition_df(minimal_sbml_model):
     lint.check_condition_df(condition_df, sbml_model)
 
     # species missing in model
-    condition_df.loc['s1'] = [3.0]
+    condition_df['s1'] = [3.0]
     with pytest.raises(AssertionError):
         lint.check_condition_df(condition_df, sbml_model)
 
@@ -331,7 +331,7 @@ def test_check_condition_df(minimal_sbml_model):
     lint.check_condition_df(condition_df, sbml_model)
 
     # compartment missing in model
-    condition_df.loc['c1'] = [4.0]
+    condition_df['c1'] = [4.0]
     with pytest.raises(AssertionError):
         lint.check_condition_df(condition_df, sbml_model)
 

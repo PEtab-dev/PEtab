@@ -81,8 +81,8 @@ def check_condition_df(
     if sbml_model is not None:
         for column_name in df.columns:
             if column_name != CONDITION_NAME \
-                    and sbml_model.getParameter(column_name) is None\
-                    and sbml_model.getSpecies(column_name) is None\
+                    and sbml_model.getParameter(column_name) is None \
+                    and sbml_model.getSpecies(column_name) is None \
                     and sbml_model.getCompartment(column_name) is None:
                 raise AssertionError(
                     "Condition table contains column for unknown entity '"
