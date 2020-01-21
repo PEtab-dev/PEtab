@@ -219,7 +219,7 @@ def get_parameter_mapping_for_condition(
 def _output_parameter_to_nan(mapping: ParMappingDict) -> None:
     """Set output parameters in mapping dictionary to nan"""
     rex = re.compile("^(noise|observable)Parameter[0-9]+_")
-    for key, val in mapping.items():
+    for key in mapping.keys():
         try:
             matches = rex.match(key)
         except TypeError:

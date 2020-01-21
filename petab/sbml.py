@@ -360,7 +360,7 @@ def get_model_parameters(sbml_model: libsbml.Model, with_values=False
     if with_values is False:
         return [p.getId() for p in sbml_model.getListOfParameters()
                 if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
-    else:
-        return {p.getId(): p.getValue()
-                for p in sbml_model.getListOfParameters()
-                if sbml_model.getAssignmentRuleByVariable(p.getId()) is None}
+
+    return {p.getId(): p.getValue()
+            for p in sbml_model.getListOfParameters()
+            if sbml_model.getAssignmentRuleByVariable(p.getId()) is None}
