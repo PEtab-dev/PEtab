@@ -81,11 +81,13 @@ def check_condition_df(
     if sbml_model is not None:
         for column_name in df.columns:
             if column_name != CONDITION_NAME \
-                    and sbml_model.getParameter(column_name) is None:
+                    and sbml_model.getParameter(column_name) is None\
+                    and sbml_model.getSpecies(column_name) is None\
+                    and sbml_model.getCompartment(column_name) is None:
                 raise AssertionError(
-                    "Condition table contains column for unknown parameter"
-                    f" {column_name}. Column names must match parameter Ids "
-                    "defined in the SBML model.")
+                    "Condition table contains column for unknown entity '"
+                    f"{column_name}'. Column names must match parameter, "
+                    "species or compartment IDs specified in the SBML model.")
 
 
 def check_measurement_df(df: pd.DataFrame) -> None:
