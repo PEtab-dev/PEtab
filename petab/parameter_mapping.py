@@ -199,7 +199,7 @@ def get_parameter_mapping_for_condition(
         raise ValueError("Must provide exactly one of `sbml_model` and "
                          "`simulation_parameter_ids`.")
 
-    # NOTE: order matters here - the former is overwritten by the later:
+    # NOTE: order matters here - the former is overwritten by the latter:
     #  SBML model < condition table < measurement < table parameter table
 
     # initialize mapping dict
