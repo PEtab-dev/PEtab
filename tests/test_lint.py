@@ -1,11 +1,13 @@
 import os
 import subprocess
+from math import nan
 from unittest.mock import patch
 
 import libsbml
 import pandas as pd
-import petab
 import pytest
+
+import petab
 from petab import (lint, sbml)  # noqa: E402
 from petab.C import *
 
@@ -309,7 +311,7 @@ def test_check_condition_df(minimal_sbml_model):
 
     condition_df = pd.DataFrame(data={
         CONDITION_ID: ['condition1'],
-        'p1': [2.0],
+        'p1': [nan],
     })
     condition_df.set_index(CONDITION_ID, inplace=True)
 
