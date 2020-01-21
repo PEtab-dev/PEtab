@@ -357,7 +357,7 @@ def get_model_parameters(sbml_model: libsbml.Model, with_values=False
         returns a dictionary with those parameter IDs as keys and parameter
         values from the SBML model as values.
     """
-    if with_values is False:
+    if not with_values:
         return [p.getId() for p in sbml_model.getListOfParameters()
                 if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
 
