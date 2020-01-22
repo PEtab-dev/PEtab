@@ -119,14 +119,14 @@ def plot_data_and_simulation(
     if subplot_file_path != '':
         plots_to_file = True
     else:
-        fig, ax, num_row, num_col = create_figure(uni_plot_ids, plots_to_file)
+        fig, ax, _, num_col = create_figure(uni_plot_ids, plots_to_file)
 
     # loop over unique plotIds
     for i_plot_id, var_plot_id in enumerate(uni_plot_ids):
 
         if plots_to_file:
             fig, ax, _, num_col = create_figure(uni_plot_ids,
-                                                      plots_to_file)
+                                                plots_to_file)
             i_row = 0
             i_col = 0
         else:
@@ -151,12 +151,9 @@ def plot_data_and_simulation(
             plt.close()
 
     # finalize figure
-    if plots_to_file:
-        return
-    else:
+    if not plots_to_file:
         fig.tight_layout()
         sns.despine()
-
         return ax
 
 
