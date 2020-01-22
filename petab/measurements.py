@@ -1,9 +1,11 @@
 """Functions operating on the PEtab measurement table"""
+# noqa: F405
+
 
 import itertools
 import numbers
 import re
-from typing import List, Union, Set, Dict, Iterable
+from typing import List, Union, Set, Dict
 
 import numpy as np
 import pandas as pd
@@ -11,6 +13,7 @@ import sympy as sp
 
 from . import lint
 from . import core
+from .C import *  # noqa: F403
 
 
 def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
@@ -26,7 +29,7 @@ def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        measurement_df.columns.values, "measurement")
+        measurement_df.columns.values, MEASUREMENT)
 
     return measurement_df
 
@@ -48,8 +51,8 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
 
     # read noise distributions from measurement file
     grouping_cols = core.get_notnull_columns(
-        measurement_df, ['observableId', 'observableTransformation',
-                         'noiseDistribution'])
+        measurement_df, [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION,
+                         NOISE_DISTRIBUTION])
 
     observables = measurement_df.groupby(grouping_cols).size().reset_index()
     noise_distrs = {}
@@ -60,17 +63,17 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
         # extract observable transformation and noise distribution,
         # use lin+normal as default if none provided
         obs_trafo = row.observableTransformation \
-            if 'observableTransformation' in row \
+            if OBSERVABLE_TRANSFORMATION in row \
             and row.observableTransformation \
-            else 'lin'
+            else LIN
         noise_distr = row.noiseDistribution \
-            if 'noiseDistribution' in row \
+            if NOISE_DISTRIBUTION in row \
             and row.noiseDistribution \
-            else 'normal'
+            else NORMAL
         # add to noise distributions
         noise_distrs[id_] = {
-            'observableTransformation': obs_trafo,
-            'noiseDistribution': noise_distr}
+            OBSERVABLE_TRANSFORMATION: obs_trafo,
+            NOISE_DISTRIBUTION: noise_distr}
 
     return noise_distrs
 
@@ -92,7 +95,7 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     # can be improved by checking for identical condition vectors
     grouping_cols = core.get_notnull_columns(
         measurement_df,
-        ['simulationConditionId', 'preequilibrationConditionId'])
+        [SIMULATION_CONDITION_ID, PREEQUILIBRATION_CONDITION_ID])
 
     # group by cols and return dataframe containing each combination
     # of those rows only once (and an additional counting row)
@@ -125,12 +128,12 @@ def get_rows_for_condition(measurement_df: pd.DataFrame,
     # filter rows for condition
     row_filter = 1
     # check for equality in all grouping cols
-    if 'preequilibrationConditionId' in condition:
+    if PREEQUILIBRATION_CONDITION_ID in condition:
         row_filter = (measurement_df.preequilibrationConditionId ==
-                      condition['preequilibrationConditionId']) & row_filter
-    if 'simulationConditionId' in condition:
+                      condition[PREEQUILIBRATION_CONDITION_ID]) & row_filter
+    if SIMULATION_CONDITION_ID in condition:
         row_filter = (measurement_df.simulationConditionId ==
-                      condition['simulationConditionId']) & row_filter
+                      condition[SIMULATION_CONDITION_ID]) & row_filter
     # apply filter
     cur_measurement_df = measurement_df.loc[row_filter, :]
 
@@ -182,12 +185,6 @@ def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
     if list_string is None:
         return []
 
-    def to_float_if_float(x):
-        try:
-            return float(x)
-        except ValueError:
-            return x
-
     if isinstance(list_string, numbers.Number):
         # Empty cells in pandas might be turned into nan
         # We might want to allow nan as replacement...
@@ -196,7 +193,7 @@ def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
         return [list_string]
 
     result = [x.strip() for x in list_string.split(delim) if len(x.strip())]
-    return [to_float_if_float(x) for x in result]
+    return [core.to_float_if_float(x) for x in result]
 
 
 def get_placeholders(formula_string: str, observable_id: str,
@@ -232,17 +229,17 @@ def create_measurement_df() -> pd.DataFrame:
     """
 
     df = pd.DataFrame(data={
-        'observableId': [],
-        'preequilibrationConditionId': [],
-        'simulationConditionId': [],
-        'measurement': [],
-        'time': [],
-        'observableParameters': [],
-        'noiseParameters': [],
-        'observableTransformation': [],
-        'noiseDistribution': [],
-        'datasetId': [],
-        'replicateId': []
+        OBSERVABLE_ID: [],
+        PREEQUILIBRATION_CONDITION_ID: [],
+        SIMULATION_CONDITION_ID: [],
+        MEASUREMENT: [],
+        TIME: [],
+        OBSERVABLE_PARAMETERS: [],
+        NOISE_PARAMETERS: [],
+        OBSERVABLE_TRANSFORMATION: [],
+        NOISE_DISTRIBUTION: [],
+        DATASET_ID: [],
+        REPLICATE_ID: []
     })
 
     return df
@@ -260,8 +257,8 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
     return np.any(measurement_df.groupby(
         core.get_notnull_columns(
             measurement_df,
-            ['observableId', 'simulationConditionId',
-             'preequilibrationConditionId', 'time'])).size().values - 1)
+            [OBSERVABLE_ID, SIMULATION_CONDITION_ID,
+             PREEQUILIBRATION_CONDITION_ID, TIME])).size().values - 1)
 
 
 def assert_overrides_match_parameter_count(
@@ -333,25 +330,3 @@ def assert_overrides_match_parameter_count(
                     f'\n{row}\n'
                     f'But parameter name or multiple overrides were specified '
                     'in the noiseParameters column.')
-
-
-def concat_measurements(
-        measurement_tables: Iterable[Union[pd.DataFrame, str]]
-) -> pd.DataFrame:
-    """Concatenate measurement tables
-
-    Arguments:
-        measurement_tables:
-            Iterable of measurement tables to join, as DataFrame or filename.
-    """
-    measurement_df = pd.DataFrame()
-
-    for tmp_df in measurement_tables:
-        # load from file, if necessary
-        if isinstance(tmp_df, str):
-            tmp_df = get_measurement_df(tmp_df)
-
-        measurement_df = measurement_df.append(tmp_df, sort=False,
-                                               ignore_index=True)
-
-    return measurement_df

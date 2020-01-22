@@ -5,6 +5,8 @@ import petab.problem
 from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot)
+import petab
+
 from typing import Union, Optional, List
 import matplotlib.pyplot as plt
 
@@ -107,8 +109,7 @@ def plot_data_and_simulation(
 
     # import simulation file, if file was specified
     if isinstance(sim_data, str):
-        sim_data = pd.read_csv(sim_data,
-                               sep="\t", index_col=None)
+        sim_data = petab.get_simulation_df(sim_data)
 
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
@@ -209,8 +210,7 @@ def plot_measurements_by_observable(data_file_path: str,
     """
 
     # import measurement data
-    measurement_data = pd.read_csv(
-        data_file_path, sep="\t", index_col=None)
+    measurement_data = petab.get_measurement_df(data_file_path)
 
     # get unique observable ID
     observable_id = np.array(measurement_data.observableId)
@@ -218,7 +218,7 @@ def plot_measurements_by_observable(data_file_path: str,
     observable_id_list = [[str(obsId)] for obsId in uni_observable_id]
 
     # use new routine now
-    ax = plot_data_and_simulation(data_file_path, condition_file_path,
+    ax = plot_data_and_simulation(measurement_data, condition_file_path,
                                   observable_id_list=observable_id_list,
                                   plotted_noise=plotted_noise)
 

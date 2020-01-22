@@ -1,12 +1,13 @@
-import pytest
-import tempfile
-import pandas as pd
-import sys
 import os
+import pickle
+import sys
+import tempfile
+from math import nan
+
 import libsbml
 import numpy as np
-import pickle
-
+import pandas as pd
+import pytest
 
 sys.path.append(os.getcwd())
 import petab  # noqa: E402
@@ -187,11 +188,13 @@ def test_get_placeholders():
         == {'noiseParameter1_oneParam'}
 
 
-def test_statpoint_sampling(fujita_model_scaling):
+def test_startpoint_sampling(fujita_model_scaling):
     startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
-
     assert (np.isfinite(startpoints)).all
-    assert startpoints.shape == (19, 100)
+    assert startpoints.shape == (100, 19)
+    for sp in startpoints:
+        assert sp[0] >= np.log10(31.62) and sp[0] <= np.log10(316.23)
+        assert sp[1] >= -3 and sp[1] <= 3
 
 
 def test_create_parameter_df(condition_df_2_conditions):
@@ -246,20 +249,30 @@ def test_create_parameter_df(condition_df_2_conditions):
         measurement_df)
 
     # first model parameters, then row by row noise and sigma overrides
-    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5']
+    expected = ['p3', 'p4', 'p1', 'p2', 'p5']
     actual = parameter_df.index.values.tolist()
     assert actual == expected
-    assert parameter_df.loc['p0', 'nominalValue'] == 3.0
 
     # test with condition parameter override:
     condition_df_2_conditions.loc['condition2', 'fixedParameter1'] \
         = 'overrider'
-    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
+    expected = ['p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
 
     parameter_df = petab.create_parameter_df(
         model,
         condition_df_2_conditions,
         measurement_df)
+    actual = parameter_df.index.values.tolist()
+    assert actual == expected
+
+    # test with optional parameters
+    expected = ['p0', 'p3', 'p4', 'p1', 'p2', 'p5', 'overrider']
+
+    parameter_df = petab.create_parameter_df(
+        model,
+        condition_df_2_conditions,
+        measurement_df,
+        include_optional=True)
     actual = parameter_df.index.values.tolist()
     assert actual == expected
     assert parameter_df.loc['p0', 'nominalValue'] == 3.0
@@ -330,3 +343,36 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
     assert problem.measurement_df.equals(measurement_df_expected) is True
 
     assert petab.lint_problem(problem) is False
+
+
+def test_concat_measurements():
+    a = pd.DataFrame({'measurement': [1.0]})
+    b = pd.DataFrame({'time': [1.0]})
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        filename_a = fh.name
+        a.to_csv(fh, sep='\t', index=False)
+
+    expected = pd.DataFrame({
+        'measurement': [1.0, nan],
+        'time': [nan, 1.0]
+    })
+
+    assert expected.equals(
+        petab.concat_tables([a, b],
+                            petab.measurements.get_measurement_df))
+
+    assert expected.equals(
+        petab.concat_tables([filename_a, b],
+                            petab.measurements.get_measurement_df))
+
+
+def test_to_float_if_float():
+    to_float_if_float = petab.core.to_float_if_float
+
+    assert to_float_if_float(1) == 1.0
+    assert to_float_if_float("1") == 1.0
+    assert to_float_if_float("-1.0") == -1.0
+    assert to_float_if_float("1e1") == 10.0
+    assert to_float_if_float("abc") == "abc"
+    assert to_float_if_float([]) == []

@@ -1,5 +1,8 @@
 # PEtab data format specification
 
+
+## Version: 1
+
 This document explains the PEtab data format.
 
 
@@ -107,7 +110,7 @@ Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 ## Condition table
 
 The condition table specifies parameters or *constant* species for specific
-simulation condition (generally corresponding to different experimental
+simulation conditions (generally corresponding to different experimental
 conditions).
 
 This is specified as tab-separated value file with condition-specific
@@ -124,8 +127,13 @@ Column names are global parameter IDs or IDs of constant species as given in
 the SBML model. These parameters will override any parameter values specified
 in the model. `parameterOrStateId`s and `conditionId`s must be unique.
 
+Values for condition parameters may be provided either as numeric values, or
+as parameter IDs. In case parameter IDs are provided, they need to be defined
+in the SBML model, the parameter table or both. 
+
 Row- and column-ordering are arbitrary, although specifying `parameterId`
 first may improve human readability. The `conditionName` column is optional.
+
 Additional columns are *not* allowed.
 
 *Note 1:* Instead of adding additional columns to the condition table, they
@@ -174,7 +182,7 @@ replicates and plot error bars.
 `observable_${observableId}`
 
 - `preequilibrationConditionId` [STRING OR NULL,
-REFERENCES(conditionsTable.conditionID)]
+REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
   The `conditionId` to be used for preequilibration. E.g. for drug
   treatments the model would be preequilibrated with the no-drug condition.
@@ -195,7 +203,7 @@ condition-specific parameters used for simulation.
   Time point of the measurement in the time unit specified in the SBML model,
 numeric value or `inf` (lower-case) for steady-state measurements.
 
-- `observableParameters` [STRING OR NULL]
+- `observableParameters` [STRING OR NULL, OPTIONAL]
 
   This field allows overriding or introducing condition-specific versions of
   parameters defined in the model. The model can define observables (see above)
@@ -217,7 +225,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   All placeholders defined in the model must be overwritten here. If there are
   not placeholders in the model, this column may be omitted.
 
-- `noiseParameters` [STRING]
+- `noiseParameters` [STRING, OPTIONAL]
 
   The measurement standard deviation or `NaN` if the corresponding sigma is a
   model parameter.
@@ -225,7 +233,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   Numeric values or parameter names are allowed. Same rules apply as for
   `observableParameters` in the previous point.
 
-- `observableTransformation` [STRING]
+- `observableTransformation` [STRING, OPTIONAL]
 
   Transformation of the observable and measurement for computing the objective
   function.
@@ -233,14 +241,14 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   The measurements and model outputs are both assumed to be provided in linear
   space.
 
-- `noiseDistribution` [STRING: 'normal' or 'laplace']
+- `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed Noise distribution for the given measurement. Only normally or
   Laplace distributed noise is currently allowed. Defaults to `normal`. If
   `normal`, the specified `noiseParameters` will be interpreted as standard
   deviation (*not* variance).
 
-- `datasetId` [STRING, optional]
+- `datasetId` [STRING, OPTIONAL]
 
   The datasetId is used to group certain measurements to datasets. This is
   typically the case for data points which belong to the same observable,
@@ -249,7 +257,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   This grouping makes it possible to use the plotting routines which are
   provided in the PEtab repository.
 
-- `replicateId` [STRING, optional]
+- `replicateId` [STRING, OPTIONAL]
 
   The replicateId can be used to discern replicates with the same
   datasetId, which is helpful for plotting e.g. error bars.
@@ -259,14 +267,20 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
 A tab-separated value text file containing information on model parameters.
 
-This table must include the following parameters:
-- Named parameter overrides introduced in the *conditions table*
+This table *must* include the following parameters:
+- Named parameter overrides introduced in the *conditions table*,
+  unless defined in the SBML model
 - Named parameter overrides introduced in the *measurement table*
 
-and must not include
-- placeholder parameters (see `observableParameters` and `noiseParameters`
+and *must not* include:
+- Placeholder parameters (see `observableParameters` and `noiseParameters`
   above)
-- parameters included as column names in the *condition table*
+- Parameters included as column names in the *condition table*
+- Parameters that are AssignmentRule targets in the SBML model
+
+it *may* include:
+- Any SBML model parameter that was not excluded above
+- Named parameter overrides introduced in the *conditions table*
 
 One row per parameter with arbitrary order of rows and columns:
 
@@ -326,15 +340,13 @@ Additional columns may be added.
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see `nominalValue`).
 
-- `priorType`
+- `initializationPriorType` [STRING, OPTIONAL]
 
-  Type of prior, which is used for sampling of initial points for 
-  a possible optimization and for the objective function. Priors which are 
-  only used for sampling of initial starting points or only for optimization
-  should be specified in the additional columns `initializationPriorType` or
-  `objectivePriorType`, respectively.
+  Prior types used for sampling of initial points for optimization. Sampled
+  points are clipped to lie inside the parameter boundaries specified by
+  `lowerBound` and `upperBound`. Defaults to `parameterScaleUniform`.
 
-  Possible prior types are (see also Extensions):
+  Possible prior types are:
 
     - *uniform*: flat prior on linear parameters
     - *normal*: Gaussian prior on linear parameters
@@ -346,13 +358,11 @@ Additional columns may be added.
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- `priorParameters`
+- `initializationPriorParameters` [STRING, OPTIONAL]
 
-  Parameters for prior specified in `priorType`, separated by a semicolon. 
-  Accordingly, there are optional columns for priors which should be used for
-  initial point sampling or optimization only. (i.e., 
-  `initializationPriorParameters` and `objectivePriorParameters`,
-  respectively).
+  Prior parameters used for sampling of initial points for optimization,
+  separated by a semicolon. Defaults to `lowerBound;upperBound`.
+
   So far, only numeric values will be supported, no parameter names. 
   Parameters for the different prior types are:
   
@@ -365,43 +375,15 @@ Additional columns may be added.
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
 
-
-### Additional optional columns
-
-Extra columns:
-
-- `hierarchicalOptimization` (optional)
-
-  hierarchicalOptimization: 1 if parameter is optimized using hierarchical
-  optimization approach, 0 otherwise.
-
-- `initializationPriorType` (optional)
-
-  Prior types used for sampling of initial points for optimization. Uses the
-  entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
-
-- `initializationPriorParameters` (optional)
-
-  Prior parameters used for sampling of initial points for optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.
-
-- `objectivePriorType` (optional)
+- `objectivePriorType` [STRING, OPTIONAL]
 
   Prior types used for the objective function during optimization or sampling.
-  Uses the entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
+  For possible values, see `initializationPriorType`.
 
-- `objectivePriorParameters` (optional)
+- `objectivePriorParameters` [STRING, OPTIONAL]
 
-  Prior parameters used for the objective function during optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.   
+  Prior parameters used for the objective function during optimization.
+  For more detailed documentation, see `initializationPriorParameters`.   
 
 
 ## Visualization table

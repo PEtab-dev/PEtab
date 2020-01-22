@@ -1,0 +1,9 @@
+parameter_file: Fujita_parameters.tsv
+format_version: 1
+problems:
+- condition_files:
+  - Fujita_experimentalCondition.tsv
+  measurement_files:
+  - Fujita_measurementData.tsv
+  sbml_files:
+  - Fujita_model.xml

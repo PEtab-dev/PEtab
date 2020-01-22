@@ -1,5 +1,6 @@
 import os
 import subprocess
+from unittest.mock import patch
 
 import libsbml
 import pandas as pd
@@ -24,22 +25,16 @@ def test_assert_measured_observables_present_in_model():
 
 
 def test_condition_table_is_parameter_free():
-    condition_df = pd.DataFrame(data={
-        'conditionId': ['condition1', 'condition2'],
-        'conditionName': ['', 'Condition 2'],
-        'fixedParameter1': [1.0, 2.0]
-    })
+    with patch('petab.get_parametric_overrides') \
+            as mock_get_parametric_overrides:
+        mock_get_parametric_overrides.return_value = []
+        assert lint.condition_table_is_parameter_free(pd.DataFrame()) is True
+        mock_get_parametric_overrides.assert_called_once()
 
-    assert lint.condition_table_is_parameter_free(condition_df) is True
-
-    condition_df.fixedParameter1 = \
-        condition_df.fixedParameter1.values.astype(int)
-
-    assert lint.condition_table_is_parameter_free(condition_df) is True
-
-    condition_df.loc[0, 'fixedParameter1'] = 'parameterId'
-
-    assert lint.condition_table_is_parameter_free(condition_df) is False
+        mock_get_parametric_overrides.reset_mock()
+        mock_get_parametric_overrides.return_value = ['p1']
+        assert lint.condition_table_is_parameter_free(pd.DataFrame()) is False
+        mock_get_parametric_overrides.assert_called_once()
 
 
 def test_measurement_table_has_timepoint_specific_mappings():
@@ -229,16 +224,38 @@ def test_check_parameter_bounds():
              'estimate': [1], 'parameterScale': ['log']}))
 
 
+def test_assert_parameter_prior_type_is_valid():
+    lint.assert_parameter_prior_type_is_valid(pd.DataFrame(
+        {'initializationPriorType': ['uniform', 'laplace'],
+         'objectivePriorType': ['normal', 'logNormal']}))
+    lint.assert_parameter_prior_type_is_valid(pd.DataFrame())
+
+    with pytest.raises(AssertionError):
+        lint.assert_parameter_prior_type_is_valid(pd.DataFrame(
+            {'initializationPriorType': ['normal', '']}))
+
+
 def test_petablint_succeeds():
     """Run petablint and ensure we exit successfully for a file that should
     contain no errors"""
+    dir_isensee = '../doc/example/example_Isensee/'
+    dir_fujita = '../doc/example/example_Fujita/'
 
+    # run with measurement file
     script_path = os.path.abspath(os.path.dirname(__file__))
-    test_mes_file = os.path.join(
-        script_path, '..',
-        'doc/example/example_Isensee/Isensee_measurementData.tsv')
+    measurement_file = os.path.join(
+        script_path, dir_isensee, 'Isensee_measurementData.tsv')
+    result = subprocess.run(['petablint', '-m', measurement_file])
+    assert result.returncode == 0
 
-    result = subprocess.run(['petablint', '-m', test_mes_file])
+    # run with yaml
+    yaml_file = os.path.join(script_path, dir_fujita, 'Fujita.yaml')
+    result = subprocess.run(['petablint', '-v', '-y', yaml_file])
+    assert result.returncode == 0
+
+    parameter_file = os.path.join(
+        script_path, dir_fujita, 'Fujita_parameters.tsv')
+    result = subprocess.run(['petablint', '-v', '-p', parameter_file])
     assert result.returncode == 0
 
 
