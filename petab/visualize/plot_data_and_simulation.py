@@ -124,7 +124,7 @@ def plot_data_and_simulation(
     for i_plot_id, var_plot_id in enumerate(uni_plot_ids):
 
         if plots_to_file:
-            fig, ax, num_row, num_col = create_figure(uni_plot_ids,
+            fig, ax, _, num_col = create_figure(uni_plot_ids,
                                                       plots_to_file)
             i_row = 0
             i_col = 0
