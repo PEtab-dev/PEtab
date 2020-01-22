@@ -3,12 +3,11 @@
 import os
 
 import pandas as pd
-
-from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml)
-
 import libsbml
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Iterable
+from . import (parameter_mapping, measurements, conditions, parameters,
+               sampling, sbml, yaml, core)
+from .C import *  # noqa: F403
 
 
 class Problem:
@@ -20,10 +19,13 @@ class Problem:
     - measurement table
     - parameter table
 
+    Optionally it may contain visualization tables.
+
     Attributes:
         condition_df: PEtab condition table
         measurement_df: PEtab measurement table
         parameter_df: PEtab parameter table
+        visualization_df: PEtab visualization table
         sbml_reader: Stored to keep object alive.
         sbml_document: Stored to keep object alive.
         sbml_model: PEtab SBML model
@@ -35,11 +37,13 @@ class Problem:
                  sbml_document: libsbml.SBMLDocument = None,
                  condition_df: pd.DataFrame = None,
                  measurement_df: pd.DataFrame = None,
-                 parameter_df: pd.DataFrame = None):
+                 parameter_df: pd.DataFrame = None,
+                 visualization_df: pd.DataFrame = None):
 
         self.condition_df: Optional[pd.DataFrame] = condition_df
         self.measurement_df: Optional[pd.DataFrame] = measurement_df
         self.parameter_df: Optional[pd.DataFrame] = parameter_df
+        self.visualization_df: Optional[pd.DataFrame] = visualization_df
 
         self.sbml_reader: Optional[libsbml.SBMLReader] = sbml_reader
         self.sbml_document: Optional[libsbml.SBMLDocument] = sbml_document
@@ -76,8 +80,10 @@ class Problem:
     @staticmethod
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
-                   measurement_file: str = None,
-                   parameter_file: str = None) -> 'Problem':
+                   measurement_file: Union[str, Iterable] = None,
+                   parameter_file: str = None,
+                   visualization_files: Union[str, Iterable] = None
+                   ) -> 'Problem':
         """
         Factory method to load model and tables from files.
 
@@ -86,34 +92,44 @@ class Problem:
             condition_file: PEtab condition table
             measurement_file: PEtab measurement table
             parameter_file: PEtab parameter table
+            visualization_files: PEtab visualization tables
         """
 
         sbml_model = sbml_document = sbml_reader = None
-        condition_df = measurement_df = parameter_df = None
+        condition_df = measurement_df = parameter_df = visualization_df = None
 
         if condition_file:
             condition_df = conditions.get_condition_df(condition_file)
+
         if measurement_file:
             if isinstance(measurement_file, str):
                 measurement_df = measurements.get_measurement_df(
                     measurement_file)
             else:
                 # If there are multiple tables, we will merge them
-                measurement_df = measurements.concat_measurements(
-                    measurement_file)
+                measurement_df = core.concat_tables(
+                    measurement_file, measurements.get_measurement_df)
+
         if parameter_file:
             parameter_df = parameters.get_parameter_df(parameter_file)
+
         if sbml_file:
             sbml_reader = libsbml.SBMLReader()
             sbml_document = sbml_reader.readSBML(sbml_file)
             sbml_model = sbml_document.getModel()
+
+        if visualization_files:
+            # If there are multiple tables, we will merge them
+            visualization_df = core.concat_tables(
+                visualization_files, core.get_visualization_df)
 
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,
                        parameter_df=parameter_df,
                        sbml_model=sbml_model,
                        sbml_document=sbml_document,
-                       sbml_reader=sbml_reader)
+                       sbml_reader=sbml_reader,
+                       visualization_df=visualization_df)
 
     @staticmethod
     def from_yaml(yaml_config: Union[Dict, str]) -> 'Problem':
@@ -140,13 +156,16 @@ class Problem:
         yaml.assert_single_condition_and_sbml_file(problem0)
 
         return Problem.from_files(
-            sbml_file=os.path.join(path_prefix, problem0['sbml_files'][0]),
+            sbml_file=os.path.join(path_prefix, problem0[SBML_FILES][0]),
             measurement_file=[os.path.join(path_prefix, f)
-                              for f in problem0['measurement_files']],
+                              for f in problem0[MEASUREMENT_FILES]],
             condition_file=os.path.join(
-                path_prefix, problem0['condition_files'][0]),
+                path_prefix, problem0[CONDITION_FILES][0]),
             parameter_file=os.path.join(
-                path_prefix, yaml_config['parameter_file'])
+                path_prefix, yaml_config[PARAMETER_FILE]),
+            visualization_files=[
+                os.path.join(path_prefix, f)
+                for f in problem0.get(VISUALIZATION_FILES, [])]
         )
 
     @staticmethod
@@ -223,45 +242,45 @@ class Problem:
     @property
     def x_ids(self) -> List[str]:
         """Parameter table parameter IDs"""
-        return list(self.parameter_df.reset_index()['parameterId'])
+        return list(self.parameter_df.reset_index()[PARAMETER_ID])
 
     @property
     def x_nominal(self) -> List:
         """Parameter table nominal values"""
-        return list(self.parameter_df['nominalValue'])
+        return list(self.parameter_df[NOMINAL_VALUE])
 
     @property
     def lb(self) -> List:
         """Parameter table lower bounds"""
-        return list(self.parameter_df['lowerBound'])
+        return list(self.parameter_df[LOWER_BOUND])
 
     @property
     def ub(self) -> List:
         """Parameter table upper bounds"""
-        return list(self.parameter_df['upperBound'])
+        return list(self.parameter_df[UPPER_BOUND])
 
     @property
     def x_nominal_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['nominalValue'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[NOMINAL_VALUE],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def lb_scaled(self) -> List:
         """Parameter table lower bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['lowerBound'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[LOWER_BOUND],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def ub_scaled(self) -> List:
         """Parameter table upper bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['upperBound'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[UPPER_BOUND],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def x_fixed_indices(self) -> List[int]:
         """Parameter table non-estimated parameter indices"""
-        estimated = list(self.parameter_df['estimate'])
+        estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val == 0]
 
     @property

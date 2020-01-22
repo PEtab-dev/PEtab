@@ -39,8 +39,7 @@ def import_from_files(data_file_path,
 
     # import visualization specification, if file was specified
     if visualization_file_path != '':
-        vis_spec = pd.read_csv(visualization_file_path, sep="\t",
-                               index_col=None)
+        vis_spec = petab.get_visualization_df(visualization_file_path)
     else:
         # create them based on simulation conditions
         vis_spec = get_default_vis_specs(exp_data,
@@ -54,8 +53,7 @@ def import_from_files(data_file_path,
 
     # import simulation file, if file was specified
     if simulation_file_path != '':
-        sim_data = pd.read_csv(simulation_file_path,
-                               sep="\t", index_col=None)
+        sim_data = petab.get_simulation_df(simulation_file_path)
     else:
         sim_data = None
 
