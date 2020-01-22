@@ -1,12 +1,20 @@
 import os
 import subprocess
+from math import nan
 from unittest.mock import patch
 
 import libsbml
 import pandas as pd
-import petab
 import pytest
+
+import petab
 from petab import (lint, sbml)  # noqa: E402
+from petab.C import *
+
+# import fixtures
+pytest_plugins = [
+    "tests.test_petab",
+]
 
 
 def test_assert_measured_observables_present_in_model():
@@ -294,3 +302,41 @@ def test_assert_measurement_conditions_present_in_condition_table():
     with pytest.raises(AssertionError):
         lint.assert_measurement_conditions_present_in_condition_table(
             measurement_df=measurement_df, condition_df=condition_df)
+
+
+def test_check_condition_df(minimal_sbml_model):
+    """Check that we correctly detect errors in condition table"""
+
+    _, sbml_model = minimal_sbml_model
+
+    condition_df = pd.DataFrame(data={
+        CONDITION_ID: ['condition1'],
+        'p1': [nan],
+    })
+    condition_df.set_index(CONDITION_ID, inplace=True)
+
+    # parameter missing in model
+    with pytest.raises(AssertionError):
+        lint.check_condition_df(condition_df, sbml_model)
+
+    # fix:
+    sbml_model.createParameter().setId('p1')
+    lint.check_condition_df(condition_df, sbml_model)
+
+    # species missing in model
+    condition_df['s1'] = [3.0]
+    with pytest.raises(AssertionError):
+        lint.check_condition_df(condition_df, sbml_model)
+
+    # fix:
+    sbml_model.createSpecies().setId('s1')
+    lint.check_condition_df(condition_df, sbml_model)
+
+    # compartment missing in model
+    condition_df['c1'] = [4.0]
+    with pytest.raises(AssertionError):
+        lint.check_condition_df(condition_df, sbml_model)
+
+    # fix:
+    sbml_model.createCompartment().setId('c1')
+    lint.check_condition_df(condition_df, sbml_model)

@@ -351,7 +351,7 @@ attr-naming-style=snake_case
 
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style.
-attr-rgx=^[a-z][a-z0-9]*((_[a-z0-9]+)*)?$
+attr-rgx=^[a-z_][a-z0-9]*((_[a-z0-9]+)*)?$
 
 # Bad variable names which should always be refused, separated by a comma.
 bad-names=foo,
@@ -380,7 +380,7 @@ const-naming-style=UPPER_CASE
 
 # Regular expression matching correct constant names. Overrides const-naming-
 # style.
-#const-rgx=
+const-rgx=^[a-zA-Z][a-zA-Z0-9]*((_[a-zA-Z0-9]+)*)?$
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
@@ -443,7 +443,7 @@ variable-naming-style=snake_case
 
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style.
-variable-rgx=^[a-z][a-z0-9]*((_[a-z0-9]+)*)?$
+variable-rgx=^[a-z_][a-z0-9]*((_[a-z0-9]+)*)?$
 
 
 [LOGGING]
