@@ -123,19 +123,27 @@ species/parameters/compartments in the following way:
 |... | ... | ... | ... |...| ...
 
 Row names are condition names as referenced in the measurement table below.
-Column names are global parameter IDs, IDs of species or compartments as given in
-the SBML model. These parameters will override any parameter values specified
-in the model. `parameterOrStateId`s and `conditionId`s must be unique.
+Column names are global parameter IDs, IDs of species or compartments as given
+in the SBML model. These parameters will override any parameter values
+specified in the model. `parameterOrStateId`s and `conditionId`s must be
+unique.
 
-If a species ID is provided, it is interpreted as the initial concentration of that species and will override the initial concentration given in the SBML model or given by a preequilibration condition. If `NaN` is provided for a condition, the initial concentration of the preequilibration (or the SBML model, if no preequilibration is defined) is used. 
+If a species ID is provided, it is interpreted as the initial
+concentration/amount of that species and will override the initial
+concentration/amount given in the SBML model or given by a preequilibration
+condition. If `NaN` is provided for a condition, the result of the
+preequilibration (or initial concentration/amount from the SBML model, if no
+preequilibration is defined) is used.
 
-If a compartment Id is provided, it is interpreted as the initial compartment size.
+If a compartment Id is provided, it is interpreted as the initial compartment
+size.
 
 Values for condition parameters may be provided either as numeric values, or
 as IDs defined in the SBML model, the parameter table or both.
 
 Row- and column-ordering are arbitrary, although specifying `parameterId`
-first may improve human readability. The `conditionName` column is optional and is used e.g. for the visualization routines.
+first may improve human readability. The `conditionName` column is optional
+and is used e.g. for the visualization routines.
 
 Additional columns are *not* allowed.
 
