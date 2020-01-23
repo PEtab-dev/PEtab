@@ -109,36 +109,59 @@ Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
 
 ## Condition table
 
-The condition table specifies parameters or *constant* species for specific
-simulation conditions (generally corresponding to different experimental
-conditions).
+The condition table specifies parameters, or initial values of species and
+compartments for specific simulation conditions (generally corresponding to
+different experimental conditions).
 
-This is specified as tab-separated value file with condition-specific
-species/parameters in the following way:
+This is specified as a tab-separated value file in the following way:
 
-| conditionId | [conditionName] | parameterOrStateId1 | ... | parameterOrStateId${n} |
+| conditionId | [conditionName] | parameterOrStateOrCompartmentId1 | ... | parameterOrStateOrCompartmentId${n} |
 |---|---|---|---|---|
-| conditionId1 | conditionName1 | NUMERIC&#124;parameterId | ...| ...
+| conditionId1 | conditionName1 | NUMERIC&#124;parameterId&#124;stateId&#124;compartmentId | ...| ...
 | conditionId2 | ... | ... | ...| ...
 |... | ... | ... | ... |...| ...
 
-Row names are condition names as referenced in the measurement table below.
-Column names are global parameter IDs or IDs of constant species as given in
-the SBML model. These parameters will override any parameter values specified
-in the model. `parameterOrStateId`s and `conditionId`s must be unique.
-
-Values for condition parameters may be provided either as numeric values, or
-as parameter IDs. In case parameter IDs are provided, they need to be defined
-in the SBML model, the parameter table or both. 
-
-Row- and column-ordering are arbitrary, although specifying `parameterId`
-first may improve human readability. The `conditionName` column is optional.
+Row- and column-ordering are arbitrary, although specifying `conditionId`
+first may improve human readability. 
 
 Additional columns are *not* allowed.
 
-*Note 1:* Instead of adding additional columns to the condition table, they
-can easily be added to a separate file, since every row of the condition table
-has `parameterId` as unique key.
+### Detailed field description
+
+- `conditionId` [STRING, NOT NULL]
+
+  Unique identifier for the simulation/experimental condition, to be referenced
+  by the measurement table described below.
+
+- `conditionName` [STRING, OPTIONAL]
+
+  Condition names are arbitrary strings to describe the given condition.
+  They may be used for reporting or visualization.
+
+- `${parameterOrStateOrCompartmentId1}`
+
+  Further columns may be global parameter IDs, IDs of species or compartments
+  as defined in the SBML model. Only one column is allowed per ID.
+  Values for these condition parameters may be provided either as numeric
+  values, or as IDs defined in the SBML model, the parameter table or both.
+
+  - `${parameterId}` 
+
+    The values will override any parameter values specified in the model.
+
+  - `${speciesId}`
+
+    If a species ID is provided, it is interpreted as the initial
+    concentration/amount of that species and will override the initial
+    concentration/amount given in the SBML model or given by a preequilibration
+    condition. If `NaN` is provided for a condition, the result of the
+    preequilibration (or initial concentration/amount from the SBML model, if
+    no preequilibration is defined) is used.
+  
+  - `${compartmentId}`
+
+    If a compartment ID is provided, it is interpreted as the initial
+    compartment size.
 
 
 ## Measurement table
@@ -294,7 +317,7 @@ Additional columns may be added.
 
 ### Detailed field description:
 
-- `parameterId` [STRING, NOT NULL, REFERENCES(sbml.parameterId)]
+- `parameterId` [STRING, NOT NULL]
 
   The `parameterId` of the parameter described in this row. This has be
   identical to the parameter IDs specified in the SBML model or in the
