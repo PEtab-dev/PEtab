@@ -11,7 +11,7 @@ import libsbml
 import numpy as np
 import pandas as pd
 
-from . import lint, measurements, sbml
+from . import lint, measurements, sbml, core
 from . import ENV_NUM_THREADS
 from .C import *  # noqa: F403
 
@@ -299,7 +299,8 @@ def _apply_condition_parameters(mapping: ParMappingDict,
         if overridee_id == CONDITION_NAME:
             continue
 
-        mapping[overridee_id] = condition_df.loc[condition_id, overridee_id]
+        mapping[overridee_id] = core.to_float_if_float(
+            condition_df.loc[condition_id, overridee_id])
 
 
 def _apply_parameter_table(mapping: ParMappingDict,
