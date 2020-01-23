@@ -72,9 +72,9 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
         # add xOffset
         conditions = conditions + vis_spec.xOffset[i_visu_spec]
 
-        # TO DO sort mean and sd/sem by x values (as for simulatedData below)
-        # to avoid crazy lineplots in case x values are not sorted by default.
-        # cf issue #207
+        # TODO sort mean and sd/sem by x values (as for simulatedData below)
+        #  to avoid crazy lineplots in case x values are not sorted by default.
+        #  cf issue #207
         #
         # construct errorbar-plots: Mean and standard deviation
         label_base = vis_spec[ind_plot].legendEntry[i_visu_spec]

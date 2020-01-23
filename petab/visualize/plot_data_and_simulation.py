@@ -18,7 +18,7 @@ NumList = List[int]
 def plot_data_and_simulation(
         exp_data: Union[str, pd.DataFrame],
         exp_conditions: Union[str, pd.DataFrame],
-        vis_spec: str = '',
+        vis_spec: Optional[Union[str, pd.DataFrame]] = '',
         sim_data: Optional[Union[str, pd.DataFrame]] = None,
         dataset_id_list: Optional[List[IdsList]] = None,
         sim_cond_id_list: Optional[List[IdsList]] = None,
@@ -41,40 +41,40 @@ def plot_data_and_simulation(
     ----------
     exp_data:
         measurement DataFrame in the PEtab format or path to the data file.
-    exp_conditions: str
+    exp_conditions:
         condition DataFrame in the PEtab format or path to the condition file.
     vis_spec: str or pandas.Dataframe (optional)
         Visualization specification DataFrame in the PEtab format or path to
          visualization file.
-    sim_data: str or pandas.DataFrame (optional)
+    sim_data:
         simulation DataFrame in the PEtab format
         or path to the simulation output data file.
-    dataset_id_list: list (optional)
+    dataset_id_list:
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the datasetIds for this plot.
         Only to be used if no visualization file was available.
-    sim_cond_id_list: list (optional)
+    sim_cond_id_list:
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the simulationConditionIds for this plot.
         Only to be used if no visualization file was available.
-    sim_cond_num_list: list (optional)
+    sim_cond_num_list:
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the numbers corresponding to the simulationConditionIds for
         this plot.
         Only to be used if no visualization file was available.
-    observable_id_list: list (optional)
+    observable_id_list:
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the observableIds for this plot.
         Only to be used if no visualization file was available.
-    observable_num_list: list (optional)
+    observable_num_list:
         A list of lists. Each sublist corresponds to a plot, each subplot
         contains the numbers corresponding to the observableIds for
         this plot.
         Only to be used if no visualization file was available.
-    plotted_noise: str (optional)
+    plotted_noise:
         String indicating how noise should be visualized:
         ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
-    subplot_file_path: str (optional)
+    subplot_file_path:
         String which is taken as file path to which single subplots are saved.
         PlotIDs will be taken as file names.
 
