@@ -92,6 +92,38 @@ PRIOR_TYPES = [
 NOISE_MODELS = [NORMAL, LAPLACE]
 
 
+# VISUALIZATION
+
+PLOT_ID = 'plotId'
+PLOT_NAME = 'plotName'
+PLOT_TYPE_SIMULATION = 'plotTypeSimulation'
+PLOT_TYPE_DATA = 'plotTypeData'
+X_VALUES = 'xValues'
+X_OFFSET = 'xOffset'
+X_LABEL = 'xLabel'
+X_SCALE = 'xScale'
+Y_VALUES = 'yValues'
+Y_OFFSET = 'yOffset'
+Y_LABEL = 'yLabel'
+Y_SCALE = 'yScale'
+LEGEND_ENTRY = 'legendEntry'
+
+LINE_PLOT = 'LinePlot'
+BAR_PLOT = 'BarPlot'
+PLOT_TYPES_SIMULATION = [LINE_PLOT, BAR_PLOT]
+
+MEAN_AND_SD = 'MeanAndSD'
+MEAN_AND_SEM = 'MeanAndSEM'
+REPLICATE = 'replicate'
+PROVIDED = 'provided'
+PLOT_TYPES_DATA = [MEAN_AND_SD, MEAN_AND_SEM, REPLICATE, PROVIDED]
+
+
+# SIMULATION
+
+SIMULATION = 'simulatedData'
+
+
 # YAML
 
 PARAMETER_FILE = 'parameter_file'

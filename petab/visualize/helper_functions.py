@@ -1,18 +1,22 @@
 """
 This file should contain the functions, which PEtab internally needs for
 plotting, but which are not meant to be used by non-developers and should
-hence not be directly visible/usable when using import `petab.visualize`
-
+hence not be directly visible/usable when using `import petab.visualize`.
 """
 
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import petab
 import functools
 import warnings
-from .plotting_config import plot_lowlevel
+from numbers import Number
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import petab
 import seaborn as sns
+
+from .plotting_config import plot_lowlevel
+from ..C import *
+
 sns.set()
 
 
@@ -150,8 +154,8 @@ def create_dataset_id_list(simcond_id_list,
     legend_dict = {}
 
     # loop over experimental data table, create datasetId for each entry
-    tmp_simcond = list(exp_data['simulationConditionId'])
-    tmp_obs = list(exp_data['observableId'])
+    tmp_simcond = list(exp_data[SIMULATION_CONDITION_ID])
+    tmp_obs = list(exp_data[OBSERVABLE_ID])
     for ind, cond_id in enumerate(tmp_simcond):
         # create and add dummy datasetID
         dataset_id = tmp_simcond[ind] + ' - ' + tmp_obs[ind]
@@ -168,21 +172,21 @@ def create_dataset_id_list(simcond_id_list,
                     tmp_obs[ind]
 
     # add these column to the measurement table (possibly overwrite)
-    if 'datasetId' in exp_data.columns:
-        exp_data = exp_data.drop('datasetId', axis=1)
-    exp_data.insert(loc=exp_data.columns.size, column='datasetId',
+    if DATASET_ID in exp_data.columns:
+        exp_data = exp_data.drop(DATASET_ID, axis=1)
+    exp_data.insert(loc=exp_data.columns.size, column=DATASET_ID,
                     value=dataset_id_column)
 
     # make dummy dataset names unique and iterable
     unique_dataset_list = functools.reduce(
         lambda tmp, x: tmp.append(x) or tmp if x not in tmp else tmp,
-        list(exp_data['datasetId']), [])
+        list(exp_data[DATASET_ID]), [])
     unique_simcond_list = functools.reduce(
         lambda tmp, x: tmp.append(x) or tmp if x not in tmp else tmp,
-        list(exp_data['simulationConditionId']), [])
+        list(exp_data[SIMULATION_CONDITION_ID]), [])
     unique_obs_list = functools.reduce(
         lambda tmp, x: tmp.append(x) or tmp if x not in tmp else tmp,
-        list(exp_data['observableId']), [])
+        list(exp_data[OBSERVABLE_ID]), [])
 
     # we will need a dictionary for mapping simulation conditions
     # /observables to datasets
@@ -343,21 +347,22 @@ def handle_dataset_plot(i_visu_spec,
                         vis_spec,
                         sim_data):
     # get datasetID and independent variable of first entry of plot1
-    dataset_id = vis_spec.datasetId[i_visu_spec]
-    indep_var = vis_spec.xValues[i_visu_spec]
+    dataset_id = vis_spec[DATASET_ID][i_visu_spec]
+    indep_var = vis_spec[X_VALUES][i_visu_spec]
 
     # define index to reduce exp_data to data linked to datasetId
-    ind_dataset = exp_data['datasetId'] == dataset_id
+    ind_dataset = exp_data[DATASET_ID] == dataset_id
 
     # gather simulationConditionIds belonging to datasetId
-    uni_condition_id = np.unique(exp_data[ind_dataset].simulationConditionId)
-    col_name_unique = 'simulationConditionId'
+    uni_condition_id = np.unique(
+        exp_data[ind_dataset][SIMULATION_CONDITION_ID])
+    col_name_unique = SIMULATION_CONDITION_ID
 
     # Case separation of independent parameter: condition, time or custom
-    if indep_var == 'time':
+    if indep_var == TIME:
         # obtain unique observation times
-        uni_condition_id = np.unique(exp_data[ind_dataset].time)
-        col_name_unique = 'time'
+        uni_condition_id = np.unique(exp_data[ind_dataset][TIME])
+        col_name_unique = TIME
         conditions = uni_condition_id
     elif indep_var == 'condition':
         conditions = None
@@ -397,7 +402,8 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                      simulation_data: pd.DataFrame,
                      condition_ids: np.ndarray,
                      i_visu_spec: int,
-                     col_id: str):
+                     col_id: str,
+                     simulation_field: str = SIMULATION) -> pd.DataFrame:
     """
     group the data, which should be plotted and return it as dataframe.
 
@@ -420,6 +426,9 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
             str, the name of the column in visualization file, whose entries
             should be unique (depends on condition in column
             independentVariableName)
+        simulation_field:
+            Column name in ``simulation_data`` that contains the actual
+            simulation result.
 
     Returns:
         data_to_plot:
@@ -434,7 +443,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
     for var_cond_id in condition_ids:
         # get boolean vector which fulfill the requirements
-        vec_bool_meas = ((m_data[col_id] == var_cond_id) & (m_data['datasetId']
+        vec_bool_meas = ((m_data[col_id] == var_cond_id) & (m_data[DATASET_ID]
                          == vis_spec.datasetId[i_visu_spec]))
         # get indices of rows with True values of vec_bool_meas
         ind_meas = [i_visu_spec for i_visu_spec,
@@ -442,36 +451,36 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
         # check that all entries for all columns-conditions are the same:
         # check correct observable
-        bool_observable = (m_data.observableParameters[ind_meas[0]] ==
-                           m_data.observableParameters)
+        bool_observable = (m_data[OBSERVABLE_PARAMETERS][ind_meas[0]] ==
+                           m_data[OBSERVABLE_PARAMETERS])
         # special handling, if column in m_data.observableParameters is empty
-        if (type(m_data.observableParameters[ind_meas[0]]) == np.float64) \
+        if isinstance(m_data[OBSERVABLE_PARAMETERS][ind_meas[0]], Number) \
                 and np.isnan(m_data.observableParameters[ind_meas[0]]):
-            bool_observable = np.isnan(m_data.observableParameters)
+            bool_observable = np.isnan(m_data[OBSERVABLE_PARAMETERS])
 
         # check correct observable transformation
-        bool_obs_transform = (m_data.observableTransformation[ind_meas[0]] ==
-                              m_data.observableTransformation)
+        bool_obs_transform = (m_data[OBSERVABLE_TRANSFORMATION][ind_meas[0]] ==
+                              m_data[OBSERVABLE_TRANSFORMATION])
 
         # check correct noise distribution (In older PEtab files, this field
         # did not exist. So check for existence first.)
-        if 'noiseDistribution' in m_data.columns:
-            bool_noise_dist = (m_data.noiseDistribution[ind_meas[0]] ==
-                               m_data.noiseDistribution)
+        if NOISE_DISTRIBUTION in m_data.columns:
+            bool_noise_dist = (m_data[NOISE_DISTRIBUTION][ind_meas[0]] ==
+                               m_data[NOISE_DISTRIBUTION])
         else:
             bool_noise_dist = True
 
         # check correct time point
         bool_time = True
-        if col_id != 'time':
-            bool_time = (m_data.time[ind_meas[0]] == m_data.time)
+        if col_id != TIME:
+            bool_time = (m_data[TIME][ind_meas[0]] == m_data[TIME])
 
         # check correct preqeuilibration condition
-        pre_cond = m_data.preequilibrationConditionId[ind_meas[0]]
-        bool_preequ = (pre_cond == m_data.preequilibrationConditionId)
+        pre_cond = m_data[PREEQUILIBRATION_CONDITION_ID][ind_meas[0]]
+        bool_preequ = (pre_cond == m_data[PREEQUILIBRATION_CONDITION_ID])
         # special handling is needed, if preequilibration cond is left empty
         if (type(pre_cond) == np.float64) and np.isnan(pre_cond):
-            bool_preequ = np.isnan(m_data.preequilibrationConditionId)
+            bool_preequ = np.isnan(m_data[PREEQUILIBRATION_CONDITION_ID])
 
         # combine all boolean vectors
         vec_bool_allcond = (bool_preequ & bool_observable &
@@ -500,12 +509,12 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
         # compute mean and standard deviation across replicates
         data_to_plot.at[var_cond_id, 'mean'] = np.mean(
-            m_data.measurement[ind_intersec])
+            m_data[MEASUREMENT][ind_intersec])
         data_to_plot.at[var_cond_id, 'sd'] = np.std(
-            m_data.measurement[ind_intersec])
+            m_data[MEASUREMENT][ind_intersec])
 
         if vis_spec.plotTypeData[i_visu_spec] == 'provided':
-            tmp_noise = (m_data.noiseParameters[ind_intersec].values)[0]
+            tmp_noise = m_data[NOISE_PARAMETERS][ind_intersec].values[0]
             if type(tmp_noise) == str:
                 raise NotImplementedError(
                     "No numerical noise values provided in the measurement "
@@ -514,14 +523,15 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                 data_to_plot.at[var_cond_id, 'noise_model'] = tmp_noise
 
         # standard error of mean
-        data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data.measurement[
-            ind_intersec]) / np.sqrt(len(m_data.measurement[ind_intersec]))
+        data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data[MEASUREMENT][
+            ind_intersec]) / np.sqrt(len(m_data[MEASUREMENT][ind_intersec]))
 
         # single replicates
-        data_to_plot.at[var_cond_id, 'repl'] = m_data.measurement[ind_intersec]
+        data_to_plot.at[var_cond_id, 'repl'] = \
+            m_data[MEASUREMENT][ind_intersec]
 
         if simulation_data is not None:
             data_to_plot.at[var_cond_id, 'sim'] = np.mean(
-                simulation_data.simulatedData[ind_intersec])
+                simulation_data[simulation_field][ind_intersec])
 
     return data_to_plot
