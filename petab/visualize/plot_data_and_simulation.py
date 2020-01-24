@@ -1,16 +1,21 @@
+"""Functions for plotting PEtab measurement files and simulation results in
+the same format."""
+
+from typing import Union, Optional, List
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
+import petab
 import petab.problem
+import seaborn as sns
+
 from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot)
-import petab
+from ..C import *
 
-from typing import Union, Optional, List
-import matplotlib.pyplot as plt
-
-
+# for typehints
 IdsList = List[str]
 NumList = List[int]
 
@@ -25,7 +30,7 @@ def plot_data_and_simulation(
         sim_cond_num_list: Optional[List[NumList]] = None,
         observable_id_list: Optional[List[IdsList]] = None,
         observable_num_list: Optional[List[NumList]] = None,
-        plotted_noise: Optional[str] = 'MeanAndSD',
+        plotted_noise: Optional[str] = MEAN_AND_SD,
         subplot_file_path: str = ''):
     """
     Main function for plotting data and simulations.
@@ -135,7 +140,7 @@ def plot_data_and_simulation(
             i_col = int(((i_plot_id + 1) - i_row * num_col)) - 1
 
         # get indices for specific plotId
-        ind_plot = (vis_spec['plotId'] == var_plot_id)
+        ind_plot = (vis_spec[PLOT_ID] == var_plot_id)
 
         # loop over datsets
         for i_visu_spec in vis_spec[ind_plot].index.values:
@@ -158,21 +163,21 @@ def plot_data_and_simulation(
 
 
 def plot_petab_problem(petab_problem: petab.problem.Problem,
-                       visualization_file_path: str = '',
                        sim_data: Optional[Union[str, pd.DataFrame]] = None,
                        dataset_id_list: Optional[List[IdsList]] = None,
                        sim_cond_id_list: Optional[List[IdsList]] = None,
                        sim_cond_num_list: Optional[List[NumList]] = None,
                        observable_id_list: Optional[List[IdsList]] = None,
                        observable_num_list: Optional[List[NumList]] = None,
-                       plotted_noise: Optional[str] = 'MeanAndSD',):
+                       plotted_noise: Optional[str] = MEAN_AND_SD,):
     """
     Visualization using petab problem.
     For documentation, see function plot_data_and_simulation()
     """
+
     return plot_data_and_simulation(petab_problem.measurement_df,
                                     petab_problem.condition_df,
-                                    visualization_file_path,
+                                    petab_problem.visualization_df,
                                     sim_data,
                                     dataset_id_list,
                                     sim_cond_id_list,
@@ -184,7 +189,7 @@ def plot_petab_problem(petab_problem: petab.problem.Problem,
 
 def plot_measurements_by_observable(data_file_path: str,
                                     condition_file_path: str,
-                                    plotted_noise: str = 'MeanAndSD'):
+                                    plotted_noise: str = MEAN_AND_SD):
     """
     plot measurement data grouped by observable ID.
     A simple wrapper around the more complex function plot_data_and_simulation.
@@ -192,9 +197,9 @@ def plot_measurements_by_observable(data_file_path: str,
     Parameters:
     ----------
 
-    DataFilePath: str
+    data_file_path: str
         file path of measurement data
-    ConditionFilePath: str
+    condition_file_path: str
         file path of condition file
     plotted_noise: str (optional)
         String indicating how noise should be visualized:
