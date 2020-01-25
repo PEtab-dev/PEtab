@@ -27,6 +27,17 @@ def get_simulation_df(simulation_file: str) -> pd.DataFrame:
     return pd.read_csv(simulation_file, sep="\t", index_col=None)
 
 
+def write_simulation_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab simulation table
+
+    Arguments:
+        df: PEtab simulation table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=False)
+
+
 def get_visualization_df(visualization_file: str) -> pd.DataFrame:
     """Read PEtab visualization table
 
@@ -37,6 +48,17 @@ def get_visualization_df(visualization_file: str) -> pd.DataFrame:
         Visualization DataFrame
     """
     return pd.read_csv(visualization_file, sep="\t", index_col=None)
+
+
+def write_visualization_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab visualization table
+
+    Arguments:
+        df: PEtab visualization table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=False)
 
 
 def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:

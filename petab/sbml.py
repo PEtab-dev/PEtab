@@ -364,3 +364,17 @@ def get_model_parameters(sbml_model: libsbml.Model, with_values=False
     return {p.getId(): p.getValue()
             for p in sbml_model.getListOfParameters()
             if sbml_model.getAssignmentRuleByVariable(p.getId()) is None}
+
+
+def write_sbml(sbml_doc: libsbml.SBMLDocument, filename: str) -> None:
+    """Write PEtab visualization table
+
+    Arguments:
+        sbml_doc: SBML document containing the SBML model
+        filename: Destination file name
+    """
+    sbml_writer = libsbml.SBMLWriter()
+    ret = sbml_writer.writeSBMLToFile(sbml_doc, filename)
+    if ret:
+        raise RuntimeError(f"libSBML reported error {ret} when trying to "
+                           "create SBML file.")

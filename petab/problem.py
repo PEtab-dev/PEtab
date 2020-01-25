@@ -6,7 +6,7 @@ import pandas as pd
 import libsbml
 from typing import Optional, List, Union, Dict, Iterable
 from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml, core)
+               sampling, sbml, yaml, core, observables)
 from .C import *  # noqa: F403
 
 
@@ -103,6 +103,7 @@ class Problem:
 
         sbml_model = sbml_document = sbml_reader = None
         condition_df = measurement_df = parameter_df = visualization_df = None
+        observable_df = None
 
         if condition_file:
             condition_df = conditions.get_condition_df(condition_file)
@@ -216,6 +217,81 @@ class Problem:
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
+
+    def to_files(self,
+                 sbml_file: Optional[str] = None,
+                 condition_file: Optional[str] = None,
+                 measurement_file: Optional[str] = None,
+                 parameter_file: Optional[str] = None,
+                 visualization_file: Optional[str] = None,
+                 observable_file: Optional[str] = None) -> None:
+        """
+        Write PEtab tables to files for this problem
+
+        Writes PEtab files for those entities for which a destination was
+        passed.
+
+        NOTE: If this instance was created from multiple measurement or
+        visualization tables, they will be merged and written to a single file.
+
+        Arguments:
+            sbml_file: SBML model destination
+            condition_file: Condition table destination
+            measurement_file: Measurement table destination
+            parameter_file: Parameter table destination
+            visualization_file: Visualization table destination
+            observable_file: Observables table destination
+
+        Raises:
+            ValueError: If a destination was provided for a non-existing
+            entity.
+        """
+
+        if sbml_file:
+            if self.sbml_document:
+                conditions.write_condition_df(self.condition_df,
+                                              condition_file)
+            else:
+                raise ValueError("Unable to save SBML model with no "
+                                 "sbml_doc set.")
+
+        def error(name: str) -> ValueError:
+            return ValueError(f"Unable to save non-existent {name} table")
+
+        if condition_file:
+            if self.condition_df:
+                conditions.write_condition_df(self.condition_df,
+                                              condition_file)
+            else:
+                raise error("condition")
+
+        if measurement_file:
+            if self.measurement_df:
+                measurements.write_measurement_df(self.measurement_df,
+                                                  measurement_file)
+            else:
+                raise error("measurement")
+
+        if parameter_file:
+            if self.parameter_df:
+                parameters.write_parameter_df(self.parameter_df,
+                                              parameter_file)
+            else:
+                raise error("parameter")
+
+        if observable_file:
+            if self.observable_df:
+                observables.write_observable_df(self.observable_df,
+                                                observable_file)
+            else:
+                raise error("observable")
+
+        if visualization_file:
+            if self.visualization_df:
+                core.write_visualization_df(self.visualization_df,
+                                            visualization_file)
+            else:
+                raise error("visualization")
 
     def get_optimization_parameters(self):
         """

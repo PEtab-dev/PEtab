@@ -11,8 +11,6 @@ SIMULATION_CONDITION_ID = 'simulationConditionId'
 MEASUREMENT = 'measurement'
 TIME = 'time'
 OBSERVABLE_PARAMETERS = 'observableParameters'
-OBSERVABLE_TRANSFORMATION = 'observableTransformation'
-NOISE_DISTRIBUTION = 'noiseDistribution'
 NOISE_PARAMETERS = 'noiseParameters'
 DATASET_ID = 'datasetId'
 REPLICATE_ID = 'replicateId'
@@ -72,6 +70,8 @@ CONDITION_NAME = 'conditionName'
 OBSERVABLE_NAME = 'observableName'
 OBSERVABLE_FORMULA = 'observableFormula'
 NOISE_FORMULA = 'noiseFormula'
+OBSERVABLE_TRANSFORMATION = 'observableTransformation'
+NOISE_DISTRIBUTION = 'noiseDistribution'
 
 OBSERVABLE_DF_REQUIRED_COLS = [
     OBSERVABLE_ID, OBSERVABLE_FORMULA, NOISE_FORMULA]

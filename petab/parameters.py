@@ -36,6 +36,17 @@ def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
     return parameter_df
 
 
+def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab parameter table
+
+    Arguments:
+        df: PEtab parameter table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=True)
+
+
 def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     """
     Get list of optimization parameter ids from parameter dataframe.

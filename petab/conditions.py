@@ -30,6 +30,17 @@ def get_condition_df(condition_file_name: str) -> pd.DataFrame:
     return condition_df
 
 
+def write_condition_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab condition table
+
+    Arguments:
+        df: PEtab condition table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=True)
+
+
 def create_condition_df(parameter_ids: Iterable[str],
                         condition_ids: Optional[Iterable[str]] = None
                         ) -> pd.DataFrame:

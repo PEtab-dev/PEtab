@@ -34,6 +34,17 @@ def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
     return measurement_df
 
 
+def write_measurement_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab measurement table
+
+    Arguments:
+        df: PEtab measurement table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=False)
+
+
 def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
     """
     Returns dictionary of cost definitions per observable, if specified.
