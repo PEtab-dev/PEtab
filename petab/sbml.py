@@ -1,5 +1,5 @@
 """Functions for interacting with SBML models"""
-
+from warnings import warn
 import logging
 import re
 from typing import Dict, Any, List, Union
@@ -39,6 +39,9 @@ def assignment_rules_to_dict(
             }
 
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     result = {}
 
     # iterate over rules
@@ -202,6 +205,9 @@ def create_assigment_rule(sbml_model: libsbml.Model,
     Returns:
         The created ``AssignmentRule``
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     if rule_id is None:
         rule_id = assignee_id
 
@@ -231,6 +237,8 @@ def add_model_output(sbml_model: libsbml.Model,
         observable_id: ID without "observable\\_" prefix
         observable_name: Any observable name
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
 
     if observable_name is None:
         observable_name = observable_id
@@ -254,6 +262,9 @@ def add_model_output_sigma(sbml_model: libsbml.Model,
         observable_id: Observable id for which to add sigma
         formula: Formula for sigma
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     add_global_parameter(sbml_model, f'sigma_{observable_id}')
     create_assigment_rule(sbml_model, f'sigma_{observable_id}', formula)
 
@@ -278,6 +289,9 @@ def add_model_output_with_sigma(
         observable_name:
             Any name
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     add_model_output(sbml_model=sbml_model,
                      observable_id=observable_id,
                      observable_name=observable_name,
@@ -297,6 +311,9 @@ def sbml_parameter_is_observable(sbml_parameter: libsbml.Parameter) -> bool:
     Returns whether the ``libsbml.Parameter`` ``sbml_parameter``
     matches the defined observable format.
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     return sbml_parameter.getId().startswith('observable_')
 
 
@@ -305,6 +322,9 @@ def sbml_parameter_is_sigma(sbml_parameter: libsbml.Parameter) -> bool:
     Returns whether the ``libsbml.Parameter`` ``sbml_parameter``
     matches the defined sigma format.
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     return sbml_parameter.getId().startswith('sigma_')
 
 
@@ -316,6 +336,9 @@ def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
         Dictionary of observable definitions.
         See `assignment_rules_to_dict` for details.
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     observables = sbml.assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_observable,
@@ -334,6 +357,9 @@ def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
         Keys are observable IDs, for values see `assignment_rules_to_dict` for
         details.
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     sigmas = sbml.assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_sigma,
