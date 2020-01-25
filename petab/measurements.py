@@ -179,13 +179,13 @@ def get_measurement_parameter_ids(measurement_df: pd.DataFrame) -> List[str]:
                 series.apply(split_parameter_replacement_list)))
 
     return unique_preserve_order(
-        get_unique_parameters(measurement_df.observableParameters)
-        + get_unique_parameters(measurement_df.noiseParameters))
+        get_unique_parameters(measurement_df[OBSERVABLE_PARAMETERS])
+        + get_unique_parameters(measurement_df[NOISE_PARAMETERS]))
 
 
-def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
-                                     delim: str = ';'
-                                     ) -> List[Union[str, float]]:
+def split_parameter_replacement_list(
+        list_string: Union[str, numbers.Number],
+        delim: str = ';') -> List[Union[str, float]]:
     """
     Split values in observableParameters and noiseParameters in measurement
     table.

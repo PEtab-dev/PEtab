@@ -2,6 +2,7 @@
 
 import logging
 from typing import Iterable, Optional, Callable, Union, Any
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -127,6 +128,8 @@ def get_observable_id(parameter_id: str) -> str:
     Returns:
         Observable ID
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
 
     if parameter_id.startswith(r'observable_'):
         return parameter_id[len('observable_'):]

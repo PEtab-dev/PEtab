@@ -671,10 +671,10 @@ def assert_measurement_conditions_present_in_condition_table(
         AssertionError: in case of problems
     """
 
-    used_conditions = set(measurement_df.simulationConditionId.values)
+    used_conditions = set(measurement_df[SIMULATION_CONDITION_ID].values)
     if PREEQUILIBRATION_CONDITION_ID in measurement_df:
         used_conditions |= \
-            set(measurement_df.preequilibrationConditionId.dropna().values)
+            set(measurement_df[PREEQUILIBRATION_CONDITION_ID].dropna().values)
     available_conditions = set(condition_df.index.values)
     missing_conditions = used_conditions - available_conditions
 

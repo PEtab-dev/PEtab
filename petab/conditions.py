@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from . import lint, parameters, core
+from .C import *
 
 
 def get_condition_df(condition_file_name: str) -> pd.DataFrame:
@@ -22,7 +23,7 @@ def get_condition_df(condition_file_name: str) -> pd.DataFrame:
         condition_df.columns.values, "condition")
 
     try:
-        condition_df.set_index(['conditionId'], inplace=True)
+        condition_df.set_index([CONDITION_ID], inplace=True)
     except KeyError:
         raise KeyError(
             'Condition table missing mandatory field `conditionId`.')
@@ -54,14 +55,14 @@ def create_condition_df(parameter_ids: Iterable[str],
         values
     """
 
-    data = {'conditionId': []}
+    data = {CONDITION_ID: []}
     for p in parameter_ids:
         if not parameters.parameter_id_is_valid(p):
             raise ValueError("Invalid parameter name: " + p)
         data[p] = []
 
     df = pd.DataFrame(data)
-    df.set_index(['conditionId'], inplace=True)
+    df.set_index([CONDITION_ID], inplace=True)
 
     if not condition_ids:
         return df
@@ -82,8 +83,8 @@ def get_parametric_overrides(condition_df: pd.DataFrame) -> List[str]:
         List of parameter IDs that are mapped in a condition-specific way
     """
     constant_parameters = list(
-        set(condition_df.columns.values.tolist()) - {'conditionId',
-                                                     'conditionName'})
+        set(condition_df.columns.values.tolist()) - {CONDITION_ID,
+                                                     CONDITION_NAME})
     result = []
 
     for column in constant_parameters:

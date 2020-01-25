@@ -1,16 +1,13 @@
-import os
 import pickle
-import sys
 import tempfile
 from math import nan
 
 import libsbml
 import numpy as np
 import pandas as pd
+import petab
 import pytest
-
-sys.path.append(os.getcwd())
-import petab  # noqa: E402
+from petab.C import *
 
 
 @pytest.fixture
@@ -56,9 +53,9 @@ def petab_problem():
         fh.write(libsbml.writeSBMLToString(document))
 
     measurement_df = pd.DataFrame(data={
-        'observableId': ['obs1', 'obs2'],
-        'observableParameters': ['', 'p1;p2'],
-        'noiseParameters': ['p3;p4', 'p5']
+        OBSERVABLE_ID: ['obs1', 'obs2'],
+        OBSERVABLE_PARAMETERS: ['', 'p1;p2'],
+        NOISE_PARAMETERS: ['p3;p4', 'p5']
     })
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
@@ -66,19 +63,19 @@ def petab_problem():
         measurement_df.to_csv(fh, sep='\t', index=False)
 
     condition_df = pd.DataFrame(data={
-        'conditionId': ['condition1', 'condition2'],
-        'conditionName': ['', 'Condition 2'],
+        CONDITION_ID: ['condition1', 'condition2'],
+        CONDITION_NAME: ['', 'Condition 2'],
         'fixedParameter1': [1.0, 2.0]
     })
-    condition_df.set_index('conditionId', inplace=True)
+    condition_df.set_index(CONDITION_ID, inplace=True)
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
         condition_file_name = fh.name
         condition_df.to_csv(fh, sep='\t', index=True)
 
     parameter_df = pd.DataFrame(data={
-        'parameterId': ['dynamicParameter1', 'dynamicParameter2'],
-        'parameterName': ['', '...'],  # ...
+        PARAMETER_ID: ['dynamicParameter1', 'dynamicParameter2'],
+        PARAMETER_NAME: ['', '...'],
     })
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
@@ -126,8 +123,8 @@ def test_split_parameter_replacement_list():
 def test_get_measurement_parameter_ids():
     measurement_df = pd.DataFrame(
         data={
-            'observableParameters': ['', 'p1;p2'],
-            'noiseParameters': ['p3;p4', 'p5']})
+            OBSERVABLE_PARAMETERS: ['', 'p1;p2'],
+            NOISE_PARAMETERS: ['p3;p4', 'p5']})
     expected = ['p1', 'p2', 'p3', 'p4', 'p5']
     actual = petab.get_measurement_parameter_ids(measurement_df)
     # ordering is arbitrary
@@ -193,8 +190,8 @@ def test_startpoint_sampling(fujita_model_scaling):
     assert (np.isfinite(startpoints)).all
     assert startpoints.shape == (100, 19)
     for sp in startpoints:
-        assert sp[0] >= np.log10(31.62) and sp[0] <= np.log10(316.23)
-        assert sp[1] >= -3 and sp[1] <= 3
+        assert np.log10(31.62) <= sp[0] <= np.log10(316.23)
+        assert -3 <= sp[1] <= 3
 
 
 def test_create_parameter_df(condition_df_2_conditions):
@@ -238,9 +235,9 @@ def test_create_parameter_df(condition_df_2_conditions):
                                 assignee_id='assignment_target', formula='1.0')
 
     measurement_df = pd.DataFrame(data={
-        'observableId': ['obs1', 'obs2'],
-        'observableParameters': ['', 'p1;p2'],
-        'noiseParameters': ['p3;p4', 'p5']
+        OBSERVABLE_ID: ['obs1', 'obs2'],
+        OBSERVABLE_PARAMETERS: ['', 'p1;p2'],
+        NOISE_PARAMETERS: ['p3;p4', 'p5']
     })
 
     parameter_df = petab.create_parameter_df(
@@ -275,7 +272,7 @@ def test_create_parameter_df(condition_df_2_conditions):
         include_optional=True)
     actual = parameter_df.index.values.tolist()
     assert actual == expected
-    assert parameter_df.loc['p0', 'nominalValue'] == 3.0
+    assert parameter_df.loc['p0', NOMINAL_VALUE] == 3.0
 
 
 def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
@@ -288,39 +285,39 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
 
     # Measurement table with timepoint-specific overrides
     measurement_df = pd.DataFrame(data={
-        'observableId':
+        OBSERVABLE_ID:
             ['obs1', 'obs1', 'obs1', 'obs1'],
-        'simulationConditionId':
+        SIMULATION_CONDITION_ID:
             ['condition1', 'condition1', 'condition1', 'condition1'],
-        'preequilibrationConditionId':
+        PREEQUILIBRATION_CONDITION_ID:
             ['', '', '', ''],
-        'time':
+        TIME:
             [1.0, 1.0, 2.0, 2.0],
-        'measurement':
+        MEASUREMENT:
             [np.nan] * 4,
-        'observableParameters':
+        OBSERVABLE_PARAMETERS:
             ['obsParOverride1', 'obsParOverride2',
              'obsParOverride2', 'obsParOverride2'],
-        'noiseParameters':
+        NOISE_PARAMETERS:
             ['noiseParOverride1', 'noiseParOverride1',
              'noiseParOverride2', 'noiseParOverride2']
     })
 
     measurement_df_expected = pd.DataFrame(data={
-        'observableId':
+        OBSERVABLE_ID:
             ['obs1_1', 'obs1_2', 'obs1_3', 'obs1_3'],
-        'simulationConditionId':
+        SIMULATION_CONDITION_ID:
             ['condition1', 'condition1', 'condition1', 'condition1'],
-        'preequilibrationConditionId':
+        PREEQUILIBRATION_CONDITION_ID:
             ['', '', '', ''],
-        'time':
+        TIME:
             [1.0, 1.0, 2.0, 2.0],
-        'measurement':
+        MEASUREMENT:
             [np.nan] * 4,
-        'observableParameters':
+        OBSERVABLE_PARAMETERS:
             ['obsParOverride1', 'obsParOverride2',
              'obsParOverride2', 'obsParOverride2'],
-        'noiseParameters':
+        NOISE_PARAMETERS:
             ['noiseParOverride1', 'noiseParOverride1',
              'noiseParOverride2', 'noiseParOverride2']
     })
@@ -346,16 +343,16 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
 
 
 def test_concat_measurements():
-    a = pd.DataFrame({'measurement': [1.0]})
-    b = pd.DataFrame({'time': [1.0]})
+    a = pd.DataFrame({MEASUREMENT: [1.0]})
+    b = pd.DataFrame({TIME: [1.0]})
 
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
         filename_a = fh.name
         a.to_csv(fh, sep='\t', index=False)
 
     expected = pd.DataFrame({
-        'measurement': [1.0, nan],
-        'time': [nan, 1.0]
+        MEASUREMENT: [1.0, nan],
+        TIME: [nan, 1.0]
     })
 
     assert expected.equals(

@@ -22,11 +22,11 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         condition_df = condition_df_2_conditions
 
         measurement_df = pd.DataFrame(data={
-            'observableId': ['obs1', 'obs2'],
-            'simulationConditionId': ['condition1', 'condition2'],
-            'preequilibrationConditionId': ['', ''],
-            'observableParameters': ['', ''],
-            'noiseParameters': ['', '']
+            OBSERVABLE_ID: ['obs1', 'obs2'],
+            SIMULATION_CONDITION_ID: ['condition1', 'condition2'],
+            PREEQUILIBRATION_CONDITION_ID: ['', ''],
+            OBSERVABLE_PARAMETERS: ['', ''],
+            NOISE_PARAMETERS: ['', '']
         })
 
         _, sbml_model = minimal_sbml_model
@@ -116,7 +116,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             ],
             ESTIMATE: [1] * 7
         })
-        parameter_df.set_index('parameterId', inplace=True)
+        parameter_df.set_index(PARAMETER_ID, inplace=True)
 
         expected = [({},
                      {'fixedParameter1': 1.0,
@@ -182,7 +182,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                 'obs2par1cond2override'],
             ESTIMATE: [1, 1, 1, 1, 1],
         })
-        parameter_df.set_index('parameterId', inplace=True)
+        parameter_df.set_index(PARAMETER_ID, inplace=True)
 
         expected = [({},
                      {'fixedParameter1': 1.0,
@@ -300,7 +300,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             PARAMETER_NAME: '',
             ESTIMATE: [1, 0, 0],
             NOMINAL_VALUE: [np.nan, 2, -2],
-            PARAMETER_SCALE: ['log10', 'lin', 'log10']
+            PARAMETER_SCALE: [LOG10, LIN, LOG10]
         })
         parameter_df.set_index(PARAMETER_ID, inplace=True)
 

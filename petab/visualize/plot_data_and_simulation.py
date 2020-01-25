@@ -14,6 +14,7 @@ from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot)
 from ..C import *
+from .. import core
 
 # for typehints
 IdsList = List[str]
@@ -99,8 +100,7 @@ def plot_data_and_simulation(
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
         if vis_spec != '':
-            vis_spec = pd.read_csv(vis_spec, sep="\t",
-                                   index_col=None)
+            vis_spec = core.get_visualization_df(vis_spec)
         else:
             # create them based on simulation conditions
             vis_spec, exp_data = get_default_vis_specs(exp_data,
@@ -117,7 +117,7 @@ def plot_data_and_simulation(
         sim_data = petab.get_simulation_df(sim_data)
 
     # get unique plotIDs
-    uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
+    uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True)
 
     # Switch saving plots to file on or get axes
     plots_to_file = False

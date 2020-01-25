@@ -315,22 +315,22 @@ def get_default_vis_specs(exp_data,
         dataset_id_list) for _ in inner_list]
 
     # create dataframe
-    vis_spec = pd.DataFrame({'plotId': plot_id_list,
-                             'datasetId': datasetId_column,
-                             'legendEntry': dataset_label_column})
+    vis_spec = pd.DataFrame({PLOT_ID: plot_id_list,
+                             DATASET_ID: datasetId_column,
+                             LEGEND_ENTRY: dataset_label_column})
 
     # fill columns with default values
-    fill_vis_spec = ((2, 'yLabel', 'value'),
-                     (2, 'yOffset', 0),
-                     (2, 'yValues', ''),
-                     (2, 'xLabel', 'time'),
-                     (2, 'xOffset', 0),
-                     (2, 'xValues', 'time'),
-                     (1, 'yScale', 'lin'),
-                     (1, 'xScale', 'lin'),
-                     (0, 'plotTypeData', plotted_noise),
-                     (0, 'plotTypeSimulation', 'LinePlot'),
-                     (0, 'plotName', ''))
+    fill_vis_spec = ((2, Y_LABEL, 'value'),
+                     (2, Y_OFFSET, 0),
+                     (2, Y_VALUES, ''),
+                     (2, X_LABEL, 'time'),
+                     (2, X_OFFSET, 0),
+                     (2, X_VALUES, 'time'),
+                     (1, Y_SCALE, LIN),
+                     (1, X_SCALE, LIN),
+                     (0, PLOT_TYPE_DATA, plotted_noise),
+                     (0, PLOT_TYPE_SIMULATION, LINE_PLOT),
+                     (0, PLOT_NAME, ''))
     for pos, col, val in fill_vis_spec:
         vis_spec.insert(loc=pos, column=col, value=val)
 
@@ -513,7 +513,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         data_to_plot.at[var_cond_id, 'sd'] = np.std(
             m_data[MEASUREMENT][ind_intersec])
 
-        if vis_spec.plotTypeData[i_visu_spec] == 'provided':
+        if vis_spec.plotTypeData[i_visu_spec] == PROVIDED:
             tmp_noise = m_data[NOISE_PARAMETERS][ind_intersec].values[0]
             if type(tmp_noise) == str:
                 raise NotImplementedError(

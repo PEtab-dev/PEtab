@@ -227,7 +227,7 @@ def test_check_measurement_df():
     lint.check_measurement_df(measurement_df, observable_df)
 
     # Incompatible measurement and transformation
-    observable_df[OBSERVABLE_TRANSFORMATION] = ['log', '']
+    observable_df[OBSERVABLE_TRANSFORMATION] = [LOG, '']
     measurement_df[MEASUREMENT] = [-1.0, 0.0]
     with pytest.raises(ValueError):
         lint.check_measurement_df(measurement_df, observable_df)

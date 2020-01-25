@@ -1,13 +1,14 @@
 import pandas as pd
 
 from petab import conditions
+from petab.C import *
 
 
 def test_get_parametric_overrides():
 
     condition_df = pd.DataFrame(data={
-        'conditionId': ['condition1', 'condition2'],
-        'conditionName': ['', 'Condition 2'],
+        CONDITION_ID: ['condition1', 'condition2'],
+        CONDITION_NAME: ['', 'Condition 2'],
         'fixedParameter1': [1.0, 2.0]
     })
 

@@ -117,12 +117,12 @@ def _map_condition(packed_args):
         measurement_df, condition)
 
     if PREEQUILIBRATION_CONDITION_ID not in condition \
-            or not isinstance(condition.preequilibrationConditionId, str) \
-            or not condition.preequilibrationConditionId:
+            or not isinstance(condition[PREEQUILIBRATION_CONDITION_ID], str) \
+            or not condition[PREEQUILIBRATION_CONDITION_ID]:
         preeq_map = {}
     else:
         preeq_map = get_parameter_mapping_for_condition(
-            condition_id=condition.preequilibrationConditionId,
+            condition_id=condition[PREEQUILIBRATION_CONDITION_ID],
             is_preeq=True,
             cur_measurement_df=cur_measurement_df,
             condition_df=condition_df,
@@ -132,7 +132,7 @@ def _map_condition(packed_args):
         )
 
     sim_map = get_parameter_mapping_for_condition(
-        condition_id=condition.simulationConditionId,
+        condition_id=condition[SIMULATION_CONDITION_ID],
         is_preeq=False,
         cur_measurement_df=cur_measurement_df,
         condition_df=condition_df,
@@ -247,12 +247,12 @@ def _apply_output_parameter_overrides(
         # we trust that the number of overrides matches (see above)
         overrides = measurements.split_parameter_replacement_list(
             row.observableParameters)
-        _apply_overrides_for_observable(mapping, row.observableId,
+        _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID],
                                         'observable', overrides)
 
         overrides = measurements.split_parameter_replacement_list(
             row.noiseParameters)
-        _apply_overrides_for_observable(mapping, row.observableId, 'noise',
+        _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID], 'noise',
                                         overrides)
 
 
