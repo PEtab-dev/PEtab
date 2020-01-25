@@ -207,8 +207,12 @@ def get_parameter_mapping_for_condition(
     mapping = simulation_parameters.copy()
 
     _output_parameters_to_nan(mapping)
+
+    # not strictly necessary for preequilibration, be we do it to have
+    # same length of parameter vectors
+    _apply_output_parameter_overrides(mapping, cur_measurement_df)
+
     if not is_preeq:
-        _apply_output_parameter_overrides(mapping, cur_measurement_df)
         handle_missing_overrides(mapping, warn=warn_unmapped)
 
     _apply_condition_parameters(mapping, condition_id, condition_df)

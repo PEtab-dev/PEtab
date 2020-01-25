@@ -85,10 +85,10 @@ class Problem:
     @staticmethod
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
-                   measurement_file: Union[str, Iterable] = None,
+                   measurement_file: Union[str, Iterable[str]] = None,
                    parameter_file: str = None,
-                   visualization_files: Union[str, Iterable] = None,
-                   observable_files: Union[str, Iterable] = None
+                   visualization_files: Union[str, Iterable[str]] = None,
+                   observable_files: Union[str, Iterable[str]] = None
                    ) -> 'Problem':
         """
         Factory method to load model and tables from files.
@@ -110,13 +110,9 @@ class Problem:
             condition_df = conditions.get_condition_df(condition_file)
 
         if measurement_file:
-            if isinstance(measurement_file, str):
-                measurement_df = measurements.get_measurement_df(
-                    measurement_file)
-            else:
-                # If there are multiple tables, we will merge them
-                measurement_df = core.concat_tables(
-                    measurement_file, measurements.get_measurement_df)
+            # If there are multiple tables, we will merge them
+            measurement_df = core.concat_tables(
+                measurement_file, measurements.get_measurement_df)
 
         if parameter_file:
             parameter_df = parameters.get_parameter_df(parameter_file)
@@ -134,7 +130,7 @@ class Problem:
         if observable_files:
             # If there are multiple tables, we will merge them
             observable_df = core.concat_tables(
-                observable_files, core.get_observable_df)
+                observable_files, observables.get_observable_df)
 
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,

@@ -84,6 +84,7 @@ def sbml_observables_to_table(problem: Problem):
     observable_df[OBSERVABLE_ID] = observable_df[OBSERVABLE_ID].apply(
         get_observable_id)
     observable_df.set_index([OBSERVABLE_ID], inplace=True)
+    observable_df = observable_df.sort_index()
     problem.observable_df = observable_df
 
     # remove observableParameters and noiseParameters from SBML file

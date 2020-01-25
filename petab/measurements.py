@@ -17,7 +17,9 @@ from . import core
 from .C import *  # noqa: F403
 
 
-def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
+def get_measurement_df(
+        measurement_file_name: Union[None, str, pd.DataFrame]
+) -> pd.DataFrame:
     """
     Read the provided measurement file into a ``pandas.Dataframe``.
 
@@ -27,6 +29,11 @@ def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
     Returns:
         Measurement DataFrame
     """
+    if measurement_file_name is None:
+        return measurement_file_name
+
+    if isinstance(measurement_file_name, pd.DataFrame):
+        return measurement_file_name
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(

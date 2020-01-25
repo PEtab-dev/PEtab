@@ -275,7 +275,7 @@ def concat_tables(
         if isinstance(tmp_df, str):
             tmp_df = file_parser(tmp_df)
 
-        df = df.append(tmp_df, sort=False, ignore_index=True)
+        df = df.append(tmp_df, sort=False, ignore_index=False)
 
     return df
 
