@@ -28,6 +28,8 @@ i.e.
 - A condition file specifying model inputs and condition-specific parameters
   [TSV]
 
+- An observable file specifying the observation model [TSV]
+
 - A parameter file specifying optimization parameters and related information
   [TSV]
 
@@ -45,10 +47,9 @@ defining the parameter estimation problem.
 
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, those columns should provide extra
-information for example for plotting, or for more efficient parameter
-estimation, but they should not affect the optimization problem as such. 
-Some optional extensions are described in the last section, "Extensions", of
- this document.
+information for example for plotting, downstream analysis, or for more
+efficient parameter estimation, but they should not affect the optimization
+problem as such.
 
 **General remarks**
 - All model entities column and row names are case-sensitive
@@ -57,55 +58,7 @@ Some optional extensions are described in the last section, "Extensions", of
 
 ## SBML model definition
 
-The model must be specified as valid SBML. Since parameter estimation is
-beyond the scope of SBML, there exists no standard way to specify observables
-(model outputs) and respective noise models. Therefore, we use the following
-convention.
-
-
-### Observables
-
-In the SBML model, observables are specified as `AssignmentRules` assigning to
-parameters with `id`s starting with `observable_` followed by the
-`observableId` as in the corresponding column of the *measurement table* (see
-below).
-
-E.g.
-```
-observable_pErk = observableParameter1_pErk + observableParameter2_pErk*pErk
-```
-where `observableParameter1_pErk` would be an offset, and
-`observableParameter2_pErk` a scaling parameter for the observable `pErk`.
-The observable parameter names have the structure:
-`observableParameter${indexOfObservableParameter}_${observableId}` to
-facilitate automatic recognition. The specific values or parameters are
-assigned in the *measurement table*.
-
-
-### Noise model
-
-Measurement noise can be specified as a numerical value in the
-`noiseParameters` column of the *measurement table* (see below), which will
-default to a Gaussian noise model with standard deviation as provided in
-`noiseParameters`.
-
-Alternatively, more complex noise models can be specified for each observable,
-using additional `AssignmentRules`. Those noise model rules assign to
-`sigma_${observableId}` parameters.
-A noise model which accounts for relative and absolute contributions could,
-e.g., be defined as
-```
-sigma_pErk = noiseParameter1_pErk + noiseParameter2_pErk*pErk
-```
-with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk`
-the relative contribution for the observable `pErk`. The noise parameter names
-have the structure: `noiseParameter${indexOfNoiseParameter}_${observableId}`
-to facilitate automatic recognition. The specific values or parameters are
-assigned in the *measurement table*.
-
-Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
-`noiseParameters` column of the measurement file (see below).
-
+The model must be specified as valid SBML. There are no further restrictions.
 
 ## Condition table
 
@@ -179,10 +132,10 @@ order:
 
 *(wrapped for readability)*
 
-| ... | [observableParameters] | [noiseParameters] | [observableTransformation] | [noiseDistribution]
-|---|---|---|---|---|
-|... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | ['lin'(default)&#124;'log'&#124;'log10'] | ['laplace'&#124;'normal'] |
-|...|...|...|...|...|
+| ... | [observableParameters] | [noiseParameters]
+|---|---|---|
+|... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]]
+|...|...|...|
 
 Additional (non-standard) columns may be added. If the additional plotting 
 functionality of PEtab should be used, such columns could be
@@ -199,10 +152,9 @@ replicates and plot error bars.
 
 ### Detailed field description
 
-- `observableId` [STRING, NOT NULL, REFERENCES(sbml.observableID)]
+- `observableId` [STRING, NOT NULL, REFERENCES(observables.observableID)]
 
-  Observable ID with a matching parameter in the SBML model with ID
-`observable_${observableId}`
+  Observable ID as defined in the observables table described below.
 
 - `preequilibrationConditionId` [STRING OR NULL,
 REFERENCES(conditionsTable.conditionID), OPTIONAL]
@@ -229,10 +181,10 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 - `observableParameters` [STRING OR NULL, OPTIONAL]
 
   This field allows overriding or introducing condition-specific versions of
-  parameters defined in the model. The model can define observables (see above)
-  containing place-holder parameters which can be replaced by
-  condition-specific dynamic or constant parameters. Placeholder parameters
-  must be named `observableParameter${n}_${observableId}`
+  output parameters defined in the observation model. The model can define
+  observables (see below) containing place-holder parameters which can be
+  replaced by condition-specific dynamic or constant parameters. Placeholder
+  parameters must be named `observableParameter${n}_${observableId}`
   with `n` ranging from 1 (not 0) to the number of placeholders for the given
   observable, without gaps.
   If the observable specified under `observableId` contains no placeholders,
@@ -245,8 +197,8 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   batch-specific parameters. This will translate into an extended optimization
   parameter vector.
 
-  All placeholders defined in the model must be overwritten here. If there are
-  not placeholders in the model, this column may be omitted.
+  All placeholders defined in the observation model must be overwritten here.
+  If there are not placeholders in the model, this column may be omitted.
 
 - `noiseParameters` [STRING, OPTIONAL]
 
@@ -255,21 +207,6 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 
   Numeric values or parameter names are allowed. Same rules apply as for
   `observableParameters` in the previous point.
-
-- `observableTransformation` [STRING, OPTIONAL]
-
-  Transformation of the observable and measurement for computing the objective
-  function.
-  `lin`, `log` or `log10`. Defaults to 'lin'.
-  The measurements and model outputs are both assumed to be provided in linear
-  space.
-
-- `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
-
-  Assumed Noise distribution for the given measurement. Only normally or
-  Laplace distributed noise is currently allowed. Defaults to `normal`. If
-  `normal`, the specified `noiseParameters` will be interpreted as standard
-  deviation (*not* variance).
 
 - `datasetId` [STRING, OPTIONAL]
 
@@ -283,7 +220,90 @@ numeric value or `inf` (lower-case) for steady-state measurements.
 - `replicateId` [STRING, OPTIONAL]
 
   The replicateId can be used to discern replicates with the same
-  datasetId, which is helpful for plotting e.g. error bars.
+  `datasetId`, which is helpful for plotting e.g. error bars.
+
+
+### Observables table
+
+Parameter estimation requires linking experimental observations to the model
+of interest. Therefore, one needs to define observables (model outputs) and
+respective noise models, which represent the measurement process.
+Since parameter estimation is beyond the scope of SBML, there exists no
+standard way to specify observables (model outputs) and respective noise
+models. Therefore, in PEtab observables are specified in a separate table
+as described in the following. This allows for a clear separation of the
+observation model and the underlying dynamic model, which allows, in  most
+cases, to reuse any existing SBML model without modifications.
+
+The observable table has the following columns:
+
+| observableId | observableName | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
+| --- | --- | --- | --- | --- | --- |
+| [String] | [String] | [String] | ['lin'(default)&#124;'log'&#124;'log10'] |  [String'log'&#124;Number] | ['laplace'&#124;'normal'] |
+| e.g. | | | | | | 
+| relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1 * (protein1 + phospho_protein1 ) | lin | noiseParameter1 | normal |
+| ... |  ... | ... | ... | ... |
+
+
+### Detailed field description:
+
+* `observableId` [STRING]
+
+  Any identifier which would be a valid identifier in SBML. This is referenced
+  by the `observableId` column in the measurement table.
+
+* [`observableName`] [STRING, OPTIONAL]
+
+  Arbitrary string describing the observable.
+
+* `observableFormula` [STRING]
+
+  Observation function as plain text formula expression.
+  May contain any symbol defined in the SBML model or parameter table. In the
+  simplest case just an SBML species ID or an `AssignmentRule` target.
+
+  May introduce new parameters of the form `observableParameter${n}`, which
+  are overridden by `observableParameters` in the measurement table
+  (see description there).
+
+- `observableTransformation` [STRING, OPTIONAL]
+
+  Transformation of the observable and measurement for computing the objective
+  function. Must be one of `lin`, `log` or `log10`. Defaults to `lin`.
+  The measurements and model outputs are both assumed to be provided in linear
+  space.
+
+* `noiseFormula` [STRING]
+
+  Noise model parameters as plain text formula expression.
+
+  Measurement noise can be specified as a numerical value which will
+  default to a Gaussian noise model if not specified differently in
+  `noiseDistribution` with standard deviation as provided here. In this case,
+  the same standard deviation is assumed for all measurements for the given
+  observable.
+
+  Alternatively, some formula expression can be provided to specify
+  more complex noise models. A noise model which accounts for relative and
+  absolute contributions could, e.g., be defined as
+  ```
+  noiseParameter1_pErk + noiseParameter2_pErk*pErk
+  ```
+  with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk`
+  the relative contribution for the observable `pErk`. IDs of noise parameters
+  that need to have different values for different measurements have the
+  structure: `noiseParameter${indexOfNoiseParameter}_${observableId}`
+  to facilitate automatic recognition. The specific values or parameters are
+  assigned in the `noiseParameters` field of the *measurement table*
+  (see above). Any parameters named `noiseParameter${1..n}` *must* be
+  overwritten in the measurement table.
+
+- `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
+
+  Assumed noise distribution for the given measurement. Only normally or
+  Laplace distributed noise is currently allowed. Defaults to `normal`. If
+  `normal`, the specified `noiseParameters` will be interpreted as standard
+  deviation (*not* variance).
 
 
 ## Parameter table
