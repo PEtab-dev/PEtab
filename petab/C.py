@@ -67,6 +67,12 @@ CONDITION_ID = 'conditionId'
 CONDITION_NAME = 'conditionName'
 
 
+# OBSERVABLES
+
+OBSERVABLE_FORMULA = 'observableFormula'
+NOISE_FORMULA = 'noiseFormula'
+
+
 # TRANSFORMATIONS
 
 LIN = 'lin'
