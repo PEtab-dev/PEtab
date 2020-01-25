@@ -18,6 +18,7 @@ class Problem:
     - condition table
     - measurement table
     - parameter table
+    - observables table
 
     Optionally it may contain visualization tables.
 
@@ -25,6 +26,7 @@ class Problem:
         condition_df: PEtab condition table
         measurement_df: PEtab measurement table
         parameter_df: PEtab parameter table
+        observable_df: PEtab observable table
         visualization_df: PEtab visualization table
         sbml_reader: Stored to keep object alive.
         sbml_document: Stored to keep object alive.
@@ -38,12 +40,14 @@ class Problem:
                  condition_df: pd.DataFrame = None,
                  measurement_df: pd.DataFrame = None,
                  parameter_df: pd.DataFrame = None,
-                 visualization_df: pd.DataFrame = None):
+                 visualization_df: pd.DataFrame = None,
+                 observable_df: pd.DataFrame = None):
 
         self.condition_df: Optional[pd.DataFrame] = condition_df
         self.measurement_df: Optional[pd.DataFrame] = measurement_df
         self.parameter_df: Optional[pd.DataFrame] = parameter_df
         self.visualization_df: Optional[pd.DataFrame] = visualization_df
+        self.observable_df: Optional[pd.DataFrame] = observable_df
 
         self.sbml_reader: Optional[libsbml.SBMLReader] = sbml_reader
         self.sbml_document: Optional[libsbml.SBMLDocument] = sbml_document
@@ -82,7 +86,8 @@ class Problem:
                    condition_file: str = None,
                    measurement_file: Union[str, Iterable] = None,
                    parameter_file: str = None,
-                   visualization_files: Union[str, Iterable] = None
+                   visualization_files: Union[str, Iterable] = None,
+                   observable_files: Union[str, Iterable] = None
                    ) -> 'Problem':
         """
         Factory method to load model and tables from files.
@@ -93,6 +98,7 @@ class Problem:
             measurement_file: PEtab measurement table
             parameter_file: PEtab parameter table
             visualization_files: PEtab visualization tables
+            observable_files: PEtab observables tables
         """
 
         sbml_model = sbml_document = sbml_reader = None
@@ -123,9 +129,15 @@ class Problem:
             visualization_df = core.concat_tables(
                 visualization_files, core.get_visualization_df)
 
+        if observable_files:
+            # If there are multiple tables, we will merge them
+            observable_df = core.concat_tables(
+                observable_files, core.get_observable_df)
+
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,
                        parameter_df=parameter_df,
+                       observable_df=observable_df,
                        sbml_model=sbml_model,
                        sbml_document=sbml_document,
                        sbml_reader=sbml_reader,
@@ -165,7 +177,10 @@ class Problem:
                 path_prefix, yaml_config[PARAMETER_FILE]),
             visualization_files=[
                 os.path.join(path_prefix, f)
-                for f in problem0.get(VISUALIZATION_FILES, [])]
+                for f in problem0.get(VISUALIZATION_FILES, [])],
+            observable_files=[
+                os.path.join(path_prefix, f)
+                for f in problem0.get(OBSERVABLE_FILES, [])]
         )
 
     @staticmethod
