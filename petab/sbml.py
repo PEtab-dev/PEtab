@@ -401,6 +401,6 @@ def write_sbml(sbml_doc: libsbml.SBMLDocument, filename: str) -> None:
     """
     sbml_writer = libsbml.SBMLWriter()
     ret = sbml_writer.writeSBMLToFile(sbml_doc, filename)
-    if ret:
+    if not ret:
         raise RuntimeError(f"libSBML reported error {ret} when trying to "
-                           "create SBML file.")
+                           f"create SBML file {filename}.")

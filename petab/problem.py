@@ -1,6 +1,7 @@
 """PEtab Problem class"""
 
 import os
+from warnings import warn
 
 import pandas as pd
 import libsbml
@@ -248,9 +249,8 @@ class Problem:
         """
 
         if sbml_file:
-            if self.sbml_document:
-                conditions.write_condition_df(self.condition_df,
-                                              condition_file)
+            if self.sbml_document is not None:
+                sbml.write_sbml(self.sbml_document, sbml_file)
             else:
                 raise ValueError("Unable to save SBML model with no "
                                  "sbml_doc set.")
@@ -259,35 +259,35 @@ class Problem:
             return ValueError(f"Unable to save non-existent {name} table")
 
         if condition_file:
-            if self.condition_df:
+            if self.condition_df is not None:
                 conditions.write_condition_df(self.condition_df,
                                               condition_file)
             else:
                 raise error("condition")
 
         if measurement_file:
-            if self.measurement_df:
+            if self.measurement_df is not None:
                 measurements.write_measurement_df(self.measurement_df,
                                                   measurement_file)
             else:
                 raise error("measurement")
 
         if parameter_file:
-            if self.parameter_df:
+            if self.parameter_df is not None:
                 parameters.write_parameter_df(self.parameter_df,
                                               parameter_file)
             else:
                 raise error("parameter")
 
         if observable_file:
-            if self.observable_df:
+            if self.observable_df is not None:
                 observables.write_observable_df(self.observable_df,
                                                 observable_file)
             else:
                 raise error("observable")
 
         if visualization_file:
-            if self.visualization_df:
+            if self.visualization_df is not None:
                 core.write_visualization_df(self.visualization_df,
                                             visualization_file)
             else:
@@ -310,6 +310,8 @@ class Problem:
         Returns dictionary of observables definitions
         See `assignment_rules_to_dict` for details.
         """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
 
         return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
 
@@ -320,6 +322,8 @@ class Problem:
         This does not include parameter mappings defined in the measurement
         table.
         """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
 
         return sbml.get_sigmas(sbml_model=self.sbml_model, remove=remove)
 

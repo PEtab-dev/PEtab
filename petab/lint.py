@@ -9,6 +9,7 @@ from typing import Optional, Iterable
 import libsbml
 import numpy as np
 import pandas as pd
+import sympy as sp
 
 import petab
 from . import (core, parameters, sbml, measurements)
@@ -90,14 +91,17 @@ def check_condition_df(
                     "species or compartment IDs specified in the SBML model.")
 
 
-def check_measurement_df(df: pd.DataFrame) -> None:
+def check_measurement_df(df: pd.DataFrame,
+                         observable_df: Optional[pd.DataFrame] = None) -> None:
     """Run sanity checks on PEtab measurement table
 
     Arguments:
         df: PEtab measurement DataFrame
+        observable_df: PEtab observable DataFrame for checking if measurements
+            are compatible with observable transformations.
 
     Raises:
-        AssertionError: in case of problems
+        AssertionError, ValueError: in case of problems
     """
 
     _check_df(df, MEASUREMENT_DF_REQUIRED_COLS, "measurement")
@@ -112,6 +116,20 @@ def check_measurement_df(df: pd.DataFrame) -> None:
                 and not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
+
+    if observable_df is not None \
+            and OBSERVABLE_TRANSFORMATION in observable_df:
+        # Check for positivity of measurements in case of log-transformation
+        for mes, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
+            trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
+            if mes <= 0.0 and trafo in [LOG, LOG10]:
+                raise ValueError('Measurements with observable transformation '
+                                 f'{trafo} must be positive, but {mes} <= 0.')
+
+    if observable_df is not None:
+        assert_measured_observables_defined(df, observable_df)
+        measurements.assert_overrides_match_parameter_count(
+            df, observable_df)
 
 
 def check_parameter_df(
@@ -159,6 +177,49 @@ def check_parameter_df(
             df, sbml_model, measurement_df, condition_df)
 
 
+def check_observable_df(observable_df: pd.DataFrame) -> None:
+    """Check validity of observable table
+
+    Arguments:
+        observable_df: PEtab observable DataFrame
+
+    Raises:
+        AssertionError: in case of problems
+    """
+    _check_df(observable_df, OBSERVABLE_DF_REQUIRED_COLS[1:], "observable")
+
+    for column_name in OBSERVABLE_DF_REQUIRED_COLS[1:]:
+        if not np.issubdtype(observable_df[column_name].dtype, np.number):
+            assert_no_leading_trailing_whitespace(
+                observable_df[column_name].values, column_name)
+
+    for column_name in OBSERVABLE_DF_OPTIONAL_COLS:
+        if column_name in observable_df \
+                and not np.issubdtype(observable_df[column_name].dtype,
+                                      np.number):
+            assert_no_leading_trailing_whitespace(
+                observable_df[column_name].values, column_name)
+
+    assert_noise_distributions_valid(observable_df)
+
+    # Check that formulas are parsable
+    for row in observable_df.itertuples():
+        try:
+            obs = getattr(row, OBSERVABLE_FORMULA)
+            sp.sympify(obs)
+        except sp.SympifyError as e:
+            raise AssertionError(f"Cannot parse expression '{obs}' "
+                                 f"for observable {row.Index}: {e}")
+
+        try:
+            noise = getattr(row, NOISE_FORMULA)
+            sp.sympify(noise)
+        except sp.SympifyError as e:
+            raise AssertionError(f"Cannot parse expression '{noise}' "
+                                 f"for noise model for observable "
+                                 f"{row.Index}: {e}")
+
+
 def assert_all_parameters_present_in_parameter_df(
         parameter_df: pd.DataFrame,
         sbml_model: libsbml.Model,
@@ -199,30 +260,27 @@ def assert_all_parameters_present_in_parameter_df(
                              + str(extraneous))
 
 
-def assert_measured_observables_present_in_model(
+def assert_measured_observables_defined(
         measurement_df: pd.DataFrame,
-        sbml_model: libsbml.Model) -> None:
-    """Check if all observables in measurement files have been specified in
-    the model
+        observable_df: pd.DataFrame) -> None:
+    """Check if all observables in the measurement table have been defined in the
+    observable table
 
     Arguments:
-        sbml_model: PEtab SBML Model
         measurement_df: PEtab measurement table
+        observable_df: PEtab observable table
 
     Raises:
         AssertionError: in case of problems
     """
 
-    measurement_observables = [f'observable_{x}' for x in
-                               measurement_df.observableId.values]
-
-    model_observables = sbml.get_observables(sbml_model)
-    undefined_observables = set(measurement_observables) - set(
-        model_observables.keys())
+    used_observables = set(measurement_df[OBSERVABLE_ID].values)
+    defined_observables = set(observable_df.index.values)
+    undefined_observables = used_observables - defined_observables
 
     if len(undefined_observables):
         raise AssertionError(
-            f"Unknown observables in measurement file: "
+            "Undefined observables in measurement file: "
             f"{undefined_observables}.")
 
 
@@ -434,61 +492,35 @@ def measurement_table_has_observable_parameter_numeric_overrides(
     return False
 
 
-def assert_noise_distributions_valid(measurement_df: pd.DataFrame) -> None:
+def assert_noise_distributions_valid(observable_df: pd.DataFrame) -> None:
     """
-    Check whether there are not multiple noise distributions for an
-    observable, and that the names are correct.
+    Ensure that noise distributions and observable transformations
+    for observables are valid.
 
     Arguments:
-        measurement_df: PEtab measurement table
+        observable_df: PEtab observable table
 
     Raises:
         AssertionError: in case of problems
     """
-    df = measurement_df.copy()
+    if OBSERVABLE_TRANSFORMATION in observable_df:
+        # check for valid values
+        for trafo in observable_df[OBSERVABLE_TRANSFORMATION]:
+            if trafo not in ['', *OBSERVABLE_TRANSFORMATIONS] \
+                    and not (isinstance(trafo, numbers.Number)
+                             and np.isnan(trafo)):
+                raise ValueError(
+                    f"Unrecognized observable transformation in observable "
+                    f"table: {trafo}.")
 
-    # insert optional columns into copied df
-
-    if OBSERVABLE_TRANSFORMATION not in df:
-        df[OBSERVABLE_TRANSFORMATION] = ''
-    if NOISE_DISTRIBUTION not in df:
-        df[NOISE_DISTRIBUTION] = ''
-
-    # check for valid values
-
-    for trafo in df[OBSERVABLE_TRANSFORMATION]:
-        if trafo not in ['', LIN, LOG, LOG10] \
-                and not (isinstance(trafo, numbers.Number)
-                         and np.isnan(trafo)):
-            raise ValueError(
-                f"Unrecognized observable transformation in measurement "
-                f"file: {trafo}.")
-    for distr in df[NOISE_DISTRIBUTION]:
-        if distr not in ['', *NOISE_MODELS] \
-                and not (isinstance(distr, numbers.Number)
-                         and np.isnan(distr)):
-            raise ValueError(
-                f"Unrecognized noise distribution in measurement "
-                f"file: {distr}.")
-
-    # Check for positivity of measurements in case of log-transformation
-    for mes, trafo in zip(df[MEASUREMENT],
-                          df[OBSERVABLE_TRANSFORMATION]):
-        if mes <= 0.0 and trafo in [LOG, LOG10]:
-            raise ValueError('Measurements with observable transformation '
-                             f'{trafo} must be positive, but {mes} <= 0.')
-
-    # check for unique values per observable
-
-    distrs = df.groupby([OBSERVABLE_ID]).size().reset_index()
-
-    distrs_check = df.groupby(
-        [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION, NOISE_DISTRIBUTION])
-
-    if len(distrs) != len(distrs_check):
-        raise AssertionError(
-            f"The {NOISE_DISTRIBUTION} for an observable in the measurement "
-            f"file is not unique: \n{distrs_check}")
+    if NOISE_DISTRIBUTION in observable_df:
+        for distr in observable_df[NOISE_DISTRIBUTION]:
+            if distr not in ['', *NOISE_MODELS] \
+                    and not (isinstance(distr, numbers.Number)
+                             and np.isnan(distr)):
+                raise ValueError(
+                    f"Unrecognized noise distribution in observable "
+                    f"table: {distr}.")
 
 
 def lint_problem(problem: 'petab.Problem') -> bool:
@@ -514,8 +546,8 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     if problem.measurement_df is not None:
         logger.info("Checking measurement table...")
         try:
-            check_measurement_df(problem.measurement_df)
-            assert_noise_distributions_valid(problem.measurement_df)
+            check_measurement_df(problem.measurement_df, problem.observable_df)
+
             if problem.condition_df is not None:
                 assert_measurement_conditions_present_in_condition_table(
                     problem.measurement_df, problem.condition_df
@@ -536,6 +568,16 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     else:
         logger.warning("Condition table not available. Skipping.")
 
+    if problem.observable_df is not None:
+        logger.info("Checking observable table...")
+        try:
+            check_observable_df(problem.observable_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Observable table not available. Skipping.")
+
     if problem.parameter_df is not None:
         logger.info("Checking parameter table...")
         try:
@@ -546,20 +588,6 @@ def lint_problem(problem: 'petab.Problem') -> bool:
             errors_occurred = True
     else:
         logger.warning("Parameter table not available. Skipping.")
-
-    if problem.measurement_df is not None and problem.sbml_model is not None \
-            and not errors_occurred:
-        try:
-            assert_measured_observables_present_in_model(
-                problem.measurement_df, problem.sbml_model)
-            measurements.assert_overrides_match_parameter_count(
-                problem.measurement_df,
-                sbml.get_observables(problem.sbml_model, remove=False),
-                sbml.get_sigmas(problem.sbml_model, remove=False)
-            )
-        except AssertionError as e:
-            logger.error(e)
-            errors_occurred = True
 
     if problem.sbml_model is not None and problem.condition_df is not None \
             and problem.parameter_df is not None:
@@ -576,7 +604,8 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     if errors_occurred:
         logger.error('Not OK')
     elif problem.measurement_df is None or problem.condition_df is None \
-            or problem.sbml_model is None or problem.parameter_df is None:
+            or problem.sbml_model is None or problem.parameter_df is None \
+            or problem.observable_df is None:
         logger.warning('Not all files of the PEtab problem definition could '
                        'be checked.')
     else:
