@@ -49,6 +49,10 @@ properties:
             type: string
             description: PEtab condition file name or URL.
 
+        observable_files:
+          type: array
+          description: List of PEtab observable files.
+
         visualization_files:
           type: array
           description: List of PEtab visualization files.
