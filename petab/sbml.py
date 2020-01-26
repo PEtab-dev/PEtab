@@ -6,8 +6,6 @@ from typing import Dict, Any, List, Union
 
 import libsbml
 
-from . import sbml
-
 logger = logging.getLogger(__name__)
 
 
@@ -136,8 +134,8 @@ def globalize_parameters(sbml_model: libsbml.Model,
     for reaction in sbml_model.getListOfReactions():
         law = reaction.getKineticLaw()
         # copy first so we can delete in the following loop
-        local_parameters = [local_parameter for local_parameter
-                            in law.getListOfParameters()]
+        local_parameters = list(local_parameter for local_parameter
+                                in law.getListOfParameters())
         for lp in local_parameters:
             if prepend_reaction_id:
                 parameter_id = f'{reaction.getId()}_{lp.getId()}'
@@ -339,7 +337,7 @@ def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     warn("This function will be removed in future releases.",
          DeprecationWarning)
 
-    observables = sbml.assignment_rules_to_dict(
+    observables = assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_observable,
         remove=remove
@@ -360,7 +358,7 @@ def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     warn("This function will be removed in future releases.",
          DeprecationWarning)
 
-    sigmas = sbml.assignment_rules_to_dict(
+    sigmas = assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_sigma,
         remove=remove

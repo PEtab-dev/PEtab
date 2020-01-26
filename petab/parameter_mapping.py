@@ -425,15 +425,15 @@ def get_scale_mapping_for_condition(
         if isinstance(par_id_or_val, numbers.Number):
             # fixed value assignment
             return LIN
-        else:
-            # is par opt id, thus extract its scale
-            try:
-                return parameter_df.loc[par_id_or_val, PARAMETER_SCALE]
-            except KeyError:
-                # This is a condition-table parameter which is not
-                # present in the parameter table. Those are assumed to be
-                # 'lin'
-                return LIN
+
+        # is par opt id, thus extract its scale
+        try:
+            return parameter_df.loc[par_id_or_val, PARAMETER_SCALE]
+        except KeyError:
+            # This is a condition-table parameter which is not
+            # present in the parameter table. Those are assumed to be
+            # 'lin'
+            return LIN
 
     return {par: get_scale(val)
             for par, val in mapping_par_opt_to_par_sim.items()}
@@ -480,7 +480,7 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
             mapping_par_opt_to_par_sim[key] = np.nan
             _missed_vals.append(key)
 
-    if len(_missed_vals) and warn:
+    if not _missed_vals and warn:
         logger.warning(f"Could not map the following overrides for condition "
                        f"{condition_id}: "
                        f"{_missed_vals}. Usually, this is just due to missing "

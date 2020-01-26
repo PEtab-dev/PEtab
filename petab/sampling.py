@@ -28,14 +28,13 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
     def scale(x):
         if scaling == LIN:
             return x
-        elif scaling == LOG:
+        if scaling == LOG:
             return np.log(x)
-        elif scaling == LOG10:
+        if scaling == LOG10:
             return np.log10(x)
-        else:
-            raise NotImplementedError(
-                f"Parameter priors on the parameter scale {scaling} are "
-                "currently not implemented.")
+        raise NotImplementedError(
+            f"Parameter priors on the parameter scale {scaling} are "
+            "currently not implemented.")
 
     def clip_to_bounds(x: np.array):
         """Clip values in array x to bounds"""
@@ -45,7 +44,7 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
     # define lambda functions for each parameter
     if p_type == UNIFORM:
         sp = scale((p_params[1] - p_params[0]) * np.random.random((
-             n_starts,)) + p_params[0])
+            n_starts,)) + p_params[0])
 
     elif p_type == PARAMETER_SCALE_UNIFORM:
         sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
@@ -57,7 +56,7 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
 
     elif p_type == LOG_NORMAL:
         sp = scale(np.exp(np.random.normal(
-             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
+            loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
     elif p_type == PARAMETER_SCALE_NORMAL:
         sp = np.random.normal(loc=p_params[0], scale=p_params[1],
@@ -65,11 +64,11 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
 
     elif p_type == LAPLACE:
         sp = scale(np.random.laplace(
-             loc=p_params[0], scale=p_params[1], size=(n_starts,)))
+            loc=p_params[0], scale=p_params[1], size=(n_starts,)))
 
     elif p_type == LOG_LAPLACE:
         sp = scale(np.exp(np.random.laplace(
-             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
+            loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
     elif p_type == PARAMETER_SCALE_LAPLACE:
         sp = np.random.laplace(loc=p_params[0], scale=p_params[1],

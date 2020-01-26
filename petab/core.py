@@ -9,7 +9,6 @@ import pandas as pd
 import sympy as sp
 
 from . import sbml
-from . import problem
 from .C import *  # noqa: F403
 
 
@@ -141,7 +140,7 @@ def get_observable_id(parameter_id: str) -> str:
 
 
 def flatten_timepoint_specific_output_overrides(
-        petab_problem: 'problem.Problem') -> None:
+        petab_problem: 'petab.problem.Problem') -> None:
     """Flatten timepoint-specific output parameter overrides.
 
     If the PEtab problem definition has timepoint-specific
@@ -193,8 +192,8 @@ def flatten_timepoint_specific_output_overrides(
                 # and unique_sc[j] in their corresponding column
                 # (full-string matches are denoted by zero)
                 idxs = (
-                        df[NOISE_PARAMETERS].str.find(cur_noise) +
-                        df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
+                    df[NOISE_PARAMETERS].str.find(cur_noise) +
+                    df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
                 )
                 tmp_ = df.loc[idxs == 0, OBSERVABLE_ID]
                 # Create replicate-specific observable name
@@ -275,7 +274,8 @@ def concat_tables(
         if isinstance(tmp_df, str):
             tmp_df = file_parser(tmp_df)
 
-        df = df.append(tmp_df, sort=False, ignore_index=False)
+        df = df.append(tmp_df, sort=False,
+                       ignore_index=isinstance(tmp_df.index, pd.RangeIndex))
 
     return df
 

@@ -316,7 +316,7 @@ def assert_overrides_match_parameter_count(
         actual = len(
             split_parameter_replacement_list(row[OBSERVABLE_PARAMETERS]))
         # No overrides are also allowed
-        if not (actual == 0 or actual == expected):
+        if actual not in [0, expected]:
             formula = observable_df.loc[row[OBSERVABLE_ID], OBSERVABLE_FORMULA]
             raise AssertionError(
                 f'Mismatch of observable parameter overrides for '

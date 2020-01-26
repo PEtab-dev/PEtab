@@ -1,7 +1,7 @@
+# pylint: disable:invalid-name
 """
 This file contains constant definitions.
 """
-
 
 # MEASUREMENTS
 

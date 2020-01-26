@@ -57,10 +57,10 @@ def sbml_observables_to_table(problem: Problem):
         observables[obs_id][NOISE_FORMULA] = noise
 
     # set observableTransformation and noiseModel
-    for obs_id_long in observables.keys():
+    for obs_id_long in observables:
         obs_id = get_observable_id(obs_id_long)
         cur_mes_df = measurement_df[measurement_df[OBSERVABLE_ID] == obs_id]
-        if not len(cur_mes_df):
+        if cur_mes_df.empty:
             # observable defined, but no measurements
             continue
 

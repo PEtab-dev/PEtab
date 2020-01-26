@@ -278,7 +278,7 @@ def assert_measured_observables_defined(
     defined_observables = set(observable_df.index.values)
     undefined_observables = used_observables - defined_observables
 
-    if len(undefined_observables):
+    if undefined_observables:
         raise AssertionError(
             "Undefined observables in measurement file: "
             f"{undefined_observables}.")
@@ -396,6 +396,14 @@ def check_parameter_bounds(parameter_df: pd.DataFrame) -> None:
 
 def assert_parameter_prior_type_is_valid(
         parameter_df: pd.DataFrame) -> None:
+    """Check that valid prior types have been selected
+
+    Arguments:
+        parameter_df: PEtab parameter table
+
+    Raises:
+        AssertionError in case of invalid prior
+    """
     for prefix in [INITIALIZATION, OBJECTIVE]:
         col_name = f"{prefix}PriorType"
         if col_name not in parameter_df.columns:
@@ -463,8 +471,7 @@ def measurement_table_has_timepoint_specific_mappings(
 
     if len(grouped_df.index) != len(grouped_df2.index):
         logger.warning(
-            "Measurement table has timepoint specific mappings:\n"
-            + str(grouped_df))
+            "Measurement table has timepoint specific mappings:\n{grouped_df}")
         return True
     return False
 
@@ -483,7 +490,7 @@ def measurement_table_has_observable_parameter_numeric_overrides(
     if OBSERVABLE_PARAMETERS not in measurement_df:
         return False
 
-    for i, row in measurement_df.iterrows():
+    for _, row in measurement_df.iterrows():
         for override in measurements.split_parameter_replacement_list(
                 row.observableParameters):
             if isinstance(override, numbers.Number):
@@ -532,6 +539,7 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     Returns:
         True is errors occurred, False otherwise
     """
+    # pylint: disable=too-many-statements
     errors_occurred = False
 
     # Run checks on individual files

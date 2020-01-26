@@ -148,7 +148,7 @@ def create_dataset_id_list(simcond_id_list,
                            exp_data,
                            exp_conditions,
                            group_by):
-
+    """Create dataset id list"""
     # create a column of dummy datasetIDs and legend entries: preallocate
     dataset_id_column = []
     legend_dict = {}
@@ -302,13 +302,13 @@ def get_default_vis_specs(exp_data,
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
             observable_num_list, exp_data, exp_conditions, group_by)
 
-    datasetId_column = [i_dataset for sublist in dataset_id_list for
-                        i_dataset in sublist]
+    dataset_id_column = [i_dataset for sublist in dataset_id_list
+                         for i_dataset in sublist]
     if group_by != 'dataset':
         dataset_label_column = [legend_dict[i_dataset] for sublist in
                                 dataset_id_list for i_dataset in sublist]
     else:
-        dataset_label_column = datasetId_column
+        dataset_label_column = dataset_id_column
 
     # get number of plots and create plotId-lists
     plot_id_list = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
@@ -316,7 +316,7 @@ def get_default_vis_specs(exp_data,
 
     # create dataframe
     vis_spec = pd.DataFrame({PLOT_ID: plot_id_list,
-                             DATASET_ID: datasetId_column,
+                             DATASET_ID: dataset_id_column,
                              LEGEND_ENTRY: dataset_label_column})
 
     # fill columns with default values
@@ -346,6 +346,7 @@ def handle_dataset_plot(i_visu_spec,
                         exp_conditions,
                         vis_spec,
                         sim_data):
+    """Handle dataset plot"""
     # get datasetID and independent variable of first entry of plot1
     dataset_id = vis_spec[DATASET_ID][i_visu_spec]
     indep_var = vis_spec[X_VALUES][i_visu_spec]
@@ -443,8 +444,9 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
     for var_cond_id in condition_ids:
         # get boolean vector which fulfill the requirements
-        vec_bool_meas = ((m_data[col_id] == var_cond_id) & (m_data[DATASET_ID]
-                         == vis_spec.datasetId[i_visu_spec]))
+        vec_bool_meas = ((m_data[col_id] == var_cond_id)
+                         & (m_data[DATASET_ID]
+                            == vis_spec.datasetId[i_visu_spec]))
         # get indices of rows with True values of vec_bool_meas
         ind_meas = [i_visu_spec for i_visu_spec,
                     x in enumerate(vec_bool_meas) if x]
@@ -479,7 +481,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         pre_cond = m_data[PREEQUILIBRATION_CONDITION_ID][ind_meas[0]]
         bool_preequ = (pre_cond == m_data[PREEQUILIBRATION_CONDITION_ID])
         # special handling is needed, if preequilibration cond is left empty
-        if (type(pre_cond) == np.float64) and np.isnan(pre_cond):
+        if isinstance(pre_cond, Number) and np.isnan(pre_cond):
             bool_preequ = np.isnan(m_data[PREEQUILIBRATION_CONDITION_ID])
 
         # combine all boolean vectors
@@ -515,11 +517,11 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
         if vis_spec.plotTypeData[i_visu_spec] == PROVIDED:
             tmp_noise = m_data[NOISE_PARAMETERS][ind_intersec].values[0]
-            if type(tmp_noise) == str:
+            if isinstance(tmp_noise, str):
                 raise NotImplementedError(
                     "No numerical noise values provided in the measurement "
                     "table. Stopping.")
-            elif type(tmp_noise) == float or tmp_noise.dtype == 'float64':
+            if isinstance(tmp_noise, Number) or tmp_noise.dtype == 'float64':
                 data_to_plot.at[var_cond_id, 'noise_model'] = tmp_noise
 
         # standard error of mean

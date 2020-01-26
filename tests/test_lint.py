@@ -204,6 +204,7 @@ def test_assert_noise_distributions_valid():
 
 
 def test_check_measurement_df():
+    """Check measurement (and observable) tables"""
     observable_df = pd.DataFrame(data={
         OBSERVABLE_ID: ['0obsPar1noisePar',
                         '2obsPar0noisePar'],
