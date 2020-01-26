@@ -460,18 +460,6 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                 and np.isnan(m_data.observableParameters[ind_meas[0]]):
             bool_observable = np.isnan(m_data[OBSERVABLE_PARAMETERS])
 
-        # check correct observable transformation
-        bool_obs_transform = (m_data[OBSERVABLE_TRANSFORMATION][ind_meas[0]] ==
-                              m_data[OBSERVABLE_TRANSFORMATION])
-
-        # check correct noise distribution (In older PEtab files, this field
-        # did not exist. So check for existence first.)
-        if NOISE_DISTRIBUTION in m_data.columns:
-            bool_noise_dist = (m_data[NOISE_DISTRIBUTION][ind_meas[0]] ==
-                               m_data[NOISE_DISTRIBUTION])
-        else:
-            bool_noise_dist = True
-
         # check correct time point
         bool_time = True
         if col_id != TIME:
@@ -485,8 +473,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
             bool_preequ = np.isnan(m_data[PREEQUILIBRATION_CONDITION_ID])
 
         # combine all boolean vectors
-        vec_bool_allcond = (bool_preequ & bool_observable &
-                            bool_obs_transform & bool_noise_dist & bool_time)
+        vec_bool_allcond = bool_preequ & bool_observable & bool_time
 
         # get indices of rows with "True" values, of vec_bool_allcond
         ind_bool_allcond = [i_visu_spec for i_visu_spec,
@@ -495,11 +482,10 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # get intersection of ind_meas and ind_bool_allcond
         ind_intersec = np.intersect1d(ind_meas, ind_bool_allcond)
 
-        # see Issue #117
-        # TODO: Here not the case: So, if entries in measurement file:
-        #  preequCondId, time, observableParams, noiseParams, observableTransf,
-        # noiseDistr are not the same, then  -> differ these data into
-        # different groups!
+        # TODO (#117): Here not the case: So, if entries in measurement file:
+        #  preequCondId, time, observableParams, noiseParams,
+        #  are not the same, then  -> differ these data into
+        #  different groups!
         # now: go in simulationConditionId, search group of unique
         # simulationConditionId e.g. rows 0,6,12,18 share the same
         # simulationCondId, then check if other column entries are the same
