@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import sympy as sp
 
-from . import sbml
 from .C import *  # noqa: F403
 
 
@@ -148,7 +147,8 @@ def flatten_timepoint_specific_output_overrides(
     replace those by replicating the respective observable.
 
     This is a helper function for some tools which may not support such
-    timepoint-specific mappings. The measurement table is modified in place.
+    timepoint-specific mappings. The observable table and measurement table
+    are modified in place.
 
     Arguments:
         petab_problem:
@@ -169,6 +169,8 @@ def flatten_timepoint_specific_output_overrides(
     # and simulationConditionId
     df_unique_values = df.drop_duplicates()
 
+    # replaced observables: new ID => old ID
+    replacements = dict()
     # Loop over each unique combination
     for nrow in range(len(df_unique_values.index)):
         df = petab_problem.measurement_df.loc[
@@ -206,6 +208,8 @@ def flatten_timepoint_specific_output_overrides(
                 ) == 0).any():
                     tmp = tmp_ + counter*"_" + str(i_noise + i_sc + 1)
                     counter += 1
+                if not tmp_.empty and not tmp_.empty:
+                    replacements[tmp.values[0]] = tmp_.values[0]
                 df.loc[idxs == 0, OBSERVABLE_ID] = tmp
                 # Append the result in a new df
                 df_new = df_new.append(df.loc[idxs == 0])
@@ -216,32 +220,20 @@ def flatten_timepoint_specific_output_overrides(
     # Update/Redefine measurement df with replicate-specific observables
     petab_problem.measurement_df = df_new
 
-    # Get list of already existing unique observable names
-    unique_observables = df[OBSERVABLE_ID].unique()
+    # Update observables table
+    for replacement, replacee in replacements.items():
+        new_obs = petab_problem.observable_df.loc[replacee].copy()
+        new_obs.name = replacement
+        new_obs[OBSERVABLE_FORMULA] = new_obs[OBSERVABLE_FORMULA].replace(
+            replacee, replacement)
+        new_obs[NOISE_FORMULA] = new_obs[NOISE_FORMULA].replace(
+            replacee, replacement)
+        petab_problem.observable_df = petab_problem.observable_df.append(
+            new_obs
+        )
 
-    # Remove already existing observables from the sbml model
-    for obs in unique_observables:
-        petab_problem.sbml_model.removeRuleByVariable("observable_" + obs)
-        petab_problem.sbml_model.removeSpecies(obs)
-        petab_problem.sbml_model.removeParameter(
-            'observable_' + obs)
-
-    # Redefine with replicate-specific observables in the sbml model
-    for replicate_id in petab_problem.measurement_df[OBSERVABLE_ID].unique():
-        sbml.add_global_parameter(
-            sbml_model=petab_problem.sbml_model,
-            parameter_id='observableParameter1_' + replicate_id)
-        sbml.add_global_parameter(
-            sbml_model=petab_problem.sbml_model,
-            parameter_id='noiseParameter1_' + replicate_id)
-        sbml.add_model_output(
-            sbml_model=petab_problem.sbml_model,
-            observable_id=replicate_id,
-            formula='observableParameter1_' + replicate_id)
-        sbml.add_model_output_sigma(
-            sbml_model=petab_problem.sbml_model,
-            observable_id=replicate_id,
-            formula='noiseParameter1_' + replicate_id)
+    petab_problem.observable_df.drop(index=set(replacements.values()),
+                                     inplace=True)
 
 
 def concat_tables(

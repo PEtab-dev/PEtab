@@ -470,8 +470,8 @@ def measurement_table_has_timepoint_specific_mappings(
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
-        logger.warning(
-            "Measurement table has timepoint specific mappings:\n{grouped_df}")
+        logger.warning("Measurement table has timepoint-specific "
+                       f"mappings:\n{grouped_df}")
         return True
     return False
 

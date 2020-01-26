@@ -275,13 +275,27 @@ def test_create_parameter_df(condition_df_2_conditions):
     assert parameter_df.loc['p0', NOMINAL_VALUE] == 3.0
 
 
-def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
-    document, model = minimal_sbml_model
-    petab.sbml.add_global_parameter(
-        sbml_model=model, parameter_id='observableParameter1_obs1')
-    petab.sbml.add_model_output_with_sigma(
-        sbml_model=model, observable_id='obs1',
-        observable_formula='observableParameter1_obs1')
+def test_flatten_timepoint_specific_output_overrides():
+    """Test flatten_timepoint_specific_output_overrides"""
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs1'],
+        OBSERVABLE_FORMULA: [
+            'observableParameter1_obs1 + observableParameter2_obs1'],
+        NOISE_FORMULA: ['noiseParameter1_obs1']
+    })
+    observable_df.set_index(OBSERVABLE_ID, inplace=True)
+
+    observable_df_expected = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs1_1', 'obs1_2', 'obs1_3'],
+        OBSERVABLE_FORMULA: [
+            'observableParameter1_obs1_1 + observableParameter2_obs1_1',
+            'observableParameter1_obs1_2 + observableParameter2_obs1_2',
+            'observableParameter1_obs1_3 + observableParameter2_obs1_3'],
+        NOISE_FORMULA: ['noiseParameter1_obs1_1',
+                        'noiseParameter1_obs1_2',
+                        'noiseParameter1_obs1_3']
+    })
+    observable_df_expected.set_index(OBSERVABLE_ID, inplace=True)
 
     # Measurement table with timepoint-specific overrides
     measurement_df = pd.DataFrame(data={
@@ -296,8 +310,8 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
         MEASUREMENT:
             [np.nan] * 4,
         OBSERVABLE_PARAMETERS:
-            ['obsParOverride1', 'obsParOverride2',
-             'obsParOverride2', 'obsParOverride2'],
+            ['obsParOverride1;1.0', 'obsParOverride2;1.0',
+             'obsParOverride2;1.0', 'obsParOverride2;1.0'],
         NOISE_PARAMETERS:
             ['noiseParOverride1', 'noiseParOverride1',
              'noiseParOverride2', 'noiseParOverride2']
@@ -315,15 +329,15 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
         MEASUREMENT:
             [np.nan] * 4,
         OBSERVABLE_PARAMETERS:
-            ['obsParOverride1', 'obsParOverride2',
-             'obsParOverride2', 'obsParOverride2'],
+            ['obsParOverride1;1.0', 'obsParOverride2;1.0',
+             'obsParOverride2;1.0', 'obsParOverride2;1.0'],
         NOISE_PARAMETERS:
             ['noiseParOverride1', 'noiseParOverride1',
              'noiseParOverride2', 'noiseParOverride2']
     })
 
-    problem = petab.Problem(sbml_model=model,
-                            measurement_df=measurement_df)
+    problem = petab.Problem(measurement_df=measurement_df,
+                            observable_df=observable_df)
 
     assert petab.lint_problem(problem) is False
 
@@ -337,6 +351,7 @@ def test_flatten_timepoint_specific_output_overrides(minimal_sbml_model):
     assert petab.lint.measurement_table_has_timepoint_specific_mappings(
         problem.measurement_df) is False
 
+    assert problem.observable_df.equals(observable_df_expected) is True
     assert problem.measurement_df.equals(measurement_df_expected) is True
 
     assert petab.lint_problem(problem) is False
