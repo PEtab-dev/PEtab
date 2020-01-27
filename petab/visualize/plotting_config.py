@@ -48,7 +48,7 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     # set yScale
     if vis_spec.yScale[i_visu_spec] == 'lin':
         ax[axx, axy].set_yscale("linear")
-    elif vis_spec.xScale[i_visu_spec] == 'log10':
+    elif vis_spec.yScale[i_visu_spec] == 'log10':
         ax[axx, axy].set_yscale("log")
 
     if vis_spec.plotTypeSimulation[i_visu_spec] == 'LinePlot':
