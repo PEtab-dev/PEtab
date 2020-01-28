@@ -52,7 +52,7 @@ efficient parameter estimation, but they should not affect the optimization
 problem as such.
 
 **General remarks**
-- All model entities column and row names are case-sensitive
+- All model entities, column names and row names are case-sensitive
 - Fields in "[]" in the second row are optional and may be left empty.
 
 
@@ -198,7 +198,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   parameter vector.
 
   All placeholders defined in the observation model must be overwritten here.
-  If there are not placeholders in the model, this column may be omitted.
+  If there are no placeholders used, this column may be omitted.
 
 - `noiseParameters` [STRING, OPTIONAL]
 
@@ -301,9 +301,10 @@ The observable table has the following columns:
 - `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed noise distribution for the given measurement. Only normally or
-  Laplace distributed noise is currently allowed. Defaults to `normal`. If
-  `normal`, the specified `noiseParameters` will be interpreted as standard
-  deviation (*not* variance).
+  Laplace distributed noise is currently allowed (log-normal and 
+  log-laplace are obtained by setting `observableTransformation` to `log`).
+  Defaults to `normal`. If `normal`, the specified `noiseParameters` will be
+  interpreted as standard deviation (*not* variance).
 
 
 ## Parameter table

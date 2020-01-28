@@ -501,8 +501,8 @@ def measurement_table_has_observable_parameter_numeric_overrides(
 
 def assert_noise_distributions_valid(observable_df: pd.DataFrame) -> None:
     """
-    Ensure that noise distributions and observable transformations
-    for observables are valid.
+    Ensure that noise distributions and transformations for observables are
+    valid.
 
     Arguments:
         observable_df: PEtab observable table

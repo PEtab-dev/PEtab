@@ -480,7 +480,7 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
             mapping_par_opt_to_par_sim[key] = np.nan
             _missed_vals.append(key)
 
-    if not _missed_vals and warn:
+    if _missed_vals and warn:
         logger.warning(f"Could not map the following overrides for condition "
                        f"{condition_id}: "
                        f"{_missed_vals}. Usually, this is just due to missing "

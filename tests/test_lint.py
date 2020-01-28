@@ -202,6 +202,9 @@ def test_assert_noise_distributions_valid():
     with pytest.raises(ValueError):
         lint.assert_noise_distributions_valid(observable_df)
 
+    observable_df.drop(columns=NOISE_DISTRIBUTION, inplace=True)
+    lint.assert_noise_distributions_valid(observable_df)
+
 
 def test_check_measurement_df():
     """Check measurement (and observable) tables"""
