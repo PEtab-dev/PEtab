@@ -68,7 +68,10 @@ def get_data_per_observable(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    # Example data from the repository for testing
+    """Data overview generation with example data from the repository for
+    testing
+    """
+
     root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              '..', '..', 'doc/example/example_Fujita/')
     problem = petab.Problem.from_files(

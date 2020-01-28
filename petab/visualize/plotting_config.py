@@ -1,5 +1,8 @@
+"""Plotting config"""
 import numpy as np
 import pandas as pd
+
+from ..C import *
 
 
 def plot_lowlevel(vis_spec: pd.DataFrame,
@@ -45,15 +48,15 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     ax: matplotlib.Axes
     """
 
-    if vis_spec.plotTypeSimulation[i_visu_spec] == 'LinePlot':
+    if vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == LINE_PLOT:
 
         # set xScale
-        if vis_spec.xScale[i_visu_spec] == 'lin':
+        if vis_spec[X_SCALE][i_visu_spec] == LIN:
             ax[axx, axy].set_xscale("linear")
-        elif vis_spec.xScale[i_visu_spec] == 'log10':
+        elif vis_spec[X_SCALE][i_visu_spec] == LOG10:
             ax[axx, axy].set_xscale("log")
         # equidistant
-        elif vis_spec.xScale[i_visu_spec] == 'order':
+        elif vis_spec[X_SCALE][i_visu_spec] == 'order':
             ax[axx, axy].set_xscale("linear")
             # check if conditions are monotone decreasing or increasing
             if np.all(np.diff(conditions) < 0):             # monot. decreasing
@@ -70,34 +73,34 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                                  ' decreasing')
 
         # add xOffset
-        conditions = conditions + vis_spec.xOffset[i_visu_spec]
+        conditions = conditions + vis_spec[X_OFFSET][i_visu_spec]
 
         # TODO sort mean and sd/sem by x values (as for simulatedData below)
         #  to avoid crazy lineplots in case x values are not sorted by default.
         #  cf issue #207
         #
         # construct errorbar-plots: Mean and standard deviation
-        label_base = vis_spec[ind_plot].legendEntry[i_visu_spec]
-        if vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSD':
+        label_base = vis_spec[ind_plot][LEGEND_ENTRY][i_visu_spec]
+        if vis_spec[PLOT_TYPE_DATA][i_visu_spec] == MEAN_AND_SD:
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sd'], linestyle='-.', marker='.',
                 label=label_base)
 
         # construct errorbar-plots: Mean and standard error of mean
-        elif vis_spec.plotTypeData[i_visu_spec] == 'MeanAndSEM':
+        elif vis_spec[PLOT_TYPE_DATA][i_visu_spec] == MEAN_AND_SEM:
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['sem'], linestyle='-.', marker='.',
                 label=label_base)
 
         # plotting all measurement data
-        elif vis_spec.plotTypeData[i_visu_spec] == 'replicate':
+        elif vis_spec[PLOT_TYPE_DATA][i_visu_spec] == REPLICATE:
             p = ax[axx, axy].plot(
                 conditions[conditions.index.values],
                 ms.repl[ms.repl.index.values], 'x',
                 label=label_base)
 
         # construct errorbar-plots: Mean and noise provided in measurement file
-        elif vis_spec.plotTypeData[i_visu_spec] == 'provided':
+        elif vis_spec[PLOT_TYPE_DATA][i_visu_spec] == PROVIDED:
             p = ax[axx, axy].errorbar(
                 conditions, ms['mean'], ms['noise_model'],
                 linestyle='-.', marker='.', label=label_base)
@@ -110,14 +113,14 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                 label=label_base + " simulation", color=colors)
 
         ax[axx, axy].legend()
-        ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
+        ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
 
-    elif vis_spec.plotTypeSimulation[i_visu_spec] == 'BarPlot':
+    elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == BAR_PLOT:
 
-        x_name = vis_spec[ind_plot].legendEntry[i_visu_spec]
+        x_name = vis_spec[ind_plot][LEGEND_ENTRY][i_visu_spec]
 
         p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
-        ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
+        ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
 
         if plot_sim:
             colors = p[0].get_facecolor()

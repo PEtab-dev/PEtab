@@ -117,12 +117,12 @@ def _map_condition(packed_args):
         measurement_df, condition)
 
     if PREEQUILIBRATION_CONDITION_ID not in condition \
-            or not isinstance(condition.preequilibrationConditionId, str) \
-            or not condition.preequilibrationConditionId:
+            or not isinstance(condition[PREEQUILIBRATION_CONDITION_ID], str) \
+            or not condition[PREEQUILIBRATION_CONDITION_ID]:
         preeq_map = {}
     else:
         preeq_map = get_parameter_mapping_for_condition(
-            condition_id=condition.preequilibrationConditionId,
+            condition_id=condition[PREEQUILIBRATION_CONDITION_ID],
             is_preeq=True,
             cur_measurement_df=cur_measurement_df,
             condition_df=condition_df,
@@ -132,7 +132,7 @@ def _map_condition(packed_args):
         )
 
     sim_map = get_parameter_mapping_for_condition(
-        condition_id=condition.simulationConditionId,
+        condition_id=condition[SIMULATION_CONDITION_ID],
         is_preeq=False,
         cur_measurement_df=cur_measurement_df,
         condition_df=condition_df,
@@ -207,8 +207,12 @@ def get_parameter_mapping_for_condition(
     mapping = simulation_parameters.copy()
 
     _output_parameters_to_nan(mapping)
+
+    # not strictly necessary for preequilibration, be we do it to have
+    # same length of parameter vectors
+    _apply_output_parameter_overrides(mapping, cur_measurement_df)
+
     if not is_preeq:
-        _apply_output_parameter_overrides(mapping, cur_measurement_df)
         handle_missing_overrides(mapping, warn=warn_unmapped)
 
     _apply_condition_parameters(mapping, condition_id, condition_df)
@@ -247,12 +251,12 @@ def _apply_output_parameter_overrides(
         # we trust that the number of overrides matches (see above)
         overrides = measurements.split_parameter_replacement_list(
             row.observableParameters)
-        _apply_overrides_for_observable(mapping, row.observableId,
+        _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID],
                                         'observable', overrides)
 
         overrides = measurements.split_parameter_replacement_list(
             row.noiseParameters)
-        _apply_overrides_for_observable(mapping, row.observableId, 'noise',
+        _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID], 'noise',
                                         overrides)
 
 
@@ -421,15 +425,15 @@ def get_scale_mapping_for_condition(
         if isinstance(par_id_or_val, numbers.Number):
             # fixed value assignment
             return LIN
-        else:
-            # is par opt id, thus extract its scale
-            try:
-                return parameter_df.loc[par_id_or_val, PARAMETER_SCALE]
-            except KeyError:
-                # This is a condition-table parameter which is not
-                # present in the parameter table. Those are assumed to be
-                # 'lin'
-                return LIN
+
+        # is par opt id, thus extract its scale
+        try:
+            return parameter_df.loc[par_id_or_val, PARAMETER_SCALE]
+        except KeyError:
+            # This is a condition-table parameter which is not
+            # present in the parameter table. Those are assumed to be
+            # 'lin'
+            return LIN
 
     return {par: get_scale(val)
             for par, val in mapping_par_opt_to_par_sim.items()}
@@ -476,7 +480,7 @@ def handle_missing_overrides(mapping_par_opt_to_par_sim: ParMappingDict,
             mapping_par_opt_to_par_sim[key] = np.nan
             _missed_vals.append(key)
 
-    if len(_missed_vals) and warn:
+    if _missed_vals and warn:
         logger.warning(f"Could not map the following overrides for condition "
                        f"{condition_id}: "
                        f"{_missed_vals}. Usually, this is just due to missing "

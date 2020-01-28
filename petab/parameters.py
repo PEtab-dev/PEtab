@@ -36,6 +36,17 @@ def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
     return parameter_df
 
 
+def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab parameter table
+
+    Arguments:
+        df: PEtab parameter table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=True)
+
+
 def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     """
     Get list of optimization parameter ids from parameter dataframe.
@@ -261,7 +272,7 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
 
         # retrieve info about parameters of priors, make it a tuple of floats
         pars_str = str(row.get(f'{mode}PriorParameters',
-                       f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'))
+                               f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'))
         prior_pars = tuple([float(entry) for entry in pars_str.split(';')])
 
         # add parameter scale and bounds, as this may be needed

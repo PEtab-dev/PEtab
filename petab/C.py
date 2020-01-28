@@ -1,7 +1,7 @@
+# pylint: disable:invalid-name
 """
 This file contains constant definitions.
 """
-
 
 # MEASUREMENTS
 
@@ -11,8 +11,6 @@ SIMULATION_CONDITION_ID = 'simulationConditionId'
 MEASUREMENT = 'measurement'
 TIME = 'time'
 OBSERVABLE_PARAMETERS = 'observableParameters'
-OBSERVABLE_TRANSFORMATION = 'observableTransformation'
-NOISE_DISTRIBUTION = 'noiseDistribution'
 NOISE_PARAMETERS = 'noiseParameters'
 DATASET_ID = 'datasetId'
 REPLICATE_ID = 'replicateId'
@@ -22,7 +20,7 @@ MEASUREMENT_DF_REQUIRED_COLS = [
 
 MEASUREMENT_DF_OPTIONAL_COLS = [
     PREEQUILIBRATION_CONDITION_ID, OBSERVABLE_PARAMETERS,
-    NOISE_PARAMETERS, NOISE_DISTRIBUTION,
+    NOISE_PARAMETERS,
     DATASET_ID, REPLICATE_ID]
 
 MEASUREMENT_DF_COLS = [
@@ -67,12 +65,30 @@ CONDITION_ID = 'conditionId'
 CONDITION_NAME = 'conditionName'
 
 
+# OBSERVABLES
+
+OBSERVABLE_NAME = 'observableName'
+OBSERVABLE_FORMULA = 'observableFormula'
+NOISE_FORMULA = 'noiseFormula'
+OBSERVABLE_TRANSFORMATION = 'observableTransformation'
+NOISE_DISTRIBUTION = 'noiseDistribution'
+
+OBSERVABLE_DF_REQUIRED_COLS = [
+    OBSERVABLE_ID, OBSERVABLE_FORMULA, NOISE_FORMULA]
+
+OBSERVABLE_DF_OPTIONAL_COLS = [
+    OBSERVABLE_NAME, OBSERVABLE_TRANSFORMATION, NOISE_DISTRIBUTION]
+
+OBSERVABLE_DF_COLS = [
+    *OBSERVABLE_DF_REQUIRED_COLS, *OBSERVABLE_DF_OPTIONAL_COLS]
+
+
 # TRANSFORMATIONS
 
 LIN = 'lin'
 LOG = 'log'
 LOG10 = 'log10'
-
+OBSERVABLE_TRANSFORMATIONS = [LIN, LOG, LOG10]
 
 # NOISE MODELS
 
@@ -131,4 +147,5 @@ PROBLEMS = 'problems'
 SBML_FILES = 'sbml_files'
 CONDITION_FILES = 'condition_files'
 MEASUREMENT_FILES = 'measurement_files'
+OBSERVABLE_FILES = 'observable_files'
 VISUALIZATION_FILES = 'visualization_files'

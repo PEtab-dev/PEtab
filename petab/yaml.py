@@ -89,9 +89,11 @@ def validate_yaml_semantics(
     _check_file(os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
                 PARAMETER_FILE)
     for problem_config in yaml_config[PROBLEMS]:
-        for field in [SBML_FILES, CONDITION_FILES, MEASUREMENT_FILES]:
-            for filename in problem_config[field]:
-                _check_file(os.path.join(path_prefix, filename), field)
+        for field in [SBML_FILES, CONDITION_FILES, MEASUREMENT_FILES,
+                      VISUALIZATION_FILES, OBSERVABLE_FILES]:
+            if field in problem_config:
+                for filename in problem_config[field]:
+                    _check_file(os.path.join(path_prefix, filename), field)
 
 
 def load_yaml(yaml_config: Union[Dict, str]) -> Dict:

@@ -1,12 +1,13 @@
 """PEtab Problem class"""
 
 import os
+from warnings import warn
 
 import pandas as pd
 import libsbml
 from typing import Optional, List, Union, Dict, Iterable
 from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml, core)
+               sampling, sbml, yaml, core, observables)
 from .C import *  # noqa: F403
 
 
@@ -18,6 +19,7 @@ class Problem:
     - condition table
     - measurement table
     - parameter table
+    - observables table
 
     Optionally it may contain visualization tables.
 
@@ -25,6 +27,7 @@ class Problem:
         condition_df: PEtab condition table
         measurement_df: PEtab measurement table
         parameter_df: PEtab parameter table
+        observable_df: PEtab observable table
         visualization_df: PEtab visualization table
         sbml_reader: Stored to keep object alive.
         sbml_document: Stored to keep object alive.
@@ -38,12 +41,14 @@ class Problem:
                  condition_df: pd.DataFrame = None,
                  measurement_df: pd.DataFrame = None,
                  parameter_df: pd.DataFrame = None,
-                 visualization_df: pd.DataFrame = None):
+                 visualization_df: pd.DataFrame = None,
+                 observable_df: pd.DataFrame = None):
 
         self.condition_df: Optional[pd.DataFrame] = condition_df
         self.measurement_df: Optional[pd.DataFrame] = measurement_df
         self.parameter_df: Optional[pd.DataFrame] = parameter_df
         self.visualization_df: Optional[pd.DataFrame] = visualization_df
+        self.observable_df: Optional[pd.DataFrame] = observable_df
 
         self.sbml_reader: Optional[libsbml.SBMLReader] = sbml_reader
         self.sbml_document: Optional[libsbml.SBMLDocument] = sbml_document
@@ -80,9 +85,10 @@ class Problem:
     @staticmethod
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
-                   measurement_file: Union[str, Iterable] = None,
+                   measurement_file: Union[str, Iterable[str]] = None,
                    parameter_file: str = None,
-                   visualization_files: Union[str, Iterable] = None
+                   visualization_files: Union[str, Iterable[str]] = None,
+                   observable_files: Union[str, Iterable[str]] = None
                    ) -> 'Problem':
         """
         Factory method to load model and tables from files.
@@ -93,22 +99,20 @@ class Problem:
             measurement_file: PEtab measurement table
             parameter_file: PEtab parameter table
             visualization_files: PEtab visualization tables
+            observable_files: PEtab observables tables
         """
 
         sbml_model = sbml_document = sbml_reader = None
         condition_df = measurement_df = parameter_df = visualization_df = None
+        observable_df = None
 
         if condition_file:
             condition_df = conditions.get_condition_df(condition_file)
 
         if measurement_file:
-            if isinstance(measurement_file, str):
-                measurement_df = measurements.get_measurement_df(
-                    measurement_file)
-            else:
-                # If there are multiple tables, we will merge them
-                measurement_df = core.concat_tables(
-                    measurement_file, measurements.get_measurement_df)
+            # If there are multiple tables, we will merge them
+            measurement_df = core.concat_tables(
+                measurement_file, measurements.get_measurement_df)
 
         if parameter_file:
             parameter_df = parameters.get_parameter_df(parameter_file)
@@ -123,9 +127,15 @@ class Problem:
             visualization_df = core.concat_tables(
                 visualization_files, core.get_visualization_df)
 
+        if observable_files:
+            # If there are multiple tables, we will merge them
+            observable_df = core.concat_tables(
+                observable_files, observables.get_observable_df)
+
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,
                        parameter_df=parameter_df,
+                       observable_df=observable_df,
                        sbml_model=sbml_model,
                        sbml_document=sbml_document,
                        sbml_reader=sbml_reader,
@@ -165,7 +175,10 @@ class Problem:
                 path_prefix, yaml_config[PARAMETER_FILE]),
             visualization_files=[
                 os.path.join(path_prefix, f)
-                for f in problem0.get(VISUALIZATION_FILES, [])]
+                for f in problem0.get(VISUALIZATION_FILES, [])],
+            observable_files=[
+                os.path.join(path_prefix, f)
+                for f in problem0.get(OBSERVABLE_FILES, [])]
         )
 
     @staticmethod
@@ -202,6 +215,80 @@ class Problem:
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
 
+    def to_files(self,
+                 sbml_file: Optional[str] = None,
+                 condition_file: Optional[str] = None,
+                 measurement_file: Optional[str] = None,
+                 parameter_file: Optional[str] = None,
+                 visualization_file: Optional[str] = None,
+                 observable_file: Optional[str] = None) -> None:
+        """
+        Write PEtab tables to files for this problem
+
+        Writes PEtab files for those entities for which a destination was
+        passed.
+
+        NOTE: If this instance was created from multiple measurement or
+        visualization tables, they will be merged and written to a single file.
+
+        Arguments:
+            sbml_file: SBML model destination
+            condition_file: Condition table destination
+            measurement_file: Measurement table destination
+            parameter_file: Parameter table destination
+            visualization_file: Visualization table destination
+            observable_file: Observables table destination
+
+        Raises:
+            ValueError: If a destination was provided for a non-existing
+            entity.
+        """
+
+        if sbml_file:
+            if self.sbml_document is not None:
+                sbml.write_sbml(self.sbml_document, sbml_file)
+            else:
+                raise ValueError("Unable to save SBML model with no "
+                                 "sbml_doc set.")
+
+        def error(name: str) -> ValueError:
+            return ValueError(f"Unable to save non-existent {name} table")
+
+        if condition_file:
+            if self.condition_df is not None:
+                conditions.write_condition_df(self.condition_df,
+                                              condition_file)
+            else:
+                raise error("condition")
+
+        if measurement_file:
+            if self.measurement_df is not None:
+                measurements.write_measurement_df(self.measurement_df,
+                                                  measurement_file)
+            else:
+                raise error("measurement")
+
+        if parameter_file:
+            if self.parameter_df is not None:
+                parameters.write_parameter_df(self.parameter_df,
+                                              parameter_file)
+            else:
+                raise error("parameter")
+
+        if observable_file:
+            if self.observable_df is not None:
+                observables.write_observable_df(self.observable_df,
+                                                observable_file)
+            else:
+                raise error("observable")
+
+        if visualization_file:
+            if self.visualization_df is not None:
+                core.write_visualization_df(self.visualization_df,
+                                            visualization_file)
+            else:
+                raise error("visualization")
+
     def get_optimization_parameters(self):
         """
         Return list of optimization parameter IDs.
@@ -219,6 +306,8 @@ class Problem:
         Returns dictionary of observables definitions
         See `assignment_rules_to_dict` for details.
         """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
 
         return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
 
@@ -229,6 +318,8 @@ class Problem:
         This does not include parameter mappings defined in the measurement
         table.
         """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
 
         return sbml.get_sigmas(sbml_model=self.sbml_model, remove=remove)
 

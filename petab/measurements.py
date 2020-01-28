@@ -6,6 +6,7 @@ import itertools
 import numbers
 import re
 from typing import List, Union, Set, Dict
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -16,7 +17,9 @@ from . import core
 from .C import *  # noqa: F403
 
 
-def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
+def get_measurement_df(
+        measurement_file_name: Union[None, str, pd.DataFrame]
+) -> pd.DataFrame:
     """
     Read the provided measurement file into a ``pandas.Dataframe``.
 
@@ -26,12 +29,28 @@ def get_measurement_df(measurement_file_name: str) -> pd.DataFrame:
     Returns:
         Measurement DataFrame
     """
+    if measurement_file_name is None:
+        return measurement_file_name
+
+    if isinstance(measurement_file_name, pd.DataFrame):
+        return measurement_file_name
 
     measurement_df = pd.read_csv(measurement_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
         measurement_df.columns.values, MEASUREMENT)
 
     return measurement_df
+
+
+def write_measurement_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab measurement table
+
+    Arguments:
+        df: PEtab measurement table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=False)
 
 
 def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
@@ -47,6 +66,9 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
     Returns:
         Dictionary with `observableId` => `cost definition`
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     lint.assert_noise_distributions_valid(measurement_df)
 
     # read noise distributions from measurement file
@@ -164,13 +186,13 @@ def get_measurement_parameter_ids(measurement_df: pd.DataFrame) -> List[str]:
                 series.apply(split_parameter_replacement_list)))
 
     return unique_preserve_order(
-        get_unique_parameters(measurement_df.observableParameters)
-        + get_unique_parameters(measurement_df.noiseParameters))
+        get_unique_parameters(measurement_df[OBSERVABLE_PARAMETERS])
+        + get_unique_parameters(measurement_df[NOISE_PARAMETERS]))
 
 
-def split_parameter_replacement_list(list_string: Union[str, numbers.Number],
-                                     delim: str = ';'
-                                     ) -> List[Union[str, float]]:
+def split_parameter_replacement_list(
+        list_string: Union[str, numbers.Number],
+        delim: str = ';') -> List[Union[str, float]]:
     """
     Split values in observableParameters and noiseParameters in measurement
     table.
@@ -203,7 +225,7 @@ def get_placeholders(formula_string: str, observable_id: str,
     given observable ID.
 
     Arguments:
-        formula_string: observable formula (typically from SBML model)
+        formula_string: observable formula
         observable_id: ID of current observable
         override_type: 'observable' or 'noise', depending on whether `formula`
             is for observable or for noise model
@@ -211,6 +233,9 @@ def get_placeholders(formula_string: str, observable_id: str,
     Returns:
         (Un-ordered) set of placeholder parameter IDs
     """
+    if not formula_string:
+        return set()
+
     pattern = re.compile(
         re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
     placeholders = set()
@@ -236,8 +261,6 @@ def create_measurement_df() -> pd.DataFrame:
         TIME: [],
         OBSERVABLE_PARAMETERS: [],
         NOISE_PARAMETERS: [],
-        OBSERVABLE_TRANSFORMATION: [],
-        NOISE_DISTRIBUTION: [],
         DATASET_ID: [],
         REPLICATE_ID: []
     })
@@ -263,48 +286,41 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
 
 def assert_overrides_match_parameter_count(
         measurement_df: pd.DataFrame,
-        observables: Dict[str, str],
-        noise: Dict[str, str]) -> None:
+        observable_df: pd.DataFrame) -> None:
     """Ensure that number of parameters in the observable definition matches
     the number of overrides in ``measurement_df``
 
     Arguments:
-        measurement_df:
-            PEtab measurement table
-        observables:
-            dict: obsId => {obsFormula}
-        noise:
-            dict: obsId => {obsFormula}
+        measurement_df: PEtab measurement table
+        observable_df: PEtab observable table
     """
 
     # sympify only once and save number of parameters
-    observable_parameters_count = {oid[len('observable_'):]:
-                                   len(get_placeholders(
-                                       value['formula'],
-                                       oid[len('observable_'):],
-                                       'observable'))
-                                   for oid, value in observables.items()}
+    observable_parameters_count = {
+        obs_id: len(get_placeholders(formula, obs_id, 'observable'))
+        for obs_id, formula in zip(observable_df.index.values,
+                                   observable_df[OBSERVABLE_FORMULA])}
     noise_parameters_count = {
-        oid[len('observable_'):]: len(get_placeholders(
-            value, oid[len('observable_'):], 'noise'))
-        for oid, value in noise.items()
-    }
+        obs_id: len(get_placeholders(formula, obs_id, 'noise'))
+        for obs_id, formula in zip(observable_df.index.values,
+                                   observable_df[NOISE_FORMULA])}
 
     for _, row in measurement_df.iterrows():
         # check observable parameters
         try:
-            expected = observable_parameters_count[row.observableId]
+            expected = observable_parameters_count[row[OBSERVABLE_ID]]
         except KeyError:
             raise ValueError(
-                f"Observable {row.observableId} used in measurement table "
-                f"but not defined in model {observables.keys()}.")
+                f"Observable {row[OBSERVABLE_ID]} used in measurement table "
+                f"is not defined.")
         actual = len(
-            split_parameter_replacement_list(row.observableParameters))
+            split_parameter_replacement_list(row[OBSERVABLE_PARAMETERS]))
         # No overrides are also allowed
-        if not (actual == 0 or actual == expected):
+        if actual not in [0, expected]:
+            formula = observable_df.loc[row[OBSERVABLE_ID], OBSERVABLE_FORMULA]
             raise AssertionError(
                 f'Mismatch of observable parameter overrides for '
-                f'{observables[f"observable_{row.observableId}"]} '
+                f'{row[OBSERVABLE_ID]} ({formula})'
                 f'in:\n{row}\n'
                 f'Expected 0 or {expected} but got {actual}')
 
@@ -312,7 +328,7 @@ def assert_overrides_match_parameter_count(
         replacements = split_parameter_replacement_list(
             row.noiseParameters)
         try:
-            expected = noise_parameters_count[row.observableId]
+            expected = noise_parameters_count[row[OBSERVABLE_ID]]
 
             # No overrides are also allowed
             if not (len(replacements) == 0 or len(replacements) == expected):
@@ -326,7 +342,6 @@ def assert_overrides_match_parameter_count(
                     or not isinstance(replacements[0], numbers.Number):
                 raise AssertionError(
                     f'No placeholders have been specified in the noise model '
-                    f'SBML AssigmentRule for: '
-                    f'\n{row}\n'
-                    f'But parameter name or multiple overrides were specified '
-                    'in the noiseParameters column.')
+                    f'for observable {row[OBSERVABLE_ID]}, but parameter ID '
+                    'or multiple overrides were specified in the '
+                    'noiseParameters column.')

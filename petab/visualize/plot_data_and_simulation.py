@@ -6,13 +6,13 @@ from typing import Union, Optional, List
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import petab
-import petab.problem
 import seaborn as sns
 
 from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot)
+
+from .. import problem, measurements, core, conditions
 from ..C import *
 
 # for typehints
@@ -91,16 +91,15 @@ def plot_data_and_simulation(
 
     if isinstance(exp_data, str):
         # import from file
-        exp_data = petab.get_measurement_df(exp_data)
+        exp_data = measurements.get_measurement_df(exp_data)
 
     if isinstance(exp_conditions, str):
-        exp_conditions = petab.get_condition_df(exp_conditions)
+        exp_conditions = conditions.get_condition_df(exp_conditions)
 
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
         if vis_spec != '':
-            vis_spec = pd.read_csv(vis_spec, sep="\t",
-                                   index_col=None)
+            vis_spec = core.get_visualization_df(vis_spec)
         else:
             # create them based on simulation conditions
             vis_spec, exp_data = get_default_vis_specs(exp_data,
@@ -114,10 +113,10 @@ def plot_data_and_simulation(
 
     # import simulation file, if file was specified
     if isinstance(sim_data, str):
-        sim_data = petab.get_simulation_df(sim_data)
+        sim_data = core.get_simulation_df(sim_data)
 
     # get unique plotIDs
-    uni_plot_ids, _ = np.unique(vis_spec.plotId, return_index=True)
+    uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True)
 
     # Switch saving plots to file on or get axes
     plots_to_file = False
@@ -161,8 +160,10 @@ def plot_data_and_simulation(
         sns.despine()
         return ax
 
+    return None
 
-def plot_petab_problem(petab_problem: petab.problem.Problem,
+
+def plot_petab_problem(petab_problem: problem.Problem,
                        sim_data: Optional[Union[str, pd.DataFrame]] = None,
                        dataset_id_list: Optional[List[IdsList]] = None,
                        sim_cond_id_list: Optional[List[IdsList]] = None,
@@ -212,7 +213,7 @@ def plot_measurements_by_observable(data_file_path: str,
     """
 
     # import measurement data
-    measurement_data = petab.get_measurement_df(data_file_path)
+    measurement_data = measurements.get_measurement_df(data_file_path)
 
     # get unique observable ID
     observable_id = np.array(measurement_data.observableId)
