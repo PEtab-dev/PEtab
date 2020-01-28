@@ -254,7 +254,7 @@ The observable table has the following columns:
 
 * [`observableName`] [STRING, OPTIONAL]
 
-  Arbitrary string describing the observable.
+  Name of the observable. Only used for output, not for identification.
 
 * `observableFormula` [STRING]
 
