@@ -393,6 +393,7 @@ class Problem:
                 self.condition_df,
                 self.measurement_df,
                 self.parameter_df,
+                self.observable_df,
                 self.sbml_model,
                 warn_unmapped=warn_unmapped)
 
