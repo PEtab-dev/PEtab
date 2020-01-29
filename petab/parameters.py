@@ -74,8 +74,7 @@ def get_optimization_parameter_scaling(
         strings.
     """
     estimated_df = parameter_df.loc[parameter_df[ESTIMATE] == 1]
-    return {key: val for key, val in zip(estimated_df.index,
-                                         estimated_df[PARAMETER_SCALE])}
+    return dict(zip(estimated_df.index, estimated_df[PARAMETER_SCALE]))
 
 
 def create_parameter_df(sbml_model: libsbml.Model,
