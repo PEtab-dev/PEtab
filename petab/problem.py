@@ -293,12 +293,20 @@ class Problem:
         """
         Return list of optimization parameter IDs.
 
-        See get_optimization_parameters.
+        See ``petab.parameters.get_optimization_parameters``.
         """
         return parameters.get_optimization_parameters(self.parameter_df)
 
-    def get_dynamic_simulation_parameters(self):
-        """See `get_model_parameters`"""
+    def get_optimization_parameter_scales(self):
+        """
+        Return list of optimization parameter scaling strings.
+
+        See ``petab.parameters.get_optimization_parameters``.
+        """
+        return parameters.get_optimization_parameter_scaling(self.parameter_df)
+
+    def get_model_parameters(self):
+        """See `petab.sbml.get_model_parameters`"""
         return sbml.get_model_parameters(self.sbml_model)
 
     def get_observables(self, remove: bool = False):
@@ -396,6 +404,19 @@ class Problem:
                 self.observable_df,
                 self.sbml_model,
                 warn_unmapped=warn_unmapped)
+
+    def get_optimization_to_simulation_scale_mapping(
+            self, mapping_par_opt_to_par_sim: List[
+                parameter_mapping.ParMappingDictTuple]
+    ) -> List[parameter_mapping.ScaleMappingDictTuple]:
+        """
+        See get_optimization_to_simulation_scale_mapping.
+        """
+        return parameter_mapping\
+            .get_optimization_to_simulation_scale_mapping(
+                measurement_df=self.measurement_df,
+                parameter_df=self.parameter_df,
+                mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim)
 
     def create_parameter_df(self, *args, **kwargs):
         """Create a new PEtab parameter table

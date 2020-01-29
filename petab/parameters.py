@@ -4,7 +4,7 @@ import numbers
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-from typing import Iterable, Set, List, Tuple
+from typing import Iterable, Set, List, Tuple, Dict
 
 import libsbml
 
@@ -49,15 +49,33 @@ def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
 
 def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     """
-    Get list of optimization parameter ids from parameter dataframe.
+    Get list of optimization parameter IDs from parameter table.
 
     Arguments:
         parameter_df: PEtab parameter DataFrame
 
     Returns:
-        List of parameter IDs in the parameter table
+        List of IDs of parameters selected for optimization.
     """
-    return list(parameter_df.reset_index()[PARAMETER_ID])
+    return list(parameter_df.index[parameter_df[ESTIMATE] == 1])
+
+
+def get_optimization_parameter_scaling(
+        parameter_df: pd.DataFrame) -> Dict[str, str]:
+    """
+    Get Dictionary with optimization parameter IDs mapped to parameter scaling
+    strings.
+
+    Arguments:
+        parameter_df: PEtab parameter DataFrame
+
+    Returns:
+        Dictionary with optimization parameter IDs mapped to parameter scaling
+        strings.
+    """
+    estimated_df = parameter_df.loc[parameter_df[ESTIMATE] == 1]
+    return {key: val for key, val in zip(estimated_df.index,
+                                         estimated_df[PARAMETER_SCALE])}
 
 
 def create_parameter_df(sbml_model: libsbml.Model,
