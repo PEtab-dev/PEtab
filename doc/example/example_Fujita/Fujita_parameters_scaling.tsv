@@ -1,20 +1,21 @@
-parameterId	parameterName	parameterScale	lowerBound	upperBound	nominalValue	estimate	priorType	priorParameters	hierarchicalOptimization (optional)
-EGFR_turnover	EGFR_{turnover}	log10	-8	8	-2.829851402905720	1	uniform	1;3	
-init_AKT	init_{AKT}	log10	-8	8	-1.569748761347010	1	parameterScaleUniform	-3;3	
-init_EGFR	init_{EGFR}	log10	-8	8	7.574449769978310	1	normal	1000;50	
-init_S6	init_{S6}	log10	-8	8	2.274303703079510	1	logNormal	3;2	
-reaction_1_k1	reaction_{1,k1}	log10	-8	8	-2.432883473648650	1	parameterScaleNormal	1;2	
-reaction_1_k2	reaction_{1,k2}	log10	-8	8	-2.638050261080420	1	laplace	1000;20	
-reaction_2_k1	reaction_{2,k1}	log10	-8	8	-3.028491843487350	1	logLaplace	2;1	
-reaction_2_k2	reaction_{2,k2}	log10	-8	8	4.785082050342620	1	parameterScaleLaplace	2;1	
-reaction_3_k1	reaction_{3,k1}	log10	-8	8	-0.363286437827988	1			
-reaction_4_k1	reaction_{4,k1}	log10	-8	8	-1.520638111941380	1			
-reaction_5_k1	reaction_{5,k1}	log10	-8	8	-5.485039659360160	1			
-reaction_5_k2	reaction_{5,k2}	log10	-8	8	-3.399521218630190	1			
-reaction_6_k1	reaction_{6,k1}	log10	-8	8	-5.262553144389940	1			
-reaction_7_k1	reaction_{7,k1}	log10	-8	8	-1.927999928058530	1			
-reaction_8_k1	reaction_{8,k1}	log10	-8	8	-3.024677686513830	1			
-reaction_9_k1	reaction_{9,k1}	log10	-8	8	-1.544990619577320	1			
-scaling_pAkt_tot	scaling_{pAkt}_tot	log10	-8	8	1.616760082136900	1			
-scaling_pEGFR_tot	scaling_{pEGFR}_tot	log10	-8	8	-7.248116492035960	1			
-scaling_pS6_tot	scaling_{pS6}_tot	log10	-8	8	4.894991083571910	1			
+parameterId	parameterName	parameterScale	lowerBound	upperBound	nominalValue	estimate	initializationPriorType	initializationPriorParameters	objectivePriorType	objectivePriorParameters
+EGFR_turnover	EGFR_{turnover}	log10	1E-08	100000000	0.001479614562719	1	uniform	31.62;316.23	uniform	10;1000
+init_AKT	init_{AKT}	log10	1E-08	100000000	0.026930923029049	1	parameterScaleUniform	-3;3	parameterScaleUniform	-3;3
+init_EGFR	init_{EGFR}	log10	1E-08	100000000	37536153.8059105	1	normal	1000;50	normal	1000:50
+init_S6	init_{S6}	log10	1E-08	100000000	188.063148677911	1	logNormal	3;2	logNormal	3;2
+reaction_1_k1	reaction_{1,k1}	log10	1E-08	100000000	0.003690766129111	1	parameterScaleNormal	1;2	parameterScaleNormal	1;2
+reaction_1_k2	reaction_{1,k2}	log10	1E-08	100000000	0.002301175486005	1	laplace	1000;20	laplace	1000;20
+reaction_2_k1	reaction_{2,k1}	log10	1E-08	100000000	0.000936500808211	1	logLaplace	2;1	logLaplace	2;1
+reaction_2_k2	reaction_{2,k2}	log10	1E-08	100000000	60965.2066642586	1	parameterScaleLaplace	2;1	parameterScaleLaplace	2;1
+reaction_3_k1	reaction_{3,k1}	log10	1E-08	100000000	0.433225051651771	1				
+reaction_4_k1	reaction_{4,k1}	log10	1E-08	100000000	0.030155177423024	1				
+reaction_5_k1	reaction_{5,k1}	log10	1E-08	100000000	3.27310803801897E-06	1				
+reaction_5_k2	reaction_{5,k2}	log10	1E-08	100000000	0.000398546299782	1				
+reaction_6_k1	reaction_{6,k1}	log10	1E-08	100000000	5.46319692934546E-06	1				
+reaction_7_k1	reaction_{7,k1}	log10	1E-08	100000000	0.011803208311735	1				
+reaction_8_k1	reaction_{8,k1}	log10	1E-08	100000000	0.000944761775113	1				
+reaction_9_k1	reaction_{9,k1}	log10	1E-08	100000000	0.028510798479438	1				
+scaling_pAkt_tot	scaling_{pAkt}_tot	log10	1E-08	100000000	41.377103160384	1				
+scaling_pEGFR_tot	scaling_{pEGFR}_tot	log10	1E-08	100000000	5.64785460492811E-08	1				
+scaling_pS6_tot	scaling_{pS6}_tot	log10	1E-08	100000000	78521.9513232784	1				
+>>>>>>> develop

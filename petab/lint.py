@@ -9,9 +9,11 @@ from typing import Optional, Iterable
 import libsbml
 import numpy as np
 import pandas as pd
+import sympy as sp
 
 import petab
 from . import (core, parameters, sbml, measurements)
+from .C import *  # noqa: F403
 
 logger = logging.getLogger(__name__)
 
@@ -65,12 +67,12 @@ def check_condition_df(
     req_cols = []
     _check_df(df, req_cols, "condition")
 
-    if not df.index.name == 'conditionId':
+    if not df.index.name == CONDITION_ID:
         raise AssertionError(
             f"Condition table has wrong index {df.index.name}."
-            "expected 'conditionId'.")
+            f"expected {CONDITION_ID}.")
 
-    assert_no_leading_trailing_whitespace(df.index.values, "conditionId")
+    assert_no_leading_trailing_whitespace(df.index.values, CONDITION_ID)
 
     for column_name in req_cols:
         if not np.issubdtype(df[column_name].dtype, np.number):
@@ -79,44 +81,55 @@ def check_condition_df(
 
     if sbml_model is not None:
         for column_name in df.columns:
-            if column_name != 'conditionName' \
-                    and sbml_model.getParameter(column_name) is None:
+            if column_name != CONDITION_NAME \
+                    and sbml_model.getParameter(column_name) is None \
+                    and sbml_model.getSpecies(column_name) is None \
+                    and sbml_model.getCompartment(column_name) is None:
                 raise AssertionError(
-                    "Condition table contains column for unknown parameter"
-                    f" {column_name}. Column names must match parameter Ids "
-                    "defined in the SBML model.")
+                    "Condition table contains column for unknown entity '"
+                    f"{column_name}'. Column names must match parameter, "
+                    "species or compartment IDs specified in the SBML model.")
 
 
-def check_measurement_df(df: pd.DataFrame) -> None:
+def check_measurement_df(df: pd.DataFrame,
+                         observable_df: Optional[pd.DataFrame] = None) -> None:
     """Run sanity checks on PEtab measurement table
 
     Arguments:
         df: PEtab measurement DataFrame
+        observable_df: PEtab observable DataFrame for checking if measurements
+            are compatible with observable transformations.
 
     Raises:
-        AssertionError: in case of problems
+        AssertionError, ValueError: in case of problems
     """
 
-    required_columns = [
-        "observableId", "simulationConditionId", "measurement", "time"
-    ]
-    optional_columns = [
-        "preequilibrationConditionId",
-        "observableParameters", "noiseParameters"
-    ]
+    _check_df(df, MEASUREMENT_DF_REQUIRED_COLS, "measurement")
 
-    _check_df(df, required_columns, "measurement")
-
-    for column_name in required_columns:
+    for column_name in MEASUREMENT_DF_REQUIRED_COLS:
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
-    for column_name in optional_columns:
+    for column_name in MEASUREMENT_DF_OPTIONAL_COLS:
         if column_name in df \
                 and not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
+
+    if observable_df is not None \
+            and OBSERVABLE_TRANSFORMATION in observable_df:
+        # Check for positivity of measurements in case of log-transformation
+        for mes, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
+            trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
+            if mes <= 0.0 and trafo in [LOG, LOG10]:
+                raise ValueError('Measurements with observable transformation '
+                                 f'{trafo} must be positive, but {mes} <= 0.')
+
+    if observable_df is not None:
+        assert_measured_observables_defined(df, observable_df)
+        measurements.assert_overrides_match_parameter_count(
+            df, observable_df)
 
 
 def check_parameter_df(
@@ -136,20 +149,16 @@ def check_parameter_df(
         AssertionError: in case of problems
     """
 
-    req_cols = [
-        "parameterName", "parameterScale",
-        "lowerBound", "upperBound", "nominalValue", "estimate"
-    ]
-    _check_df(df, req_cols, "parameter")
+    _check_df(df, PARAMETER_DF_REQUIRED_COLS[1:], "parameter")
 
-    if not df.index.name == 'parameterId':
+    if not df.index.name == PARAMETER_ID:
         raise AssertionError(
             f"Parameter table has wrong index {df.index.name}."
-            "expected 'parameterId'.")
+            f"expected {PARAMETER_ID}.")
 
-    assert_no_leading_trailing_whitespace(df.index.values, "parameterId")
+    assert_no_leading_trailing_whitespace(df.index.values, PARAMETER_ID)
 
-    for column_name in req_cols:
+    for column_name in PARAMETER_DF_REQUIRED_COLS[1:]:  # 0 is PARAMETER_ID
         if not np.issubdtype(df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
@@ -160,11 +169,55 @@ def check_parameter_df(
     assert_parameter_estimate_is_boolean(df)
     assert_parameter_id_is_unique(df)
     check_parameter_bounds(df)
+    assert_parameter_prior_type_is_valid(df)
 
     if sbml_model and measurement_df is not None \
             and condition_df is not None:
         assert_all_parameters_present_in_parameter_df(
             df, sbml_model, measurement_df, condition_df)
+
+
+def check_observable_df(observable_df: pd.DataFrame) -> None:
+    """Check validity of observable table
+
+    Arguments:
+        observable_df: PEtab observable DataFrame
+
+    Raises:
+        AssertionError: in case of problems
+    """
+    _check_df(observable_df, OBSERVABLE_DF_REQUIRED_COLS[1:], "observable")
+
+    for column_name in OBSERVABLE_DF_REQUIRED_COLS[1:]:
+        if not np.issubdtype(observable_df[column_name].dtype, np.number):
+            assert_no_leading_trailing_whitespace(
+                observable_df[column_name].values, column_name)
+
+    for column_name in OBSERVABLE_DF_OPTIONAL_COLS:
+        if column_name in observable_df \
+                and not np.issubdtype(observable_df[column_name].dtype,
+                                      np.number):
+            assert_no_leading_trailing_whitespace(
+                observable_df[column_name].values, column_name)
+
+    assert_noise_distributions_valid(observable_df)
+
+    # Check that formulas are parsable
+    for row in observable_df.itertuples():
+        try:
+            obs = getattr(row, OBSERVABLE_FORMULA)
+            sp.sympify(obs)
+        except sp.SympifyError as e:
+            raise AssertionError(f"Cannot parse expression '{obs}' "
+                                 f"for observable {row.Index}: {e}")
+
+        try:
+            noise = getattr(row, NOISE_FORMULA)
+            sp.sympify(noise)
+        except sp.SympifyError as e:
+            raise AssertionError(f"Cannot parse expression '{noise}' "
+                                 f"for noise model for observable "
+                                 f"{row.Index}: {e}")
 
 
 def assert_all_parameters_present_in_parameter_df(
@@ -185,14 +238,18 @@ def assert_all_parameters_present_in_parameter_df(
         AssertionError: in case of problems
     """
 
-    expected = parameters.get_required_parameters_for_parameter_table(
+    required = parameters.get_required_parameters_for_parameter_table(
+        sbml_model=sbml_model, condition_df=condition_df,
+        measurement_df=measurement_df)
+
+    allowed = parameters.get_valid_parameters_for_parameter_table(
         sbml_model=sbml_model, condition_df=condition_df,
         measurement_df=measurement_df)
 
     actual = set(parameter_df.index)
 
-    missing = expected - actual
-    extraneous = actual - expected
+    missing = required - actual
+    extraneous = actual - allowed
 
     if missing:
         raise AssertionError('Missing parameter(s) in parameter table: '
@@ -203,30 +260,27 @@ def assert_all_parameters_present_in_parameter_df(
                              + str(extraneous))
 
 
-def assert_measured_observables_present_in_model(
+def assert_measured_observables_defined(
         measurement_df: pd.DataFrame,
-        sbml_model: libsbml.Model) -> None:
-    """Check if all observables in measurement files have been specified in
-    the model
+        observable_df: pd.DataFrame) -> None:
+    """Check if all observables in the measurement table have been defined in the
+    observable table
 
     Arguments:
-        sbml_model: PEtab SBML Model
         measurement_df: PEtab measurement table
+        observable_df: PEtab observable table
 
     Raises:
         AssertionError: in case of problems
     """
 
-    measurement_observables = [f'observable_{x}' for x in
-                               measurement_df.observableId.values]
+    used_observables = set(measurement_df[OBSERVABLE_ID].values)
+    defined_observables = set(observable_df.index.values)
+    undefined_observables = used_observables - defined_observables
 
-    model_observables = sbml.get_observables(sbml_model)
-    undefined_observables = set(measurement_observables) - set(
-        model_observables.keys())
-
-    if len(undefined_observables):
+    if undefined_observables:
         raise AssertionError(
-            f"Unknown observables in measurement file: "
+            "Undefined observables in measurement file: "
             f"{undefined_observables}.")
 
 
@@ -239,18 +293,10 @@ def condition_table_is_parameter_free(condition_df: pd.DataFrame) -> bool:
 
     Returns:
         True if there are no parameter overrides in the condition table,
-        False otherweise.
+        False otherwise.
     """
 
-    constant_parameters = list(
-        set(condition_df.columns.values.tolist()) - {'conditionId',
-                                                     'conditionName'})
-
-    for column in constant_parameters:
-        if np.any(np.invert(condition_df.loc[:, column].apply(
-                isinstance, args=(numbers.Number,)))):
-            return False
-    return True
+    return len(petab.get_parametric_overrides(condition_df)) == 0
 
 
 def assert_parameter_id_is_string(parameter_df: pd.DataFrame) -> None:
@@ -268,10 +314,10 @@ def assert_parameter_id_is_string(parameter_df: pd.DataFrame) -> None:
     for parameter_id in parameter_df:
         if isinstance(parameter_id, str):
             if parameter_id[0].isdigit():
-                raise AssertionError('parameterId ' + parameter_id
-                                     + ' starts with integer')
+                raise AssertionError(
+                    f"{PARAMETER_ID} {parameter_id} starts with integer.")
         else:
-            raise AssertionError('Empty parameterId found')
+            raise AssertionError(f"Empty {PARAMETER_ID} found.")
 
 
 def assert_parameter_id_is_unique(parameter_df: pd.DataFrame) -> None:
@@ -286,7 +332,7 @@ def assert_parameter_id_is_unique(parameter_df: pd.DataFrame) -> None:
     """
     if len(parameter_df.index) != len(set(parameter_df.index)):
         raise AssertionError(
-            'parameterId column in parameter table is not unique')
+            f"{PARAMETER_ID} column in parameter table is not unique.")
 
 
 def assert_parameter_scale_is_valid(parameter_df: pd.DataFrame) -> None:
@@ -301,12 +347,10 @@ def assert_parameter_scale_is_valid(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-
-    for parameter_scale in parameter_df['parameterScale']:
-        if parameter_scale not in ['lin', 'log', 'log10']:
-            raise AssertionError(
-                'Expected "lin", "log" or "log10" but got "' +
-                parameter_scale + '"')
+    for parameter_scale in parameter_df[PARAMETER_SCALE]:
+        if parameter_scale not in [LIN, LOG, LOG10]:
+            raise AssertionError(f"Expected {LIN}, {LOG}, or {LOG10}, but "
+                                 f"got {parameter_scale}.")
 
 
 def assert_parameter_bounds_are_numeric(parameter_df: pd.DataFrame) -> None:
@@ -320,8 +364,8 @@ def assert_parameter_bounds_are_numeric(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-    parameter_df["lowerBound"].apply(float).all()
-    parameter_df["upperBound"].apply(float).all()
+    parameter_df[LOWER_BOUND].apply(float).all()
+    parameter_df[UPPER_BOUND].apply(float).all()
 
 
 def check_parameter_bounds(parameter_df: pd.DataFrame) -> None:
@@ -338,16 +382,37 @@ def check_parameter_bounds(parameter_df: pd.DataFrame) -> None:
 
     """
     for _, row in parameter_df.iterrows():
-        if int(row['estimate']):
-            if not row['lowerBound'] <= row['upperBound']:
+        if int(row[ESTIMATE]):
+            if not row[LOWER_BOUND] <= row[UPPER_BOUND]:
                 raise AssertionError(
-                    f"lowerBound greater than upperBound for parameterId "
-                    f"{row.name}.")
-            if (row['lowerBound'] <= 0.0 or row['upperBound'] < 0.0) \
-                    and row['parameterScale'] in ['log', 'log10']:
+                    f"{LOWER_BOUND} greater than {UPPER_BOUND} for "
+                    f"{PARAMETER_ID} {row.name}.")
+            if (row[LOWER_BOUND] <= 0.0 or row[UPPER_BOUND] < 0.0) \
+                    and row[PARAMETER_SCALE] in [LOG, LOG10]:
                 raise AssertionError(
-                    f'Bounds for {row["parameterScale"]} scaled parameter'
-                    f' {row.name} must be positive.')
+                    f"Bounds for {row[PARAMETER_SCALE]} scaled parameter "
+                    f"{ row.name} must be positive.")
+
+
+def assert_parameter_prior_type_is_valid(
+        parameter_df: pd.DataFrame) -> None:
+    """Check that valid prior types have been selected
+
+    Arguments:
+        parameter_df: PEtab parameter table
+
+    Raises:
+        AssertionError in case of invalid prior
+    """
+    for prefix in [INITIALIZATION, OBJECTIVE]:
+        col_name = f"{prefix}PriorType"
+        if col_name not in parameter_df.columns:
+            continue
+        for _, row in parameter_df.iterrows():
+            if row[col_name] not in PRIOR_TYPES:
+                raise AssertionError(
+                    f"{col_name} must be one of {PRIOR_TYPES} but is "
+                    f"{row[col_name]}.")
 
 
 def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
@@ -361,10 +426,10 @@ def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-    for estimate in parameter_df['estimate']:
+    for estimate in parameter_df[ESTIMATE]:
         if int(estimate) not in [True, False]:
             raise AssertionError(
-                f"Expected 0 or 1 but got {estimate} in estimate column.")
+                f"Expected 0 or 1 but got {estimate} in {ESTIMATE} column.")
 
 
 def measurement_table_has_timepoint_specific_mappings(
@@ -385,29 +450,28 @@ def measurement_table_has_timepoint_specific_mappings(
 
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(
-            numbers.Number,)), 'noiseParameters'] = np.nan
+            numbers.Number,)), NOISE_PARAMETERS] = np.nan
 
     grouping_cols = core.get_notnull_columns(
         measurement_df,
-        ['observableId',
-         'simulationConditionId',
-         'preequilibrationConditionId',
-         'observableParameters',
-         'noiseParameters'
+        [OBSERVABLE_ID,
+         SIMULATION_CONDITION_ID,
+         PREEQUILIBRATION_CONDITION_ID,
+         OBSERVABLE_PARAMETERS,
+         NOISE_PARAMETERS,
          ])
     grouped_df = measurement_df.groupby(grouping_cols).size().reset_index()
 
     grouping_cols = core.get_notnull_columns(
         grouped_df,
-        ['observableId',
-         'simulationConditionId',
-         'preequilibrationConditionId'])
+        [OBSERVABLE_ID,
+         SIMULATION_CONDITION_ID,
+         PREEQUILIBRATION_CONDITION_ID])
     grouped_df2 = grouped_df.groupby(grouping_cols).size().reset_index()
 
     if len(grouped_df.index) != len(grouped_df2.index):
-        logger.warning(
-            "Measurement table has timepoint specific mappings:\n"
-            + str(grouped_df))
+        logger.warning("Measurement table has timepoint-specific "
+                       f"mappings:\n{grouped_df}")
         return True
     return False
 
@@ -423,10 +487,10 @@ def measurement_table_has_observable_parameter_numeric_overrides(
         True if there any numbers to override observable parameters,
         False otherwise.
     """
-    if 'observableParameters' not in measurement_df:
+    if OBSERVABLE_PARAMETERS not in measurement_df:
         return False
 
-    for i, row in measurement_df.iterrows():
+    for _, row in measurement_df.iterrows():
         for override in measurements.split_parameter_replacement_list(
                 row.observableParameters):
             if isinstance(override, numbers.Number):
@@ -435,61 +499,35 @@ def measurement_table_has_observable_parameter_numeric_overrides(
     return False
 
 
-def assert_noise_distributions_valid(measurement_df: pd.DataFrame) -> None:
+def assert_noise_distributions_valid(observable_df: pd.DataFrame) -> None:
     """
-    Check whether there are not multiple noise distributions for an
-    observable, and that the names are correct.
+    Ensure that noise distributions and transformations for observables are
+    valid.
 
     Arguments:
-        measurement_df: PEtab measurement table
+        observable_df: PEtab observable table
 
     Raises:
         AssertionError: in case of problems
     """
-    df = measurement_df.copy()
+    if OBSERVABLE_TRANSFORMATION in observable_df:
+        # check for valid values
+        for trafo in observable_df[OBSERVABLE_TRANSFORMATION]:
+            if trafo not in ['', *OBSERVABLE_TRANSFORMATIONS] \
+                    and not (isinstance(trafo, numbers.Number)
+                             and np.isnan(trafo)):
+                raise ValueError(
+                    f"Unrecognized observable transformation in observable "
+                    f"table: {trafo}.")
 
-    # insert optional columns into copied df
-
-    if 'observableTransformation' not in df:
-        df['observableTransformation'] = ''
-    if 'noiseDistribution' not in df:
-        df['noiseDistribution'] = ''
-
-    # check for valid values
-
-    for trafo in df['observableTransformation']:
-        if trafo not in ['', 'lin', 'log', 'log10'] \
-                and not (isinstance(trafo, numbers.Number)
-                         and np.isnan(trafo)):
-            raise ValueError(
-                f"Unrecognized observable transformation in measurement "
-                f"file: {trafo}.")
-    for distr in df['noiseDistribution']:
-        if distr not in ['', 'normal', 'laplace'] \
-                and not (isinstance(distr, numbers.Number)
-                         and np.isnan(distr)):
-            raise ValueError(
-                f"Unrecognized noise distribution in measurement "
-                f"file: {distr}.")
-
-    # Check for positivity of measurements in case of log-transformation
-    for mes, trafo in zip(df['measurement'],
-                          df['observableTransformation']):
-        if mes <= 0.0 and trafo in ['log', 'log10']:
-            raise ValueError('Measurements with observable transformation '
-                             f'{trafo} must be positive, but {mes} <= 0.')
-
-    # check for unique values per observable
-
-    distrs = df.groupby(['observableId']).size().reset_index()
-
-    distrs_check = df.groupby(
-        ['observableId', 'observableTransformation', 'noiseDistribution'])
-
-    if len(distrs) != len(distrs_check):
-        raise AssertionError(
-            f"The noiseDistribution for an observable in the measurement "
-            f"file is not unique: \n{distrs_check}")
+    if NOISE_DISTRIBUTION in observable_df:
+        for distr in observable_df[NOISE_DISTRIBUTION]:
+            if distr not in ['', *NOISE_MODELS] \
+                    and not (isinstance(distr, numbers.Number)
+                             and np.isnan(distr)):
+                raise ValueError(
+                    f"Unrecognized noise distribution in observable "
+                    f"table: {distr}.")
 
 
 def lint_problem(problem: 'petab.Problem') -> bool:
@@ -501,6 +539,7 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     Returns:
         True is errors occurred, False otherwise
     """
+    # pylint: disable=too-many-statements
     errors_occurred = False
 
     # Run checks on individual files
@@ -515,8 +554,12 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     if problem.measurement_df is not None:
         logger.info("Checking measurement table...")
         try:
-            check_measurement_df(problem.measurement_df)
-            assert_noise_distributions_valid(problem.measurement_df)
+            check_measurement_df(problem.measurement_df, problem.observable_df)
+
+            if problem.condition_df is not None:
+                assert_measurement_conditions_present_in_condition_table(
+                    problem.measurement_df, problem.condition_df
+                )
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
@@ -533,6 +576,16 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     else:
         logger.warning("Condition table not available. Skipping.")
 
+    if problem.observable_df is not None:
+        logger.info("Checking observable table...")
+        try:
+            check_observable_df(problem.observable_df)
+        except AssertionError as e:
+            logger.error(e)
+            errors_occurred = True
+    else:
+        logger.warning("Observable table not available. Skipping.")
+
     if problem.parameter_df is not None:
         logger.info("Checking parameter table...")
         try:
@@ -543,20 +596,6 @@ def lint_problem(problem: 'petab.Problem') -> bool:
             errors_occurred = True
     else:
         logger.warning("Parameter table not available. Skipping.")
-
-    if problem.measurement_df is not None and problem.sbml_model is not None \
-            and not errors_occurred:
-        try:
-            assert_measured_observables_present_in_model(
-                problem.measurement_df, problem.sbml_model)
-            measurements.assert_overrides_match_parameter_count(
-                problem.measurement_df,
-                sbml.get_observables(problem.sbml_model, remove=False),
-                sbml.get_sigmas(problem.sbml_model, remove=False)
-            )
-        except AssertionError as e:
-            logger.error(e)
-            errors_occurred = True
 
     if problem.sbml_model is not None and problem.condition_df is not None \
             and problem.parameter_df is not None:
@@ -573,7 +612,8 @@ def lint_problem(problem: 'petab.Problem') -> bool:
     if errors_occurred:
         logger.error('Not OK')
     elif problem.measurement_df is None or problem.condition_df is None \
-            or problem.sbml_model is None or problem.parameter_df is None:
+            or problem.sbml_model is None or problem.parameter_df is None \
+            or problem.observable_df is None:
         logger.warning('Not all files of the PEtab problem definition could '
                        'be checked.')
     else:
@@ -623,3 +663,30 @@ def assert_model_parameters_in_condition_or_parameter_table(
             raise AssertionError(f"Model parameter '{parameter_id}' present "
                                  "in both condition table and parameter "
                                  "table.")
+
+
+def assert_measurement_conditions_present_in_condition_table(
+        measurement_df: pd.DataFrame, condition_df: pd.DataFrame) -> None:
+    """Ensure that all entries from measurement_df.simulationConditionId and
+    measurement_df.preequilibrationConditionId are present in
+    condition_df.index.
+
+    Arguments:
+        measurement_df: PEtab measurement table
+        condition_df: PEtab condition table
+
+    Raises:
+        AssertionError: in case of problems
+    """
+
+    used_conditions = set(measurement_df[SIMULATION_CONDITION_ID].values)
+    if PREEQUILIBRATION_CONDITION_ID in measurement_df:
+        used_conditions |= \
+            set(measurement_df[PREEQUILIBRATION_CONDITION_ID].dropna().values)
+    available_conditions = set(condition_df.index.values)
+    missing_conditions = used_conditions - available_conditions
+
+    if missing_conditions:
+        raise AssertionError("Measurement table references conditions that "
+                             "are not specified in the condition table: "
+                             + str(missing_conditions))

@@ -6,6 +6,7 @@ from typing import Dict, Union, Optional
 
 import jsonschema
 import yaml
+from .C import *  # noqa: F403
 
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -85,13 +86,14 @@ def validate_yaml_semantics(
             raise AssertionError(f"File '{_filename}' provided as '{_field}' "
                                  "does not exist.")
 
-    _check_file(os.path.join(path_prefix, yaml_config['parameter_file']),
-                'parameter_file')
-    for problem_config in yaml_config['problems']:
-        for field in ['sbml_files', 'condition_files',
-                      'measurement_files']:
-            for filename in problem_config[field]:
-                _check_file(os.path.join(path_prefix, filename), field)
+    _check_file(os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
+                PARAMETER_FILE)
+    for problem_config in yaml_config[PROBLEMS]:
+        for field in [SBML_FILES, CONDITION_FILES, MEASUREMENT_FILES,
+                      VISUALIZATION_FILES, OBSERVABLE_FILES]:
+            if field in problem_config:
+                for filename in problem_config[field]:
+                    _check_file(os.path.join(path_prefix, filename), field)
 
 
 def load_yaml(yaml_config: Union[Dict, str]) -> Dict:
@@ -124,7 +126,7 @@ def is_composite_problem(yaml_config: Union[Dict, str]) -> bool:
     """
 
     yaml_config = load_yaml(yaml_config)
-    return len(yaml_config['problems']) > 1
+    return len(yaml_config[PROBLEMS]) > 1
 
 
 def assert_single_condition_and_sbml_file(problem_config: Dict) -> None:
@@ -139,10 +141,10 @@ def assert_single_condition_and_sbml_file(problem_config: Dict) -> None:
         NotImplementedError:
             If multiple condition or SBML files specified.
     """
-    if (len(problem_config['sbml_files']) > 1
-            or len(problem_config['condition_files']) > 1):
+    if (len(problem_config[SBML_FILES]) > 1
+            or len(problem_config[CONDITION_FILES]) > 1):
         # TODO https://github.com/ICB-DCM/PEtab/issues/188
         # TODO https://github.com/ICB-DCM/PEtab/issues/189
         raise NotImplementedError(
             'Support for multiple models or condition files is not yet '
-            ' implemented.')
+            'implemented.')

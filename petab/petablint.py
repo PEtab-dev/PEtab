@@ -23,6 +23,7 @@ class LintFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        # pylint: disable=protected-access
         format_orig = self._style._fmt
         self._style._fmt = LintFormatter.formats.get(record.levelno, self._fmt)
         result = logging.Formatter.format(self, record)
@@ -94,8 +95,8 @@ def parse_cli_args():
 
     if (not args.model_name
             and not any([args.sbml_file_name, args.condition_file_name,
-                        args.measurement_file_name, args.parameter_file_name,
-                        args.yaml_file_name])):
+                         args.measurement_file_name, args.parameter_file_name,
+                         args.yaml_file_name])):
         parser.error('Neither model name nor any filename specified. '
                      'What shall I do?')
 
@@ -103,6 +104,7 @@ def parse_cli_args():
 
 
 def main():
+    """Run PEtab validator"""
     args = parse_cli_args()
     init_colorama(autoreset=True)
 
@@ -115,16 +117,22 @@ def main():
     logging.basicConfig(level=logging.DEBUG, handlers=[ch])
 
     if args.yaml_file_name:
-        if petab.is_composite_problem(args.yaml_file_name):
-            from petab.yaml import validate
+        from petab.yaml import validate
+        from jsonschema.exceptions import ValidationError
+        try:
             validate(args.yaml_file_name)
+        except ValidationError as e:
+            logger.error("Provided YAML file does not adhere to PEtab "
+                         f"schema: {e}")
+            sys.exit(1)
 
+        if petab.is_composite_problem(args.yaml_file_name):
             # TODO: further checking:
             #  https://github.com/ICB-DCM/PEtab/issues/191
             #  problem = petab.CompositeProblem.from_yaml(args.yaml_file_name)
             return
-        else:
-            problem = petab.Problem.from_yaml(args.yaml_file_name)
+
+        problem = petab.Problem.from_yaml(args.yaml_file_name)
 
     else:
         logger.debug('Looking for...')

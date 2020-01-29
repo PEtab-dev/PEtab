@@ -1,12 +1,10 @@
 """Functions for interacting with SBML models"""
-
+from warnings import warn
 import logging
 import re
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 
 import libsbml
-
-from . import sbml
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +37,9 @@ def assignment_rules_to_dict(
             }
 
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     result = {}
 
     # iterate over rules
@@ -133,8 +134,8 @@ def globalize_parameters(sbml_model: libsbml.Model,
     for reaction in sbml_model.getListOfReactions():
         law = reaction.getKineticLaw()
         # copy first so we can delete in the following loop
-        local_parameters = [local_parameter for local_parameter
-                            in law.getListOfParameters()]
+        local_parameters = list(local_parameter for local_parameter
+                                in law.getListOfParameters())
         for lp in local_parameters:
             if prepend_reaction_id:
                 parameter_id = f'{reaction.getId()}_{lp.getId()}'
@@ -202,6 +203,9 @@ def create_assigment_rule(sbml_model: libsbml.Model,
     Returns:
         The created ``AssignmentRule``
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     if rule_id is None:
         rule_id = assignee_id
 
@@ -231,6 +235,8 @@ def add_model_output(sbml_model: libsbml.Model,
         observable_id: ID without "observable\\_" prefix
         observable_name: Any observable name
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
 
     if observable_name is None:
         observable_name = observable_id
@@ -254,6 +260,9 @@ def add_model_output_sigma(sbml_model: libsbml.Model,
         observable_id: Observable id for which to add sigma
         formula: Formula for sigma
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     add_global_parameter(sbml_model, f'sigma_{observable_id}')
     create_assigment_rule(sbml_model, f'sigma_{observable_id}', formula)
 
@@ -278,6 +287,9 @@ def add_model_output_with_sigma(
         observable_name:
             Any name
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     add_model_output(sbml_model=sbml_model,
                      observable_id=observable_id,
                      observable_name=observable_name,
@@ -297,6 +309,9 @@ def sbml_parameter_is_observable(sbml_parameter: libsbml.Parameter) -> bool:
     Returns whether the ``libsbml.Parameter`` ``sbml_parameter``
     matches the defined observable format.
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     return sbml_parameter.getId().startswith('observable_')
 
 
@@ -305,6 +320,9 @@ def sbml_parameter_is_sigma(sbml_parameter: libsbml.Parameter) -> bool:
     Returns whether the ``libsbml.Parameter`` ``sbml_parameter``
     matches the defined sigma format.
     """
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     return sbml_parameter.getId().startswith('sigma_')
 
 
@@ -316,7 +334,10 @@ def get_observables(sbml_model: libsbml.Model, remove: bool = False) -> dict:
         Dictionary of observable definitions.
         See `assignment_rules_to_dict` for details.
     """
-    observables = sbml.assignment_rules_to_dict(
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
+    observables = assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_observable,
         remove=remove
@@ -334,7 +355,10 @@ def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
         Keys are observable IDs, for values see `assignment_rules_to_dict` for
         details.
     """
-    sigmas = sbml.assignment_rules_to_dict(
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
+    sigmas = assignment_rules_to_dict(
         sbml_model,
         filter_function=sbml_parameter_is_sigma,
         remove=remove
@@ -345,8 +369,36 @@ def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
     return sigmas
 
 
-def get_model_parameters(sbml_model: libsbml.Model) -> List[str]:
-    """Return list of SBML model parameter IDs which are not AssignmentRule
-    targets for observables or sigmas"""
-    return [p.getId() for p in sbml_model.getListOfParameters()
-            if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
+def get_model_parameters(sbml_model: libsbml.Model, with_values=False
+                         ) -> Union[List[str], Dict[str, float]]:
+    """Return SBML model parameters which are not AssignmentRule
+    targets for observables or sigmas
+
+    Arguments:
+        sbml_model: SBML model
+        with_values: If false, returns list of SBML model parameter IDs which
+        are not AssignmentRule targets for observables or sigmas. If true,
+        returns a dictionary with those parameter IDs as keys and parameter
+        values from the SBML model as values.
+    """
+    if not with_values:
+        return [p.getId() for p in sbml_model.getListOfParameters()
+                if sbml_model.getAssignmentRuleByVariable(p.getId()) is None]
+
+    return {p.getId(): p.getValue()
+            for p in sbml_model.getListOfParameters()
+            if sbml_model.getAssignmentRuleByVariable(p.getId()) is None}
+
+
+def write_sbml(sbml_doc: libsbml.SBMLDocument, filename: str) -> None:
+    """Write PEtab visualization table
+
+    Arguments:
+        sbml_doc: SBML document containing the SBML model
+        filename: Destination file name
+    """
+    sbml_writer = libsbml.SBMLWriter()
+    ret = sbml_writer.writeSBMLToFile(sbml_doc, filename)
+    if not ret:
+        raise RuntimeError(f"libSBML reported error {ret} when trying to "
+                           f"create SBML file {filename}.")

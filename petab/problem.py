@@ -1,14 +1,14 @@
 """PEtab Problem class"""
 
 import os
+from warnings import warn
 
 import pandas as pd
-
-from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml)
-
 import libsbml
-from typing import Optional, List, Union, Dict
+from typing import Optional, List, Union, Dict, Iterable
+from . import (parameter_mapping, measurements, conditions, parameters,
+               sampling, sbml, yaml, core, observables)
+from .C import *  # noqa: F403
 
 
 class Problem:
@@ -19,11 +19,16 @@ class Problem:
     - condition table
     - measurement table
     - parameter table
+    - observables table
+
+    Optionally it may contain visualization tables.
 
     Attributes:
         condition_df: PEtab condition table
         measurement_df: PEtab measurement table
         parameter_df: PEtab parameter table
+        observable_df: PEtab observable table
+        visualization_df: PEtab visualization table
         sbml_reader: Stored to keep object alive.
         sbml_document: Stored to keep object alive.
         sbml_model: PEtab SBML model
@@ -35,11 +40,15 @@ class Problem:
                  sbml_document: libsbml.SBMLDocument = None,
                  condition_df: pd.DataFrame = None,
                  measurement_df: pd.DataFrame = None,
-                 parameter_df: pd.DataFrame = None):
+                 parameter_df: pd.DataFrame = None,
+                 visualization_df: pd.DataFrame = None,
+                 observable_df: pd.DataFrame = None):
 
         self.condition_df: Optional[pd.DataFrame] = condition_df
         self.measurement_df: Optional[pd.DataFrame] = measurement_df
         self.parameter_df: Optional[pd.DataFrame] = parameter_df
+        self.visualization_df: Optional[pd.DataFrame] = visualization_df
+        self.observable_df: Optional[pd.DataFrame] = observable_df
 
         self.sbml_reader: Optional[libsbml.SBMLReader] = sbml_reader
         self.sbml_document: Optional[libsbml.SBMLDocument] = sbml_document
@@ -76,8 +85,11 @@ class Problem:
     @staticmethod
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
-                   measurement_file: str = None,
-                   parameter_file: str = None) -> 'Problem':
+                   measurement_file: Union[str, Iterable[str]] = None,
+                   parameter_file: str = None,
+                   visualization_files: Union[str, Iterable[str]] = None,
+                   observable_files: Union[str, Iterable[str]] = None
+                   ) -> 'Problem':
         """
         Factory method to load model and tables from files.
 
@@ -86,34 +98,48 @@ class Problem:
             condition_file: PEtab condition table
             measurement_file: PEtab measurement table
             parameter_file: PEtab parameter table
+            visualization_files: PEtab visualization tables
+            observable_files: PEtab observables tables
         """
 
         sbml_model = sbml_document = sbml_reader = None
-        condition_df = measurement_df = parameter_df = None
+        condition_df = measurement_df = parameter_df = visualization_df = None
+        observable_df = None
 
         if condition_file:
             condition_df = conditions.get_condition_df(condition_file)
+
         if measurement_file:
-            if isinstance(measurement_file, str):
-                measurement_df = measurements.get_measurement_df(
-                    measurement_file)
-            else:
-                # If there are multiple tables, we will merge them
-                measurement_df = measurements.concat_measurements(
-                    measurement_file)
+            # If there are multiple tables, we will merge them
+            measurement_df = core.concat_tables(
+                measurement_file, measurements.get_measurement_df)
+
         if parameter_file:
             parameter_df = parameters.get_parameter_df(parameter_file)
+
         if sbml_file:
             sbml_reader = libsbml.SBMLReader()
             sbml_document = sbml_reader.readSBML(sbml_file)
             sbml_model = sbml_document.getModel()
 
+        if visualization_files:
+            # If there are multiple tables, we will merge them
+            visualization_df = core.concat_tables(
+                visualization_files, core.get_visualization_df)
+
+        if observable_files:
+            # If there are multiple tables, we will merge them
+            observable_df = core.concat_tables(
+                observable_files, observables.get_observable_df)
+
         return Problem(condition_df=condition_df,
                        measurement_df=measurement_df,
                        parameter_df=parameter_df,
+                       observable_df=observable_df,
                        sbml_model=sbml_model,
                        sbml_document=sbml_document,
-                       sbml_reader=sbml_reader)
+                       sbml_reader=sbml_reader,
+                       visualization_df=visualization_df)
 
     @staticmethod
     def from_yaml(yaml_config: Union[Dict, str]) -> 'Problem':
@@ -140,13 +166,19 @@ class Problem:
         yaml.assert_single_condition_and_sbml_file(problem0)
 
         return Problem.from_files(
-            sbml_file=os.path.join(path_prefix, problem0['sbml_files'][0]),
+            sbml_file=os.path.join(path_prefix, problem0[SBML_FILES][0]),
             measurement_file=[os.path.join(path_prefix, f)
-                              for f in problem0['measurement_files']],
+                              for f in problem0[MEASUREMENT_FILES]],
             condition_file=os.path.join(
-                path_prefix, problem0['condition_files'][0]),
+                path_prefix, problem0[CONDITION_FILES][0]),
             parameter_file=os.path.join(
-                path_prefix, yaml_config['parameter_file'])
+                path_prefix, yaml_config[PARAMETER_FILE]),
+            visualization_files=[
+                os.path.join(path_prefix, f)
+                for f in problem0.get(VISUALIZATION_FILES, [])],
+            observable_files=[
+                os.path.join(path_prefix, f)
+                for f in problem0.get(OBSERVABLE_FILES, [])]
         )
 
     @staticmethod
@@ -183,6 +215,80 @@ class Problem:
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
 
+    def to_files(self,
+                 sbml_file: Optional[str] = None,
+                 condition_file: Optional[str] = None,
+                 measurement_file: Optional[str] = None,
+                 parameter_file: Optional[str] = None,
+                 visualization_file: Optional[str] = None,
+                 observable_file: Optional[str] = None) -> None:
+        """
+        Write PEtab tables to files for this problem
+
+        Writes PEtab files for those entities for which a destination was
+        passed.
+
+        NOTE: If this instance was created from multiple measurement or
+        visualization tables, they will be merged and written to a single file.
+
+        Arguments:
+            sbml_file: SBML model destination
+            condition_file: Condition table destination
+            measurement_file: Measurement table destination
+            parameter_file: Parameter table destination
+            visualization_file: Visualization table destination
+            observable_file: Observables table destination
+
+        Raises:
+            ValueError: If a destination was provided for a non-existing
+            entity.
+        """
+
+        if sbml_file:
+            if self.sbml_document is not None:
+                sbml.write_sbml(self.sbml_document, sbml_file)
+            else:
+                raise ValueError("Unable to save SBML model with no "
+                                 "sbml_doc set.")
+
+        def error(name: str) -> ValueError:
+            return ValueError(f"Unable to save non-existent {name} table")
+
+        if condition_file:
+            if self.condition_df is not None:
+                conditions.write_condition_df(self.condition_df,
+                                              condition_file)
+            else:
+                raise error("condition")
+
+        if measurement_file:
+            if self.measurement_df is not None:
+                measurements.write_measurement_df(self.measurement_df,
+                                                  measurement_file)
+            else:
+                raise error("measurement")
+
+        if parameter_file:
+            if self.parameter_df is not None:
+                parameters.write_parameter_df(self.parameter_df,
+                                              parameter_file)
+            else:
+                raise error("parameter")
+
+        if observable_file:
+            if self.observable_df is not None:
+                observables.write_observable_df(self.observable_df,
+                                                observable_file)
+            else:
+                raise error("observable")
+
+        if visualization_file:
+            if self.visualization_df is not None:
+                core.write_visualization_df(self.visualization_df,
+                                            visualization_file)
+            else:
+                raise error("visualization")
+
     def get_optimization_parameters(self):
         """
         Return list of optimization parameter IDs.
@@ -200,6 +306,8 @@ class Problem:
         Returns dictionary of observables definitions
         See `assignment_rules_to_dict` for details.
         """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
 
         return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
 
@@ -210,6 +318,8 @@ class Problem:
         This does not include parameter mappings defined in the measurement
         table.
         """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
 
         return sbml.get_sigmas(sbml_model=self.sbml_model, remove=remove)
 
@@ -223,45 +333,45 @@ class Problem:
     @property
     def x_ids(self) -> List[str]:
         """Parameter table parameter IDs"""
-        return list(self.parameter_df.reset_index()['parameterId'])
+        return list(self.parameter_df.reset_index()[PARAMETER_ID])
 
     @property
     def x_nominal(self) -> List:
         """Parameter table nominal values"""
-        return list(self.parameter_df['nominalValue'])
+        return list(self.parameter_df[NOMINAL_VALUE])
 
     @property
     def lb(self) -> List:
         """Parameter table lower bounds"""
-        return list(self.parameter_df['lowerBound'])
+        return list(self.parameter_df[LOWER_BOUND])
 
     @property
     def ub(self) -> List:
         """Parameter table upper bounds"""
-        return list(self.parameter_df['upperBound'])
+        return list(self.parameter_df[UPPER_BOUND])
 
     @property
     def x_nominal_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['nominalValue'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[NOMINAL_VALUE],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def lb_scaled(self) -> List:
         """Parameter table lower bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['lowerBound'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[LOWER_BOUND],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def ub_scaled(self) -> List:
         """Parameter table upper bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df['upperBound'],
-                                         self.parameter_df['parameterScale']))
+        return list(parameters.map_scale(self.parameter_df[UPPER_BOUND],
+                                         self.parameter_df[PARAMETER_SCALE]))
 
     @property
     def x_fixed_indices(self) -> List[int]:
         """Parameter table non-estimated parameter indices"""
-        estimated = list(self.parameter_df['estimate'])
+        estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val == 0]
 
     @property

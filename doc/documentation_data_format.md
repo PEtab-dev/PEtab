@@ -1,5 +1,8 @@
 # PEtab data format specification
 
+
+## Version: 1
+
 This document explains the PEtab data format.
 
 
@@ -25,6 +28,8 @@ i.e.
 - A condition file specifying model inputs and condition-specific parameters
   [TSV]
 
+- An observable file specifying the observation model [TSV]
+
 - A parameter file specifying optimization parameters and related information
   [TSV]
 
@@ -42,95 +47,74 @@ defining the parameter estimation problem.
 
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, those columns should provide extra
-information for example for plotting, or for more efficient parameter
-estimation, but they should not affect the optimization problem as such. 
-Some optional extensions are described in the last section, "Extensions", of
- this document.
+information for example for plotting, downstream analysis, or for more
+efficient parameter estimation, but they should not affect the optimization
+problem as such.
 
 **General remarks**
-- All model entities column and row names are case-sensitive
+- All model entities, column names and row names are case-sensitive
 - Fields in "[]" in the second row are optional and may be left empty.
 
 
 ## SBML model definition
 
-The model must be specified as valid SBML. Since parameter estimation is
-beyond the scope of SBML, there exists no standard way to specify observables
-(model outputs) and respective noise models. Therefore, we use the following
-convention.
-
-
-### Observables
-
-In the SBML model, observables are specified as `AssignmentRules` assigning to
-parameters with `id`s starting with `observable_` followed by the
-`observableId` as in the corresponding column of the *measurement table* (see
-below).
-
-E.g.
-```
-observable_pErk = observableParameter1_pErk + observableParameter2_pErk*pErk
-```
-where `observableParameter1_pErk` would be an offset, and
-`observableParameter2_pErk` a scaling parameter for the observable `pErk`.
-The observable parameter names have the structure:
-`observableParameter${indexOfObservableParameter}_${observableId}` to
-facilitate automatic recognition. The specific values or parameters are
-assigned in the *measurement table*.
-
-
-### Noise model
-
-Measurement noise can be specified as a numerical value in the
-`noiseParameters` column of the *measurement table* (see below), which will
-default to a Gaussian noise model with standard deviation as provided in
-`noiseParameters`.
-
-Alternatively, more complex noise models can be specified for each observable,
-using additional `AssignmentRules`. Those noise model rules assign to
-`sigma_${observableId}` parameters.
-A noise model which accounts for relative and absolute contributions could,
-e.g., be defined as
-```
-sigma_pErk = noiseParameter1_pErk + noiseParameter2_pErk*pErk
-```
-with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk`
-the relative contribution for the observable `pErk`. The noise parameter names
-have the structure: `noiseParameter${indexOfNoiseParameter}_${observableId}`
-to facilitate automatic recognition. The specific values or parameters are
-assigned in the *measurement table*.
-
-Any parameters named `noiseParameter${1..n}` *must* be overwritten in the
-`noiseParameters` column of the measurement file (see below).
-
+The model must be specified as valid SBML. There are no further restrictions.
 
 ## Condition table
 
-The condition table specifies parameters or *constant* species for specific
-simulation condition (generally corresponding to different experimental
-conditions).
+The condition table specifies parameters, or initial values of species and
+compartments for specific simulation conditions (generally corresponding to
+different experimental conditions).
 
-This is specified as tab-separated value file with condition-specific
-species/parameters in the following way:
+This is specified as a tab-separated value file in the following way:
 
-| conditionId | [conditionName] | parameterOrStateId1 | ... | parameterOrStateId${n} |
+| conditionId | [conditionName] | parameterOrStateOrCompartmentId1 | ... | parameterOrStateOrCompartmentId${n} |
 |---|---|---|---|---|
-| conditionId1 | conditionName1 | NUMERIC&#124;parameterId | ...| ...
+| conditionId1 | conditionName1 | NUMERIC&#124;parameterId&#124;stateId&#124;compartmentId | ...| ...
 | conditionId2 | ... | ... | ...| ...
 |... | ... | ... | ... |...| ...
 
-Row names are condition names as referenced in the measurement table below.
-Column names are global parameter IDs or IDs of constant species as given in
-the SBML model. These parameters will override any parameter values specified
-in the model. `parameterOrStateId`s and `conditionId`s must be unique.
+Row- and column-ordering are arbitrary, although specifying `conditionId`
+first may improve human readability. 
 
-Row- and column-ordering are arbitrary, although specifying `parameterId`
-first may improve human readability. The `conditionName` column is optional.
 Additional columns are *not* allowed.
 
-*Note 1:* Instead of adding additional columns to the condition table, they
-can easily be added to a separate file, since every row of the condition table
-has `parameterId` as unique key.
+### Detailed field description
+
+- `conditionId` [STRING, NOT NULL]
+
+  Unique identifier for the simulation/experimental condition, to be referenced
+  by the measurement table described below.
+
+- `conditionName` [STRING, OPTIONAL]
+
+  Condition names are arbitrary strings to describe the given condition.
+  They may be used for reporting or visualization.
+
+- `${parameterOrStateOrCompartmentId1}`
+
+  Further columns may be global parameter IDs, IDs of species or compartments
+  as defined in the SBML model. Only one column is allowed per ID.
+  Values for these condition parameters may be provided either as numeric
+  values, or as IDs defined in the SBML model, the parameter table or both.
+
+  - `${parameterId}` 
+
+    The values will override any parameter values specified in the model.
+
+  - `${speciesId}`
+
+    If a species ID is provided, it is interpreted as the initial
+    concentration/amount of that species and will override the initial
+    concentration/amount given in the SBML model or given by a preequilibration
+    condition. If `NaN` is provided for a condition, the result of the
+    preequilibration (or initial concentration/amount from the SBML model, if
+    no preequilibration is defined) is used.
+  
+  - `${compartmentId}`
+
+    If a compartment ID is provided, it is interpreted as the initial
+    compartment size.
 
 
 ## Measurement table
@@ -148,10 +132,10 @@ order:
 
 *(wrapped for readability)*
 
-| ... | [observableParameters] | [noiseParameters] | [observableTransformation] | [noiseDistribution]
-|---|---|---|---|---|
-|... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | ['lin'(default)&#124;'log'&#124;'log10'] | ['laplace'&#124;'normal'] |
-|...|...|...|...|...|
+| ... | [observableParameters] | [noiseParameters]
+|---|---|---|
+|... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]]
+|...|...|...|
 
 Additional (non-standard) columns may be added. If the additional plotting 
 functionality of PEtab should be used, such columns could be
@@ -168,13 +152,12 @@ replicates and plot error bars.
 
 ### Detailed field description
 
-- `observableId` [STRING, NOT NULL, REFERENCES(sbml.observableID)]
+- `observableId` [STRING, NOT NULL, REFERENCES(observables.observableID)]
 
-  Observable ID with a matching parameter in the SBML model with ID
-`observable_${observableId}`
+  Observable ID as defined in the observables table described below.
 
 - `preequilibrationConditionId` [STRING OR NULL,
-REFERENCES(conditionsTable.conditionID)]
+REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
   The `conditionId` to be used for preequilibration. E.g. for drug
   treatments the model would be preequilibrated with the no-drug condition.
@@ -195,13 +178,13 @@ condition-specific parameters used for simulation.
   Time point of the measurement in the time unit specified in the SBML model,
 numeric value or `inf` (lower-case) for steady-state measurements.
 
-- `observableParameters` [STRING OR NULL]
+- `observableParameters` [STRING OR NULL, OPTIONAL]
 
   This field allows overriding or introducing condition-specific versions of
-  parameters defined in the model. The model can define observables (see above)
-  containing place-holder parameters which can be replaced by
-  condition-specific dynamic or constant parameters. Placeholder parameters
-  must be named `observableParameter${n}_${observableId}`
+  output parameters defined in the observation model. The model can define
+  observables (see below) containing place-holder parameters which can be
+  replaced by condition-specific dynamic or constant parameters. Placeholder
+  parameters must be named `observableParameter${n}_${observableId}`
   with `n` ranging from 1 (not 0) to the number of placeholders for the given
   observable, without gaps.
   If the observable specified under `observableId` contains no placeholders,
@@ -214,10 +197,10 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   batch-specific parameters. This will translate into an extended optimization
   parameter vector.
 
-  All placeholders defined in the model must be overwritten here. If there are
-  not placeholders in the model, this column may be omitted.
+  All placeholders defined in the observation model must be overwritten here.
+  If there are no placeholders used, this column may be omitted.
 
-- `noiseParameters` [STRING]
+- `noiseParameters` [STRING, OPTIONAL]
 
   The measurement standard deviation or `NaN` if the corresponding sigma is a
   model parameter.
@@ -225,22 +208,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   Numeric values or parameter names are allowed. Same rules apply as for
   `observableParameters` in the previous point.
 
-- `observableTransformation` [STRING]
-
-  Transformation of the observable and measurement for computing the objective
-  function.
-  `lin`, `log` or `log10`. Defaults to 'lin'.
-  The measurements and model outputs are both assumed to be provided in linear
-  space.
-
-- `noiseDistribution` [STRING: 'normal' or 'laplace']
-
-  Assumed Noise distribution for the given measurement. Only normally or
-  Laplace distributed noise is currently allowed. Defaults to `normal`. If
-  `normal`, the specified `noiseParameters` will be interpreted as standard
-  deviation (*not* variance).
-
-- `datasetId` [STRING, optional]
+- `datasetId` [STRING, OPTIONAL]
 
   The datasetId is used to group certain measurements to datasets. This is
   typically the case for data points which belong to the same observable,
@@ -249,24 +217,114 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   This grouping makes it possible to use the plotting routines which are
   provided in the PEtab repository.
 
-- `replicateId` [STRING, optional]
+- `replicateId` [STRING, OPTIONAL]
 
   The replicateId can be used to discern replicates with the same
-  datasetId, which is helpful for plotting e.g. error bars.
+  `datasetId`, which is helpful for plotting e.g. error bars.
+
+
+### Observables table
+
+Parameter estimation requires linking experimental observations to the model
+of interest. Therefore, one needs to define observables (model outputs) and
+respective noise models, which represent the measurement process.
+Since parameter estimation is beyond the scope of SBML, there exists no
+standard way to specify observables (model outputs) and respective noise
+models. Therefore, in PEtab observables are specified in a separate table
+as described in the following. This allows for a clear separation of the
+observation model and the underlying dynamic model, which allows, in  most
+cases, to reuse any existing SBML model without modifications.
+
+The observable table has the following columns:
+
+| observableId | observableName | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
+| --- | --- | --- | --- | --- | --- |
+| [String] | [String] | [String] | ['lin'(default)&#124;'log'&#124;'log10'] |  [String'log'&#124;Number] | ['laplace'&#124;'normal'] |
+| e.g. | | | | | | 
+| relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1 * (protein1 + phospho_protein1 ) | lin | noiseParameter1 | normal |
+| ... |  ... | ... | ... | ... |
+
+
+### Detailed field description:
+
+* `observableId` [STRING]
+
+  Any identifier which would be a valid identifier in SBML. This is referenced
+  by the `observableId` column in the measurement table.
+
+* [`observableName`] [STRING, OPTIONAL]
+
+  Name of the observable. Only used for output, not for identification.
+
+* `observableFormula` [STRING]
+
+  Observation function as plain text formula expression.
+  May contain any symbol defined in the SBML model or parameter table. In the
+  simplest case just an SBML species ID or an `AssignmentRule` target.
+
+  May introduce new parameters of the form `observableParameter${n}`, which
+  are overridden by `observableParameters` in the measurement table
+  (see description there).
+
+- `observableTransformation` [STRING, OPTIONAL]
+
+  Transformation of the observable and measurement for computing the objective
+  function. Must be one of `lin`, `log` or `log10`. Defaults to `lin`.
+  The measurements and model outputs are both assumed to be provided in linear
+  space.
+
+* `noiseFormula` [STRING]
+
+  Noise model parameters as plain text formula expression.
+
+  Measurement noise can be specified as a numerical value which will
+  default to a Gaussian noise model if not specified differently in
+  `noiseDistribution` with standard deviation as provided here. In this case,
+  the same standard deviation is assumed for all measurements for the given
+  observable.
+
+  Alternatively, some formula expression can be provided to specify
+  more complex noise models. A noise model which accounts for relative and
+  absolute contributions could, e.g., be defined as
+  ```
+  noiseParameter1_pErk + noiseParameter2_pErk*pErk
+  ```
+  with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk`
+  the relative contribution for the observable `pErk`. IDs of noise parameters
+  that need to have different values for different measurements have the
+  structure: `noiseParameter${indexOfNoiseParameter}_${observableId}`
+  to facilitate automatic recognition. The specific values or parameters are
+  assigned in the `noiseParameters` field of the *measurement table*
+  (see above). Any parameters named `noiseParameter${1..n}` *must* be
+  overwritten in the measurement table.
+
+- `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
+
+  Assumed noise distribution for the given measurement. Only normally or
+  Laplace distributed noise is currently allowed (log-normal and 
+  log-laplace are obtained by setting `observableTransformation` to `log`).
+  Defaults to `normal`. If `normal`, the specified `noiseParameters` will be
+  interpreted as standard deviation (*not* variance).
 
 
 ## Parameter table
 
 A tab-separated value text file containing information on model parameters.
 
-This table must include the following parameters:
-- Named parameter overrides introduced in the *conditions table*
+This table *must* include the following parameters:
+- Named parameter overrides introduced in the *conditions table*,
+  unless defined in the SBML model
 - Named parameter overrides introduced in the *measurement table*
 
-and must not include
-- placeholder parameters (see `observableParameters` and `noiseParameters`
+and *must not* include:
+- Placeholder parameters (see `observableParameters` and `noiseParameters`
   above)
-- parameters included as column names in the *condition table*
+- Parameters included as column names in the *condition table*
+- Parameters that are AssignmentRule targets in the SBML model
+
+it *may* include:
+- Any SBML model parameter that was not excluded above
+- Named parameter overrides introduced in the *conditions table*
 
 One row per parameter with arbitrary order of rows and columns:
 
@@ -280,7 +338,7 @@ Additional columns may be added.
 
 ### Detailed field description:
 
-- `parameterId` [STRING, NOT NULL, REFERENCES(sbml.parameterId)]
+- `parameterId` [STRING, NOT NULL]
 
   The `parameterId` of the parameter described in this row. This has be
   identical to the parameter IDs specified in the SBML model or in the
@@ -326,15 +384,13 @@ Additional columns may be added.
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see `nominalValue`).
 
-- `priorType`
+- `initializationPriorType` [STRING, OPTIONAL]
 
-  Type of prior, which is used for sampling of initial points for 
-  a possible optimization and for the objective function. Priors which are 
-  only used for sampling of initial starting points or only for optimization
-  should be specified in the additional columns `initializationPriorType` or
-  `objectivePriorType`, respectively.
+  Prior types used for sampling of initial points for optimization. Sampled
+  points are clipped to lie inside the parameter boundaries specified by
+  `lowerBound` and `upperBound`. Defaults to `parameterScaleUniform`.
 
-  Possible prior types are (see also Extensions):
+  Possible prior types are:
 
     - *uniform*: flat prior on linear parameters
     - *normal*: Gaussian prior on linear parameters
@@ -346,13 +402,11 @@ Additional columns may be added.
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- `priorParameters`
+- `initializationPriorParameters` [STRING, OPTIONAL]
 
-  Parameters for prior specified in `priorType`, separated by a semicolon. 
-  Accordingly, there are optional columns for priors which should be used for
-  initial point sampling or optimization only. (i.e., 
-  `initializationPriorParameters` and `objectivePriorParameters`,
-  respectively).
+  Prior parameters used for sampling of initial points for optimization,
+  separated by a semicolon. Defaults to `lowerBound;upperBound`.
+
   So far, only numeric values will be supported, no parameter names. 
   Parameters for the different prior types are:
   
@@ -365,43 +419,15 @@ Additional columns may be added.
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
 
-
-### Additional optional columns
-
-Extra columns:
-
-- `hierarchicalOptimization` (optional)
-
-  hierarchicalOptimization: 1 if parameter is optimized using hierarchical
-  optimization approach, 0 otherwise.
-
-- `initializationPriorType` (optional)
-
-  Prior types used for sampling of initial points for optimization. Uses the
-  entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
-
-- `initializationPriorParameters` (optional)
-
-  Prior parameters used for sampling of initial points for optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.
-
-- `objectivePriorType` (optional)
+- `objectivePriorType` [STRING, OPTIONAL]
 
   Prior types used for the objective function during optimization or sampling.
-  Uses the entries from `priorType` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorType`.
+  For possible values, see `initializationPriorType`.
 
-- `objectivePriorParameters` (optional)
+- `objectivePriorParameters` [STRING, OPTIONAL]
 
-  Prior parameters used for the objective function during optimization. Uses
-  the entries from `priorParameters` as default, but will overwrite those, if
-  something else is specified here. For more detailed documentation, see
-  `priorParameters`.   
+  Prior parameters used for the objective function during optimization.
+  For more detailed documentation, see `initializationPriorParameters`.   
 
 
 ## Visualization table

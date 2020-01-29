@@ -1,5 +1,7 @@
-import pytest
 import warnings
+
+import pytest
+from petab.C import *
 from petab.visualize import (plot_data_and_simulation,
                              plot_measurements_by_observable)
 
@@ -84,14 +86,14 @@ def test_visualization_without_datasets(data_file_Fujita,
 
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              sim_cond_num_list=sim_cond_num_list,
-                             plotted_noise='provided')
+                             plotted_noise=PROVIDED)
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              sim_cond_id_list=sim_cond_id_list)
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              observable_num_list=observable_num_list)
     plot_data_and_simulation(data_file_Fujita, condition_file_Fujita,
                              observable_id_list=observable_id_list,
-                             plotted_noise='provided')
+                             plotted_noise=PROVIDED)
 
 
 def test_visualization_omit_empty_datasets(data_file_Fujita_nanData,
@@ -173,8 +175,7 @@ def test_visualization_raises(data_file_Fujita,
     assert (error_counter == 5)
 
 
-def test_visualization_warnings(data_file_Isensee,
-                                condition_file_Isensee):
+def test_visualization_warnings(data_file_Isensee, condition_file_Isensee):
     datasets = [['JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_ctrl',
                  'JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_Fsk'],
                 ['JI09_160201_Drg453-452_CycNuc__ctrl',
@@ -220,8 +221,7 @@ def test_visualization_warnings(data_file_Isensee,
             assert issubclass(i_warn.category, UserWarning)
 
 
-def test_simple_visualization(data_file_Fujita,
-                              condition_file_Fujita):
+def test_simple_visualization(data_file_Fujita, condition_file_Fujita):
     plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita)
     plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita,
-                                    plotted_noise='provided')
+                                    plotted_noise=PROVIDED)
