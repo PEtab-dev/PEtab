@@ -92,9 +92,6 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         _, sbml_model = minimal_sbml_model
         add_global_parameter(sbml_model, 'dynamicParameter1')
         add_global_parameter(sbml_model, 'dynamicParameter2')
-        add_global_parameter(sbml_model, 'observableParameter1_obs1')
-        add_global_parameter(sbml_model, 'observableParameter2_obs1')
-        add_global_parameter(sbml_model, 'observableParameter1_obs2')
 
         measurement_df = pd.DataFrame(data={
             OBSERVABLE_ID: ['obs1', 'obs2', 'obs1', 'obs2'],
