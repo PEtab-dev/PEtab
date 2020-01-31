@@ -131,21 +131,6 @@ def test_get_measurement_parameter_ids():
     assert set(actual) == set(expected)
 
 
-def test_parameter_is_offset_parameter():
-    assert petab.parameter_is_offset_parameter('a', 'a + b') is True
-    assert petab.parameter_is_offset_parameter('b', 'a + b') is True
-    assert petab.parameter_is_offset_parameter('b', 'a - b') is False
-    assert petab.parameter_is_offset_parameter('b', 'sqrt(b)') is False
-    assert petab.parameter_is_offset_parameter('b', 'a * b') is False
-
-
-def test_parameter_is_scaling_parameter():
-    assert petab.parameter_is_scaling_parameter('a', 'a + b') is False
-    assert petab.parameter_is_scaling_parameter('a', 'a * b') is True
-    assert petab.parameter_is_scaling_parameter('a', 'a * b + 1') is False
-    assert petab.parameter_is_scaling_parameter('a', 'a * a') is False
-
-
 def test_serialization(petab_problem):
     # serialize and back
     problem_recreated = pickle.loads(pickle.dumps(petab_problem))
