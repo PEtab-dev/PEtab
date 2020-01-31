@@ -202,6 +202,9 @@ class Problem:
                 If specified, overrides the model component in the file names.
                 Defaults to the last component of ``folder``.
         """
+        warn("This function will be removed in future releases. "
+             "Consider using a PEtab YAML file for grouping files",
+             DeprecationWarning)
 
         folder = os.path.abspath(folder)
         if model_name is None:
@@ -440,19 +443,31 @@ class Problem:
 
 def get_default_condition_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"experimentalCondition_{model_name}.tsv")
 
 
 def get_default_measurement_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"measurementData_{model_name}.tsv")
 
 
 def get_default_parameter_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"parameters_{model_name}.tsv")
 
 
 def get_default_sbml_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"model_{model_name}.xml")
