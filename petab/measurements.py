@@ -5,12 +5,11 @@
 import itertools
 import numbers
 import re
-from typing import List, Union, Set, Dict
+from typing import List, Union, Dict
 from warnings import warn
 
 import numpy as np
 import pandas as pd
-import sympy as sp
 
 from . import lint
 from . import core
@@ -219,7 +218,7 @@ def split_parameter_replacement_list(
 
 
 def get_placeholders(formula_string: str, observable_id: str,
-                     override_type: str) -> Set[str]:
+                     override_type: str) -> List[str]:
     """
     Get placeholder variables in noise or observable definition for the
     given observable ID.
@@ -231,18 +230,25 @@ def get_placeholders(formula_string: str, observable_id: str,
             is for observable or for noise model
 
     Returns:
-        (Un-ordered) set of placeholder parameter IDs
+        List of placeholder parameter IDs in the order expected in the
+        observableParameter column of the measurement table.
     """
     if not formula_string:
-        return set()
+        return []
 
-    pattern = re.compile(
-        re.escape(override_type) + r'Parameter\d+_' + re.escape(observable_id))
-    placeholders = set()
-    for free_sym in sp.sympify(formula_string).free_symbols:
-        free_sym = str(free_sym)
-        if pattern.match(free_sym):
-            placeholders.add(free_sym)
+    pattern = re.compile(r'(?:^|\W)(' + re.escape(override_type)
+                         + r'Parameter\d+_' + re.escape(observable_id)
+                         + r')(?=\W|$)')
+    placeholder_set = set(pattern.findall(formula_string))
+
+    # need to sort and check that there are no gaps in numbering
+    placeholders = [f"{override_type}Parameter{i}_{observable_id}"
+                    for i in range(1, len(placeholder_set) + 1)]
+
+    if placeholder_set != set(placeholders):
+        raise AssertionError("Non-consecutive numbering of placeholder "
+                             f"parameter for {placeholder_set}")
+
     return placeholders
 
 

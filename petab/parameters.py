@@ -221,13 +221,13 @@ def get_valid_parameters_for_parameter_table(
     # {observable,noise}Parameters
     placeholders = set()
     for k, v in observables.items():
-        placeholders |= measurements.get_placeholders(
+        placeholders |= set(measurements.get_placeholders(
             v['formula'],
             core.get_observable_id(k),
-            'observable')
+            'observable'))
     for k, v in sigmas.items():
-        placeholders |= measurements.get_placeholders(
-            v, core.get_observable_id(k), 'noise')
+        placeholders |= set(measurements.get_placeholders(
+            v, core.get_observable_id(k), 'noise'))
 
     # exclude rule targets
     assignment_targets = {ar.getVariable()
