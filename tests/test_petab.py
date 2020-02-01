@@ -155,21 +155,6 @@ def test_get_observable_id():
     assert petab.get_observable_id('sigma_obs1') == 'obs1'
 
 
-def test_get_placeholders():
-    assert petab.get_placeholders('1.0', 'any', 'observable') == set()
-
-    assert petab.get_placeholders(
-        'observableParameter1_twoParams * '
-        'observableParameter2_twoParams + otherParam',
-        'twoParams', 'observable') \
-        == {'observableParameter1_twoParams',
-            'observableParameter2_twoParams'}
-
-    assert petab.get_placeholders('3.0 * noiseParameter1_oneParam',
-                                  'oneParam', 'noise') \
-        == {'noiseParameter1_oneParam'}
-
-
 def test_startpoint_sampling(fujita_model_scaling):
     startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
     assert (np.isfinite(startpoints)).all
