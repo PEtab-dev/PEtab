@@ -697,7 +697,7 @@ def is_valid_identifier(x: str) -> bool:
 
     Check whether `x` is a valid identifier for conditions, parameters,
     observables... . Identifiers may contain upper and lower case letters,
-    digits and underscores, but must not start with a letter.
+    digits and underscores, but must not start with a digit.
 
     Arguments:
         x: string to check
