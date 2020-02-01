@@ -306,23 +306,6 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
     return prior_list
 
 
-def parameter_id_is_valid(parameter_id: str) -> bool:
-    """Check whether parameter_id is a valid PEtab parameter ID
-
-    This should pretty much correspond to what is allowed for SBML identifiers.
-
-    TODO(#179) improve checking
-
-    Arguments:
-        parameter_id: Parameter ID to validate
-
-    Returns:
-        ``True`` if valid, ``False`` otherwise
-    """
-
-    return parameter_id != ''
-
-
 def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
     """Scale parameter according to scale_str
 
