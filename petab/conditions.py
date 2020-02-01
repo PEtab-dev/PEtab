@@ -5,7 +5,7 @@ from typing import Iterable, Optional, List, Union
 import numpy as np
 import pandas as pd
 
-from . import lint, parameters, core
+from . import lint, core
 from .C import *
 
 
@@ -64,7 +64,7 @@ def create_condition_df(parameter_ids: Iterable[str],
 
     data = {CONDITION_ID: []}
     for p in parameter_ids:
-        if not parameters.parameter_id_is_valid(p):
+        if not lint.is_valid_identifier(p):
             raise ValueError("Invalid parameter name: " + p)
         data[p] = []
 

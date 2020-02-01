@@ -131,21 +131,6 @@ def test_get_measurement_parameter_ids():
     assert set(actual) == set(expected)
 
 
-def test_parameter_is_offset_parameter():
-    assert petab.parameter_is_offset_parameter('a', 'a + b') is True
-    assert petab.parameter_is_offset_parameter('b', 'a + b') is True
-    assert petab.parameter_is_offset_parameter('b', 'a - b') is False
-    assert petab.parameter_is_offset_parameter('b', 'sqrt(b)') is False
-    assert petab.parameter_is_offset_parameter('b', 'a * b') is False
-
-
-def test_parameter_is_scaling_parameter():
-    assert petab.parameter_is_scaling_parameter('a', 'a + b') is False
-    assert petab.parameter_is_scaling_parameter('a', 'a * b') is True
-    assert petab.parameter_is_scaling_parameter('a', 'a * b + 1') is False
-    assert petab.parameter_is_scaling_parameter('a', 'a * a') is False
-
-
 def test_serialization(petab_problem):
     # serialize and back
     problem_recreated = pickle.loads(pickle.dumps(petab_problem))
@@ -168,21 +153,6 @@ def test_serialization(petab_problem):
 def test_get_observable_id():
     assert petab.get_observable_id('observable_obs1') == 'obs1'
     assert petab.get_observable_id('sigma_obs1') == 'obs1'
-
-
-def test_get_placeholders():
-    assert petab.get_placeholders('1.0', 'any', 'observable') == set()
-
-    assert petab.get_placeholders(
-        'observableParameter1_twoParams * '
-        'observableParameter2_twoParams + otherParam',
-        'twoParams', 'observable') \
-        == {'observableParameter1_twoParams',
-            'observableParameter2_twoParams'}
-
-    assert petab.get_placeholders('3.0 * noiseParameter1_oneParam',
-                                  'oneParam', 'noise') \
-        == {'noiseParameter1_oneParam'}
 
 
 def test_startpoint_sampling(fujita_model_scaling):

@@ -6,7 +6,6 @@ from warnings import warn
 
 import numpy as np
 import pandas as pd
-import sympy as sp
 
 from .C import *  # noqa: F403
 
@@ -58,44 +57,6 @@ def write_visualization_df(df: pd.DataFrame, filename: str) -> None:
     """
     with open(filename, 'w') as fh:
         df.to_csv(fh, sep='\t', index=False)
-
-
-def parameter_is_scaling_parameter(parameter: str, formula: str) -> bool:
-    """
-    Check if is scaling parameter.
-
-    Arguments:
-        parameter: Some identifier.
-        formula: Some sympy-compatible formula.
-
-    Returns:
-        ``True`` if parameter ``parameter`` is a scaling parameter in formula
-         ``formula``.
-    """
-
-    sym_parameter = sp.sympify(parameter)
-    sym_formula = sp.sympify(formula)
-
-    return sym_parameter not in (sym_formula / sym_parameter).free_symbols
-
-
-def parameter_is_offset_parameter(parameter: str, formula: str) -> bool:
-    """
-    Check if is offset parameter.
-
-    Arguments:
-        parameter: Some identifier.
-        formula: Some sympy-compatible formula.
-
-    Returns:
-         ``True`` if parameter ``parameter`` is an offset parameter with
-         positive sign in formula ``formula``.
-    """
-
-    sym_parameter = sp.sympify(parameter)
-    sym_formula = sp.sympify(formula)
-
-    return sym_parameter not in (sym_formula - sym_parameter).free_symbols
 
 
 def get_notnull_columns(df: pd.DataFrame, candidates: Iterable):

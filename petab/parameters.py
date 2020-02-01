@@ -221,13 +221,13 @@ def get_valid_parameters_for_parameter_table(
     # {observable,noise}Parameters
     placeholders = set()
     for k, v in observables.items():
-        placeholders |= measurements.get_placeholders(
+        placeholders |= set(measurements.get_placeholders(
             v['formula'],
             core.get_observable_id(k),
-            'observable')
+            'observable'))
     for k, v in sigmas.items():
-        placeholders |= measurements.get_placeholders(
-            v, core.get_observable_id(k), 'noise')
+        placeholders |= set(measurements.get_placeholders(
+            v, core.get_observable_id(k), 'noise'))
 
     # exclude rule targets
     assignment_targets = {ar.getVariable()
@@ -304,23 +304,6 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
         prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
 
     return prior_list
-
-
-def parameter_id_is_valid(parameter_id: str) -> bool:
-    """Check whether parameter_id is a valid PEtab parameter ID
-
-    This should pretty much correspond to what is allowed for SBML identifiers.
-
-    TODO(#179) improve checking
-
-    Arguments:
-        parameter_id: Parameter ID to validate
-
-    Returns:
-        ``True`` if valid, ``False`` otherwise
-    """
-
-    return parameter_id != ''
 
 
 def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
