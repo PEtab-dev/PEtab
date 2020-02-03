@@ -11,7 +11,7 @@ import libsbml
 import numpy as np
 import pandas as pd
 
-from . import lint, measurements, sbml, core
+from . import lint, measurements, sbml, core, observables
 from . import ENV_NUM_THREADS
 from .C import *  # noqa: F403
 
@@ -32,6 +32,7 @@ def get_optimization_to_simulation_parameter_mapping(
         condition_df: pd.DataFrame,
         measurement_df: pd.DataFrame,
         parameter_df: Optional[pd.DataFrame] = None,
+        observable_df: Optional[pd.DataFrame] = None,
         sbml_model: Optional[libsbml.Model] = None,
         simulation_conditions: Optional[pd.DataFrame] = None,
         warn_unmapped: Optional[bool] = True) -> List[ParMappingDictTuple]:
@@ -42,7 +43,7 @@ def get_optimization_to_simulation_parameter_mapping(
     by the environment variable with the name of petab.ENV_NUM_THREADS.
 
     Parameters:
-        condition_df, measurement_df, parameter_df:
+        condition_df, measurement_df, parameter_df, observable_df:
             The dataframes in the PEtab format.
 
         sbml_model:
@@ -72,6 +73,12 @@ def get_optimization_to_simulation_parameter_mapping(
 
     simulation_parameters = sbml.get_model_parameters(sbml_model,
                                                       with_values=True)
+    # Add output parameters that are not already defined in the SBML model
+    if observable_df is not None:
+        output_parameters = observables.get_output_parameters(
+            observable_df=observable_df, sbml_model=sbml_model)
+        for par_id in output_parameters:
+            simulation_parameters[par_id] = np.nan
 
     num_threads = int(os.environ.get(ENV_NUM_THREADS, 1))
 

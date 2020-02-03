@@ -1,5 +1,15 @@
 # PEtab changelog
 
+### 0.1.1
+
+Library:
+* Fix parameter mapping: include output parameters not present in SBML model
+* Fix missing `petab/petab_schema.yaml` in source distribution
+* Let get_placeholders return an (ordered) list of placeholders
+* Deprecate `petab.problem.from_folder` and related functions
+  (obsolete after introducing more flexible YAML files for grouping tables
+  and models) 
+
 ### 0.1.0
 
 Data format:

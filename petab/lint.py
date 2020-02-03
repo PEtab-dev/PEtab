@@ -690,3 +690,20 @@ def assert_measurement_conditions_present_in_condition_table(
         raise AssertionError("Measurement table references conditions that "
                              "are not specified in the condition table: "
                              + str(missing_conditions))
+
+
+def is_valid_identifier(x: str) -> bool:
+    """Check whether `x` is a valid identifier
+
+    Check whether `x` is a valid identifier for conditions, parameters,
+    observables... . Identifiers may contain upper and lower case letters,
+    digits and underscores, but must not start with a digit.
+
+    Arguments:
+        x: string to check
+
+    Returns:
+        ``True`` if valid, ``False`` otherwise
+    """
+
+    return re.match(r'^[a-zA-Z_]\w*$', x) is not None

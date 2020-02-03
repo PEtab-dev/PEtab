@@ -202,6 +202,9 @@ class Problem:
                 If specified, overrides the model component in the file names.
                 Defaults to the last component of ``folder``.
         """
+        warn("This function will be removed in future releases. "
+             "Consider using a PEtab YAML file for grouping files",
+             DeprecationWarning)
 
         folder = os.path.abspath(folder)
         if model_name is None:
@@ -293,12 +296,20 @@ class Problem:
         """
         Return list of optimization parameter IDs.
 
-        See get_optimization_parameters.
+        See ``petab.parameters.get_optimization_parameters``.
         """
         return parameters.get_optimization_parameters(self.parameter_df)
 
-    def get_dynamic_simulation_parameters(self):
-        """See `get_model_parameters`"""
+    def get_optimization_parameter_scales(self):
+        """
+        Return list of optimization parameter scaling strings.
+
+        See ``petab.parameters.get_optimization_parameters``.
+        """
+        return parameters.get_optimization_parameter_scaling(self.parameter_df)
+
+    def get_model_parameters(self):
+        """See `petab.sbml.get_model_parameters`"""
         return sbml.get_model_parameters(self.sbml_model)
 
     def get_observables(self, remove: bool = False):
@@ -393,8 +404,22 @@ class Problem:
                 self.condition_df,
                 self.measurement_df,
                 self.parameter_df,
+                self.observable_df,
                 self.sbml_model,
                 warn_unmapped=warn_unmapped)
+
+    def get_optimization_to_simulation_scale_mapping(
+            self, mapping_par_opt_to_par_sim: List[
+                parameter_mapping.ParMappingDictTuple]
+    ) -> List[parameter_mapping.ScaleMappingDictTuple]:
+        """
+        See get_optimization_to_simulation_scale_mapping.
+        """
+        return parameter_mapping\
+            .get_optimization_to_simulation_scale_mapping(
+                measurement_df=self.measurement_df,
+                parameter_df=self.parameter_df,
+                mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim)
 
     def create_parameter_df(self, *args, **kwargs):
         """Create a new PEtab parameter table
@@ -418,19 +443,31 @@ class Problem:
 
 def get_default_condition_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"experimentalCondition_{model_name}.tsv")
 
 
 def get_default_measurement_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"measurementData_{model_name}.tsv")
 
 
 def get_default_parameter_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"parameters_{model_name}.tsv")
 
 
 def get_default_sbml_file_name(model_name: str, folder: str = ''):
     """Get file name according to proposed convention"""
+    warn("This function will be removed in future releases. ",
+         DeprecationWarning)
+
     return os.path.join(folder, f"model_{model_name}.xml")
