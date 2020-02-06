@@ -164,7 +164,6 @@ def plot_data_and_simulation(
     return None
 
 
-
 def plot_petab_problem(petab_problem: problem.Problem,
                        sim_data: Optional[Union[str, pd.DataFrame]] = None,
                        dataset_id_list: Optional[List[IdsList]] = None,
