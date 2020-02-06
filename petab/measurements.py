@@ -236,6 +236,9 @@ def get_placeholders(formula_string: str, observable_id: str,
     if not formula_string:
         return []
 
+    if not isinstance(formula_string, str):
+        return []
+
     pattern = re.compile(r'(?:^|\W)(' + re.escape(override_type)
                          + r'Parameter\d+_' + re.escape(observable_id)
                          + r')(?=\W|$)')
