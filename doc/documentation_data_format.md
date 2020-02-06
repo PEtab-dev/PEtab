@@ -473,7 +473,7 @@ order:
 
 - `plotTypeSimulation` [STRING]
 
-  The type of the corresponding plot, can be `LinePlot` or `BarPlot`. Default
+  The type of the corresponding plot, can be `LinePlot`, `BarPlot` and `ScatterPlot`. Default
   is `LinePlot`.
 
 - `plotTypeData`
@@ -504,7 +504,7 @@ order:
 
 - `xScale` [STRING]
 
-  Scale of the independent variable, can be `lin`, `log`, or `log10`.
+  Scale of the independent variable, can be `lin`, `log`, `log10` or `order`.
 
 - `yValues` [observableId, REFERENCES(measurementTable.observableId)]
 

@@ -50,21 +50,22 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     ax: matplotlib.Axes
     """
 
+    # set xScale
+    if vis_spec[X_SCALE][i_visu_spec] == LIN:
+        ax[axx, axy].set_xscale("linear")
+    elif vis_spec[X_SCALE][i_visu_spec] == LOG10:
+        ax[axx, axy].set_xscale("log")
+
     # set yScale
-    if vis_spec.yScale[i_visu_spec] == 'lin':
+    if vis_spec.yScale[i_visu_spec] == LIN:
         ax[axx, axy].set_yscale("linear")
-    elif vis_spec.yScale[i_visu_spec] == 'log10':
+    elif vis_spec.yScale[i_visu_spec] == LOG10:
         ax[axx, axy].set_yscale("log")
 
     if vis_spec.plotTypeSimulation[i_visu_spec] == LINE_PLOT:
 
-        # set xScale
-        if vis_spec[X_SCALE][i_visu_spec] == LIN:
-            ax[axx, axy].set_xscale("linear")
-        elif vis_spec[X_SCALE][i_visu_spec] == LOG10:
-            ax[axx, axy].set_xscale("log")
         # equidistant
-        elif vis_spec[X_SCALE][i_visu_spec] == 'order':
+        if vis_spec[X_SCALE][i_visu_spec] == 'order':
             ax[axx, axy].set_xscale("linear")
             # check if conditions are monotone decreasing or increasing
             if np.all(np.diff(conditions) < 0):             # monot. decreasing
@@ -120,15 +121,13 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                 xs, ys, linestyle='-', marker='o',
                 label=label_base + " simulation", color=colors)
 
-        ax[axx, axy].legend()
-        ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
+
 
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == BAR_PLOT:
         x_name = vis_spec[ind_plot][LEGEND_ENTRY][i_visu_spec]
 
         p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'],
                              color=sns.color_palette()[0])
-        ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
 
         if plot_sim:
             colors = p[0].get_facecolor()
@@ -139,10 +138,15 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
             label.set_rotation(30)
             label.set_horizontalalignment("right")
 
-    elif vis_spec[PLOT_TYPE_SIMULATION][
-                 i_visu_spec] == SCATTER_PLOT and plot_sim:
-        ax[axx, axy].scatter(ms['mean'], ms['sim'])
+    elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == SCATTER_PLOT:
+        if not plot_sim:
+            print('Scatter plots do not work without simulation data')
+        ax[axx, axy].scatter(ms['mean'], ms['sim'],
+                             label=vis_spec[ind_plot][LEGEND_ENTRY][
+                                 i_visu_spec])
 
+    ax[axx, axy].legend()
+    ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
     ax[axx, axy].relim()
     ax[axx, axy].autoscale_view()
     sns.despine()
