@@ -7,6 +7,7 @@ from shutil import copyfile
 
 import pandas as pd
 import petab
+from petab.C import *
 
 
 def create_report(problem: petab.Problem, model_name: str) -> None:
@@ -23,7 +24,7 @@ def create_report(problem: petab.Problem, model_name: str) -> None:
 
     data_per_observable = get_data_per_observable(problem.measurement_df)
     num_conditions = (len(problem.condition_df.columns)
-                      - 1 * ('conditionName' in problem.condition_df.columns))
+                      - 1 * (CONDITION_NAME in problem.condition_df.columns))
 
     # Setup template engine
     import jinja2
@@ -50,12 +51,12 @@ def get_data_per_observable(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
     my_measurements = measurement_df.copy()
 
-    my_measurements.preequilibrationConditionId.fillna('', inplace=True)
+    my_measurements[PREEQUILIBRATION_CONDITION_ID].fillna('', inplace=True)
 
     data_per_observable = pd.pivot_table(
-        my_measurements, values='measurement', aggfunc='count',
-        index=['simulationConditionId', 'preequilibrationConditionId'],
-        columns=['observableId'], fill_value=0)
+        my_measurements, values=MEASUREMENT, aggfunc='count',
+        index=[SIMULATION_CONDITION_ID, PREEQUILIBRATION_CONDITION_ID],
+        columns=[OBSERVABLE_ID], fill_value=0)
 
     # Add row and column sums
     data_per_observable.loc['SUM', :] = data_per_observable.sum(axis=0).values
@@ -67,7 +68,10 @@ def get_data_per_observable(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    # Example data from the repository for testing
+    """Data overview generation with example data from the repository for
+    testing
+    """
+
     root_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              '..', '..', 'doc/example/example_Fujita/')
     problem = petab.Problem.from_files(

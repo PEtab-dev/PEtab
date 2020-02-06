@@ -1,1 +1,2 @@
-__version__ = '0.0.2'
+"""PEtab library version"""
+__version__ = '0.1.1'

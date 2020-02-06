@@ -1,5 +1,41 @@
 # PEtab changelog
 
+### 0.1.1
+
+Library:
+* Fix parameter mapping: include output parameters not present in SBML model
+* Fix missing `petab/petab_schema.yaml` in source distribution
+* Let get_placeholders return an (ordered) list of placeholders
+* Deprecate `petab.problem.from_folder` and related functions
+  (obsolete after introducing more flexible YAML files for grouping tables
+  and models) 
+
+### 0.1.0
+
+Data format:
+
+* Introduce observables table instead of SBML assignment rules for defining
+  observation model (#244) (moves observableTransformation and noiseModel
+  from the measurement table to the observables table)
+* Allow initial concentrations / sizes in condition table (#238)
+* Fixes and clarifications in the format documentation
+* Changes in prior columns of the parameter table (#222)
+* Introduced separate version number of file format, this release being
+  version 1
+
+Library:
+
+* Adaptations to new file formats
+* Various bugfixes and clean-up, especially in visualization and validator
+* Parameter mapping changed to include all model parameters and not only
+  those differing from the ones defined inside the SBML model
+* Introduced constants for all field names and string options, replacing
+  most string literals in the code (#228)
+* Added unit tests and additional format validation steps
+* Optional parallelization of parameter mapping (#205)
+* Extended documentation (in-source and example Jupyter notebooks)
+
+
 ### 0.0.2
 
 Bugfix release

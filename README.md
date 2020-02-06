@@ -10,9 +10,7 @@
 
 This repository describes *PEtab* --- a data format for specifying parameter 
 estimation problems in systems biology, provides a Python library for easy 
-access and validation of *PEtab* files. See 
-[doc/documentation_data_format.md](doc/documentation_data_format.md) for more 
-info.
+access and validation of *PEtab* files.
 
 ## About PEtab
 
@@ -30,7 +28,12 @@ for example:
   - Specifying parameter bounds for optimization
 
   - Specifying multiple simulation condition with potentially shared parameters
- 
+
+## Documentation
+
+Documentation of the PEtab data format and Python library is available at
+[https://petab.readthedocs.io/en/latest/](https://petab.readthedocs.io/en/latest/).
+
 ## References
 
 Where PEtab is used / supported:
@@ -72,8 +75,9 @@ will have to:
 
 1. Create a parameter table
 
-If you are using Python, some handy functions of the PEtab library can help 
-you with that. This include also a PEtab validator called `petablint.py` which
+If you are using Python, some handy functions of the
+[PEtab library](https://petab.readthedocs.io/en/latest/modules.html) can help
+you with that. This include also a PEtab validator called `petablint` which
 you can use to check if your files adhere to the PEtab standard. If you have 
 further questions regarding PEtab, feel free to post an 
 [issue](https://github.com/ICB-DCM/PEtab/issues) at our github repository.
@@ -101,11 +105,11 @@ be:
     entrypoints to be available as a shell command from anywhere called
     `petablint`
 
-  - `petab.core.create_parameter_df` to create the parameter table, once you
+  - `petab.create_parameter_df` to create the parameter table, once you
     have set up the model, condition table and measurement table
 
-  - Functions in `petab.sbml` to define observables and error model parameters
-    in the SBML model
+  - Functions in `petab.migrations` for updating PEtab files from earlier
+    versions
 
 ## Extending PEtab
 

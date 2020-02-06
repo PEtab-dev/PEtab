@@ -148,7 +148,7 @@ disable=print-statement,
         too-many-public-methods,
         import-outside-toplevel,
         too-many-locals,
-
+        fixme,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -319,7 +319,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis). It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=matplotlib
+ignored-modules=matplotlib,sympy,pandas,numpy,libsbml,pytest
 
 # Show a hint with possible names when a member name was not found. The aspect
 # of finding the hint is based on edit distance.
@@ -344,7 +344,7 @@ argument-naming-style=snake_case
 
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style.
-argument-rgx=^[a-z][a-z0-9]*((_[a-z0-9]+)*)?$
+argument-rgx=^[a-z_][a-z0-9]*((_[a-z0-9]+)*)?$
 
 # Naming style matching correct attribute names.
 attr-naming-style=snake_case
@@ -380,7 +380,7 @@ const-naming-style=UPPER_CASE
 
 # Regular expression matching correct constant names. Overrides const-naming-
 # style.
-const-rgx=^[a-zA-Z][a-zA-Z0-9]*((_[a-zA-Z0-9]+)*)?$
+const-rgx=^[_a-zA-Z][_a-zA-Z0-9]*((_[a-zA-Z0-9]+_*)*)?$
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
@@ -423,7 +423,7 @@ module-naming-style=snake_case
 
 # Regular expression matching correct module names. Overrides module-naming-
 # style.
-#module-rgx=
+module-rgx=^([a-z_][a-z0-9]*((_[a-z0-9]+)*_?)?)|(C)$
 
 # Colon-delimited sets of names that determine each other's naming style when
 # the name regexes allow several styles.
@@ -443,14 +443,14 @@ variable-naming-style=snake_case
 
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style.
-variable-rgx=^[a-z_][a-z0-9]*((_[a-z0-9]+)*)?$
+variable-rgx=^[a-z_][a-z0-9]*((_[a-z0-9]+)*_?)?$
 
 
 [LOGGING]
 
 # Format style used to check logging format string. `old` means using %
 # formatting, `new` is for `{}` formatting,and `fstr` is for f-strings.
-logging-format-style=old
+logging-format-style=fstr
 
 # Logging modules to check that the string format arguments are in logging
 # function parameter format.
@@ -516,7 +516,7 @@ valid-metaclass-classmethod-first-arg=cls
 max-args=5
 
 # Maximum number of attributes for a class (see R0902).
-max-attributes=7
+max-attributes=12
 
 # Maximum number of boolean expressions in an if statement (see R0916).
 max-bool-expr=5
@@ -540,7 +540,7 @@ max-returns=6
 max-statements=50
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=2
+min-public-methods=1
 
 
 [IMPORTS]

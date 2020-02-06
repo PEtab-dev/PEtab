@@ -4,7 +4,7 @@ import numbers
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-from typing import Iterable, Set, List, Tuple
+from typing import Iterable, Set, List, Tuple, Dict
 
 import libsbml
 
@@ -36,17 +36,45 @@ def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
     return parameter_df
 
 
+def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
+    """Write PEtab parameter table
+
+    Arguments:
+        df: PEtab parameter table
+        filename: Destination file name
+    """
+    with open(filename, 'w') as fh:
+        df.to_csv(fh, sep='\t', index=True)
+
+
 def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:
     """
-    Get list of optimization parameter ids from parameter dataframe.
+    Get list of optimization parameter IDs from parameter table.
 
     Arguments:
         parameter_df: PEtab parameter DataFrame
 
     Returns:
-        List of parameter IDs in the parameter table
+        List of IDs of parameters selected for optimization.
     """
-    return list(parameter_df.reset_index()[PARAMETER_ID])
+    return list(parameter_df.index[parameter_df[ESTIMATE] == 1])
+
+
+def get_optimization_parameter_scaling(
+        parameter_df: pd.DataFrame) -> Dict[str, str]:
+    """
+    Get Dictionary with optimization parameter IDs mapped to parameter scaling
+    strings.
+
+    Arguments:
+        parameter_df: PEtab parameter DataFrame
+
+    Returns:
+        Dictionary with optimization parameter IDs mapped to parameter scaling
+        strings.
+    """
+    estimated_df = parameter_df.loc[parameter_df[ESTIMATE] == 1]
+    return dict(zip(estimated_df.index, estimated_df[PARAMETER_SCALE]))
 
 
 def create_parameter_df(sbml_model: libsbml.Model,
@@ -193,13 +221,13 @@ def get_valid_parameters_for_parameter_table(
     # {observable,noise}Parameters
     placeholders = set()
     for k, v in observables.items():
-        placeholders |= measurements.get_placeholders(
+        placeholders |= set(measurements.get_placeholders(
             v['formula'],
             core.get_observable_id(k),
-            'observable')
+            'observable'))
     for k, v in sigmas.items():
-        placeholders |= measurements.get_placeholders(
-            v, core.get_observable_id(k), 'noise')
+        placeholders |= set(measurements.get_placeholders(
+            v, core.get_observable_id(k), 'noise'))
 
     # exclude rule targets
     assignment_targets = {ar.getVariable()
@@ -261,7 +289,7 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
 
         # retrieve info about parameters of priors, make it a tuple of floats
         pars_str = str(row.get(f'{mode}PriorParameters',
-                       f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'))
+                               f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'))
         prior_pars = tuple([float(entry) for entry in pars_str.split(';')])
 
         # add parameter scale and bounds, as this may be needed
@@ -276,23 +304,6 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
         prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
 
     return prior_list
-
-
-def parameter_id_is_valid(parameter_id: str) -> bool:
-    """Check whether parameter_id is a valid PEtab parameter ID
-
-    This should pretty much correspond to what is allowed for SBML identifiers.
-
-    TODO(#179) improve checking
-
-    Arguments:
-        parameter_id: Parameter ID to validate
-
-    Returns:
-        ``True`` if valid, ``False`` otherwise
-    """
-
-    return parameter_id != ''
 
 
 def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:

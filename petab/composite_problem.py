@@ -70,7 +70,10 @@ class CompositeProblem:
                     path_prefix, problem_config[CONDITION_FILES][0]),
                 visualization_files=[
                     os.path.join(path_prefix, f)
-                    for f in problem_config[VISUALIZATION_FILES]]
+                    for f in problem_config[VISUALIZATION_FILES]],
+                observable_files=[
+                    os.path.join(path_prefix, f)
+                    for f in problem_config[OBSERVABLE_FILES]]
             )
             problems.append(cur_problem)
 
