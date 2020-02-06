@@ -352,6 +352,12 @@ class Problem:
         return list(self.parameter_df[NOMINAL_VALUE])
 
     @property
+    def x_nominal_estimate(self) -> List:
+        """Parameter table nominal values, for parameters to estimate."""
+        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
+        return list(estimated[NOMINAL_VALUE])
+
+    @property
     def lb(self) -> List:
         """Parameter table lower bounds"""
         return list(self.parameter_df[LOWER_BOUND])
@@ -366,6 +372,14 @@ class Problem:
         """Parameter table nominal values with applied parameter scaling"""
         return list(parameters.map_scale(self.parameter_df[NOMINAL_VALUE],
                                          self.parameter_df[PARAMETER_SCALE]))
+
+    @property
+    def x_nominal_estimate_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling,
+        for parameters to estimate."""
+        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
+        return list(parameters.map_scale(estimated[NOMINAL_VALUE],
+                                         estimated[PARAMETER_SCALE]))
 
     @property
     def lb_scaled(self) -> List:

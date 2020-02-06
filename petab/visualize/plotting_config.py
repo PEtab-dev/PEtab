@@ -2,7 +2,6 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 
 from ..C import *
 
@@ -121,11 +120,8 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                 xs, ys, linestyle='-', marker='o',
                 label=label_base + " simulation", color=colors)
 
-
-
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == BAR_PLOT:
         x_name = vis_spec[ind_plot][LEGEND_ENTRY][i_visu_spec]
-
         p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'],
                              color=sns.color_palette()[0])
 
