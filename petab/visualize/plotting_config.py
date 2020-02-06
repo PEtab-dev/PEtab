@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 
 from ..C import *
 
@@ -133,7 +134,17 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
             colors = p[0].get_facecolor()
             ax[axx, axy].bar(x_name + " simulation", ms['sim'], color='white',
                              edgecolor=colors)
+
+        for label in ax[axx, axy].get_xmajorticklabels():
+            label.set_rotation(30)
+            label.set_horizontalalignment("right")
+
+    elif vis_spec[PLOT_TYPE_SIMULATION][
+                 i_visu_spec] == SCATTER_PLOT and plot_sim:
+        ax[axx, axy].scatter(ms['mean'], ms['sim'])
+
     ax[axx, axy].relim()
     ax[axx, axy].autoscale_view()
+    sns.despine()
 
     return ax
