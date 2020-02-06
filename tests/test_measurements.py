@@ -36,3 +36,9 @@ def test_get_placeholders():
         petab.get_placeholders(
             'observableParameter2_twoParams + observableParameter2_twoParams',
             'twoParams', 'observable')
+
+    # empty
+    assert petab.get_placeholders('', 'any', 'observable') == []
+
+    # non-string
+    assert petab.get_placeholders(1, 'any', 'observable') == []
