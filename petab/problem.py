@@ -353,7 +353,8 @@ class Problem:
 
     @property
     def x_nominal_estimate(self) -> List:
-        estimated = self.parameter_df[self.parameter_df[ESTIMATE] == 1]
+        """Parameter table nominal values, for parameters to estimate."""
+        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
         return list(estimated[NOMINAL_VALUE])
 
     @property
@@ -374,7 +375,9 @@ class Problem:
 
     @property
     def x_nominal_estimate_scaled(self) -> List:
-        estimated = self.parameter_df[self.parameter_df[ESTIMATE] == 1]
+        """Parameter table nominal values with applied parameter scaling,
+        for parameters to estimate."""
+        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
         return list(parameters.map_scale(estimated[NOMINAL_VALUE],
                                          estimated[PARAMETER_SCALE]))
 
