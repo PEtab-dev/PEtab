@@ -350,7 +350,7 @@ class Problem:
     def x_free_ids(self) -> List[str]:
         """Parameter table parameter IDs, for the parameters to estimate."""
         estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
-        return list(estimated.reset_index()[PARAMETER_ID])
+        return list(estimated.index.values)
 
     @property
     def x_nominal(self) -> List:
