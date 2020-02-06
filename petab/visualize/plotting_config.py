@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 
 def plot_lowlevel(vis_spec: pd.DataFrame,
@@ -122,12 +123,14 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
 
         x_name = vis_spec[ind_plot].legendEntry[i_visu_spec]
 
-        p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
+        p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'], color=sns.color_palette()[0])
         ax[axx, axy].set_title(vis_spec.plotName[i_visu_spec])
 
         if plot_sim:
             colors = p[0].get_facecolor()
             ax[axx, axy].bar(x_name + " simulation", ms['sim'], color='white',
                              edgecolor=colors)
+    ax[axx, axy].relim()
+    ax[axx, axy].autoscale_view()
 
     return ax
