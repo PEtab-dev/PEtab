@@ -458,7 +458,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # special handling, if column in m_data.observableParameters is empty
         if isinstance(m_data[OBSERVABLE_PARAMETERS][ind_meas[0]], Number) \
                 and np.isnan(m_data.observableParameters[ind_meas[0]]):
-            arr = np.array(m_data.observableParameters.iloc[ind_meas], 
+            arr = np.array(m_data.observableParameters.iloc[ind_meas],
                            dtype=float)
             bool_observable = np.isnan(arr)
 
