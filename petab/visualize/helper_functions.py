@@ -141,6 +141,7 @@ def check_vis_spec_consistency(dataset_id_list,
     return group_by
 
 
+
 def create_dataset_id_list(simcond_id_list,
                            simcond_num_list,
                            observable_id_list,
@@ -337,6 +338,31 @@ def get_default_vis_specs(exp_data,
     return vis_spec, exp_data
 
 
+def check_ex_visu_columns(vis_spec):
+    """
+    Check the columns in Visu_Spec file, if non-mandotory columns does not
+    exist, create default columns
+    """
+    if Y_LABEL not in vis_spec.columns:
+        vis_spec.insert(loc=4,column=Y_LABEL,value='value')
+    if Y_VALUES not in vis_spec.columns:
+        vis_spec.insert(loc=4,column=Y_VALUES,value='')
+    if X_LABEL not in vis_spec.columns:
+        vis_spec.insert(loc=4, column=X_LABEL, value='time')
+    if X_OFFSET not in vis_spec.columns:
+        vis_spec.insert(loc=4, column=X_OFFSET, value=0)
+    if Y_SCALE not in vis_spec.columns:
+        vis_spec.insert(loc=4, column=Y_SCALE, value=LIN)
+    if X_SCALE not in vis_spec.columns:
+        vis_spec.insert(loc=4, column=X_SCALE, value=LIN)
+    if LEGEND_ENTRY not in vis_spec.columns:
+        vis_spec.insert(loc=4, column=LEGEND_ENTRY, value='measurement')
+    if PLOT_NAME not in vis_spec.columns:
+        vis_spec.insert(loc=1, column=PLOT_NAME, value='')
+
+    return vis_spec
+
+
 def handle_dataset_plot(i_visu_spec,
                         ind_plot,
                         ax,
@@ -358,6 +384,7 @@ def handle_dataset_plot(i_visu_spec,
     uni_condition_id = np.unique(
         exp_data[ind_dataset][SIMULATION_CONDITION_ID])
     col_name_unique = SIMULATION_CONDITION_ID
+
 
     # Case separation of independent parameter: condition, time or custom
     if indep_var == TIME:
