@@ -406,7 +406,7 @@ class Problem:
                                          self.parameter_df[PARAMETER_SCALE]))
 
     @property
-    def x_free_indides(self) -> List[int]:
+    def x_free_indices(self) -> List[int]:
         """Parameter table estimated parameter indices."""
         estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val != 0]
