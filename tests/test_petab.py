@@ -362,6 +362,7 @@ def test_concat_measurements():
 
 
 def test_get_obervable_ids(petab_problem):
+    """Test if observable ids functions returns correct value."""
     assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
 
 
