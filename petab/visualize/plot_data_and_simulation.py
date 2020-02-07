@@ -11,7 +11,8 @@ import seaborn as sns
 from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot,
-                               check_ex_visu_columns)
+                               check_ex_visu_columns,
+                               check_ex_exp_columns)
 
 from .. import problem, measurements, core, conditions
 from ..C import *
@@ -90,12 +91,20 @@ def plot_data_and_simulation(
     None: In case subplots are save to file
     """
 
+    if isinstance(exp_conditions, str):
+        exp_conditions = conditions.get_condition_df(exp_conditions)
+
     if isinstance(exp_data, str):
         # import from file
         exp_data = measurements.get_measurement_df(exp_data)
-
-    if isinstance(exp_conditions, str):
-        exp_conditions = conditions.get_condition_df(exp_conditions)
+        # check columns, and add non-mandatory default columns
+        exp_data = check_ex_exp_columns(exp_data,
+                                        dataset_id_list,
+                                        sim_cond_id_list,
+                                        sim_cond_num_list,
+                                        observable_id_list,
+                                        observable_num_list,
+                                        exp_conditions)
 
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
