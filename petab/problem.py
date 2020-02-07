@@ -374,6 +374,21 @@ class Problem:
         return arr
 
     def get_x_ids(self, free: bool = True, fixed: bool = True):
+        """Generic function to get parameter ids.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+
+        Returns
+        -------
+        arr:
+            The parameter ids.
+        """
         v = list(self.parameter_df.index.values)
         return self._to_mask(v, free=free, fixed=fixed)
 
@@ -394,6 +409,24 @@ class Problem:
 
     def get_x_nominal(self, free: bool = True, fixed: bool = True,
                       scaled: bool = False):
+        """Generic function to get parameter nominal values.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+        scaled:
+            Whether to scale the values according to the parameter scale,
+            or return them on linear scale.
+
+        Returns
+        -------
+        arr:
+            The parameter nominal values.
+        """
         v = self.parameter_df[NOMINAL_VALUE]
         if scaled:
             v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
@@ -433,6 +466,24 @@ class Problem:
 
     def get_lb(self, free: bool = True, fixed: bool = True,
                scaled: bool = False):
+        """Generic function to get lower parameter bounds.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+        scaled:
+            Whether to scale the values according to the parameter scale,
+            or return them on linear scale.
+
+        Returns
+        -------
+        arr:
+            The lower parameter bounds.
+        """
         v = self.parameter_df[LOWER_BOUND]
         if scaled:
             v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
@@ -450,6 +501,24 @@ class Problem:
 
     def get_ub(self, free: bool = True, fixed: bool = True,
                scaled: bool = False):
+        """Generic function to get upper parameter bounds.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+        scaled:
+            Whether to scale the values according to the parameter scale,
+            or return them on linear scale.
+
+        Returns
+        -------
+        arr:
+            The upper parameter bounds.
+        """
         v = self.parameter_df[UPPER_BOUND]
         if scaled:
             v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
