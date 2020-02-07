@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib.ticker as mtick
 
 from ..C import *
 
@@ -54,12 +55,16 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
         ax[axx, axy].set_xscale("linear")
     elif vis_spec[X_SCALE][i_visu_spec] == LOG10:
         ax[axx, axy].set_xscale("log")
+    elif vis_spec.xScale[i_visu_spec] == LOG:
+        ax[axx, axy].set_xscale("log", basex=np.e)
 
     # set yScale
     if vis_spec.yScale[i_visu_spec] == LIN:
         ax[axx, axy].set_yscale("linear")
     elif vis_spec.yScale[i_visu_spec] == LOG10:
         ax[axx, axy].set_yscale("log")
+    elif vis_spec.yScale[i_visu_spec] == LOG:
+        ax[axx, axy].set_yscale("log", basey=np.e)
 
     if vis_spec.plotTypeSimulation[i_visu_spec] == LINE_PLOT:
 
@@ -120,20 +125,23 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                 xs, ys, linestyle='-', marker='o',
                 label=label_base + " simulation", color=colors)
 
+    # construct bar plot
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == BAR_PLOT:
         x_name = vis_spec[ind_plot][LEGEND_ENTRY][i_visu_spec]
+        print(x_name)
         p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'],
                              color=sns.color_palette()[0])
-
+        ax[axx, axy].set_xticks(x_name)
         if plot_sim:
             colors = p[0].get_facecolor()
             ax[axx, axy].bar(x_name + " simulation", ms['sim'], color='white',
-                             edgecolor=colors)
+                             width=-0.8, align='edge', edgecolor=colors)
 
         for label in ax[axx, axy].get_xmajorticklabels():
             label.set_rotation(30)
             label.set_horizontalalignment("right")
 
+    # construct scatter plot
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == SCATTER_PLOT:
         if not plot_sim:
             print('Scatter plots do not work without simulation data')
@@ -141,10 +149,19 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
                              label=vis_spec[ind_plot][LEGEND_ENTRY][
                                  i_visu_spec])
 
+    # show 'e' as basis not 2.7... in natural log scale cases
+    def ticks(y, _):
+        return r'$e^{{{:.0f}}}$'.format(np.log(y))
+    if vis_spec.xScale[i_visu_spec] == LOG:
+        ax[axx, axy].xaxis.set_major_formatter(mtick.FuncFormatter(ticks))
+    if vis_spec.yScale[i_visu_spec] == LOG:
+        ax[axx, axy].yaxis.set_major_formatter(mtick.FuncFormatter(ticks))
+
+    # set further plotting/layout settings
+    print('debug')
     ax[axx, axy].legend()
     ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
     ax[axx, axy].relim()
     ax[axx, axy].autoscale_view()
-    sns.despine()
 
     return ax
