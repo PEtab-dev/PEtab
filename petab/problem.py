@@ -347,15 +347,31 @@ class Problem:
         return measurements.get_noise_distributions(
             measurement_df=self.measurement_df)
 
-    def _to_mask(self, v: Iterable, free: bool = True, fixed: bool = True):
-        """Apply mask of only free or only fixed values."""
+    def _to_mask(self, arr: List, free: bool = True, fixed: bool = True):
+        """Apply mask of only free or only fixed values.
+
+        Parameters
+        ----------
+        arr:
+            The full vector the mask is to be applied to.
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+
+        Returns
+        -------
+        arr:
+            The reduced vector with applied mask.
+        """
         if not free and not fixed:
             return []
         if not free:
-            return [v[ix] for ix in self.x_fixed_indices]
+            return [arr[ix] for ix in self.x_fixed_indices]
         if not fixed:
-            return [v[ix] for ix in self.x_free_indices]
-        return v
+            return [arr[ix] for ix in self.x_free_indices]
+        return arr
 
     def get_x_ids(self, free: bool = True, fixed: bool = True):
         v = list(self.parameter_df.index.values)
