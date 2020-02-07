@@ -237,7 +237,7 @@ cases, to reuse any existing SBML model without modifications.
 
 The observable table has the following columns:
 
-| observableId | observableName | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
+| observableId | [observableName] | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
 | --- | --- | --- | --- | --- | --- |
 | [String] | [String] | [String] | ['lin'(default)&#124;'log'&#124;'log10'] |  [String'log'&#124;Number] | ['laplace'&#124;'normal'] |
 | e.g. | | | | | | 
