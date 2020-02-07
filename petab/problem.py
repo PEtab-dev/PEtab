@@ -347,12 +347,18 @@ class Problem:
         return list(self.parameter_df.reset_index()[PARAMETER_ID])
 
     @property
+    def x_free_ids(self) -> List[str]:
+        """Parameter table parameter IDs, for the parameters to estimate."""
+        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
+        return list(estimated.index.values)
+
+    @property
     def x_nominal(self) -> List:
         """Parameter table nominal values"""
         return list(self.parameter_df[NOMINAL_VALUE])
 
     @property
-    def x_nominal_estimate(self) -> List:
+    def x_nominal_free(self) -> List:
         """Parameter table nominal values, for parameters to estimate."""
         estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
         return list(estimated[NOMINAL_VALUE])
@@ -374,7 +380,7 @@ class Problem:
                                          self.parameter_df[PARAMETER_SCALE]))
 
     @property
-    def x_nominal_estimate_scaled(self) -> List:
+    def x_nominal_free_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling,
         for parameters to estimate."""
         estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
@@ -394,15 +400,29 @@ class Problem:
                                          self.parameter_df[PARAMETER_SCALE]))
 
     @property
+    def x_free_indides(self) -> List[int]:
+        """Parameter table estimated parameter indices."""
+        estimated = list(self.parameter_df[ESTIMATE])
+        return [j for j, val in enumerate(estimated) if val != 0]
+
+    @property
     def x_fixed_indices(self) -> List[int]:
-        """Parameter table non-estimated parameter indices"""
+        """Parameter table non-estimated parameter indices."""
         estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val == 0]
 
     @property
     def x_fixed_vals(self) -> List:
-        """Nominal values for parameter table non-estimated parameters"""
+        """Nominal values for parameter table non-estimated parameters."""
         return [self.x_nominal[val] for val in self.x_fixed_indices]
+
+    @property
+    def x_fixed_vals_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling,
+        for non-estimated parameters."""
+        non_estimated = self.parameter_df[self.parameter_df[ESTIMATE] == 0]
+        return list(parameters.map_scale(non_estimated[NOMINAL_VALUE],
+                                         non_estimated[PARAMETER_SCALE]))
 
     def get_simulation_conditions_from_measurement_df(self):
         """See petab.get_simulation_conditions"""
