@@ -82,11 +82,23 @@ def petab_problem():
         parameter_file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['observable_1'],
+        OBSERVABLE_NAME: ['julius'],
+        OBSERVABLE_FORMULA: ['observable_1'],
+        NOISE_FORMULA: [1],
+    })
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        observable_file_name = fh.name
+        observable_df.to_csv(fh, sep='\t', index=False)
+
     problem = petab.Problem.from_files(
         sbml_file=sbml_file_name,
         measurement_file=measurement_file_name,
         condition_file=condition_file_name,
-        parameter_file=parameter_file_name)
+        parameter_file=parameter_file_name,
+        observable_files=observable_file_name)
 
     return problem
 
@@ -347,6 +359,11 @@ def test_concat_measurements():
     assert expected.equals(
         petab.concat_tables([filename_a, b],
                             petab.measurements.get_measurement_df))
+
+
+def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
+    """Test if observable ids functions returns correct value."""
+    assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
 
 
 def test_to_float_if_float():
