@@ -417,7 +417,7 @@ class Problem:
         return self.get_x_nominal(free=False, scaled=True)
 
     def get_lb(self, free: bool = True, fixed: bool = True,
-               scaled: bool = True):
+               scaled: bool = False):
         v = self.parameter_df[LOWER_BOUND]
         if scaled:
             v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
@@ -434,7 +434,7 @@ class Problem:
         return self.get_lb(scaled=True)
 
     def get_ub(self, free: bool = True, fixed: bool = True,
-               scaled: bool = True):
+               scaled: bool = False):
         v = self.parameter_df[UPPER_BOUND]
         if scaled:
             v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
