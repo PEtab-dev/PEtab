@@ -350,8 +350,7 @@ class Problem:
     def _to_mask(self, v: Iterable, free: bool = True, fixed: bool = True):
         """Apply mask of only free or only fixed values."""
         if not free and not fixed:
-            raise ValueError("Disabling both `free` and `fixed` would "
-                             "yield an empty list.")
+            return []
         if not free:
             return [v[ix] for ix in self.x_fixed_indices]
         if not fixed:
