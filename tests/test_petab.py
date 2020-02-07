@@ -361,7 +361,7 @@ def test_concat_measurements():
                             petab.measurements.get_measurement_df))
 
 
-def test_obervables(petab_problem):
+def test_get_obervables(petab_problem):
     assert set(petab_problem.get_observables()) == set(['observable_1'])
 
 
