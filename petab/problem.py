@@ -322,7 +322,7 @@ class Problem:
 
         return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
 
-    def get_observable_ids(self, remove: bool = False):
+    def get_observable_ids(self):
         """
         Returns dictionary of observable ids.
         """
