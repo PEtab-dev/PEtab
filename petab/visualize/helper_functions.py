@@ -141,7 +141,6 @@ def check_vis_spec_consistency(dataset_id_list,
     return group_by
 
 
-
 def create_dataset_id_list(simcond_id_list,
                            simcond_num_list,
                            observable_id_list,
@@ -344,9 +343,9 @@ def check_ex_visu_columns(vis_spec):
     exist, create default columns
     """
     if Y_LABEL not in vis_spec.columns:
-        vis_spec.insert(loc=4,column=Y_LABEL,value='value')
+        vis_spec.insert(loc=4, column=Y_LABEL, value='value')
     if Y_VALUES not in vis_spec.columns:
-        vis_spec.insert(loc=4,column=Y_VALUES,value='')
+        vis_spec.insert(loc=4, column=Y_VALUES, value='')
     if X_LABEL not in vis_spec.columns:
         vis_spec.insert(loc=4, column=X_LABEL, value='time')
     if X_OFFSET not in vis_spec.columns:
@@ -384,7 +383,6 @@ def handle_dataset_plot(i_visu_spec,
     uni_condition_id = np.unique(
         exp_data[ind_dataset][SIMULATION_CONDITION_ID])
     col_name_unique = SIMULATION_CONDITION_ID
-
 
     # Case separation of independent parameter: condition, time or custom
     if indep_var == TIME:
