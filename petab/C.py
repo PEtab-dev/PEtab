@@ -141,7 +141,7 @@ SIMULATION = 'simulatedData'
 
 
 # YAML
-
+FORMAT_VERSION = 'format_version'
 PARAMETER_FILE = 'parameter_file'
 PROBLEMS = 'problems'
 SBML_FILES = 'sbml_files'

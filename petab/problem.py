@@ -1,13 +1,15 @@
 """PEtab Problem class"""
 
 import os
+import tempfile
 from warnings import warn
 
 import pandas as pd
+import libcombine
 import libsbml
 from typing import Optional, List, Union, Dict, Iterable
 from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml, core, observables)
+               sampling, sbml, yaml, core, observables, format_version)
 from .C import *  # noqa: F403
 
 
@@ -161,6 +163,11 @@ class Problem:
                              'Consider using '
                              'petab.CompositeProblem.from_yaml() instead.')
 
+        if yaml_config[FORMAT_VERSION] != format_version.__format_version__:
+            raise ValueError("Provided PEtab files are of unsupported version"
+                             f"{yaml_config[FORMAT_VERSION]}. Expected "
+                             f"{format_version.__format_version__}.")
+
         problem0 = yaml_config['problems'][0]
 
         yaml.assert_single_condition_and_sbml_file(problem0)
@@ -217,6 +224,33 @@ class Problem:
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
+
+    @staticmethod
+    def from_combine(filename: str) -> 'Problem':
+        """Read PEtab COMBINE archive (http://co.mbine.org/documents/archive).
+
+        See also ``create_combine_archive``.
+
+        Arguments:
+            filename: Path to the PEtab-COMBINE archive
+
+        Returns:
+            A ``petab.Problem`` instance.
+        """
+
+        archive = libcombine.CombineArchive()
+        if archive.initializeFromArchive(filename) is None:
+            print(f"Invalid Combine Archive: {filename}")
+            return None
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            archive.extractTo(tmpdirname)
+            problem = Problem.from_yaml(
+                os.path.join(tmpdirname,
+                             archive.getMasterFile().getLocation()))
+        archive.cleanUp()
+
+        return problem
 
     def to_files(self,
                  sbml_file: Optional[str] = None,

@@ -322,9 +322,10 @@ def create_combine_archive(
                     libcombine.KnownFormats.lookupFormat("tsv"),
                     False
                 )
-            desc = field.split("_")[0]
-            _add_file_metadata(location=file,
-                               description=f"PEtab {desc} file")
+                desc = field.split("_")[0]
+                _add_file_metadata(location=file,
+                                   description=f"PEtab {desc} file")
+
     # Add archive metadata
     description = libcombine.OmexDescription()
     description.setAbout(".")
