@@ -347,7 +347,7 @@ class Problem:
         return measurements.get_noise_distributions(
             measurement_df=self.measurement_df)
 
-    def _to_mask(v: List, free: bool = True, fixed: bool = True):
+    def _to_mask(self, v: Iterable, free: bool = True, fixed: bool = True):
         """Apply mask of only free or only fixed values."""
         if not free and not fixed:
             raise ValueError("Disabling both `free` and `fixed` would "
