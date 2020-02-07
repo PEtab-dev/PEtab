@@ -347,63 +347,108 @@ class Problem:
         return measurements.get_noise_distributions(
             measurement_df=self.measurement_df)
 
+    def _to_mask(v: List, free: bool = True, fixed: bool = True):
+        """Apply mask of only free or only fixed values."""
+        if not free and not fixed:
+            raise ValueError("Disabling both `free` and `fixed` would "
+                             "yield an empty list.")
+        if not free:
+            return [v[ix] for ix in self.x_fixed_indices]
+        if not fixed:
+            return [v[ix] for ix in self.x_free_indices]
+        return v
+
+    def get_x_ids(self, free: bool = True, fixed: bool = True):
+        v = list(self.parameter_df.index.values)
+        return self._to_mask(v, free=free, fixed=fixed)
+
     @property
     def x_ids(self) -> List[str]:
         """Parameter table parameter IDs"""
-        return list(self.parameter_df.reset_index()[PARAMETER_ID])
+        return self.get_x_ids()
 
     @property
     def x_free_ids(self) -> List[str]:
-        """Parameter table parameter IDs, for the parameters to estimate."""
-        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
-        return list(estimated.index.values)
+        """Parameter table parameter IDs, for free parameters."""
+        return self.get_x_ids(fixed=False)
+
+    @property
+    def x_fixed_ids(self) -> List[str]:
+        """Parameter table parameter IDs, for fixed parameters."""
+        return self.get_x_ids(free=False)
+
+    def get_x_nominal(self, free: bool = True, fixed: bool = True,
+                      scaled: bool = False):
+        v = self.parameter_df[NOMINAL_VALUE]
+        if scaled:
+            v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
+        return self._to_mask(v, free=free, fixed=fixed)
 
     @property
     def x_nominal(self) -> List:
         """Parameter table nominal values"""
-        return list(self.parameter_df[NOMINAL_VALUE])
+        return self.get_x_nominal()
 
     @property
     def x_nominal_free(self) -> List:
-        """Parameter table nominal values, for parameters to estimate."""
-        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
-        return list(estimated[NOMINAL_VALUE])
+        """Parameter table nominal values, for free parameters."""
+        return self.get_x_nominal(fixed=False)
 
     @property
-    def lb(self) -> List:
-        """Parameter table lower bounds"""
-        return list(self.parameter_df[LOWER_BOUND])
-
-    @property
-    def ub(self) -> List:
-        """Parameter table upper bounds"""
-        return list(self.parameter_df[UPPER_BOUND])
+    def x_nominal_fixed(self) -> List:
+        """Parameter table nominal values, for fixed parameters."""
+        return self.get_x_nominal(free=False)
 
     @property
     def x_nominal_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df[NOMINAL_VALUE],
-                                         self.parameter_df[PARAMETER_SCALE]))
+        return self.get_x_nominal(scaled=True)
 
     @property
     def x_nominal_free_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling,
-        for parameters to estimate."""
-        estimated = self.parameter_df[self.parameter_df[ESTIMATE] != 0]
-        return list(parameters.map_scale(estimated[NOMINAL_VALUE],
-                                         estimated[PARAMETER_SCALE]))
+        for free parameters."""
+        return self.get_x_nominal(fixed=False, scaled=True)
+
+    @property
+    def x_nominal_fixed_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling,
+        for fixed parameters."""
+        return self.get_x_nominal(free=False, scaled=True)
+
+    def get_lb(self, free: bool = True, fixed: bool = True,
+               scaled: bool = True):
+        v = self.parameter_df[LOWER_BOUND]
+        if scaled:
+            v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
+        return self._to_mask(v, free=free, fixed=fixed)
+
+    @property
+    def lb(self) -> List:
+        """Parameter table lower bounds."""
+        return self.get_lb()
 
     @property
     def lb_scaled(self) -> List:
         """Parameter table lower bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df[LOWER_BOUND],
-                                         self.parameter_df[PARAMETER_SCALE]))
+        return self.get_lb(scaled=True)
+
+    def get_ub(self, free: bool = True, fixed: bool = True,
+               scaled: bool = True):
+        v = self.parameter_df[UPPER_BOUND]
+        if scaled:
+            v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
+        return self._to_mask(v, free=free, fixed=fixed)
+
+    @property
+    def ub(self) -> List:
+        """Parameter table upper bounds"""
+        return self.get_ub()
 
     @property
     def ub_scaled(self) -> List:
         """Parameter table upper bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df[UPPER_BOUND],
-                                         self.parameter_df[PARAMETER_SCALE]))
+        return self.get_ub(scaled=True)
 
     @property
     def x_free_indices(self) -> List[int]:
@@ -416,19 +461,6 @@ class Problem:
         """Parameter table non-estimated parameter indices."""
         estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val == 0]
-
-    @property
-    def x_fixed_vals(self) -> List:
-        """Nominal values for parameter table non-estimated parameters."""
-        return [self.x_nominal[val] for val in self.x_fixed_indices]
-
-    @property
-    def x_fixed_vals_scaled(self) -> List:
-        """Parameter table nominal values with applied parameter scaling,
-        for non-estimated parameters."""
-        non_estimated = self.parameter_df[self.parameter_df[ESTIMATE] == 0]
-        return list(parameters.map_scale(non_estimated[NOMINAL_VALUE],
-                                         non_estimated[PARAMETER_SCALE]))
 
     def get_simulation_conditions_from_measurement_df(self):
         """See petab.get_simulation_conditions"""
