@@ -314,13 +314,9 @@ class Problem:
 
     def get_observables(self, remove: bool = False):
         """
-        Returns dictionary of observables definitions
-        See `assignment_rules_to_dict` for details.
+        Returns dictionary of observables definitions.
         """
-        warn("This function will be removed in future releases.",
-             DeprecationWarning)
-
-        return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
+        return list(self.observable_df.index)
 
     def get_sigmas(self, remove: bool = False):
         """
