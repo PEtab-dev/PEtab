@@ -361,8 +361,8 @@ def test_concat_measurements():
                             petab.measurements.get_measurement_df))
 
 
-def test_get_obervables(petab_problem):
-    assert set(petab_problem.get_observables()) == set(['observable_1'])
+def test_get_obervable_ids(petab_problem):
+    assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
 
 
 def test_to_float_if_float():

@@ -315,6 +315,16 @@ class Problem:
     def get_observables(self, remove: bool = False):
         """
         Returns dictionary of observables definitions.
+        See `assignment_rules_to_dict` for details.
+        """
+        warn("This function will be removed in future releases.",
+             DeprecationWarning)
+
+        return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
+
+    def get_observable_ids(self, remove: bool = False):
+        """
+        Returns dictionary of observable ids.
         """
         return list(self.observable_df.index)
 
