@@ -30,9 +30,11 @@ def data_file_Fujita_nanData():
 def simu_file_Fujita():
     return "doc/example/example_Fujita/Fujita_simulatedData.tsv"
 
+
 @pytest.fixture
 def data_file_Fujita_minimal():
     return "doc/example/example_Fujita/Fujita_measurementData_minimal.tsv"
+
 
 @pytest.fixture
 def visu_file_Fujita_minimal():
@@ -91,7 +93,7 @@ def test_visualization_minimal_visu_file(data_file_Fujita,
                              simu_file_Fujita)
 
 
-def test_visualization_minimal_visu_file(data_file_Fujita_minimal,
+def test_visualization_minimal_data_file(data_file_Fujita_minimal,
                                          condition_file_Fujita,
                                          visu_file_Fujita,
                                          simu_file_Fujita):

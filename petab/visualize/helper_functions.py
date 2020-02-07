@@ -352,6 +352,9 @@ def check_ex_visu_columns(vis_spec):
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
     """
+    if X_VALUES not in vis_spec.columns:
+        raise NotImplementedError(
+            "Please define column: \'xValues\' in visualization file.")
     if Y_LABEL not in vis_spec.columns:
         vis_spec.insert(loc=4, column=Y_LABEL, value='value')
     if Y_VALUES not in vis_spec.columns:
