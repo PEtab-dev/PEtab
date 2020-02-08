@@ -347,7 +347,7 @@ class Problem:
         return measurements.get_noise_distributions(
             measurement_df=self.measurement_df)
 
-    def _to_mask(self, arr: List, free: bool = True, fixed: bool = True):
+    def _apply_mask(self, v: List, free: bool = True, fixed: bool = True):
         """Apply mask of only free or only fixed values.
 
         Parameters
@@ -368,10 +368,10 @@ class Problem:
         if not free and not fixed:
             return []
         if not free:
-            return [arr[ix] for ix in self.x_fixed_indices]
+            return [v[ix] for ix in self.x_fixed_indices]
         if not fixed:
-            return [arr[ix] for ix in self.x_free_indices]
-        return arr
+            return [v[ix] for ix in self.x_free_indices]
+        return v
 
     def get_x_ids(self, free: bool = True, fixed: bool = True):
         """Generic function to get parameter ids.
@@ -390,7 +390,7 @@ class Problem:
             The parameter ids.
         """
         v = list(self.parameter_df.index.values)
-        return self._to_mask(v, free=free, fixed=fixed)
+        return self._apply_mask(v, free=free, fixed=fixed)
 
     @property
     def x_ids(self) -> List[str]:
@@ -427,10 +427,11 @@ class Problem:
         arr:
             The parameter nominal values.
         """
-        v = self.parameter_df[NOMINAL_VALUE]
+        v = list(self.parameter_df[NOMINAL_VALUE])
         if scaled:
-            v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
-        return self._to_mask(v, free=free, fixed=fixed)
+            v = list(parameters.map_scale(
+                v, self.parameter_df[PARAMETER_SCALE]))
+        return self._apply_mask(v, free=free, fixed=fixed)
 
     @property
     def x_nominal(self) -> List:
@@ -484,10 +485,11 @@ class Problem:
         arr:
             The lower parameter bounds.
         """
-        v = self.parameter_df[LOWER_BOUND]
+        v = list(self.parameter_df[LOWER_BOUND])
         if scaled:
-            v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
-        return self._to_mask(v, free=free, fixed=fixed)
+            v = list(parameters.map_scale(
+                v, self.parameter_df[PARAMETER_SCALE]))
+        return self._apply_mask(v, free=free, fixed=fixed)
 
     @property
     def lb(self) -> List:
@@ -519,10 +521,11 @@ class Problem:
         arr:
             The upper parameter bounds.
         """
-        v = self.parameter_df[UPPER_BOUND]
+        v = list(self.parameter_df[UPPER_BOUND])
         if scaled:
-            v = parameters.map_scale(v, self.parameter_df[PARAMETER_SCALE])
-        return self._to_mask(v, free=free, fixed=fixed)
+            v = list(parameters.map_scale(
+                v, self.parameter_df[PARAMETER_SCALE]))
+        return self._apply_mask(v, free=free, fixed=fixed)
 
     @property
     def ub(self) -> List:
