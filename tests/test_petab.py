@@ -1,6 +1,7 @@
 import pickle
 import tempfile
 from math import nan
+import copy
 
 import libsbml
 import numpy as np
@@ -364,6 +365,31 @@ def test_concat_measurements():
 def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
     """Test if observable ids functions returns correct value."""
     assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
+
+
+def test_parameter_properties(petab_problem):  # pylint: disable=W0621
+    """
+    Test the petab.Problem functions to get parameter values.
+    """
+    petab_problem = copy.deepcopy(petab_problem)
+    petab_problem.parameter_df = pd.DataFrame(data={
+        PARAMETER_ID: ['par1', 'par2', 'par3'],
+        LOWER_BOUND: [0, 0.1, 0.1],
+        UPPER_BOUND: [100, 100, 200],
+        PARAMETER_SCALE: ['lin', 'log', 'log10'],
+        NOMINAL_VALUE: [7, 8, 9],
+        ESTIMATE: [1, 1, 0],
+    }).set_index(PARAMETER_ID)
+    assert petab_problem.x_ids == ['par1', 'par2', 'par3']
+    assert petab_problem.x_free_ids == ['par1', 'par2']
+    assert petab_problem.x_fixed_ids == ['par3']
+    assert petab_problem.lb == [0, 0.1, 0.1]
+    assert petab_problem.lb_scaled == [0, np.log(0.1), np.log10(0.1)]
+    assert petab_problem.get_lb(fixed=False, scaled=True) == [0, np.log(0.1)]
+    assert petab_problem.ub == [100, 100, 200]
+    assert petab_problem.ub_scaled == [100, np.log(100), np.log10(200)]
+    assert petab_problem.get_ub(fixed=False, scaled=True) == [100, np.log(100)]
+    assert petab_problem.x_nominal_scaled == [7, np.log(8), np.log10(9)]
 
 
 def test_to_float_if_float():
