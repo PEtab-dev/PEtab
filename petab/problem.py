@@ -352,7 +352,7 @@ class Problem:
 
         Parameters
         ----------
-        arr:
+        v:
             The full vector the mask is to be applied to.
         free:
             Whether to return free parameters, i.e. parameters to estimate.
@@ -362,7 +362,7 @@ class Problem:
 
         Returns
         -------
-        arr:
+        v:
             The reduced vector with applied mask.
         """
         if not free and not fixed:
@@ -386,7 +386,7 @@ class Problem:
 
         Returns
         -------
-        arr:
+        v:
             The parameter ids.
         """
         v = list(self.parameter_df.index.values)
@@ -424,7 +424,7 @@ class Problem:
 
         Returns
         -------
-        arr:
+        v:
             The parameter nominal values.
         """
         v = list(self.parameter_df[NOMINAL_VALUE])
@@ -482,7 +482,7 @@ class Problem:
 
         Returns
         -------
-        arr:
+        v:
             The lower parameter bounds.
         """
         v = list(self.parameter_df[LOWER_BOUND])
@@ -518,7 +518,7 @@ class Problem:
 
         Returns
         -------
-        arr:
+        v:
             The upper parameter bounds.
         """
         v = list(self.parameter_df[UPPER_BOUND])
