@@ -21,13 +21,13 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-${{ hashFiles('**/.pip_requirements.txt') }}-${{ hashFiles('**/setup.py') }}
+        key: ${{ runner.os }}-${{ hashFiles('**/.ci_pip_reqs.txt') }}-${{ hashFiles('**/setup.py') }}
         restore-keys: |
           ${{ runner.os }}-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r .pip_requirements.txt
+        pip install -r .ci_pip_reqs.txt
         pip install -e .[reports]
     - name: Run tests
       run: |
