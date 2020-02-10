@@ -1,0 +1,28 @@
+name: CI tests
+
+# trigger
+on: [push]
+
+jobs:
+  build:
+    name: CI job
+  
+  runs-on: ubuntu-latest
+  strategy:
+    matrix:
+      python-version: [3.8]
+
+  steps:
+  - name: Prepare environment
+    uses: actions/setup-python@v1
+    with:
+      python-version: ${{ matrix.python-version }}
+    run: |
+      python -m pip --upgrade pip
+      pip install -U -r ./.travis_pip_reqs.txt
+      pip install -e .[reports]
+  - name: Run tests
+    run: |
+      pytest --cov
+      python -m flake8 --exclude=build,doc,example,tmp --extend-ignore=F403,F405
+
