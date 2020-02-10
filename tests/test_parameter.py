@@ -46,11 +46,11 @@ def test_get_parameter_df():
         PARAMETER_NAME: ['parname1', 'parname2'],
     })
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
-        parameter_file_name = fh.name
+        file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
     with pytest.raises(KeyError):
-        petab.get_parameter_df(parameter_file_name)
+        petab.get_parameter_df(file_name)
 
     # with ids
     parameter_df = pd.DataFrame(data={
@@ -58,10 +58,10 @@ def test_get_parameter_df():
         PARAMETER_NAME: ['parname1', 'parname2'],
     })
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
-        parameter_file_name = fh.name
+        file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
-    df = petab.get_parameter_df(parameter_file_name)
+    df = petab.get_parameter_df(file_name)
     assert (df == parameter_df.set_index(PARAMETER_ID)).all().all()
 
 
@@ -73,7 +73,7 @@ def test_write_parameter_df():
     }).set_index(PARAMETER_ID)
 
     with tempfile.NamedTemporaryFile(mode='w', delete=True) as fh:
-        parameter_file_name = fh.name
-        petab.write_parameter_df(parameter_df, parameter_file_name)
-        re_df = petab.get_parameter_df(parameter_file_name)
+        file_name = fh.name
+        petab.write_parameter_df(parameter_df, file_name)
+        re_df = petab.get_parameter_df(file_name)
         assert (parameter_df == re_df).all().all()
