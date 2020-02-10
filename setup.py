@@ -43,6 +43,7 @@ setup(name='petab',
                         'seaborn',
                         'pyyaml',
                         'jsonschema',
+                        'python-libcombine'
                         ],
       include_package_data=True,
       tests_require=['flake8', 'pytest'],
