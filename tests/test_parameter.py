@@ -1,4 +1,7 @@
 """Tests for petab/parameters.py"""
+import tempfile
+import pytest
+
 import pandas as pd
 import petab
 from petab.C import *
@@ -34,3 +37,43 @@ def test_get_optimization_parameters():
     actual = petab.get_optimization_parameters(df)
 
     assert actual == expected
+
+
+def test_get_parameter_df():
+    """Test parameters.get_parameter_df."""
+    # parameter df missing ids
+    parameter_df = pd.DataFrame(data={
+        PARAMETER_NAME: ['parname1', 'parname2'],
+    })
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        parameter_file_name = fh.name
+        parameter_df.to_csv(fh, sep='\t', index=False)
+
+    with pytest.raises(KeyError):
+        petab.get_parameter_df(parameter_file_name)
+
+    # with ids
+    parameter_df = pd.DataFrame(data={
+        PARAMETER_ID: ['par1', 'par2'],
+        PARAMETER_NAME: ['parname1', 'parname2'],
+    })
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        parameter_file_name = fh.name
+        parameter_df.to_csv(fh, sep='\t', index=False)
+
+    df = petab.get_parameter_df(parameter_file_name)
+    assert (df == parameter_df.set_index(PARAMETER_ID)).all().all()
+
+
+def test_write_parameter_df():
+    """Test parameters.write_parameter_df."""
+    parameter_df = pd.DataFrame(data={
+        PARAMETER_ID: ['par1', 'par2'],
+        PARAMETER_NAME: ['parname1', 'parname2'],
+    }).set_index(PARAMETER_ID)
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=True) as fh:
+        parameter_file_name = fh.name
+        petab.write_parameter_df(parameter_df, parameter_file_name)
+        re_df = petab.get_parameter_df(parameter_file_name)
+        assert (parameter_df == re_df).all().all()
