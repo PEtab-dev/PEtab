@@ -19,7 +19,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Prepare environment
       run: |
-        python -m pip --upgrade pip
+        python -m pip install --upgrade pip
         pip install -U -r ./.travis_pip_reqs.txt
         pip install -e .[reports]
     - name: Run tests
