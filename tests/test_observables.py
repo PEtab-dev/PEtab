@@ -57,6 +57,7 @@ def test_write_observable_df():
 
 
 def test_get_output_parameters():
+    """Test measurements.get_output_parameters."""
     # sbml model
     document = libsbml.SBMLDocument(3, 1)
     model = document.createModel()
