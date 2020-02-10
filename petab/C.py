@@ -139,11 +139,11 @@ PLOT_TYPES_DATA = [MEAN_AND_SD, MEAN_AND_SEM, REPLICATE, PROVIDED]
 
 # SIMULATION
 
-SIMULATION = 'simulatedData'
+SIMULATION = 'simulation'
 
 
 # YAML
-
+FORMAT_VERSION = 'format_version'
 PARAMETER_FILE = 'parameter_file'
 PROBLEMS = 'problems'
 SBML_FILES = 'sbml_files'
