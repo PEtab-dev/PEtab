@@ -335,22 +335,25 @@ def test_concat_measurements():
     a = pd.DataFrame({MEASUREMENT: [1.0]})
     b = pd.DataFrame({TIME: [1.0]})
 
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+    with tempfile.NamedTemporaryFile(mode='w', delete=True) as fh:
         filename_a = fh.name
         a.to_csv(fh, sep='\t', index=False)
 
-    expected = pd.DataFrame({
-        MEASUREMENT: [1.0, nan],
-        TIME: [nan, 1.0]
-    })
+        # finish writing
+        fh.flush()
 
-    assert expected.equals(
-        petab.concat_tables([a, b],
-                            petab.measurements.get_measurement_df))
+        expected = pd.DataFrame({
+            MEASUREMENT: [1.0, nan],
+            TIME: [nan, 1.0]
+        })
 
-    assert expected.equals(
-        petab.concat_tables([filename_a, b],
-                            petab.measurements.get_measurement_df))
+        assert expected.equals(
+            petab.concat_tables([a, b],
+                                petab.measurements.get_measurement_df))
+
+        assert expected.equals(
+            petab.concat_tables([filename_a, b],
+                                petab.measurements.get_measurement_df))
 
 
 def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
@@ -401,21 +404,25 @@ def test_to_float_if_float():
 
 def test_to_files(petab_problem):  # pylint: disable=W0621
     """Test problem.to_files."""
-    sbml_file = tempfile.mkstemp()[1]
-    condition_file = tempfile.mkstemp()[1]
-    measurement_file = tempfile.mkstemp()[1]
-    parameter_file = tempfile.mkstemp()[1]
-    observable_file = tempfile.mkstemp()[1]
+    with tempfile.TemporaryDirectory() as folder:
+        # create target files
+        sbml_file = tempfile.mkstemp(dir=folder)[1]
+        condition_file = tempfile.mkstemp(dir=folder)[1]
+        measurement_file = tempfile.mkstemp(dir=folder)[1]
+        parameter_file = tempfile.mkstemp(dir=folder)[1]
+        observable_file = tempfile.mkstemp(dir=folder)[1]
 
-    petab_problem.to_files(sbml_file=sbml_file,
-                           condition_file=condition_file,
-                           measurement_file=measurement_file,
-                           parameter_file=parameter_file,
-                           visualization_file=None,
-                           observable_file=observable_file)
+        # write contents to files
+        petab_problem.to_files(
+            sbml_file=sbml_file,
+            condition_file=condition_file,
+            measurement_file=measurement_file,
+            parameter_file=parameter_file,
+            visualization_file=None,
+            observable_file=observable_file)
 
-    # exemplarily load some
-    parameter_df = petab.get_parameter_df(parameter_file)
-    same_nans = parameter_df.isna() == petab_problem.parameter_df.isna()
-    assert ((parameter_df == petab_problem.parameter_df) | same_nans) \
-        .all().all()
+        # exemplarily load some
+        parameter_df = petab.get_parameter_df(parameter_file)
+        same_nans = parameter_df.isna() == petab_problem.parameter_df.isna()
+        assert ((parameter_df == petab_problem.parameter_df) | same_nans) \
+            .all().all()

@@ -2,7 +2,6 @@
 import pandas as pd
 import pytest
 import tempfile
-import libsbml
 
 import petab
 from petab.C import *
@@ -56,14 +55,10 @@ def test_write_observable_df():
         assert (observable_df == re_df).all().all()
 
 
-def test_get_output_parameters():
+def test_get_output_parameters(minimal_sbml_model):
     """Test measurements.get_output_parameters."""
     # sbml model
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    model.setTimeUnits("second")
-    model.setExtentUnits("mole")
-    model.setSubstanceUnits('mole')
+    _, model = minimal_sbml_model
 
     p = model.createParameter()
     p.setId('fixedParameter1')
