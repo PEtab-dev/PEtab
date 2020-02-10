@@ -329,3 +329,16 @@ def map_scale(parameters: Iterable[numbers.Number],
               scale_strs: Iterable[str]) -> Iterable[numbers.Number]:
     """As scale(), but for Iterables"""
     return map(lambda x: scale(x[0], x[1]), zip(parameters, scale_strs))
+
+
+def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:
+    """Add missing columns and fill in default values."""
+    df = parameter_df.copy(deep=True)
+
+    if PARAMETER_NAME not in df:
+        df[PARAMETER_NAME] = ''
+
+    if INITIALIZATION_PRIOR_TYPE not in df:
+        df[INITIALIZATION_PRIOR_TYPE] = PARAMETER_SCALE_UNIFORM
+
+    return df
