@@ -1,4 +1,4 @@
-"""Tests related to petab.conditions."""
+"""Tests related to petab.conditions"""
 import numpy as np
 import pandas as pd
 import tempfile
