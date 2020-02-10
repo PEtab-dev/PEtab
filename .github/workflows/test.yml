@@ -10,15 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.6]
 
     steps:
-    - uses: actions/checkout@v2  # check out repo
-    - name: Prepare python
+    - name: Check out repository
+      uses: actions/checkout@v2
+    - name: Prepare python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Prepare environment
+    - name: Cache pip
+      uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('./.travis_pip_reqs.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -U -r ./.travis_pip_reqs.txt
@@ -27,4 +36,3 @@ jobs:
       run: |
         pytest --cov
         python -m flake8 --exclude=build,doc,example,tmp --extend-ignore=F403,F405
-
