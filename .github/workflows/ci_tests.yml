@@ -35,3 +35,5 @@ jobs:
       run: |
         pytest --cov
         python -m flake8 --exclude=build,doc,example,tmp --extend-ignore=F403,F405
+    - name: Coverage
+      run: codecov
