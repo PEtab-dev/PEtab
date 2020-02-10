@@ -32,13 +32,9 @@ def minimal_sbml_model():
 
 
 @pytest.fixture
-def petab_problem():
+def petab_problem(minimal_sbml_model):
     # create test model
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    model.setTimeUnits("second")
-    model.setExtentUnits("mole")
-    model.setSubstanceUnits('mole')
+    document, model = minimal_sbml_model
 
     p = model.createParameter()
     p.setId('fixedParameter1')
@@ -176,13 +172,8 @@ def test_startpoint_sampling(fujita_model_scaling):
         assert -3 <= sp[1] <= 3
 
 
-def test_create_parameter_df(condition_df_2_conditions):
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    model.setTimeUnits("second")
-    model.setExtentUnits("mole")
-    model.setSubstanceUnits('mole')
-
+def test_create_parameter_df(minimal_sbml_model, condition_df_2_conditions):
+    _, model = minimal_sbml_model
     s = model.createSpecies()
     s.setId('x1')
 
