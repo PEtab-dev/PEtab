@@ -380,7 +380,12 @@ def test_parameter_properties(petab_problem):  # pylint: disable=W0621
     assert petab_problem.ub == [100, 100, 200]
     assert petab_problem.ub_scaled == [100, np.log(100), np.log10(200)]
     assert petab_problem.get_ub(fixed=False, scaled=True) == [100, np.log(100)]
+    assert petab_problem.x_nominal == [7, 8, 9]
     assert petab_problem.x_nominal_scaled == [7, np.log(8), np.log10(9)]
+    assert petab_problem.x_nominal_free == [7, 8]
+    assert petab_problem.x_nominal_fixed == [9]
+    assert petab_problem.x_nominal_free_scaled == [7, np.log(8)]
+    assert petab_problem.x_nominal_fixed_scaled == [np.log10(9)]
 
 
 def test_to_float_if_float():
@@ -392,3 +397,25 @@ def test_to_float_if_float():
     assert to_float_if_float("1e1") == 10.0
     assert to_float_if_float("abc") == "abc"
     assert to_float_if_float([]) == []
+
+
+def test_to_files(petab_problem):  # pylint: disable=W0621
+    """Test problem.to_files."""
+    sbml_file = tempfile.mkstemp()[1]
+    condition_file = tempfile.mkstemp()[1]
+    measurement_file = tempfile.mkstemp()[1]
+    parameter_file = tempfile.mkstemp()[1]
+    observable_file = tempfile.mkstemp()[1]
+
+    petab_problem.to_files(sbml_file=sbml_file,
+                           condition_file=condition_file,
+                           measurement_file=measurement_file,
+                           parameter_file=parameter_file,
+                           visualization_file=None,
+                           observable_file=observable_file)
+
+    # exemplarily load some
+    parameter_df = petab.get_parameter_df(parameter_file)
+    same_nans = parameter_df.isna() == petab_problem.parameter_df.isna()
+    assert ((parameter_df == petab_problem.parameter_df) | same_nans) \
+        .all().all()
