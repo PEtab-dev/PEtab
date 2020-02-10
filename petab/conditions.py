@@ -10,32 +10,34 @@ from .C import *
 
 
 def get_condition_df(
-        condition_file_name: Union[str, pd.DataFrame, None]
+        condition_file: Union[str, pd.DataFrame, None]
 ) -> pd.DataFrame:
     """Read the provided condition file into a ``pandas.Dataframe``
 
     Conditions are rows, parameters are columns, conditionId is index.
 
     Arguments:
-        condition_file_name: File name of PEtab condition file
+        condition_file: File name of PEtab condition file or pandas.Dataframe
     """
-    if condition_file_name is None:
-        return condition_file_name
+    if condition_file is None:
+        return condition_file
 
-    if isinstance(condition_file_name, pd.DataFrame):
-        return condition_file_name
+    if isinstance(condition_file, str):
+        condition_file = pd.read_csv(condition_file, sep='\t')
 
-    condition_df = pd.read_csv(condition_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        condition_df.columns.values, "condition")
+        condition_file.columns.values, "condition")
+
+    if not isinstance(condition_file.index, pd.RangeIndex):
+        condition_file.reset_index(inplace=True)
 
     try:
-        condition_df.set_index([CONDITION_ID], inplace=True)
+        condition_file.set_index([CONDITION_ID], inplace=True)
     except KeyError:
         raise KeyError(
             f'Condition table missing mandatory field {CONDITION_ID}.')
 
-    return condition_df
+    return condition_file
 
 
 def write_condition_df(df: pd.DataFrame, filename: str) -> None:
