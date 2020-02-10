@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6]
+        python-version: [3.6, 3.7]
 
     steps:
     - name: Check out repository
@@ -23,14 +23,13 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/.travis_pip_reqs.txt') }}
+        key: ${{ runner.os }}-${{ hashFiles('**/.requirements.txt') }}-${{ hashFiles('**/setup.py') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
           ${{ runner.os }}-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -U -r ./.travis_pip_reqs.txt
+        pip install -U -r .requirements.txt
         pip install -e .[reports]
     - name: Run tests
       run: |
