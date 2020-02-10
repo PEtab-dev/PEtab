@@ -1,6 +1,7 @@
 import pickle
 import tempfile
 from math import nan
+import copy
 
 import libsbml
 import numpy as np
@@ -334,27 +335,60 @@ def test_concat_measurements():
     a = pd.DataFrame({MEASUREMENT: [1.0]})
     b = pd.DataFrame({TIME: [1.0]})
 
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+    with tempfile.NamedTemporaryFile(mode='w', delete=True) as fh:
         filename_a = fh.name
         a.to_csv(fh, sep='\t', index=False)
 
-    expected = pd.DataFrame({
-        MEASUREMENT: [1.0, nan],
-        TIME: [nan, 1.0]
-    })
+        # finish writing
+        fh.flush()
 
-    assert expected.equals(
-        petab.concat_tables([a, b],
-                            petab.measurements.get_measurement_df))
+        expected = pd.DataFrame({
+            MEASUREMENT: [1.0, nan],
+            TIME: [nan, 1.0]
+        })
 
-    assert expected.equals(
-        petab.concat_tables([filename_a, b],
-                            petab.measurements.get_measurement_df))
+        assert expected.equals(
+            petab.concat_tables([a, b],
+                                petab.measurements.get_measurement_df))
+
+        assert expected.equals(
+            petab.concat_tables([filename_a, b],
+                                petab.measurements.get_measurement_df))
 
 
 def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
     """Test if observable ids functions returns correct value."""
     assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
+
+
+def test_parameter_properties(petab_problem):  # pylint: disable=W0621
+    """
+    Test the petab.Problem functions to get parameter values.
+    """
+    petab_problem = copy.deepcopy(petab_problem)
+    petab_problem.parameter_df = pd.DataFrame(data={
+        PARAMETER_ID: ['par1', 'par2', 'par3'],
+        LOWER_BOUND: [0, 0.1, 0.1],
+        UPPER_BOUND: [100, 100, 200],
+        PARAMETER_SCALE: ['lin', 'log', 'log10'],
+        NOMINAL_VALUE: [7, 8, 9],
+        ESTIMATE: [1, 1, 0],
+    }).set_index(PARAMETER_ID)
+    assert petab_problem.x_ids == ['par1', 'par2', 'par3']
+    assert petab_problem.x_free_ids == ['par1', 'par2']
+    assert petab_problem.x_fixed_ids == ['par3']
+    assert petab_problem.lb == [0, 0.1, 0.1]
+    assert petab_problem.lb_scaled == [0, np.log(0.1), np.log10(0.1)]
+    assert petab_problem.get_lb(fixed=False, scaled=True) == [0, np.log(0.1)]
+    assert petab_problem.ub == [100, 100, 200]
+    assert petab_problem.ub_scaled == [100, np.log(100), np.log10(200)]
+    assert petab_problem.get_ub(fixed=False, scaled=True) == [100, np.log(100)]
+    assert petab_problem.x_nominal == [7, 8, 9]
+    assert petab_problem.x_nominal_scaled == [7, np.log(8), np.log10(9)]
+    assert petab_problem.x_nominal_free == [7, 8]
+    assert petab_problem.x_nominal_fixed == [9]
+    assert petab_problem.x_nominal_free_scaled == [7, np.log(8)]
+    assert petab_problem.x_nominal_fixed_scaled == [np.log10(9)]
 
 
 def test_to_float_if_float():
@@ -366,3 +400,29 @@ def test_to_float_if_float():
     assert to_float_if_float("1e1") == 10.0
     assert to_float_if_float("abc") == "abc"
     assert to_float_if_float([]) == []
+
+
+def test_to_files(petab_problem):  # pylint: disable=W0621
+    """Test problem.to_files."""
+    with tempfile.TemporaryDirectory() as folder:
+        # create target files
+        sbml_file = tempfile.mkstemp(dir=folder)[1]
+        condition_file = tempfile.mkstemp(dir=folder)[1]
+        measurement_file = tempfile.mkstemp(dir=folder)[1]
+        parameter_file = tempfile.mkstemp(dir=folder)[1]
+        observable_file = tempfile.mkstemp(dir=folder)[1]
+
+        # write contents to files
+        petab_problem.to_files(
+            sbml_file=sbml_file,
+            condition_file=condition_file,
+            measurement_file=measurement_file,
+            parameter_file=parameter_file,
+            visualization_file=None,
+            observable_file=observable_file)
+
+        # exemplarily load some
+        parameter_df = petab.get_parameter_df(parameter_file)
+        same_nans = parameter_df.isna() == petab_problem.parameter_df.isna()
+        assert ((parameter_df == petab_problem.parameter_df) | same_nans) \
+            .all().all()
