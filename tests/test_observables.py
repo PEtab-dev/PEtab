@@ -1,4 +1,4 @@
-"""Tests related to petab.observables"""
+"""Tests for petab.observables"""
 import pandas as pd
 import pytest
 import tempfile
