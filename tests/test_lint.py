@@ -258,13 +258,26 @@ def test_check_parameter_bounds():
 
 def test_assert_parameter_prior_type_is_valid():
     lint.assert_parameter_prior_type_is_valid(pd.DataFrame(
-        {INITIALIZATION_PRIOR_TYPE: [UNIFORM, LAPLACE],
-         OBJECTIVE_PRIOR_TYPE: [NORMAL, LOG_NORMAL]}))
+        {INITIALIZATION_PRIOR_TYPE: [UNIFORM, LAPLACE, ''],
+         OBJECTIVE_PRIOR_TYPE: [NORMAL, LOG_NORMAL, '']}))
     lint.assert_parameter_prior_type_is_valid(pd.DataFrame())
 
     with pytest.raises(AssertionError):
         lint.assert_parameter_prior_type_is_valid(pd.DataFrame(
-            {INITIALIZATION_PRIOR_TYPE: ['normal', '']}))
+            {INITIALIZATION_PRIOR_TYPE: ['normel']}))
+
+
+def test_assert_parameter_prior_parameters_are_valid():
+    parameter_df = pd.DataFrame({
+        INITIALIZATION_PRIOR_TYPE: [UNIFORM, '', ''],
+        INITIALIZATION_PRIOR_PARAMETERS: ['0;1', '10;20', ''],
+        OBJECTIVE_PRIOR_PARAMETERS: ['0;20', '10;20', '']
+    })
+    lint.assert_parameter_prior_parameters_are_valid(parameter_df)
+
+    with pytest.raises(AssertionError):
+        lint.assert_parameter_prior_parameters_are_valid(pd.DataFrame(
+            {INITIALIZATION_PRIOR_TYPE: [NORMAL]}))
 
 
 def test_petablint_succeeds():
