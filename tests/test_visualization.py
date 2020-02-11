@@ -95,7 +95,7 @@ def test_visualization_minimal_visu_file(data_file_Fujita,
 
 def test_visualization_minimal_data_file(data_file_Fujita_minimal,
                                          condition_file_Fujita,
-                                         visu_file_Fujita,
+                                         visu_file_Fujita_minimal,
                                          simu_file_Fujita):
     """
     Test visualization, with the case: data file only with mandatory columns
@@ -103,7 +103,7 @@ def test_visualization_minimal_data_file(data_file_Fujita_minimal,
     """
     plot_data_and_simulation(data_file_Fujita_minimal,
                              condition_file_Fujita,
-                             visu_file_Fujita,
+                             visu_file_Fujita_minimal,
                              simu_file_Fujita)
 
 
