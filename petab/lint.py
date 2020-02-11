@@ -134,9 +134,9 @@ def check_measurement_df(df: pd.DataFrame,
 
 def check_parameter_df(
         df: pd.DataFrame,
-        sbml_model: Optional[libsbml.Model],
-        measurement_df: Optional[pd.DataFrame],
-        condition_df: Optional[pd.DataFrame]) -> None:
+        sbml_model: Optional[libsbml.Model] = None,
+        measurement_df: Optional[pd.DataFrame] = None,
+        condition_df: Optional[pd.DataFrame] = None) -> None:
     """Run sanity checks on PEtab parameter table
 
     Arguments:
