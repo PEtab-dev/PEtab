@@ -456,7 +456,7 @@ def assert_parameter_prior_parameters_are_valid(
                 raise AssertionError(
                     f"Could not parse prior parameters '{pars}'.")
             # all distributions take 2 parameters
-            if 2 != len(pars):
+            if len(pars) != 2:
                 raise AssertionError(
                     f"The prior parameters '{pars}' do not contain the "
                     "expected number of entries.")
