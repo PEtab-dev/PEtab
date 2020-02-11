@@ -279,6 +279,10 @@ def test_assert_parameter_prior_parameters_are_valid():
         lint.assert_parameter_prior_parameters_are_valid(pd.DataFrame(
             {INITIALIZATION_PRIOR_TYPE: [NORMAL]}))
 
+    with pytest.raises(AssertionError):
+        lint.assert_parameter_prior_parameters_are_valid(pd.DataFrame(
+            {OBJECTIVE_PRIOR_PARAMETERS: ['0;1;2']}))
+
 
 def test_petablint_succeeds():
     """Run petablint and ensure we exit successfully for a file that should
