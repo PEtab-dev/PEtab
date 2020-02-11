@@ -343,9 +343,26 @@ def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:
     if PARAMETER_NAME not in df:
         df[PARAMETER_NAME] = None
 
-    if INITIALIZATION_PRIOR_TYPE not in df:
-        df[INITIALIZATION_PRIOR_TYPE] = PARAMETER_SCALE_UNIFORM
+    prior_type_cols = [INITIALIZATION_PRIOR_TYPE,
+                       OBJECTIVE_PRIOR_TYPE]
+    prior_par_cols = [INITIALIZATION_PRIOR_PARAMETERS,
+                      OBJECTIVE_PRIOR_PARAMETERS]
+    # iterate over initialization and objective priors
+    for prior_type_col, prior_par_col in zip(prior_type_cols, prior_par_cols):
+        # fill in default values for prior type
+        if prior_type_col not in df:
+            df[prior_type_col] = PARAMETER_SCALE_UNIFORM
+        else:
+            for _, row in df.iterrows():
+                if core.is_empty(row[prior_type_col]):
+                    row[prior_type_col] = PARAMETER_SCALE_UNIFORM
+        if prior_par_col not in df:
+            df[prior_par_col] = None
+        for _, row in df.iterrows():
+            if core.is_empty(row[prior_par_col]) \
+                    and row[prior_type_col] == PARAMETER_SCALE_UNIFORM:
+                lb, ub = map_scale([row[LOWER_BOUND], row[UPPER_BOUND]],
+                                   [row[PARAMETER_SCALE]] * 2)
+                row[prior_par_col] = f'{lb};{ub}'
 
-    if OBJECTIVE_PRIOR_TYPE not in df:
-        df[OBJECTIVE_PRIOR_TYPE] = 0
     return df
