@@ -427,7 +427,7 @@ def check_ex_exp_columns(exp_data,
                                               exp_data)
         observable_id_list = [[el] for el in exp_data.observableId.unique()]
 
-        exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
+        exp_data = create_dataset_id_list(
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
             observable_num_list, exp_data, exp_conditions, group_by)
 
