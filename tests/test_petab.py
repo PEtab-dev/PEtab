@@ -165,9 +165,10 @@ def test_get_observable_id():
 
 
 def test_startpoint_sampling(fujita_model_scaling):
-    startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
+    n_starts = 10
+    startpoints = fujita_model_scaling.sample_parameter_startpoints(n_starts)
     assert (np.isfinite(startpoints)).all
-    assert startpoints.shape == (100, 19)
+    assert startpoints.shape == (n_starts, 19)
     for sp in startpoints:
         assert np.log10(31.62) <= sp[0] <= np.log10(316.23)
         assert -3 <= sp[1] <= 3
