@@ -275,6 +275,7 @@ def test_assert_parameter_prior_parameters_are_valid():
         INITIALIZATION_PRIOR_PARAMETERS: ['0;1', '10;20', ''],
         OBJECTIVE_PRIOR_PARAMETERS: ['0;20', '10;20', '']
     })
+
     lint.assert_parameter_prior_parameters_are_valid(parameter_df)
 
     with pytest.raises(AssertionError):
