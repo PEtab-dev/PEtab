@@ -206,8 +206,10 @@ def create_dataset_id_list(simcond_id_list,
         for simcond in unique_simcond_list:
             # ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
             #    0:len(simcond)+3] == simcond + ' - ']
+            # ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
+            #    0:len(simcond) + 3] == simcond + '_']
             ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
-                0:len(simcond) + 3] == simcond + '_']
+                0:len(simcond)] == simcond ]
         grouped_list = simcond_id_list
 
     elif group_by == 'observable':
