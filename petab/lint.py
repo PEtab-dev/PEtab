@@ -459,7 +459,6 @@ def assert_parameter_prior_parameters_are_valid(
             if len(pars) != 2:
                 raise AssertionError(
                     f"The prior parameters '{pars}' do not contain the "
-                    "expected number of entries.")
                     "expected number of entries (currently 'par1;par2' "
                     "for all prior types).")
 
