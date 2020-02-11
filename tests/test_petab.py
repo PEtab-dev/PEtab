@@ -165,6 +165,7 @@ def test_get_observable_id():
 
 
 def test_get_priors_from_df():
+    """Check petab.get_priors_from_df."""
     parameter_df = pd.DataFrame({
         PARAMETER_SCALE: [LOG10, LOG10, LOG10, LOG10, LOG10],
         LOWER_BOUND: [1e-8, 1e-9, 1e-10, 1e-11, 1e-5],
