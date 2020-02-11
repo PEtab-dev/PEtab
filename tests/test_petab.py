@@ -167,16 +167,16 @@ def test_get_observable_id():
 def test_get_priors_from_df():
     parameter_df = pd.DataFrame({
         PARAMETER_SCALE: [LOG10, LOG10, LOG10, LOG10, LOG10],
-        LOWER_BOUND: [-8, -9, -10, -11, -5],
-        UPPER_BOUND: [8, 9, 10, 11, 5],
+        LOWER_BOUND: [1e-8, 1e-9, 1e-10, 1e-11, 1e-5],
+        UPPER_BOUND: [1e8, 1e9, 1e10, 1e11, 1e5],
         ESTIMATE: [1, 1, 1, 1, 0],
         INITIALIZATION_PRIOR_TYPE: ['', '',
                                     UNIFORM, NORMAL, ''],
         INITIALIZATION_PRIOR_PARAMETERS: ['', '-5;5', '1e-5;1e5', '0;1', '']
     })
-    
+
     prior_list = petab.get_priors_from_df(parameter_df, mode=INITIALIZATION)
-    
+
     # only give values for estimated parameters
     assert len(prior_list) == 4
 
@@ -191,10 +191,14 @@ def test_get_priors_from_df():
 
     # correct bounds
     bounds = [entry[3] for entry in prior_list]
-    assert bounds == list(zip(parameter_df[LOWER_BOUND], parameter_df[UPPER_BOUND]))[:4]
+    assert bounds == list(zip(parameter_df[LOWER_BOUND],
+                              parameter_df[UPPER_BOUND]))[:4]
 
     # give correct value for empty
-    prior_type, prior_pars, par_scale, par_bounds = prior_list[0]
+    prior_pars = [entry[1] for entry in prior_list]
+    assert prior_pars[0] == (-8, 8)
+    assert prior_pars[1] == (-5, 5)
+    assert prior_pars[2] == (1e-5, 1e5)
 
 
 def test_startpoint_sampling(fujita_model_scaling):

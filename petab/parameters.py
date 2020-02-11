@@ -292,7 +292,9 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
         # retrieve info about parameters of priors, make it a tuple of floats
         pars_str = str(row.get(f'{mode}PriorParameters', ''))
         if core.is_empty(pars_str):
-            pars_str = f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'
+            lb, ub = map_scale([row[LOWER_BOUND], row[UPPER_BOUND]],
+                               [row[PARAMETER_SCALE]] * 2)
+            pars_str = f'{lb};{ub}'
         prior_pars = tuple([float(entry) for entry in pars_str.split(';')])
 
         # add parameter scale and bounds, as this may be needed
