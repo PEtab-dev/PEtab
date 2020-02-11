@@ -460,6 +460,8 @@ def assert_parameter_prior_parameters_are_valid(
                 raise AssertionError(
                     f"The prior parameters '{pars}' do not contain the "
                     "expected number of entries.")
+                    "expected number of entries (currently 'par1;par2' "
+                    "for all prior types).")
 
 
 def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
