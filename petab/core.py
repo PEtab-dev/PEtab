@@ -260,7 +260,7 @@ def is_empty(val) -> bool:
     Returns:
         empty: Whether the field is to be considered empty.
     """
-    return val in ['', None, np.nan]
+    return val == '' or pd.isnull(val)
 
 
 def create_combine_archive(
