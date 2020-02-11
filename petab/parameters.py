@@ -336,9 +336,11 @@ def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:
     df = parameter_df.copy(deep=True)
 
     if PARAMETER_NAME not in df:
-        df[PARAMETER_NAME] = ''
+        df[PARAMETER_NAME] = None
 
     if INITIALIZATION_PRIOR_TYPE not in df:
         df[INITIALIZATION_PRIOR_TYPE] = PARAMETER_SCALE_UNIFORM
 
+    if OBJECTIVE_PRIOR_TYPE not in df:
+        df[OBJECTIVE_PRIOR_TYPE] = 0
     return df
