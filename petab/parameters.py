@@ -341,7 +341,7 @@ def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:
     df = parameter_df.copy(deep=True)
 
     if PARAMETER_NAME not in df:
-        df[PARAMETER_NAME] = None
+        df[PARAMETER_NAME] = df.reset_index()[PARAMETER_ID]
 
     prior_type_cols = [INITIALIZATION_PRIOR_TYPE,
                        OBJECTIVE_PRIOR_TYPE]

@@ -80,6 +80,7 @@ def test_write_parameter_df():
 
 
 def test_normalize_parameter_df():
+    """Check parameters.normalize_parameter_df."""
     parameter_df = pd.DataFrame({
         PARAMETER_ID: ['par0', 'par1', 'par2'],
         PARAMETER_SCALE: [LOG10, LOG10, LIN],
@@ -92,7 +93,7 @@ def test_normalize_parameter_df():
     actual = petab.normalize_parameter_df(parameter_df)
 
     expected = parameter_df.copy(deep=True)
-    expected[PARAMETER_NAME] = None
+    expected[PARAMETER_NAME] = parameter_df.reset_index()[PARAMETER_ID]
     expected[INITIALIZATION_PRIOR_TYPE] = [PARAMETER_SCALE_UNIFORM] * 3
     expected[INITIALIZATION_PRIOR_PARAMETERS] = ["-5;5", "-6;6", "1e-7;1e7"]
     expected[OBJECTIVE_PRIOR_TYPE] = [PARAMETER_SCALE_UNIFORM] * 3
