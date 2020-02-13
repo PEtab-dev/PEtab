@@ -251,6 +251,18 @@ def to_float_if_float(x: Any) -> Any:
         return x
 
 
+def is_empty(val) -> bool:
+    """Check if the value `val`, e.g. a table entry, is empty.
+
+    Arguments:
+        val: The value to check.
+
+    Returns:
+        empty: Whether the field is to be considered empty.
+    """
+    return val == '' or pd.isnull(val)
+
+
 def create_combine_archive(
         yaml_file: str, filename: str,
         family_name: Optional[str] = None,
