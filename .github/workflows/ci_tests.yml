@@ -34,4 +34,4 @@ jobs:
         pytest --cov
         python -m flake8 --exclude=build,doc,example,tmp --extend-ignore=F403,F405
     - name: Coverage
-      run: codecov
+      run: codecov -t ${{ secrets.CODECOV_TOKEN }}
