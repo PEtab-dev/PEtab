@@ -383,3 +383,12 @@ def test_check_condition_df(minimal_sbml_model):
     # fix:
     sbml_model.createCompartment().setId('c1')
     lint.check_condition_df(condition_df, sbml_model)
+
+
+def test_check_ids():
+    """Test check_ids"""
+
+    lint.check_ids(['a1', '_1'])
+
+    with pytest.raises(ValueError):
+        lint.check_ids(['1'])
