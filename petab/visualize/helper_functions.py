@@ -209,7 +209,7 @@ def create_dataset_id_list(simcond_id_list,
             # ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
             #    0:len(simcond) + 3] == simcond + '_']
             ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
-                0:len(simcond)] == simcond ]
+                0:len(simcond)] == simcond]
         grouped_list = simcond_id_list
 
     elif group_by == 'observable':
@@ -349,7 +349,7 @@ def get_default_vis_specs(exp_data,
     return vis_spec, exp_data
 
 
-def check_ex_visu_columns(vis_spec):
+def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
@@ -370,7 +370,10 @@ def check_ex_visu_columns(vis_spec):
     if X_SCALE not in vis_spec.columns:
         vis_spec.insert(loc=4, column=X_SCALE, value=LIN)
     if LEGEND_ENTRY not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=LEGEND_ENTRY, value='condition')
+        if dataset_id_list is not [] and legend_dict is not {}:
+            dataset_id_column = [i_dataset for sublist in dataset_id_list
+                                 for i_dataset in sublist]
+            vis_spec.insert(loc=4, column=LEGEND_ENTRY, value=dataset_id_column)
     if PLOT_NAME not in vis_spec.columns:
         vis_spec.insert(loc=1, column=PLOT_NAME, value='')
 
@@ -417,6 +420,7 @@ def check_ex_exp_columns(exp_data,
     if REPLICATE_ID not in exp_data.columns:
         exp_data.insert(loc=4, column=REPLICATE_ID,
                         value='')
+    legend_dict = {}
     if DATASET_ID not in exp_data.columns:
         # datasetId_list will be created (possibly overwriting previous list
         #  - only in the local variable, not in the tsv-file)
@@ -429,11 +433,15 @@ def check_ex_exp_columns(exp_data,
                                               exp_data)
         observable_id_list = [[el] for el in exp_data.observableId.unique()]
 
-        exp_data = create_dataset_id_list(
+        exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
             sim_cond_id_list, sim_cond_num_list, observable_id_list,
             observable_num_list, exp_data, exp_conditions, group_by)
+    # TO CHECK: 
+    #elif dataset_id_list is not []:
+    #    exp_data.insert(loc=4, column=DATASET_ID,
+    #                    value=dataset_id_list)
 
-    return exp_data
+    return exp_data, dataset_id_list, legend_dict
 
 
 def handle_dataset_plot(i_visu_spec,
