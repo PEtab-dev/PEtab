@@ -340,14 +340,11 @@ Additional columns may be added.
 
 - `parameterId` [STRING, NOT NULL]
 
-  The `parameterId` of the parameter described in this row. This has be
-  identical to the parameter IDs specified in the SBML model or in the
+  The `parameterId` of the parameter described in this row. This has to match
+  the ID of a parameter specified in the SBML model, a parameter introduced
+  as override in the condition table, or a parameter occurring in the
   `observableParameters` or `noiseParameters` column of the measurement table
   (see above).
-
-  There must exist one line for each parameterId specified in the SBML model
-  (except for placeholder parameter, see above) or the `observableParameters` or
-  `noiseParameters` column of the measurement table.
 
 - `parameterName` [STRING, OPTIONAL]
 
@@ -356,9 +353,7 @@ Additional columns may be added.
 
 - `parameterScale` [lin|log|log10]
 
-  Scale of the parameter. The parameters and boundaries and the nominal
-  parameter value in the following fields are expected to be given in this
-  scale.
+  Scale of the parameter to be used during parameter estimation.
 
 - `lowerBound` [NUMERIC]
 
