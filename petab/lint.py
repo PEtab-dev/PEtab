@@ -134,9 +134,9 @@ def check_measurement_df(df: pd.DataFrame,
 
 def check_parameter_df(
         df: pd.DataFrame,
-        sbml_model: Optional[libsbml.Model],
-        measurement_df: Optional[pd.DataFrame],
-        condition_df: Optional[pd.DataFrame]) -> None:
+        sbml_model: Optional[libsbml.Model] = None,
+        measurement_df: Optional[pd.DataFrame] = None,
+        condition_df: Optional[pd.DataFrame] = None) -> None:
     """Run sanity checks on PEtab parameter table
 
     Arguments:
@@ -404,15 +404,63 @@ def assert_parameter_prior_type_is_valid(
     Raises:
         AssertionError in case of invalid prior
     """
-    for prefix in [INITIALIZATION, OBJECTIVE]:
-        col_name = f"{prefix}PriorType"
-        if col_name not in parameter_df.columns:
+    for col in [INITIALIZATION_PRIOR_TYPE, OBJECTIVE_PRIOR_TYPE]:
+        if col not in parameter_df.columns:
             continue
         for _, row in parameter_df.iterrows():
-            if row[col_name] not in PRIOR_TYPES:
+            if row[col] not in PRIOR_TYPES and not core.is_empty(row[col]):
                 raise AssertionError(
-                    f"{col_name} must be one of {PRIOR_TYPES} but is "
-                    f"{row[col_name]}.")
+                    f"{col} must be one of {PRIOR_TYPES} but is "
+                    f"'{row[col]}'.")
+
+
+def assert_parameter_prior_parameters_are_valid(
+        parameter_df: pd.DataFrame) -> None:
+    """Check that the prior parameters are valid.
+
+    Arguments:
+        parameter_df: PEtab parameter table
+
+    Raises:
+        AssertionError in case of invalide prior parameters
+    """
+    prior_type_cols = [INITIALIZATION_PRIOR_TYPE,
+                       OBJECTIVE_PRIOR_TYPE]
+    prior_par_cols = [INITIALIZATION_PRIOR_PARAMETERS,
+                      OBJECTIVE_PRIOR_PARAMETERS]
+
+    # perform test for both priors
+    for type_col, par_col in zip(prior_type_cols, prior_par_cols):
+        # iterate over rows
+        for _, row in parameter_df.iterrows():
+            # get type
+            if type_col not in row or core.is_empty(row[type_col]):
+                type_ = PARAMETER_SCALE_UNIFORM
+            else:
+                type_ = row[type_col]
+            # get parameters
+            pars_str = row.get(par_col, '')
+            with_default_parameters = [PARAMETER_SCALE_UNIFORM]
+            # check if parameters are empty
+            if core.is_empty(pars_str):
+                if type_ not in with_default_parameters:
+                    raise AssertionError(
+                        f"An empty {par_col} is only permitted with "
+                        f"{type_col} in {with_default_parameters}.")
+                # empty parameters fine
+                continue
+            # parse parameters
+            try:
+                pars = tuple([float(val) for val in pars_str.split(';')])
+            except ValueError:
+                raise AssertionError(
+                    f"Could not parse prior parameters '{pars}'.")
+            # all distributions take 2 parameters
+            if len(pars) != 2:
+                raise AssertionError(
+                    f"The prior parameters '{pars}' do not contain the "
+                    "expected number of entries (currently 'par1;par2' "
+                    "for all prior types).")
 
 
 def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:

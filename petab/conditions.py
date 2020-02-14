@@ -64,20 +64,17 @@ def create_condition_df(parameter_ids: Iterable[str],
         values
     """
 
-    data = {CONDITION_ID: []}
+    condition_ids = [] if condition_ids is None else list(condition_ids)
+
+    data = {CONDITION_ID: condition_ids}
+    df = pd.DataFrame(data)
+
     for p in parameter_ids:
         if not lint.is_valid_identifier(p):
             raise ValueError("Invalid parameter name: " + p)
-        data[p] = []
+        df[p] = np.nan
 
-    df = pd.DataFrame(data)
-    df.set_index([CONDITION_ID], inplace=True)
-
-    if not condition_ids:
-        return df
-
-    for c in condition_ids:
-        df[c] = np.nan
+    df.set_index(CONDITION_ID, inplace=True)
 
     return df
 
