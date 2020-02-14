@@ -53,6 +53,8 @@ problem as such.
 
 **General remarks**
 - All model entities, column names and row names are case-sensitive
+- All identifiers must consist only of upper and lower case letters, digits and
+  underscores, and must not start with a digit.
 - Fields in "[]" in the second row are optional and may be left empty.
 
 
