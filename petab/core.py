@@ -5,7 +5,6 @@ import os
 from typing import Iterable, Optional, Callable, Union, Any
 from warnings import warn
 
-import libcombine
 import numpy as np
 import pandas as pd
 
@@ -283,6 +282,10 @@ def create_combine_archive(
 
     path_prefix = os.path.dirname(yaml_file)
     yaml_config = yaml.load_yaml(yaml_file)
+
+    # function-level import, because module-level import interfered with
+    # other SWIG interfaces
+    import libcombine
 
     def _add_file_metadata(location: str, description: str = ""):
         """Add metadata to the added file"""
