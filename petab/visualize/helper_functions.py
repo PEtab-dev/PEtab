@@ -370,10 +370,26 @@ def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
     if X_SCALE not in vis_spec.columns:
         vis_spec.insert(loc=4, column=X_SCALE, value=LIN)
     if LEGEND_ENTRY not in vis_spec.columns:
-        if dataset_id_list is not [] and legend_dict is not {}:
+        # TODO:
+        # if we have dataset_id_list and legend_dict is empty
+        if dataset_id_list is not None and not bool(legend_dict):
             dataset_id_column = [i_dataset for sublist in dataset_id_list
                                  for i_dataset in sublist]
-            vis_spec.insert(loc=4, column=LEGEND_ENTRY, value=dataset_id_column)
+            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
+                            value=dataset_id_column)
+        # if dataset_id_list is empty but we have legend_dict
+        elif dataset_id_list is None and bool(legend_dict):
+            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
+                            value=legend_dict)
+        # if dataset_id_list is empty and legend_dict is empty, but
+        # datasetID-column is available
+        elif dataset_id_list is None and not bool(legend_dict) and \
+                DATASET_ID in vis_spec.columns:
+            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
+                            value=vis_spec[DATASET_ID])
+        else:
+            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
+                            value='condition')
     if PLOT_NAME not in vis_spec.columns:
         vis_spec.insert(loc=1, column=PLOT_NAME, value='')
 
@@ -422,24 +438,25 @@ def check_ex_exp_columns(exp_data,
                         value='')
     legend_dict = {}
     if DATASET_ID not in exp_data.columns:
-        # datasetId_list will be created (possibly overwriting previous list
-        #  - only in the local variable, not in the tsv-file)
-        # check consistency of settings
-        group_by = check_vis_spec_consistency(dataset_id_list,
-                                              sim_cond_id_list,
-                                              sim_cond_num_list,
-                                              observable_id_list,
-                                              observable_num_list,
-                                              exp_data)
-        observable_id_list = [[el] for el in exp_data.observableId.unique()]
+        if dataset_id_list is not None:
+            exp_data.insert(loc=4, column=DATASET_ID,
+                            value=dataset_id_list)
+        else:
+            # datasetId_list will be created (possibly overwriting previous
+            # list - only in the local variable, not in the tsv-file)
+            # check consistency of settings
+            group_by = check_vis_spec_consistency(dataset_id_list,
+                                                  sim_cond_id_list,
+                                                  sim_cond_num_list,
+                                                  observable_id_list,
+                                                  observable_num_list,
+                                                  exp_data)
+            observable_id_list = \
+                [[el] for el in exp_data.observableId.unique()]
 
-        exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
-            sim_cond_id_list, sim_cond_num_list, observable_id_list,
-            observable_num_list, exp_data, exp_conditions, group_by)
-    # TO CHECK: 
-    #elif dataset_id_list is not []:
-    #    exp_data.insert(loc=4, column=DATASET_ID,
-    #                    value=dataset_id_list)
+            exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
+                sim_cond_id_list, sim_cond_num_list, observable_id_list,
+                observable_num_list, exp_data, exp_conditions, group_by)
 
     return exp_data, dataset_id_list, legend_dict
 
