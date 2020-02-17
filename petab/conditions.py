@@ -71,7 +71,7 @@ def create_condition_df(parameter_ids: Iterable[str],
 
     for p in parameter_ids:
         if not lint.is_valid_identifier(p):
-            raise ValueError("Invalid parameter name: " + p)
+            raise ValueError("Invalid parameter ID: " + p)
         df[p] = np.nan
 
     df.set_index(CONDITION_ID, inplace=True)
