@@ -98,13 +98,14 @@ def plot_data_and_simulation(
         # import from file
         exp_data = measurements.get_measurement_df(exp_data)
         # check columns, and add non-mandatory default columns
-        exp_data, dataset_id_list, legend_dict = check_ex_exp_columns(exp_data,
-                                        dataset_id_list,
-                                        sim_cond_id_list,
-                                        sim_cond_num_list,
-                                        observable_id_list,
-                                        observable_num_list,
-                                        exp_conditions)
+        exp_data, dataset_id_list, legend_dict = \
+            check_ex_exp_columns(exp_data,
+                                 dataset_id_list,
+                                 sim_cond_id_list,
+                                 sim_cond_num_list,
+                                 observable_id_list,
+                                 observable_num_list,
+                                 exp_conditions)
 
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
