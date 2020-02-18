@@ -120,9 +120,10 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     # group by cols and return dataframe containing each combination
     # of those rows only once (and an additional counting row)
     simulation_conditions = measurement_df.groupby(
-        grouping_cols).size().reset_index()
+        grouping_cols).size().reset_index()[grouping_cols]
 
-    return simulation_conditions
+    # sort to be really sure that we always get the same order
+    return simulation_conditions.sort_values(grouping_cols, ignore_index=True)
 
 
 def get_rows_for_condition(measurement_df: pd.DataFrame,
