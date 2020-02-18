@@ -4,7 +4,7 @@ import numbers
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-from typing import Iterable, Set, List, Tuple, Dict
+from typing import Iterable, Set, List, Tuple, Dict, Union
 
 import libsbml
 
@@ -12,28 +12,36 @@ from . import lint, core, measurements, sbml, conditions
 from .C import *  # noqa: F403
 
 
-def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
+def get_parameter_df(
+        parameter_file: Union[str, pd.DataFrame, None]) -> pd.DataFrame:
     """
     Read the provided parameter file into a ``pandas.Dataframe``.
 
     Arguments:
-        parameter_file_name: Name of the file to read from.
+        parameter_file: Name of the file to read from or pandas.Dataframe.
 
     Returns:
         Parameter DataFrame
     """
+    if parameter_file is None:
+        return parameter_file
 
-    parameter_df = pd.read_csv(parameter_file_name, sep='\t')
+    if isinstance(parameter_file, str):
+        parameter_file = pd.read_csv(parameter_file, sep='\t')
+
     lint.assert_no_leading_trailing_whitespace(
-        parameter_df.columns.values, "parameter")
+        parameter_file.columns.values, "parameter")
+
+    if not isinstance(parameter_file.index, pd.RangeIndex):
+        parameter_file.reset_index(inplace=True)
 
     try:
-        parameter_df.set_index([PARAMETER_ID], inplace=True)
+        parameter_file.set_index([PARAMETER_ID], inplace=True)
     except KeyError:
         raise KeyError(
             f"Parameter table missing mandatory field {PARAMETER_ID}.")
 
-    return parameter_df
+    return parameter_file
 
 
 def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
@@ -285,11 +293,16 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
     prior_list = []
     for _, row in par_to_estimate.iterrows():
         # retrieve info about type
-        prior_type = str(row.get(f'{mode}PriorType', PARAMETER_SCALE_UNIFORM))
+        prior_type = str(row.get(f'{mode}PriorType', ''))
+        if core.is_empty(prior_type):
+            prior_type = PARAMETER_SCALE_UNIFORM
 
         # retrieve info about parameters of priors, make it a tuple of floats
-        pars_str = str(row.get(f'{mode}PriorParameters',
-                               f'{row[LOWER_BOUND]};{row[UPPER_BOUND]}'))
+        pars_str = str(row.get(f'{mode}PriorParameters', ''))
+        if core.is_empty(pars_str):
+            lb, ub = map_scale([row[LOWER_BOUND], row[UPPER_BOUND]],
+                               [row[PARAMETER_SCALE]] * 2)
+            pars_str = f'{lb};{ub}'
         prior_pars = tuple([float(entry) for entry in pars_str.split(';')])
 
         # add parameter scale and bounds, as this may be needed
@@ -329,3 +342,35 @@ def map_scale(parameters: Iterable[numbers.Number],
               scale_strs: Iterable[str]) -> Iterable[numbers.Number]:
     """As scale(), but for Iterables"""
     return map(lambda x: scale(x[0], x[1]), zip(parameters, scale_strs))
+
+
+def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:
+    """Add missing columns and fill in default values."""
+    df = parameter_df.copy(deep=True)
+
+    if PARAMETER_NAME not in df:
+        df[PARAMETER_NAME] = df.reset_index()[PARAMETER_ID]
+
+    prior_type_cols = [INITIALIZATION_PRIOR_TYPE,
+                       OBJECTIVE_PRIOR_TYPE]
+    prior_par_cols = [INITIALIZATION_PRIOR_PARAMETERS,
+                      OBJECTIVE_PRIOR_PARAMETERS]
+    # iterate over initialization and objective priors
+    for prior_type_col, prior_par_col in zip(prior_type_cols, prior_par_cols):
+        # fill in default values for prior type
+        if prior_type_col not in df:
+            df[prior_type_col] = PARAMETER_SCALE_UNIFORM
+        else:
+            for irow, row in df.iterrows():
+                if core.is_empty(row[prior_type_col]):
+                    df.loc[irow, prior_type_col] = PARAMETER_SCALE_UNIFORM
+        if prior_par_col not in df:
+            df[prior_par_col] = None
+        for irow, row in df.iterrows():
+            if core.is_empty(row[prior_par_col]) \
+                    and row[prior_type_col] == PARAMETER_SCALE_UNIFORM:
+                lb, ub = map_scale([row[LOWER_BOUND], row[UPPER_BOUND]],
+                                   [row[PARAMETER_SCALE]] * 2)
+                df.loc[irow, prior_par_col] = f'{lb};{ub}'
+
+    return df

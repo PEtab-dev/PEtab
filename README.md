@@ -1,8 +1,7 @@
-[![Build Status](https://travis-ci.com/ICB-DCM/PEtab.svg?branch=master)](https://travis-ci.com/ICB-DCM/PEtab)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c1e34bb9ade14fe6bce54199be18535c)](https://www.codacy.com/app/dweindl/PEtab?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ICB-DCM/PEtab&amp;utm_campaign=Badge_Grade)
-[![codecov](https://codecov.io/gh/ICB-DCM/PEtab/branch/master/graph/badge.svg)](https://codecov.io/gh/ICB-DCM/PEtab)
+![CI tests](https://github.com/PEtab-dev/PEtab/workflows/CI%20tests/badge.svg)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd7dd5cee68e449983be5c43f230c7f3)](https://www.codacy.com/gh/PEtab-dev/PEtab?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PEtab-dev/PEtab&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/PEtab-dev/PEtab/branch/master/graph/badge.svg)](https://codecov.io/gh/PEtab-dev/PEtab)
 [![PyPI version](https://badge.fury.io/py/petab.svg)](https://badge.fury.io/py/petab)
-
 
 # PEtab --- a data format for specifying parameter estimation problems in systems biology
 
@@ -80,7 +79,7 @@ If you are using Python, some handy functions of the
 you with that. This include also a PEtab validator called `petablint` which
 you can use to check if your files adhere to the PEtab standard. If you have 
 further questions regarding PEtab, feel free to post an 
-[issue](https://github.com/ICB-DCM/PEtab/issues) at our github repository.
+[issue](https://github.com/PEtab-dev/PEtab/issues) at our github repository.
 
 ## PEtab Python library
 
@@ -94,7 +93,7 @@ It will require Python>=3.6 to run.
 
 Development versions of the PEtab library can be installed using
 
-    pip3 install https://github.com/ICB-DCM/PEtab/archive/develop.zip
+    pip3 install https://github.com/PEtab-dev/PEtab/archive/develop.zip
 
 (replace `develop` by the branch or commit you would like to install).
 

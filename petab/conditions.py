@@ -10,32 +10,34 @@ from .C import *
 
 
 def get_condition_df(
-        condition_file_name: Union[str, pd.DataFrame, None]
+        condition_file: Union[str, pd.DataFrame, None]
 ) -> pd.DataFrame:
     """Read the provided condition file into a ``pandas.Dataframe``
 
     Conditions are rows, parameters are columns, conditionId is index.
 
     Arguments:
-        condition_file_name: File name of PEtab condition file
+        condition_file: File name of PEtab condition file or pandas.Dataframe
     """
-    if condition_file_name is None:
-        return condition_file_name
+    if condition_file is None:
+        return condition_file
 
-    if isinstance(condition_file_name, pd.DataFrame):
-        return condition_file_name
+    if isinstance(condition_file, str):
+        condition_file = pd.read_csv(condition_file, sep='\t')
 
-    condition_df = pd.read_csv(condition_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        condition_df.columns.values, "condition")
+        condition_file.columns.values, "condition")
+
+    if not isinstance(condition_file.index, pd.RangeIndex):
+        condition_file.reset_index(inplace=True)
 
     try:
-        condition_df.set_index([CONDITION_ID], inplace=True)
+        condition_file.set_index([CONDITION_ID], inplace=True)
     except KeyError:
         raise KeyError(
             f'Condition table missing mandatory field {CONDITION_ID}.')
 
-    return condition_df
+    return condition_file
 
 
 def write_condition_df(df: pd.DataFrame, filename: str) -> None:
@@ -62,20 +64,17 @@ def create_condition_df(parameter_ids: Iterable[str],
         values
     """
 
-    data = {CONDITION_ID: []}
+    condition_ids = [] if condition_ids is None else list(condition_ids)
+
+    data = {CONDITION_ID: condition_ids}
+    df = pd.DataFrame(data)
+
     for p in parameter_ids:
         if not lint.is_valid_identifier(p):
-            raise ValueError("Invalid parameter name: " + p)
-        data[p] = []
+            raise ValueError("Invalid parameter ID: " + p)
+        df[p] = np.nan
 
-    df = pd.DataFrame(data)
-    df.set_index([CONDITION_ID], inplace=True)
-
-    if not condition_ids:
-        return df
-
-    for c in condition_ids:
-        df[c] = np.nan
+    df.set_index(CONDITION_ID, inplace=True)
 
     return df
 
