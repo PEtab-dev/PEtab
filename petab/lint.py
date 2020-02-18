@@ -637,6 +637,12 @@ def lint_problem(problem: 'petab.Problem') -> bool:
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
+        if problem.sbml_model is not None:
+            for obs_id in problem.observable_df.index:
+                if problem.sbml_model.getElementBySId(obs_id):
+                    logger.error(f"Observable ID {obs_id} shadows model "
+                                 "entity.")
+                    errors_occurred = True
     else:
         logger.warning("Observable table not available. Skipping.")
 
