@@ -54,7 +54,7 @@ def test_measurement_table_has_timepoint_specific_mappings():
     measurement_df = pd.DataFrame(data={
         OBSERVABLE_ID: ['obs1', 'obs1'],
         SIMULATION_CONDITION_ID: ['condition1', 'condition1'],
-        PREEQUILIBRATION_CONDITION_ID: ['', ''],
+        PREEQUILIBRATION_CONDITION_ID: [nan, nan],
         TIME: [1.0, 2.0],
         OBSERVABLE_PARAMETERS: ['obsParOverride', ''],
         NOISE_PARAMETERS: ['', '']
