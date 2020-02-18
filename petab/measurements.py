@@ -17,28 +17,27 @@ from .C import *  # noqa: F403
 
 
 def get_measurement_df(
-        measurement_file_name: Union[None, str, pd.DataFrame]
+        measurement_file: Union[None, str, pd.DataFrame]
 ) -> pd.DataFrame:
     """
     Read the provided measurement file into a ``pandas.Dataframe``.
 
     Arguments:
-        measurement_file_name: Name of file to read from
+        measurement_file: Name of file to read from or pandas.Dataframe
 
     Returns:
         Measurement DataFrame
     """
-    if measurement_file_name is None:
-        return measurement_file_name
+    if measurement_file is None:
+        return measurement_file
 
-    if isinstance(measurement_file_name, pd.DataFrame):
-        return measurement_file_name
+    if isinstance(measurement_file, str):
+        measurement_file = pd.read_csv(measurement_file, sep='\t')
 
-    measurement_df = pd.read_csv(measurement_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        measurement_df.columns.values, MEASUREMENT)
+        measurement_file.columns.values, MEASUREMENT)
 
-    return measurement_df
+    return measurement_file
 
 
 def write_measurement_df(df: pd.DataFrame, filename: str) -> None:
@@ -121,9 +120,10 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     # group by cols and return dataframe containing each combination
     # of those rows only once (and an additional counting row)
     simulation_conditions = measurement_df.groupby(
-        grouping_cols).size().reset_index()
+        grouping_cols).size().reset_index()[grouping_cols]
 
-    return simulation_conditions
+    # sort to be really sure that we always get the same order
+    return simulation_conditions.sort_values(grouping_cols, ignore_index=True)
 
 
 def get_rows_for_condition(measurement_df: pd.DataFrame,
