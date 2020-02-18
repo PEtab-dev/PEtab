@@ -122,7 +122,7 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     simulation_conditions = measurement_df.groupby(
         grouping_cols).size().reset_index()[grouping_cols]
 
-    # sort to be really be sure that we always get the same order
+    # sort to be really sure that we always get the same order
     return simulation_conditions.sort_values(grouping_cols, ignore_index=True)
 
 

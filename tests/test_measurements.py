@@ -117,8 +117,6 @@ def test_get_simulation_conditions():
         SIMULATION_CONDITION_ID: ['c0', 'c1'],
     })
     actual = petab.get_simulation_conditions(measurement_df)
-    print(expected)
-    print(actual)
     assert actual.equals(expected)
 
     # simulation and preequilibration condition
@@ -131,8 +129,6 @@ def test_get_simulation_conditions():
         PREEQUILIBRATION_CONDITION_ID: ['c1', 'c0'],
     })
     actual = petab.get_simulation_conditions(measurement_df)
-    print(expected)
-    print(actual)
     assert actual.equals(expected)
 
     # simulation with and without preequilibration
@@ -146,6 +142,4 @@ def test_get_simulation_conditions():
     }).sort_values([SIMULATION_CONDITION_ID, PREEQUILIBRATION_CONDITION_ID],
                    ignore_index=True)
     actual = petab.get_simulation_conditions(measurement_df)
-    print(expected)
-    print(actual)
     assert actual.equals(expected)
