@@ -74,7 +74,8 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
         measurement_df, [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION,
                          NOISE_DISTRIBUTION])
 
-    observables = measurement_df.groupby(grouping_cols).size().reset_index()
+    observables = measurement_df.fillna('').groupby(grouping_cols).size()\
+        .reset_index()
     noise_distrs = {}
     for _, row in observables.iterrows():
         # prefix id to get observable id
@@ -110,6 +111,8 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Dataframe with columns 'simulationConditionId' and
         'preequilibrationConditionId'. All-NULL columns will be omitted.
+        Missing `preequilibrationConditionId`s will be set to '' (empty
+        string).
     """
     # find columns to group by (i.e. if not all nans).
     # can be improved by checking for identical condition vectors
@@ -118,10 +121,11 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
         [SIMULATION_CONDITION_ID, PREEQUILIBRATION_CONDITION_ID])
 
     # group by cols and return dataframe containing each combination
-    # of those rows only once (and an additional counting row)
-    simulation_conditions = measurement_df.groupby(
+    #  of those rows only once (and an additional counting row)
+    # We require NaN-containing rows, but they are ignored by `groupby`,
+    # therefore replace them before
+    simulation_conditions = measurement_df.fillna('').groupby(
         grouping_cols).size().reset_index()[grouping_cols]
-
     # sort to be really sure that we always get the same order
     return simulation_conditions.sort_values(grouping_cols, ignore_index=True)
 
@@ -286,11 +290,12 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
     Returns:
         ``True`` if there are replicates, ``False`` otherwise
     """
-    return np.any(measurement_df.groupby(
-        core.get_notnull_columns(
-            measurement_df,
-            [OBSERVABLE_ID, SIMULATION_CONDITION_ID,
-             PREEQUILIBRATION_CONDITION_ID, TIME])).size().values - 1)
+    grouping_cols = core.get_notnull_columns(
+        measurement_df,
+        [OBSERVABLE_ID, SIMULATION_CONDITION_ID,
+         PREEQUILIBRATION_CONDITION_ID, TIME])
+    return np.any(
+        measurement_df.fillna('').groupby(grouping_cols).size().values - 1)
 
 
 def assert_overrides_match_parameter_count(
