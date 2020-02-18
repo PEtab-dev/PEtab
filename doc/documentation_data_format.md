@@ -223,7 +223,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   `datasetId`, which is helpful for plotting e.g. error bars.
 
 
-### Observables table
+## Observables table
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
