@@ -33,7 +33,8 @@ def sbml_observables_to_table(problem: Problem):
     grouping_cols = get_notnull_columns(
         measurement_df, [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION,
                          NOISE_DISTRIBUTION])
-    grouped = measurement_df.groupby(grouping_cols).count().reset_index()
+    grouped = measurement_df.fillna('').groupby(grouping_cols).count()\
+        .reset_index()
 
     if len(grouped[OBSERVABLE_ID]) != len(grouped[OBSERVABLE_ID]):
         raise ValueError("In order to create an observable table, all "
@@ -93,13 +94,13 @@ def sbml_observables_to_table(problem: Problem):
     sbml_model = problem.sbml_model
     placeholders = set()
     for k, v in observables.items():
-        placeholders |= get_placeholders(
+        placeholders |= set(get_placeholders(
             v['formula'],
             get_observable_id(k),
-            'observable')
+            'observable'))
     for k, v in sigmas.items():
-        placeholders |= get_placeholders(
-            v, get_observable_id(k), 'noise')
+        placeholders |= set(get_placeholders(
+            v, get_observable_id(k), 'noise'))
     for placeholder in placeholders:
         ret = sbml_model.removeParameter(placeholder)
         if not ret:

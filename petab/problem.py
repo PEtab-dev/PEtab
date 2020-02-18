@@ -1,13 +1,14 @@
 """PEtab Problem class"""
 
 import os
+import tempfile
 from warnings import warn
 
 import pandas as pd
 import libsbml
 from typing import Optional, List, Union, Dict, Iterable
 from . import (parameter_mapping, measurements, conditions, parameters,
-               sampling, sbml, yaml, core, observables)
+               sampling, sbml, yaml, core, observables, format_version)
 from .C import *  # noqa: F403
 
 
@@ -161,6 +162,11 @@ class Problem:
                              'Consider using '
                              'petab.CompositeProblem.from_yaml() instead.')
 
+        if yaml_config[FORMAT_VERSION] != format_version.__format_version__:
+            raise ValueError("Provided PEtab files are of unsupported version"
+                             f"{yaml_config[FORMAT_VERSION]}. Expected "
+                             f"{format_version.__format_version__}.")
+
         problem0 = yaml_config['problems'][0]
 
         yaml.assert_single_condition_and_sbml_file(problem0)
@@ -217,6 +223,36 @@ class Problem:
             parameter_file=get_default_parameter_file_name(model_name, folder),
             sbml_file=get_default_sbml_file_name(model_name, folder),
         )
+
+    @staticmethod
+    def from_combine(filename: str) -> 'Problem':
+        """Read PEtab COMBINE archive (http://co.mbine.org/documents/archive).
+
+        See also ``create_combine_archive``.
+
+        Arguments:
+            filename: Path to the PEtab-COMBINE archive
+
+        Returns:
+            A ``petab.Problem`` instance.
+        """
+        # function-level import, because module-level import interfered with
+        # other SWIG interfaces
+        import libcombine
+
+        archive = libcombine.CombineArchive()
+        if archive.initializeFromArchive(filename) is None:
+            print(f"Invalid Combine Archive: {filename}")
+            return None
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            archive.extractTo(tmpdirname)
+            problem = Problem.from_yaml(
+                os.path.join(tmpdirname,
+                             archive.getMasterFile().getLocation()))
+        archive.cleanUp()
+
+        return problem
 
     def to_files(self,
                  sbml_file: Optional[str] = None,
@@ -314,13 +350,19 @@ class Problem:
 
     def get_observables(self, remove: bool = False):
         """
-        Returns dictionary of observables definitions
+        Returns dictionary of observables definitions.
         See `assignment_rules_to_dict` for details.
         """
         warn("This function will be removed in future releases.",
              DeprecationWarning)
 
         return sbml.get_observables(sbml_model=self.sbml_model, remove=remove)
+
+    def get_observable_ids(self):
+        """
+        Returns dictionary of observable ids.
+        """
+        return list(self.observable_df.index)
 
     def get_sigmas(self, remove: bool = False):
         """
@@ -341,54 +383,207 @@ class Problem:
         return measurements.get_noise_distributions(
             measurement_df=self.measurement_df)
 
+    def _apply_mask(self, v: List, free: bool = True, fixed: bool = True):
+        """Apply mask of only free or only fixed values.
+
+        Parameters
+        ----------
+        v:
+            The full vector the mask is to be applied to.
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+
+        Returns
+        -------
+        v:
+            The reduced vector with applied mask.
+        """
+        if not free and not fixed:
+            return []
+        if not free:
+            return [v[ix] for ix in self.x_fixed_indices]
+        if not fixed:
+            return [v[ix] for ix in self.x_free_indices]
+        return v
+
+    def get_x_ids(self, free: bool = True, fixed: bool = True):
+        """Generic function to get parameter ids.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+
+        Returns
+        -------
+        v:
+            The parameter ids.
+        """
+        v = list(self.parameter_df.index.values)
+        return self._apply_mask(v, free=free, fixed=fixed)
+
     @property
     def x_ids(self) -> List[str]:
         """Parameter table parameter IDs"""
-        return list(self.parameter_df.reset_index()[PARAMETER_ID])
+        return self.get_x_ids()
+
+    @property
+    def x_free_ids(self) -> List[str]:
+        """Parameter table parameter IDs, for free parameters."""
+        return self.get_x_ids(fixed=False)
+
+    @property
+    def x_fixed_ids(self) -> List[str]:
+        """Parameter table parameter IDs, for fixed parameters."""
+        return self.get_x_ids(free=False)
+
+    def get_x_nominal(self, free: bool = True, fixed: bool = True,
+                      scaled: bool = False):
+        """Generic function to get parameter nominal values.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+        scaled:
+            Whether to scale the values according to the parameter scale,
+            or return them on linear scale.
+
+        Returns
+        -------
+        v:
+            The parameter nominal values.
+        """
+        v = list(self.parameter_df[NOMINAL_VALUE])
+        if scaled:
+            v = list(parameters.map_scale(
+                v, self.parameter_df[PARAMETER_SCALE]))
+        return self._apply_mask(v, free=free, fixed=fixed)
 
     @property
     def x_nominal(self) -> List:
         """Parameter table nominal values"""
-        return list(self.parameter_df[NOMINAL_VALUE])
+        return self.get_x_nominal()
 
     @property
-    def lb(self) -> List:
-        """Parameter table lower bounds"""
-        return list(self.parameter_df[LOWER_BOUND])
+    def x_nominal_free(self) -> List:
+        """Parameter table nominal values, for free parameters."""
+        return self.get_x_nominal(fixed=False)
 
     @property
-    def ub(self) -> List:
-        """Parameter table upper bounds"""
-        return list(self.parameter_df[UPPER_BOUND])
+    def x_nominal_fixed(self) -> List:
+        """Parameter table nominal values, for fixed parameters."""
+        return self.get_x_nominal(free=False)
 
     @property
     def x_nominal_scaled(self) -> List:
         """Parameter table nominal values with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df[NOMINAL_VALUE],
-                                         self.parameter_df[PARAMETER_SCALE]))
+        return self.get_x_nominal(scaled=True)
+
+    @property
+    def x_nominal_free_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling,
+        for free parameters."""
+        return self.get_x_nominal(fixed=False, scaled=True)
+
+    @property
+    def x_nominal_fixed_scaled(self) -> List:
+        """Parameter table nominal values with applied parameter scaling,
+        for fixed parameters."""
+        return self.get_x_nominal(free=False, scaled=True)
+
+    def get_lb(self, free: bool = True, fixed: bool = True,
+               scaled: bool = False):
+        """Generic function to get lower parameter bounds.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+        scaled:
+            Whether to scale the values according to the parameter scale,
+            or return them on linear scale.
+
+        Returns
+        -------
+        v:
+            The lower parameter bounds.
+        """
+        v = list(self.parameter_df[LOWER_BOUND])
+        if scaled:
+            v = list(parameters.map_scale(
+                v, self.parameter_df[PARAMETER_SCALE]))
+        return self._apply_mask(v, free=free, fixed=fixed)
+
+    @property
+    def lb(self) -> List:
+        """Parameter table lower bounds."""
+        return self.get_lb()
 
     @property
     def lb_scaled(self) -> List:
         """Parameter table lower bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df[LOWER_BOUND],
-                                         self.parameter_df[PARAMETER_SCALE]))
+        return self.get_lb(scaled=True)
+
+    def get_ub(self, free: bool = True, fixed: bool = True,
+               scaled: bool = False):
+        """Generic function to get upper parameter bounds.
+
+        Parameters
+        ----------
+        free:
+            Whether to return free parameters, i.e. parameters to estimate.
+        fixed:
+            Whether to return fixed parameters, i.e. parameters not to
+            estimate.
+        scaled:
+            Whether to scale the values according to the parameter scale,
+            or return them on linear scale.
+
+        Returns
+        -------
+        v:
+            The upper parameter bounds.
+        """
+        v = list(self.parameter_df[UPPER_BOUND])
+        if scaled:
+            v = list(parameters.map_scale(
+                v, self.parameter_df[PARAMETER_SCALE]))
+        return self._apply_mask(v, free=free, fixed=fixed)
+
+    @property
+    def ub(self) -> List:
+        """Parameter table upper bounds"""
+        return self.get_ub()
 
     @property
     def ub_scaled(self) -> List:
         """Parameter table upper bounds with applied parameter scaling"""
-        return list(parameters.map_scale(self.parameter_df[UPPER_BOUND],
-                                         self.parameter_df[PARAMETER_SCALE]))
+        return self.get_ub(scaled=True)
+
+    @property
+    def x_free_indices(self) -> List[int]:
+        """Parameter table estimated parameter indices."""
+        estimated = list(self.parameter_df[ESTIMATE])
+        return [j for j, val in enumerate(estimated) if val != 0]
 
     @property
     def x_fixed_indices(self) -> List[int]:
-        """Parameter table non-estimated parameter indices"""
+        """Parameter table non-estimated parameter indices."""
         estimated = list(self.parameter_df[ESTIMATE])
         return [j for j, val in enumerate(estimated) if val == 0]
-
-    @property
-    def x_fixed_vals(self) -> List:
-        """Nominal values for parameter table non-estimated parameters"""
-        return [self.x_nominal[val] for val in self.x_fixed_indices]
 
     def get_simulation_conditions_from_measurement_df(self):
         """See petab.get_simulation_conditions"""
