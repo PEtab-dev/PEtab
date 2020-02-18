@@ -11,33 +11,36 @@ from .C import *  # noqa: F403
 
 
 def get_observable_df(
-        observable_file_name: Union[str, pd.DataFrame, None]
+        observable_file: Union[str, pd.DataFrame, None]
 ) -> pd.DataFrame:
     """
     Read the provided observable file into a ``pandas.Dataframe``.
 
     Arguments:
-        observable_file_name: Name of the file to read from.
+        observable_file: Name of the file to read from or pandas.Dataframe.
 
     Returns:
         Observable DataFrame
     """
-    if observable_file_name is None:
-        return observable_file_name
+    if observable_file is None:
+        return observable_file
 
-    if isinstance(observable_file_name, pd.DataFrame):
-        return observable_file_name
+    if isinstance(observable_file, str):
+        observable_file = pd.read_csv(observable_file, sep='\t')
 
-    observable_df = pd.read_csv(observable_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        observable_df.columns.values, "observable")
+        observable_file.columns.values, "observable")
+
+    if not isinstance(observable_file.index, pd.RangeIndex):
+        observable_file.reset_index(inplace=True)
+
     try:
-        observable_df.set_index([OBSERVABLE_ID], inplace=True)
+        observable_file.set_index([OBSERVABLE_ID], inplace=True)
     except KeyError:
         raise KeyError(
             f"Observable table missing mandatory field {OBSERVABLE_ID}.")
 
-    return observable_df
+    return observable_file
 
 
 def write_observable_df(df: pd.DataFrame, filename: str) -> None:

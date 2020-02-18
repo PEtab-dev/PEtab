@@ -4,7 +4,7 @@ import numbers
 import pandas as pd
 import numpy as np
 from collections import OrderedDict
-from typing import Iterable, Set, List, Tuple, Dict
+from typing import Iterable, Set, List, Tuple, Dict, Union
 
 import libsbml
 
@@ -12,28 +12,36 @@ from . import lint, core, measurements, sbml, conditions
 from .C import *  # noqa: F403
 
 
-def get_parameter_df(parameter_file_name: str) -> pd.DataFrame:
+def get_parameter_df(
+        parameter_file: Union[str, pd.DataFrame, None]) -> pd.DataFrame:
     """
     Read the provided parameter file into a ``pandas.Dataframe``.
 
     Arguments:
-        parameter_file_name: Name of the file to read from.
+        parameter_file: Name of the file to read from or pandas.Dataframe.
 
     Returns:
         Parameter DataFrame
     """
+    if parameter_file is None:
+        return parameter_file
 
-    parameter_df = pd.read_csv(parameter_file_name, sep='\t')
+    if isinstance(parameter_file, str):
+        parameter_file = pd.read_csv(parameter_file, sep='\t')
+
     lint.assert_no_leading_trailing_whitespace(
-        parameter_df.columns.values, "parameter")
+        parameter_file.columns.values, "parameter")
+
+    if not isinstance(parameter_file.index, pd.RangeIndex):
+        parameter_file.reset_index(inplace=True)
 
     try:
-        parameter_df.set_index([PARAMETER_ID], inplace=True)
+        parameter_file.set_index([PARAMETER_ID], inplace=True)
     except KeyError:
         raise KeyError(
             f"Parameter table missing mandatory field {PARAMETER_ID}.")
 
-    return parameter_df
+    return parameter_file
 
 
 def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
