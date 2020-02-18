@@ -154,10 +154,11 @@ def get_rows_for_condition(measurement_df: pd.DataFrame,
     row_filter = 1
     # check for equality in all grouping cols
     if PREEQUILIBRATION_CONDITION_ID in condition:
-        row_filter = (measurement_df.preequilibrationConditionId ==
+        row_filter = (measurement_df[PREEQUILIBRATION_CONDITION_ID]
+                      .fillna('') ==
                       condition[PREEQUILIBRATION_CONDITION_ID]) & row_filter
     if SIMULATION_CONDITION_ID in condition:
-        row_filter = (measurement_df.simulationConditionId ==
+        row_filter = (measurement_df[SIMULATION_CONDITION_ID] ==
                       condition[SIMULATION_CONDITION_ID]) & row_filter
     # apply filter
     cur_measurement_df = measurement_df.loc[row_filter, :]
