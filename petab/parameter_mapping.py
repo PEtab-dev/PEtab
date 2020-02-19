@@ -11,7 +11,7 @@ import libsbml
 import numpy as np
 import pandas as pd
 
-from . import lint, measurements, sbml, core, observables
+from . import lint, measurements, sbml, core, observables, parameters
 from . import ENV_NUM_THREADS
 from .C import *  # noqa: F403
 
@@ -349,11 +349,7 @@ def _apply_parameter_table(mapping: ParMappingDict,
         if getattr(row, ESTIMATE) == 0:
             val = getattr(row, NOMINAL_VALUE)
             if scaled_parameters:
-                scale = getattr(row, PARAMETER_SCALE)
-                if scale == LOG:
-                    val = np.log(val)
-                elif scale == LOG10:
-                    val = np.log10(val)
+                val = parameters.scale(val, getattr(row, PARAMETER_SCALE))
             mapping[row.Index] = val
         else:
             mapping[row.Index] = row.Index
@@ -372,11 +368,8 @@ def _apply_parameter_table(mapping: ParMappingDict,
                             and parameter_df.loc[value, ESTIMATE] == 0:
                         val = parameter_df.loc[value, NOMINAL_VALUE]
                         if scaled_parameters:
-                            scale = parameter_df.loc[value, PARAMETER_SCALE]
-                            if scale == LOG:
-                                val = np.log(val)
-                            elif scale == LOG10:
-                                val = np.log10(val)
+                            val = parameters.scale(
+                                val, parameter_df.loc[value, PARAMETER_SCALE])
                         mapping[key] = val
                 else:
                     raise
