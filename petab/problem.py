@@ -590,7 +590,7 @@ class Problem:
         return measurements.get_simulation_conditions(self.measurement_df)
 
     def get_optimization_to_simulation_parameter_mapping(
-            self, warn_unmapped: bool = True):
+            self, warn_unmapped: bool = True, scaled_parameters: bool = False):
         """
         See get_simulation_to_optimization_parameter_mapping.
         """
@@ -601,7 +601,8 @@ class Problem:
                 self.parameter_df,
                 self.observable_df,
                 self.sbml_model,
-                warn_unmapped=warn_unmapped)
+                warn_unmapped=warn_unmapped,
+                scaled_parameters=scaled_parameters)
 
     def get_optimization_to_simulation_scale_mapping(
             self, mapping_par_opt_to_par_sim: List[
