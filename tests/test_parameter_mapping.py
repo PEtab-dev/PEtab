@@ -59,7 +59,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             petab.PARAMETER_ID: ['dynamicParameter1', 'dynamicParameter2',
                                  'dynamicParameter3'],
             petab.ESTIMATE: [0, 1, 1],
-            petab.NOMINAL_VALUE: [11.0, 12.0, None]
+            petab.NOMINAL_VALUE: [11.0, 12.0, None],
+            petab.PARAMETER_SCALE: [petab.LOG, petab.LOG10, petab.LIN],
         })
         parameter_df.set_index(PARAMETER_ID, inplace=True)
 
@@ -79,6 +80,29 @@ class TestGetSimulationToOptimizationParameterMapping(object):
             measurement_df=measurement_df,
             condition_df=condition_df,
             parameter_df=parameter_df
+        )
+
+        assert actual == expected
+
+        # Test with applied scaling
+
+        expected = [({},
+                     {'dynamicParameter1': np.log(11.0),
+                      'dynamicParameter2': 'dynamicParameter2',
+                      'dynamicParameter3': 'dynamicParameter3',
+                      'fixedParameter1': 1.0}),
+                    ({},
+                     {'dynamicParameter1': np.log(11.0),
+                      'dynamicParameter2': 'dynamicParameter2',
+                      'dynamicParameter3': 'dynamicParameter3',
+                      'fixedParameter1': 2.0})]
+
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
+            sbml_model=sbml_model,
+            measurement_df=measurement_df,
+            condition_df=condition_df,
+            parameter_df=parameter_df,
+            scaled_parameters=True
         )
 
         assert actual == expected
