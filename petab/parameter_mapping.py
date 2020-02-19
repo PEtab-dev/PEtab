@@ -372,7 +372,7 @@ def _apply_parameter_table(mapping: ParMappingDict,
                             and parameter_df.loc[value, ESTIMATE] == 0:
                         val = parameter_df.loc[value, NOMINAL_VALUE]
                         if scaled_parameters:
-                            scale = getattr(row, PARAMETER_SCALE)
+                            scale = parameter_df.loc[value, PARAMETER_SCALE]
                             if scale == LOG:
                                 val = np.log(val)
                             elif scale == LOG10:
