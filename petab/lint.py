@@ -513,7 +513,8 @@ def measurement_table_has_timepoint_specific_mappings(
          OBSERVABLE_PARAMETERS,
          NOISE_PARAMETERS,
          ])
-    grouped_df = measurement_df.groupby(grouping_cols).size().reset_index()
+    grouped_df = measurement_df.fillna('').groupby(grouping_cols).size()\
+        .reset_index()
 
     grouping_cols = core.get_notnull_columns(
         grouped_df,
