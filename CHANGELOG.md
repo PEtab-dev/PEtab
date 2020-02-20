@@ -7,7 +7,7 @@ Library:
 
 * Extensions and fixes for the visualization functions (#255, #262)
 * Allow to extract fixed|free and scaled|non-scaled parameters (#256, #268, #273)
-* Various fixes (#264)
+* Various fixes (esp. #264)
 * Add function to get observable ids (#269)
 * Improve documentation (esp. #289)
 * Set default column for simulation results to 'simulation'
