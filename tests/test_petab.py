@@ -214,7 +214,7 @@ def test_startpoint_sampling(fujita_model_scaling):
 
 
 def test_create_parameter_df(
-        minimal_sbml_model,
+        minimal_sbml_model,  # pylint: disable=W0621
         condition_df_2_conditions):  # pylint: disable=W0621
     """Test petab.create_parameter_df."""
     _, model = minimal_sbml_model
