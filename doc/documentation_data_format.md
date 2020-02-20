@@ -252,7 +252,8 @@ The observable table has the following columns:
 * `observableId` [STRING]
 
   Any identifier which would be a valid identifier in SBML. This is referenced
-  by the `observableId` column in the measurement table.
+  by the `observableId` column in the measurement table. Must be different from
+  any existing model entity or parameter introduced elsewhere.
 
 * [`observableName`] [STRING, OPTIONAL]
 
