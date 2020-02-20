@@ -17,7 +17,7 @@ def test_combine_archive(minimal_sbml_model):
     """Test `create_combine_archive` and `Problem.from_combine`"""
 
     # Create test files
-    document, sbml_model = minimal_sbml_model
+    document, _ = minimal_sbml_model
 
     # Create tables with arbitrary content
     measurement_df = pd.DataFrame(data={
