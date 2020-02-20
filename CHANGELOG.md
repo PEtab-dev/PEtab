@@ -1,6 +1,9 @@
 # PEtab changelog
 
 
+## 0.1 series
+
+
 ### 0.1.2
 
 Library:
@@ -82,6 +85,9 @@ Library:
 * Removed deprecated functions petab.Problem.get_constant_parameters
   and petab.sbml.constant_species_to_parameters
 * Minor fixes and extensions
+
+
+## 0.0 series
 
 
 ### 0.0.0a17
