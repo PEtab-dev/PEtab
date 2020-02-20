@@ -2,7 +2,6 @@
 
 ## 0.1 series
 
-
 ### 0.1.2
 
 Library:
@@ -22,7 +21,6 @@ Library:
 * Fix handling of empty values in dataframes
 * Allow to get numeric values in parameter mappings in scaled form (#308)
 
-
 ### 0.1.1
 
 Library:
@@ -33,7 +31,6 @@ Library:
 * Deprecate `petab.problem.from_folder` and related functions
   (obsolete after introducing more flexible YAML files for grouping tables
   and models) 
-
 
 ### 0.1.0
 
@@ -60,14 +57,12 @@ Library:
 * Optional parallelization of parameter mapping (#205)
 * Extended documentation (in-source and example Jupyter notebooks)
 
-
 ### 0.0.2
 
 Bugfix release
 
 * Fix `petablint` error
 * Fix minor issues in `petab.visualize`
-
 
 ### 0.0.1
 
@@ -85,9 +80,7 @@ Library:
   and petab.sbml.constant_species_to_parameters
 * Minor fixes and extensions
 
-
 ## 0.0 series
-
 
 ### 0.0.0a17
 
@@ -111,7 +104,6 @@ Library:
 * Handle None in petab.core.split_parameter_replacement_list (Closes #121) 
 * Fix(lint) correct handling of optional columns. Check before access.
 * Remove obsolete generate_experiment_id.py (Closes #111) #166 
-
 
 ### 0.0.0a16 and earlier
 
