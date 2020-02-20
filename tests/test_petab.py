@@ -33,7 +33,8 @@ def minimal_sbml_model():
 
 
 @pytest.fixture
-def petab_problem(minimal_sbml_model):
+def petab_problem(minimal_sbml_model):  # pylint: disable=W0621
+    """Test petab problem."""
     # create test model
     document, model = minimal_sbml_model
 
@@ -212,7 +213,10 @@ def test_startpoint_sampling(fujita_model_scaling):
         assert -3 <= sp[1] <= 3
 
 
-def test_create_parameter_df(minimal_sbml_model, condition_df_2_conditions):
+def test_create_parameter_df(
+        minimal_sbml_model,  # pylint: disable=W0621
+        condition_df_2_conditions):  # pylint: disable=W0621
+    """Test petab.create_parameter_df."""
     _, model = minimal_sbml_model
     s = model.createSpecies()
     s.setId('x1')
