@@ -17,28 +17,27 @@ from .C import *  # noqa: F403
 
 
 def get_measurement_df(
-        measurement_file_name: Union[None, str, pd.DataFrame]
+        measurement_file: Union[None, str, pd.DataFrame]
 ) -> pd.DataFrame:
     """
     Read the provided measurement file into a ``pandas.Dataframe``.
 
     Arguments:
-        measurement_file_name: Name of file to read from
+        measurement_file: Name of file to read from or pandas.Dataframe
 
     Returns:
         Measurement DataFrame
     """
-    if measurement_file_name is None:
-        return measurement_file_name
+    if measurement_file is None:
+        return measurement_file
 
-    if isinstance(measurement_file_name, pd.DataFrame):
-        return measurement_file_name
+    if isinstance(measurement_file, str):
+        measurement_file = pd.read_csv(measurement_file, sep='\t')
 
-    measurement_df = pd.read_csv(measurement_file_name, sep='\t')
     lint.assert_no_leading_trailing_whitespace(
-        measurement_df.columns.values, MEASUREMENT)
+        measurement_file.columns.values, MEASUREMENT)
 
-    return measurement_df
+    return measurement_file
 
 
 def write_measurement_df(df: pd.DataFrame, filename: str) -> None:
@@ -75,7 +74,8 @@ def get_noise_distributions(measurement_df: pd.DataFrame) -> dict:
         measurement_df, [OBSERVABLE_ID, OBSERVABLE_TRANSFORMATION,
                          NOISE_DISTRIBUTION])
 
-    observables = measurement_df.groupby(grouping_cols).size().reset_index()
+    observables = measurement_df.fillna('').groupby(grouping_cols).size()\
+        .reset_index()
     noise_distrs = {}
     for _, row in observables.iterrows():
         # prefix id to get observable id
@@ -111,6 +111,8 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Dataframe with columns 'simulationConditionId' and
         'preequilibrationConditionId'. All-NULL columns will be omitted.
+        Missing `preequilibrationConditionId`s will be set to '' (empty
+        string).
     """
     # find columns to group by (i.e. if not all nans).
     # can be improved by checking for identical condition vectors
@@ -119,11 +121,13 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
         [SIMULATION_CONDITION_ID, PREEQUILIBRATION_CONDITION_ID])
 
     # group by cols and return dataframe containing each combination
-    # of those rows only once (and an additional counting row)
-    simulation_conditions = measurement_df.groupby(
-        grouping_cols).size().reset_index()
-
-    return simulation_conditions
+    #  of those rows only once (and an additional counting row)
+    # We require NaN-containing rows, but they are ignored by `groupby`,
+    # therefore replace them before
+    simulation_conditions = measurement_df.fillna('').groupby(
+        grouping_cols).size().reset_index()[grouping_cols]
+    # sort to be really sure that we always get the same order
+    return simulation_conditions.sort_values(grouping_cols, ignore_index=True)
 
 
 def get_rows_for_condition(measurement_df: pd.DataFrame,
@@ -150,10 +154,11 @@ def get_rows_for_condition(measurement_df: pd.DataFrame,
     row_filter = 1
     # check for equality in all grouping cols
     if PREEQUILIBRATION_CONDITION_ID in condition:
-        row_filter = (measurement_df.preequilibrationConditionId ==
+        row_filter = (measurement_df[PREEQUILIBRATION_CONDITION_ID]
+                      .fillna('') ==
                       condition[PREEQUILIBRATION_CONDITION_ID]) & row_filter
     if SIMULATION_CONDITION_ID in condition:
-        row_filter = (measurement_df.simulationConditionId ==
+        row_filter = (measurement_df[SIMULATION_CONDITION_ID] ==
                       condition[SIMULATION_CONDITION_ID]) & row_filter
     # apply filter
     cur_measurement_df = measurement_df.loc[row_filter, :]
@@ -236,6 +241,9 @@ def get_placeholders(formula_string: str, observable_id: str,
     if not formula_string:
         return []
 
+    if not isinstance(formula_string, str):
+        return []
+
     pattern = re.compile(r'(?:^|\W)(' + re.escape(override_type)
                          + r'Parameter\d+_' + re.escape(observable_id)
                          + r')(?=\W|$)')
@@ -283,11 +291,12 @@ def measurements_have_replicates(measurement_df: pd.DataFrame) -> bool:
     Returns:
         ``True`` if there are replicates, ``False`` otherwise
     """
-    return np.any(measurement_df.groupby(
-        core.get_notnull_columns(
-            measurement_df,
-            [OBSERVABLE_ID, SIMULATION_CONDITION_ID,
-             PREEQUILIBRATION_CONDITION_ID, TIME])).size().values - 1)
+    grouping_cols = core.get_notnull_columns(
+        measurement_df,
+        [OBSERVABLE_ID, SIMULATION_CONDITION_ID,
+         PREEQUILIBRATION_CONDITION_ID, TIME])
+    return np.any(
+        measurement_df.fillna('').groupby(grouping_cols).size().values - 1)
 
 
 def assert_overrides_match_parameter_count(

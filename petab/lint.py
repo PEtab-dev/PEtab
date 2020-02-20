@@ -64,15 +64,18 @@ def check_condition_df(
     Raises:
         AssertionError: in case of problems
     """
+
+    # Check required columns are present
     req_cols = []
     _check_df(df, req_cols, "condition")
 
+    # Check for correct index
     if not df.index.name == CONDITION_ID:
         raise AssertionError(
             f"Condition table has wrong index {df.index.name}."
             f"expected {CONDITION_ID}.")
 
-    assert_no_leading_trailing_whitespace(df.index.values, CONDITION_ID)
+    check_ids(df.index.values, kind='condition')
 
     for column_name in req_cols:
         if not np.issubdtype(df[column_name].dtype, np.number):
@@ -134,9 +137,9 @@ def check_measurement_df(df: pd.DataFrame,
 
 def check_parameter_df(
         df: pd.DataFrame,
-        sbml_model: Optional[libsbml.Model],
-        measurement_df: Optional[pd.DataFrame],
-        condition_df: Optional[pd.DataFrame]) -> None:
+        sbml_model: Optional[libsbml.Model] = None,
+        measurement_df: Optional[pd.DataFrame] = None,
+        condition_df: Optional[pd.DataFrame] = None) -> None:
     """Run sanity checks on PEtab parameter table
 
     Arguments:
@@ -156,7 +159,7 @@ def check_parameter_df(
             f"Parameter table has wrong index {df.index.name}."
             f"expected {PARAMETER_ID}.")
 
-    assert_no_leading_trailing_whitespace(df.index.values, PARAMETER_ID)
+    check_ids(df.index.values, kind='parameter')
 
     for column_name in PARAMETER_DF_REQUIRED_COLS[1:]:  # 0 is PARAMETER_ID
         if not np.issubdtype(df[column_name].dtype, np.number):
@@ -188,6 +191,8 @@ def check_observable_df(observable_df: pd.DataFrame) -> None:
     """
     _check_df(observable_df, OBSERVABLE_DF_REQUIRED_COLS[1:], "observable")
 
+    check_ids(observable_df.index.values, kind='observable')
+
     for column_name in OBSERVABLE_DF_REQUIRED_COLS[1:]:
         if not np.issubdtype(observable_df[column_name].dtype, np.number):
             assert_no_leading_trailing_whitespace(
@@ -204,15 +209,15 @@ def check_observable_df(observable_df: pd.DataFrame) -> None:
 
     # Check that formulas are parsable
     for row in observable_df.itertuples():
+        obs = getattr(row, OBSERVABLE_FORMULA)
         try:
-            obs = getattr(row, OBSERVABLE_FORMULA)
             sp.sympify(obs)
         except sp.SympifyError as e:
             raise AssertionError(f"Cannot parse expression '{obs}' "
                                  f"for observable {row.Index}: {e}")
 
+        noise = getattr(row, NOISE_FORMULA)
         try:
-            noise = getattr(row, NOISE_FORMULA)
             sp.sympify(noise)
         except sp.SympifyError as e:
             raise AssertionError(f"Cannot parse expression '{noise}' "
@@ -404,15 +409,63 @@ def assert_parameter_prior_type_is_valid(
     Raises:
         AssertionError in case of invalid prior
     """
-    for prefix in [INITIALIZATION, OBJECTIVE]:
-        col_name = f"{prefix}PriorType"
-        if col_name not in parameter_df.columns:
+    for col in [INITIALIZATION_PRIOR_TYPE, OBJECTIVE_PRIOR_TYPE]:
+        if col not in parameter_df.columns:
             continue
         for _, row in parameter_df.iterrows():
-            if row[col_name] not in PRIOR_TYPES:
+            if row[col] not in PRIOR_TYPES and not core.is_empty(row[col]):
                 raise AssertionError(
-                    f"{col_name} must be one of {PRIOR_TYPES} but is "
-                    f"{row[col_name]}.")
+                    f"{col} must be one of {PRIOR_TYPES} but is "
+                    f"'{row[col]}'.")
+
+
+def assert_parameter_prior_parameters_are_valid(
+        parameter_df: pd.DataFrame) -> None:
+    """Check that the prior parameters are valid.
+
+    Arguments:
+        parameter_df: PEtab parameter table
+
+    Raises:
+        AssertionError in case of invalide prior parameters
+    """
+    prior_type_cols = [INITIALIZATION_PRIOR_TYPE,
+                       OBJECTIVE_PRIOR_TYPE]
+    prior_par_cols = [INITIALIZATION_PRIOR_PARAMETERS,
+                      OBJECTIVE_PRIOR_PARAMETERS]
+
+    # perform test for both priors
+    for type_col, par_col in zip(prior_type_cols, prior_par_cols):
+        # iterate over rows
+        for _, row in parameter_df.iterrows():
+            # get type
+            if type_col not in row or core.is_empty(row[type_col]):
+                type_ = PARAMETER_SCALE_UNIFORM
+            else:
+                type_ = row[type_col]
+            # get parameters
+            pars_str = row.get(par_col, '')
+            with_default_parameters = [PARAMETER_SCALE_UNIFORM]
+            # check if parameters are empty
+            if core.is_empty(pars_str):
+                if type_ not in with_default_parameters:
+                    raise AssertionError(
+                        f"An empty {par_col} is only permitted with "
+                        f"{type_col} in {with_default_parameters}.")
+                # empty parameters fine
+                continue
+            # parse parameters
+            try:
+                pars = tuple([float(val) for val in pars_str.split(';')])
+            except ValueError:
+                raise AssertionError(
+                    f"Could not parse prior parameters '{pars_str}'.")
+            # all distributions take 2 parameters
+            if len(pars) != 2:
+                raise AssertionError(
+                    f"The prior parameters '{pars}' do not contain the "
+                    "expected number of entries (currently 'par1;par2' "
+                    "for all prior types).")
 
 
 def assert_parameter_estimate_is_boolean(parameter_df: pd.DataFrame) -> None:
@@ -460,7 +513,8 @@ def measurement_table_has_timepoint_specific_mappings(
          OBSERVABLE_PARAMETERS,
          NOISE_PARAMETERS,
          ])
-    grouped_df = measurement_df.groupby(grouping_cols).size().reset_index()
+    grouped_df = measurement_df.fillna('').groupby(grouping_cols).size()\
+        .reset_index()
 
     grouping_cols = core.get_notnull_columns(
         grouped_df,
@@ -583,6 +637,12 @@ def lint_problem(problem: 'petab.Problem') -> bool:
         except AssertionError as e:
             logger.error(e)
             errors_occurred = True
+        if problem.sbml_model is not None:
+            for obs_id in problem.observable_df.index:
+                if problem.sbml_model.getElementBySId(obs_id):
+                    logger.error(f"Observable ID {obs_id} shadows model "
+                                 "entity.")
+                    errors_occurred = True
     else:
         logger.warning("Observable table not available. Skipping.")
 
@@ -707,3 +767,22 @@ def is_valid_identifier(x: str) -> bool:
     """
 
     return re.match(r'^[a-zA-Z_]\w*$', x) is not None
+
+
+def check_ids(ids: Iterable[str], kind: str = '') -> None:
+    """Check IDs are valid
+
+    Arguments:
+        ids: Iterable of IDs to check
+        kind: Kind of IDs, for more informative error message
+
+    Raises:
+        ValueError - in case of invalid IDs
+    """
+    invalids = []
+    for _id in ids:
+        if not is_valid_identifier(_id):
+            invalids.append(_id)
+
+    if invalids:
+        raise ValueError(f"Invalid {kind} ID(s): {invalids}")

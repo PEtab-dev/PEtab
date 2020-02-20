@@ -1,6 +1,7 @@
 """Plotting config"""
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 from ..C import *
 
@@ -48,7 +49,13 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     ax: matplotlib.Axes
     """
 
-    if vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == LINE_PLOT:
+    # set yScale
+    if vis_spec.yScale[i_visu_spec] == 'lin':
+        ax[axx, axy].set_yscale("linear")
+    elif vis_spec.yScale[i_visu_spec] == 'log10':
+        ax[axx, axy].set_yscale("log")
+
+    if vis_spec.plotTypeSimulation[i_visu_spec] == LINE_PLOT:
 
         # set xScale
         if vis_spec[X_SCALE][i_visu_spec] == LIN:
@@ -116,15 +123,17 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
         ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
 
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == BAR_PLOT:
-
         x_name = vis_spec[ind_plot][LEGEND_ENTRY][i_visu_spec]
 
-        p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'])
+        p = ax[axx, axy].bar(x_name, ms['mean'], yerr=ms['sd'],
+                             color=sns.color_palette()[0])
         ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
 
         if plot_sim:
             colors = p[0].get_facecolor()
             ax[axx, axy].bar(x_name + " simulation", ms['sim'], color='white',
                              edgecolor=colors)
+    ax[axx, axy].relim()
+    ax[axx, axy].autoscale_view()
 
     return ax
