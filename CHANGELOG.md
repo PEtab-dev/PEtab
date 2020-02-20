@@ -1,14 +1,37 @@
 # PEtab changelog
 
+
+### 0.1.2
+
+Library:
+
+* Extensions and fixes for the visualization functions (#255, #262)
+* Allow to extract fixed|free and scaled|non-scaled parameters (#256, #268, #273)
+* Various fixes (#264)
+* Add function to get observable ids (#269)
+* Improve documentation (esp. #289)
+* Set default column for simulation results to 'simulation'
+* Add support for COMBINE archives (#271)
+* Fix sbml observables to table
+* Improve prior and dataframe tests (#285, #286, #297)
+* Add function to get parameter table with all default values (#288)
+* Move tests to github actions (#281)
+* Check for valid identifiers
+* Fix handling of empty values in dataframes
+* Allow to get numeric values in parameter mappings in scaled form (#308)
+
+
 ### 0.1.1
 
 Library:
+
 * Fix parameter mapping: include output parameters not present in SBML model
 * Fix missing `petab/petab_schema.yaml` in source distribution
 * Let get_placeholders return an (ordered) list of placeholders
 * Deprecate `petab.problem.from_folder` and related functions
   (obsolete after introducing more flexible YAML files for grouping tables
   and models) 
+
 
 ### 0.1.0
 
@@ -83,6 +106,7 @@ Library:
 * Handle None in petab.core.split_parameter_replacement_list (Closes #121) 
 * Fix(lint) correct handling of optional columns. Check before access.
 * Remove obsolete generate_experiment_id.py (Closes #111) #166 
+
 
 ### 0.0.0a16 and earlier
 
