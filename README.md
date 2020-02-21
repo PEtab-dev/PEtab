@@ -38,7 +38,7 @@ Documentation of the PEtab data format and Python library is available at
 Where PEtab is used / supported:
 
   - Within the systems biology optimization 
-    [benchmark problem collection](https://github.com/LeonardSchmiester/Benchmark-Models)
+    [benchmark problem collection](https://github.com/LeonardSchmiester/Benchmark-Models/tree/hackathon/hackathon_contributions_new_data_format)
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
