@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 import os
 import sys
+import re
 
 
 # Python version check. We need >= 3.6 due to e.g. f-strings
@@ -10,7 +11,11 @@ if sys.version_info < (3, 6):
 
 # read a file
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    txt = open(os.path.join(os.path.dirname(__file__), fname)).read()
+    # replace relative links
+    for var in re.findall('\[(?!http).*?\]\(.*?\)', txt):
+        txt = txt.replace(var, "[https://" + var[1:])
+    return txt
 
 
 # read version from file
