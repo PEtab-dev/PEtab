@@ -9,14 +9,21 @@ if sys.version_info < (3, 6):
     sys.exit('PEtab requires at least Python version 3.6')
 
 
-# read a file
 def read(fname):
+    """Read a file, replacing relative links."""
     txt = open(os.path.join(os.path.dirname(__file__), fname)).read()
-    # replace relative links
-    for var in re.findall('\[.*?\]\((?!http).*?\)', txt):
-        if re.match('.*?.(png|svg)\)', var):
-            rep = var.replace(
-        txt = txt.replace(var, var.replace('(', '(https://github.com/petab-dev/petab/'))
+
+    raw_base = "(https://raw.githubusercontent.com/petab-dev/petab/master/"
+    embedded_base = "(https://github.com/petab-dev/petab/tree/master/"
+    # iterate over links
+    for var in re.findall(r'\[.*?\]\((?!http).*?\)', txt):
+        if re.match(r'.*?.(png|svg)\)', var):
+            # link to raw file
+            rep = var.replace("(", raw_base)
+        else:
+            # link to github embedded file
+            rep = var.replace("(", embedded_base)
+        txt = txt.replace(var, rep)
     return txt
 
 
