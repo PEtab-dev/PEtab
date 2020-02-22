@@ -13,8 +13,10 @@ if sys.version_info < (3, 6):
 def read(fname):
     txt = open(os.path.join(os.path.dirname(__file__), fname)).read()
     # replace relative links
-    for var in re.findall('\[(?!http).*?\]\(.*?\)', txt):
-        txt = txt.replace(var, "[https://" + var[1:])
+    for var in re.findall('\[.*?\]\((?!http).*?\)', txt):
+        if re.match('.*?.(png|svg)\)', var):
+            rep = var.replace(
+        txt = txt.replace(var, var.replace('(', '(https://github.com/petab-dev/petab/'))
     return txt
 
 
