@@ -398,6 +398,45 @@ def handle_dataset_plot(i_visu_spec,
     return ax
 
 
+def matches_vis_spec(df: pd.DataFrame,
+                     col_id: str,
+                     x_value: Union[float, str],
+                     vis_spec: pd.DataFrame,
+                     index_vis_spec: int) -> pd.Series:
+    """
+    constructs an index for subsetting of the dataframe according to whats 
+    specified in vis_spec.
+
+    Parameters:
+        df:
+            pandas data frame to subset, can be from measurement file or
+            simulation file
+        col_id:
+            name of the column that will be used for indexing in x variable
+
+        x_value:
+            subsetted x value
+
+        vis_spec:
+            visualization spec from the visualization file
+
+        index_vis_spec:
+            row index in the
+
+
+    Returns:
+        index:
+            boolean series that can be used for subsetting of the passed 
+            dataframe
+    """
+
+    return (
+            (df[col_id] == x_value) &
+            (df[DATASET_ID] == vis_spec[DATASET_ID][index_vis_spec]) &
+            (df[OBSERVABLE_ID] == vis_spec[Y_VALUES][index_vis_spec])
+    )
+  
+  
 def get_data_to_plot(vis_spec: pd.DataFrame,
                      m_data: pd.DataFrame,
                      simulation_data: pd.DataFrame,
@@ -443,46 +482,6 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         index=condition_ids)
 
     for var_cond_id in condition_ids:
-        # get boolean vector which fulfill the requirements
-        vec_bool_meas = ((m_data[col_id] == var_cond_id)
-                         & (m_data[DATASET_ID]
-                            == vis_spec.datasetId[i_visu_spec]))
-        # get indices of rows with True values of vec_bool_meas
-        ind_meas = [i_visu_spec for i_visu_spec,
-                    x in enumerate(vec_bool_meas) if x]
-
-        # check that all entries for all columns-conditions are the same:
-        # check correct observable
-        bool_observable = (m_data[OBSERVABLE_PARAMETERS][ind_meas[0]] ==
-                           m_data[OBSERVABLE_PARAMETERS])
-        # special handling, if column in m_data.observableParameters is empty
-        if isinstance(m_data[OBSERVABLE_PARAMETERS][ind_meas[0]], Number) \
-                and np.isnan(m_data.observableParameters[ind_meas[0]]):
-            arr = np.array(m_data.observableParameters.iloc[ind_meas],
-                           dtype=float)
-            bool_observable = np.isnan(arr)
-
-        # check correct time point.
-        bool_time = True
-        if col_id != TIME:
-            bool_time = (m_data[TIME][ind_meas[0]] == m_data[TIME])
-
-        # check correct preqeuilibration condition
-        pre_cond = m_data[PREEQUILIBRATION_CONDITION_ID][ind_meas[0]]
-        bool_preequ = (pre_cond == m_data[PREEQUILIBRATION_CONDITION_ID])
-        # special handling is needed, if preequilibration cond is left empty
-        if isinstance(pre_cond, Number) and np.isnan(pre_cond):
-            bool_preequ = np.isnan(m_data[PREEQUILIBRATION_CONDITION_ID])
-
-        # combine all boolean vectors
-        vec_bool_allcond = bool_preequ & bool_observable & bool_time
-
-        # get indices of rows with "True" values, of vec_bool_allcond
-        ind_bool_allcond = [i_visu_spec for i_visu_spec,
-                            x in enumerate(vec_bool_allcond) if x]
-
-        # get intersection of ind_meas and ind_bool_allcond
-        ind_intersec = np.intersect1d(ind_meas, ind_bool_allcond)
 
         # TODO (#117): Here not the case: So, if entries in measurement file:
         #  preequCondId, time, observableParams, noiseParams,
@@ -498,13 +497,18 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # would take rows 0,6 and forget about rows 12,18
 
         # compute mean and standard deviation across replicates
-        data_to_plot.at[var_cond_id, 'mean'] = np.mean(
-            m_data[MEASUREMENT][ind_intersec])
-        data_to_plot.at[var_cond_id, 'sd'] = np.std(
-            m_data[MEASUREMENT][ind_intersec])
+        subset = matches_vis_spec(m_data, col_id, var_cond_id, vis_spec,
+                                  i_visu_spec)
+        data_measurements = m_data.loc[
+            subset,
+            MEASUREMENT
+        ]
+
+        data_to_plot.at[var_cond_id, 'mean'] = np.mean(data_measurements)
+        data_to_plot.at[var_cond_id, 'sd'] = np.std(data_measurements)
 
         if vis_spec.plotTypeData[i_visu_spec] == PROVIDED:
-            tmp_noise = m_data[NOISE_PARAMETERS][ind_intersec].values[0]
+            tmp_noise = m_data.loc[subset, NOISE_PARAMETERS].values[0]
             if isinstance(tmp_noise, str):
                 raise NotImplementedError(
                     "No numerical noise values provided in the measurement "
@@ -513,15 +517,21 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                 data_to_plot.at[var_cond_id, 'noise_model'] = tmp_noise
 
         # standard error of mean
-        data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data[MEASUREMENT][
-            ind_intersec]) / np.sqrt(len(m_data[MEASUREMENT][ind_intersec]))
+        data_to_plot.at[var_cond_id, 'sem'] = \
+            np.std(data_measurements) / np.sqrt(len(data_measurements))
 
         # single replicates
         data_to_plot.at[var_cond_id, 'repl'] = \
-            m_data[MEASUREMENT][ind_intersec]
+            data_measurements
 
         if simulation_data is not None:
+            simulation_measurements = simulation_data.loc[
+                matches_vis_spec(simulation_data, col_id, var_cond_id,
+                                 vis_spec, i_visu_spec),
+                simulation_field
+            ]
             data_to_plot.at[var_cond_id, 'sim'] = np.mean(
-                simulation_data[simulation_field][ind_intersec])
+                simulation_measurements
+            )
 
     return data_to_plot
