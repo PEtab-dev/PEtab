@@ -474,7 +474,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # special handling is needed, if preequilibration cond is left empty
         if isinstance(pre_cond, Number) and np.isnan(pre_cond):
             bool_preequ = np.isnan(
-              m_data[PREEQUILIBRATION_CONDITION_ID].iloc[ind_meas]
+                m_data[PREEQUILIBRATION_CONDITION_ID].iloc[ind_meas]
             )
 
         # combine all boolean vectors
