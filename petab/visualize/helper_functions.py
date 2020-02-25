@@ -469,7 +469,7 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
 
         # check correct preqeuilibration condition
         pre_cond = m_data[PREEQUILIBRATION_CONDITION_ID][ind_meas[0]]
-        bool_preequ = (pre_cond == 
+        bool_preequ = (pre_cond ==
                        m_data[PREEQUILIBRATION_CONDITION_ID].iloc[ind_meas])
         # special handling is needed, if preequilibration cond is left empty
         if isinstance(pre_cond, Number) and np.isnan(pre_cond):
