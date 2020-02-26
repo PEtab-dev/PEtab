@@ -90,6 +90,7 @@ LOG = 'log'
 LOG10 = 'log10'
 OBSERVABLE_TRANSFORMATIONS = [LIN, LOG, LOG10]
 
+
 # NOISE MODELS
 
 UNIFORM = 'uniform'
@@ -126,18 +127,15 @@ LEGEND_ENTRY = 'legendEntry'
 
 LINE_PLOT = 'LinePlot'
 BAR_PLOT = 'BarPlot'
-PLOT_TYPES_SIMULATION = [LINE_PLOT, BAR_PLOT]
+SCATTER_PLOT = 'ScatterPlot'
+PLOT_TYPES_SIMULATION = [LINE_PLOT, BAR_PLOT, SCATTER_PLOT]
+
 
 MEAN_AND_SD = 'MeanAndSD'
 MEAN_AND_SEM = 'MeanAndSEM'
 REPLICATE = 'replicate'
 PROVIDED = 'provided'
 PLOT_TYPES_DATA = [MEAN_AND_SD, MEAN_AND_SEM, REPLICATE, PROVIDED]
-
-
-# SIMULATION
-
-SIMULATION = 'simulation'
 
 
 # YAML
@@ -149,3 +147,9 @@ CONDITION_FILES = 'condition_files'
 MEASUREMENT_FILES = 'measurement_files'
 OBSERVABLE_FILES = 'observable_files'
 VISUALIZATION_FILES = 'visualization_files'
+
+
+# MORE
+
+SIMULATION = 'simulation'
+RESIDUAL = 'residual'
