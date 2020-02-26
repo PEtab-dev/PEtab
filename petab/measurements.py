@@ -110,8 +110,8 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         Dataframe with columns 'simulationConditionId' and
-        'preequilibrationConditionId'. All-NULL columns will be omitted.
-        Missing `preequilibrationConditionId`s will be set to '' (empty
+        'preequilibrationConditionId'. All-null columns will be omitted.
+        Missing 'preequilibrationConditionId's will be set to '' (empty
         string).
     """
     # find columns to group by (i.e. if not all nans).

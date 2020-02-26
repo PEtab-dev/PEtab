@@ -1,4 +1,4 @@
-"""PEtab exports
+"""PEtab global
 
 Attributes:
     ENV_NUM_THREADS:
