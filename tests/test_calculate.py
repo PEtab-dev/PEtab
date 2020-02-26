@@ -1,3 +1,5 @@
+"""Tests related to petab.calculate."""
+
 from petab import calculate_residuals
 from petab.C import *
 import pandas as pd
