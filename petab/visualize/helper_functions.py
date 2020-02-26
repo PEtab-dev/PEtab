@@ -405,13 +405,10 @@ def matches_plot_spec(df: pd.DataFrame,
             simulation file
         col_id:
             name of the column that will be used for indexing in x variable
-
         x_value:
             subsetted x value
-
         plot_spec:
             visualization spec from the visualization file
-
 
     Returns:
         index:
@@ -420,9 +417,9 @@ def matches_plot_spec(df: pd.DataFrame,
     """
 
     return (
-            (df[col_id] == x_value) &
-            (df[DATASET_ID] == plot_spec[DATASET_ID]) &
-            (df[OBSERVABLE_ID] == plot_spec[Y_VALUES])
+        (df[col_id] == x_value) &
+        (df[DATASET_ID] == plot_spec[DATASET_ID]) &
+        (df[OBSERVABLE_ID] == plot_spec[Y_VALUES])
     )
 
 
@@ -492,7 +489,10 @@ def get_data_to_plot(plot_spec: pd.Series,
         data_to_plot.at[var_cond_id, 'sd'] = np.std(data_measurements)
 
         if (plot_spec.plotTypeData == PROVIDED) & sum(subset):
-            print(m_data.loc[subset, NOISE_PARAMETERS])
+            if len(m_data.loc[subset, NOISE_PARAMETERS].unique()) > 1:
+                raise NotImplementedError(
+                    f"Datapoints with inconsistent {NOISE_PARAMETERS} is "
+                    f"currently not implemented. Stopping.")
             tmp_noise = m_data.loc[subset, NOISE_PARAMETERS].values[0]
             if isinstance(tmp_noise, str):
                 raise NotImplementedError(
