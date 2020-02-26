@@ -153,7 +153,8 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     # construct scatter plot
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == SCATTER_PLOT:
         if not plot_sim:
-            print('Scatter plots do not work without simulation data.')
+            raise NotImplementedError('Scatter plots do not work without'
+                                      ' simulation data')
         ax[axx, axy].scatter(ms['mean'], ms['sim'],
                              label=vis_spec[ind_plot][LEGEND_ENTRY][
                                  i_visu_spec])
