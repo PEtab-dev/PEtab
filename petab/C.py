@@ -90,6 +90,7 @@ LOG = 'log'
 LOG10 = 'log10'
 OBSERVABLE_TRANSFORMATIONS = [LIN, LOG, LOG10]
 
+
 # NOISE MODELS
 
 UNIFORM = 'uniform'
@@ -137,11 +138,6 @@ PROVIDED = 'provided'
 PLOT_TYPES_DATA = [MEAN_AND_SD, MEAN_AND_SEM, REPLICATE, PROVIDED]
 
 
-# SIMULATION
-
-SIMULATION = 'simulation'
-
-
 # YAML
 FORMAT_VERSION = 'format_version'
 PARAMETER_FILE = 'parameter_file'
@@ -151,3 +147,9 @@ CONDITION_FILES = 'condition_files'
 MEASUREMENT_FILES = 'measurement_files'
 OBSERVABLE_FILES = 'observable_files'
 VISUALIZATION_FILES = 'visualization_files'
+
+
+# MORE
+
+SIMULATION = 'simulation'
+RESIDUAL = 'residual'
