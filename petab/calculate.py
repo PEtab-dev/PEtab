@@ -9,11 +9,11 @@ import petab
 
 
 def calculate_residuals(
-    measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-    simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-    observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-    normalize: bool = True,
-    scale: bool = True
+        measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        normalize: bool = True,
+        scale: bool = True
 ) -> List[pd.DataFrame]:
     """Calculate residuals.
 
@@ -54,11 +54,11 @@ def calculate_residuals(
 
 
 def calculate_residuals_for_table(
-    measurement_df: pd.DataFrame,
-    simulation_df: pd.DataFrame,
-    observable_df: pd.DataFrame,
-    normalize: bool = True,
-    scale: bool = True
+        measurement_df: pd.DataFrame,
+        simulation_df: pd.DataFrame,
+        observable_df: pd.DataFrame,
+        normalize: bool = True,
+        scale: bool = True
 ) -> pd.DataFrame:
     """
     Calculate residuals for a single measurement table.
