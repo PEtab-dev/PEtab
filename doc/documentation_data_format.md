@@ -70,7 +70,7 @@ different experimental conditions).
 
 This is specified as a tab-separated value file in the following way:
 
-| conditionId | [conditionName] | parameterOrStateOrCompartmentId1 | ... | parameterOrStateOrCompartmentId${n} |
+| conditionId | [conditionName] | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
 |---|---|---|---|---|
 | conditionId1 | conditionName1 | NUMERIC&#124;parameterId&#124;stateId&#124;compartmentId | ...| ...
 | conditionId2 | ... | ... | ...| ...
@@ -93,7 +93,7 @@ Additional columns are *not* allowed.
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- `${parameterOrStateOrCompartmentId1}`
+- `${parameterOrSpeciesOrCompartmentId1}`
 
   Further columns may be global parameter IDs, IDs of species or compartments
   as defined in the SBML model. Only one column is allowed per ID.

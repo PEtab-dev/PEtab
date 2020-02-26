@@ -285,7 +285,12 @@ def create_combine_archive(
 
     # function-level import, because module-level import interfered with
     # other SWIG interfaces
-    import libcombine
+    try:
+        import libcombine
+    except ImportError:
+        raise ImportError(
+            "To use PEtab's COMBINE functionality, libcombine "
+            "(python-libcombine) must be installed.")
 
     def _add_file_metadata(location: str, description: str = ""):
         """Add metadata to the added file"""

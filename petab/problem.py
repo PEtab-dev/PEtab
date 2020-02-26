@@ -238,7 +238,12 @@ class Problem:
         """
         # function-level import, because module-level import interfered with
         # other SWIG interfaces
-        import libcombine
+        try:
+            import libcombine
+        except ImportError:
+            raise ImportError(
+                "To use PEtab's COMBINE functionality, libcombine "
+                "(python-libcombine) must be installed.")
 
         archive = libcombine.CombineArchive()
         if archive.initializeFromArchive(filename) is None:
