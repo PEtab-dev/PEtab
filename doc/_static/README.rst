@@ -20,8 +20,8 @@
    :alt: PyPI version
 
 
-PEtab --- a data format for specifying parameter estimation problems in systems biology
-=======================================================================================
+PEtab -- a data format for specifying parameter estimation problems in systems biology
+======================================================================================
 
 
 .. image:: https://raw.githubusercontent.com/petab-dev/petab/master/doc/logo/PEtab.png
@@ -29,8 +29,8 @@ PEtab --- a data format for specifying parameter estimation problems in systems 
    :alt: Logo
 
 
-This repository describes *PEtab* --- a data format for specifying parameter 
-estimation problems in systems biology, provides a Python library for easy 
+*PEtab* is a data format for specifying parameter estimation problems in systems biology.
+This repository provides extensive documentation and a Python library for easy
 access and validation of *PEtab* files.
 
 About PEtab
@@ -38,7 +38,7 @@ About PEtab
 
 PEtab is built around `SBML <http://sbml.org/>`_ and based on tab-separated values 
 (TSV) files. It is meant as a standardized way to provide information for 
-parameter estimation which is out of the current scope of SBML. This includes
+parameter estimation, which is out of the current scope of SBML. This includes
 for example:
 
 
@@ -79,13 +79,19 @@ Where PEtab is used / supported:
   `converter <https://github.com/copasi/python-petab-importer>`_
 
 * 
-  `pyPESTO <https://github.com/ICB-DCM/pyPESTO/>`_
+  `d2d <https://github.com/Data2Dynamics/d2d/>`_
+
+* 
+  `dmod <https://github.com/dkaschek/dMod/>`_
 
 * 
   `AMICI <https://github.com/ICB-DCM/AMICI/>`_
 
-PEtab support for `D2D <https://github.com/Data2Dynamics/d2d/>`_ and
-`AMIGO2 <https://sites.google.com/site/amigo2toolbox/>`_ is under development.
+* 
+  `pyPESTO <https://github.com/ICB-DCM/pyPESTO/>`_
+
+* 
+  `pyABC <https://github.com/ICB-DCM/pyABC/>`_
 
 If your project or tool is using PEtab, and you would like to have it listed
 here, please let us know.
