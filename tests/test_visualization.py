@@ -172,7 +172,7 @@ def test_visualization_raises(data_file_Fujita,
                                  "measurement table. Stopping.")
         error_counter += 1
 
-    assert (error_counter == 4)
+    assert (error_counter == 5)
 
 
 def test_visualization_warnings(data_file_Isensee, condition_file_Isensee):

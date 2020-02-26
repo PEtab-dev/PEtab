@@ -142,6 +142,23 @@ def plot_data_and_simulation(
             # handle plot of current dataset
             handle_dataset_plot(plot_spec, ax, exp_data,
                                 exp_conditions, sim_data)
+
+        if BAR_PLOT in vis_spec[ind_plot][PLOT_TYPE_SIMULATION].values:
+
+            legend = ['measurement']
+
+            if sim_data is not None:
+                legend.append('simulation')
+
+            ax.legend(legend)
+            x_names = vis_spec.loc[ind_plot, LEGEND_ENTRY]
+            ax.set_xticks(range(len(x_names)))
+            ax.set_xticklabels(x_names)
+
+            for label in ax.get_xmajorticklabels():
+                label.set_rotation(30)
+                label.set_horizontalalignment("right")
+
         if plots_to_file:
             plt.tight_layout()
             plt.savefig(f'{subplot_file_path}/{var_plot_id}.png')
@@ -150,7 +167,6 @@ def plot_data_and_simulation(
     # finalize figure
     if not plots_to_file:
         fig.tight_layout()
-        sns.despine()
         return axes
 
     return None

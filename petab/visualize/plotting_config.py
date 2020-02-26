@@ -55,7 +55,7 @@ def plot_lowlevel(plot_spec: pd.Series,
         elif plot_spec[X_SCALE] == LOG10:
             ax.set_xscale("log")
         elif plot_spec.yScale == 'log':
-          ax.set_xscale("log", basex=np.e)
+            ax.set_xscale("log", basex=np.e)
         # equidistant
         elif plot_spec[X_SCALE] == 'order':
             ax.set_xscale("linear")
@@ -106,32 +106,26 @@ def plot_lowlevel(plot_spec: pd.Series,
     # construct bar plot
     elif plot_spec[PLOT_TYPE_SIMULATION] == BAR_PLOT:
         x_name = plot_spec[LEGEND_ENTRY]
-        ind_bars = plot_spec[PLOT_TYPE_SIMULATION] == BAR_PLOT
-        x_names = list(plot_spec[LEGEND_ENTRY])
+
+        if plot_sim:
+            bar_kwargs = {
+                'align': 'edge',
+                'width': 1/3,
+            }
+        else:
+            bar_kwargs = {
+                'align': 'center',
+                'width': 1.0,
+            }
+
         p = ax.bar(x_name, ms['mean'], yerr=ms[noise_col],
-                             color=sns.color_palette()[0], width=2/3)
-        legend = ['measurement']
-        tick_factor = 1
-        tick_offset = 0
+                   color=sns.color_palette()[0], **bar_kwargs)
 
         if plot_sim:
             colors = p[0].get_facecolor()
-            ax.bar(x_name + " simulation", ms['sim'], color='white',
-                             width=-2/3, align='edge', edgecolor=colors)
-            legend.append('simulation')
-            tick_factor = 2
-            tick_offset = 1/3
-
-        x_ticks = tick_factor * np.linspace(0, len(x_names) - 1,
-                                            len(x_names)) + tick_offset
-        ax.set_xticks(x_ticks)
-        ax.set_xticklabels(x_names)
-
-        for label in ax.get_xmajorticklabels():
-            label.set_rotation(30)
-            label.set_horizontalalignment("right")
-
-        ax.legend(legend)
+            bar_kwargs['width'] = -bar_kwargs['width']
+            ax.bar(x_name, ms['sim'], color='white',
+                   edgecolor=colors, **bar_kwargs)
 
     # construct scatter plot
     elif plot_spec[PLOT_TYPE_SIMULATION] == SCATTER_PLOT:

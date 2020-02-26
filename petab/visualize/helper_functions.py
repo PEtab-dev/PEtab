@@ -375,9 +375,7 @@ def handle_dataset_plot(plot_spec: pd.Series,
                                            uni_condition_id, col_name_unique)
 
     # check, whether simulation should be plotted
-    plot_sim = True
-    if sim_data is None:
-        plot_sim = False
+    plot_sim = sim_data is not None
 
     # plot data
     nan_set = all([np.isnan(val) for val in measurement_to_plot['mean']])
@@ -415,12 +413,19 @@ def matches_plot_spec(df: pd.DataFrame,
             boolean series that can be used for subsetting of the passed
             dataframe
     """
-
-    return (
+    subset = (
         (df[col_id] == x_value) &
-        (df[DATASET_ID] == plot_spec[DATASET_ID]) &
-        (df[OBSERVABLE_ID] == plot_spec[Y_VALUES])
+        (df[DATASET_ID] == plot_spec[DATASET_ID])
     )
+    if plot_spec[Y_VALUES] == '':
+        if len(df.loc[subset, OBSERVABLE_ID].unique()) > 1:
+            ValueError(
+                f'{Y_VALUES} must be specified in visualization table if '
+                f'multiple different observables are available.'
+            )
+    else:
+        subset &= (df[OBSERVABLE_ID] == plot_spec[Y_VALUES])
+    return subset
 
 
 def get_data_to_plot(plot_spec: pd.Series,
