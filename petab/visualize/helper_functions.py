@@ -394,8 +394,8 @@ def matches_plot_spec(df: pd.DataFrame,
                       x_value: Union[float, str],
                       plot_spec: pd.Series) -> pd.Series:
     """
-    constructs an index for subsetting of the dataframe according to whats
-    specified in vis_spec.
+    constructs an index for subsetting of the dataframe according to what is
+    specified in plot_spec.
 
     Parameters:
         df:
