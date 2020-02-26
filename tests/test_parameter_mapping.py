@@ -103,25 +103,26 @@ class TestGetSimulationToOptimizationParameterMapping(object):
 
         # Test with applied scaling
 
-        expected = [({},
-                     {'dynamicParameter1': np.log(11.0),
-                      'dynamicParameter2': 'dynamicParameter2',
-                      'dynamicParameter3': 'dynamicParameter3',
-                      'fixedParameter1': 1.0},
-                    {},
-                    {'dynamicParameter1': LOG,
-                     'dynamicParameter2': LOG10,
-                     'dynamicParameter3': LIN}),
-                    ({},
-                     {'dynamicParameter1': np.log(11.0),
-                      'dynamicParameter2': 'dynamicParameter2',
-                      'dynamicParameter3': 'dynamicParameter3',
-                      'fixedParameter1': 2.0},
-                     {},
-                     {'dynamicParameter1': LOG,
-                      'dynamicParameter2': LOG10,
-                      'dynamicParameter3': LIN}),
-                    ]
+        expected = [
+            ({},
+             {'dynamicParameter1': np.log(11.0),
+              'dynamicParameter2': 'dynamicParameter2',
+              'dynamicParameter3': 'dynamicParameter3',
+              'fixedParameter1': 1.0},
+             {},
+             {'dynamicParameter1': LOG,
+              'dynamicParameter2': LOG10,
+              'dynamicParameter3': LIN}),
+            ({},
+             {'dynamicParameter1': np.log(11.0),
+              'dynamicParameter2': 'dynamicParameter2',
+              'dynamicParameter3': 'dynamicParameter3',
+              'fixedParameter1': 2.0},
+             {},
+             {'dynamicParameter1': LOG,
+              'dynamicParameter2': LOG10,
+              'dynamicParameter3': LIN}),
+        ]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
             sbml_model=sbml_model,
@@ -181,7 +182,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                  'observableParameter2_obs1': LIN,
                  'observableParameter1_obs2': LIN
                  }
-             ),
+            ),
             (
                 {},
                 {'fixedParameter1': 2.0,
@@ -197,7 +198,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                  'observableParameter2_obs1': LIN,
                  'observableParameter1_obs2': LIN
                  }
-             )
+            )
         ]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
