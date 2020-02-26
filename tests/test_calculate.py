@@ -1,6 +1,7 @@
 from petab import calculate_residuals
 from petab.C import *
 import pandas as pd
+import numpy as np
 
 
 def test_calculate_residuals():
@@ -59,3 +60,30 @@ def test_calculate_residuals_replicates():
         measurement_df, simulation_df, observable_df)
 
     assert set(residual_dfs[0][RESIDUAL]) == {(2-0)/2, (2-1)/2}
+
+
+def test_calculate_residuals_scaling():
+    """Test calculate.calculate_residuals with scaling."""
+    measurement_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs_a', 'obs_a'],
+        SIMULATION_CONDITION_ID: ['c0', 'c0'],
+        TIME: [5, 10],
+        MEASUREMENT: [0.5, 1]
+    })
+
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs_a'],
+        OBSERVABLE_FORMULA: ['A'],
+        OBSERVABLE_TRANSFORMATION: [LOG],
+        NOISE_FORMULA: [2]
+    }).set_index([OBSERVABLE_ID])
+
+    simulation_df = measurement_df.copy(deep=True).rename(
+        columns={MEASUREMENT: SIMULATION})
+    simulation_df[SIMULATION] = [2, 3]
+
+    residual_dfs = calculate_residuals(
+        measurement_df, simulation_df, observable_df)
+
+    assert set(residual_dfs[0][RESIDUAL]) == \
+        {(np.log(2)-np.log(0.5))/2, (np.log(3)-np.log(1))/2}
