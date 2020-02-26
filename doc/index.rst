@@ -1,5 +1,5 @@
-Welcome to PEtab's documentation!
-=================================
+.. include::
+   _static/README.rst
 
 .. toctree::
    :maxdepth: 3
