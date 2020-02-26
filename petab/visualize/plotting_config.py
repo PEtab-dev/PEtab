@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib.ticker as mtick
 
 from ..C import *
 
@@ -35,6 +36,16 @@ def plot_lowlevel(plot_spec: pd.Series,
         ax.set_yscale("linear")
     elif plot_spec.yScale == 'log10':
         ax.set_yscale("log")
+    elif plot_spec.yScale == 'log':
+        ax.set_yscale("log", basey=np.e)
+
+    # set type of noise
+    if plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SD:
+        noise_col = 'sd'
+    elif plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SEM:
+        noise_col = 'sem'
+    elif plot_spec[PLOT_TYPE_DATA] == PROVIDED:
+        noise_col = 'noise_model'
 
     if plot_spec.plotTypeSimulation == LINE_PLOT:
 
@@ -43,6 +54,8 @@ def plot_lowlevel(plot_spec: pd.Series,
             ax.set_xscale("linear")
         elif plot_spec[X_SCALE] == LOG10:
             ax.set_xscale("log")
+        elif plot_spec.yScale == 'log':
+          ax.set_xscale("log", basex=np.e)
         # equidistant
         elif plot_spec[X_SCALE] == 'order':
             ax.set_xscale("linear")
@@ -66,53 +79,103 @@ def plot_lowlevel(plot_spec: pd.Series,
         # TODO sort mean and sd/sem by x values (as for simulatedData below)
         #  to avoid crazy lineplots in case x values are not sorted by default.
         #  cf issue #207
-        #
-        # construct errorbar-plots: Mean and standard deviation
-        label_base = plot_spec[LEGEND_ENTRY]
-        if plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SD:
-            p = ax.errorbar(
-                conditions, ms['mean'], ms['sd'], linestyle='-.', marker='.',
-                label=label_base)
-
-        # construct errorbar-plots: Mean and standard error of mean
-        elif plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SEM:
-            p = ax.errorbar(
-                conditions, ms['mean'], ms['sem'], linestyle='-.', marker='.',
-                label=label_base)
-
         # plotting all measurement data
-        elif plot_spec[PLOT_TYPE_DATA] == REPLICATE:
+        label_base = plot_spec[LEGEND_ENTRY]
+        if plot_spec[PLOT_TYPE_DATA] == REPLICATE:
             p = ax.plot(
                 conditions[conditions.index.values],
                 ms.repl[ms.repl.index.values], 'x',
-                label=label_base)
+                label=label_base
+            )
 
-        # construct errorbar-plots: Mean and noise provided in measurement file
-        elif plot_spec[PLOT_TYPE_DATA] == PROVIDED:
+        # construct errorbar-plots: noise specified above
+        else:
             p = ax.errorbar(
-                conditions, ms['mean'], ms['noise_model'],
-                linestyle='-.', marker='.', label=label_base)
+                conditions, ms['mean'], ms[noise_col],
+                linestyle='-.', marker='.', label=label_base
+            )
         # construct simulation plot
         colors = p[0].get_color()
         if plot_sim:
             xs, ys = zip(*sorted(zip(conditions, ms['sim'])))
             ax.plot(
                 xs, ys, linestyle='-', marker='o',
-                label=label_base + " simulation", color=colors)
+                label=label_base + " simulation", color=colors
+            )
 
-        ax.legend()
-        ax.set_title(plot_spec[PLOT_NAME])
-
+    # construct bar plot
     elif plot_spec[PLOT_TYPE_SIMULATION] == BAR_PLOT:
         x_name = plot_spec[LEGEND_ENTRY]
-
-        p = ax.bar(x_name, ms['mean'], yerr=ms['sd'],
-                   color=sns.color_palette()[0])
-        ax.set_title(plot_spec[PLOT_NAME])
+        ind_bars = plot_spec[PLOT_TYPE_SIMULATION] == BAR_PLOT
+        x_names = list(plot_spec[LEGEND_ENTRY])
+        p = ax.bar(x_name, ms['mean'], yerr=ms[noise_col],
+                             color=sns.color_palette()[0], width=2/3)
+        legend = ['measurement']
+        tick_factor = 1
+        tick_offset = 0
 
         if plot_sim:
             colors = p[0].get_facecolor()
             ax.bar(x_name + " simulation", ms['sim'], color='white',
-                   edgecolor=colors)
+                             width=-2/3, align='edge', edgecolor=colors)
+            legend.append('simulation')
+            tick_factor = 2
+            tick_offset = 1/3
+
+        x_ticks = tick_factor * np.linspace(0, len(x_names) - 1,
+                                            len(x_names)) + tick_offset
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_names)
+
+        for label in ax.get_xmajorticklabels():
+            label.set_rotation(30)
+            label.set_horizontalalignment("right")
+
+        ax.legend(legend)
+
+    # construct scatter plot
+    elif plot_spec[PLOT_TYPE_SIMULATION] == SCATTER_PLOT:
+        if not plot_sim:
+            raise NotImplementedError('Scatter plots do not work without'
+                                      ' simulation data')
+        ax.scatter(ms['mean'], ms['sim'],
+                   label=plot_spec[LEGEND_ENTRY])
+        ax = square_plot_equal_ranges(ax)
+
+    # show 'e' as basis not 2.7... in natural log scale cases
+    def ticks(y, _):
+        return r'$e^{{{:.0f}}}$'.format(np.log(y))
+    if plot_spec[X_SCALE] == LOG:
+        ax.xaxis.set_major_formatter(mtick.FuncFormatter(ticks))
+    if plot_spec[Y_SCALE] == LOG:
+        ax.yaxis.set_major_formatter(mtick.FuncFormatter(ticks))
+
+    # set further plotting/layout settings
+
+    if not plot_spec[PLOT_TYPE_SIMULATION] == BAR_PLOT:
+        ax.legend()
+    ax.set_title(plot_spec[PLOT_NAME])
     ax.relim()
     ax.autoscale_view()
+
+    return ax
+
+
+def square_plot_equal_ranges(ax, lim=None):
+    """Square plot with equal range for scatter plots"""
+
+    ax.axis('square')
+
+    if lim is None:
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        lim = [np.min([xlim[0], ylim[0]]),
+               np.max([xlim[1], ylim[1]])]
+
+    ax.set_xlim(lim)
+    ax.set_ylim(lim)
+
+    # Same tick mark on x and y
+    ax.yaxis.set_major_locator(ax.xaxis.get_major_locator())
+
+    return ax
