@@ -153,10 +153,11 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     # construct scatter plot
     elif vis_spec[PLOT_TYPE_SIMULATION][i_visu_spec] == SCATTER_PLOT:
         if not plot_sim:
-            print('Scatter plots do not work without simulation data')
+            print('Scatter plots do not work without simulation data.')
         ax[axx, axy].scatter(ms['mean'], ms['sim'],
                              label=vis_spec[ind_plot][LEGEND_ENTRY][
                                  i_visu_spec])
+        ax[axx, axy] = square_plot_equal_ranges(ax[axx, axy])
 
     # show 'e' as basis not 2.7... in natural log scale cases
     def ticks(y, _):
@@ -173,5 +174,25 @@ def plot_lowlevel(vis_spec: pd.DataFrame,
     ax[axx, axy].set_title(vis_spec[PLOT_NAME][i_visu_spec])
     ax[axx, axy].relim()
     ax[axx, axy].autoscale_view()
+
+    return ax
+
+
+def square_plot_equal_ranges(ax, lim=None):
+    """Square plot with equal range for scatter plots"""
+
+    ax.axis('square')
+
+    if lim is None:
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        lim = [np.min([xlim[0], ylim[0]]),
+               np.max([xlim[1], ylim[1]])]
+
+    ax.set_xlim(lim)
+    ax.set_ylim(lim)
+
+    # Same tick mark on x and y
+    ax.yaxis.set_major_locator(ax.xaxis.get_major_locator())
 
     return ax
