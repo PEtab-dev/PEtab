@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from functools import reduce
 from typing import List
@@ -35,7 +34,7 @@ def calculate_residuals(
         # create residual df as copy of measurement df, change column
         residual_df = measurement_df.copy(deep=True).rename(
             columns={MEASUREMENT: RESIDUAL})
-        
+
         # matching columns
         compared_cols = set(MEASUREMENT_DF_COLS)
         compared_cols -= {MEASUREMENT}
@@ -50,7 +49,7 @@ def calculate_residuals(
             mask = reduce(lambda x, y: x & y, masks)
 
             simulation = simulation_df.loc[mask][SIMULATION].iloc[0]
-            
+
             # non-normalized residual is just the difference
             residual = simulation - measurement
 

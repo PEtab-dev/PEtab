@@ -151,4 +151,3 @@ VISUALIZATION_FILES = 'visualization_files'
 
 SIMULATION = 'simulation'
 RESIDUAL = 'residual'
-
