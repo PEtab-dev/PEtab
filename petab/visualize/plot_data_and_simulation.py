@@ -6,7 +6,6 @@ from typing import Union, Optional, List
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 from .helper_functions import (get_default_vis_specs,
                                create_figure,
@@ -149,8 +148,6 @@ def plot_data_and_simulation(
                                      exp_data, exp_conditions, vis_spec,
                                      sim_data)
         if plots_to_file:
-            sns.despine()
-            plt.xticks(rotation=45, ha="right")
             plt.tight_layout()
             plt.savefig(f'{subplot_file_path}/{var_plot_id}.png')
             plt.close()
@@ -158,7 +155,6 @@ def plot_data_and_simulation(
     # finalize figure
     if not plots_to_file:
         fig.tight_layout()
-        sns.despine()
         return ax
 
     return None
