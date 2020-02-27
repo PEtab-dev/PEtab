@@ -1,14 +1,14 @@
 """Tests related to petab.calculate."""
 
-from petab import calculate_residuals
+from petab import calculate_residuals, calculate_chi2
 from petab.C import *
 import pandas as pd
 import numpy as np
 import pytest
 
 
-def test_calculate_residuals():
-    """Test calculate.calculate_residuals."""
+def model_simple():
+    "Simple model."""
     measurement_df = pd.DataFrame(data={
         OBSERVABLE_ID: ['obs_a', 'obs_a', 'obs_b', 'obs_b'],
         SIMULATION_CONDITION_ID: ['c0', 'c1', 'c0', 'c1'],
@@ -31,23 +31,15 @@ def test_calculate_residuals():
         columns={MEASUREMENT: SIMULATION})
     simulation_df[SIMULATION] = [2, 2, 19, 20]
 
-    residual_dfs = calculate_residuals(
-        measurement_df, simulation_df, observable_df, parameter_df)
+    expected_residuals = {(2-0)/2, (2-1)/2, (19-20)/3, (20-22)/3}
+    expected_residuals_nonorm = {2-0, 2-1, 19-20, 20-22}
 
-    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
-        {(2-0)/2, (2-1)/2, (19-20)/3, (20-22)/3})
-
-    # don't apply normalization
-    residual_dfs = calculate_residuals(
-        measurement_df, simulation_df, observable_df,
-        parameter_df, normalize=False)
-
-    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
-        {(2-0), (2-1), (19-20), (20-22)})
+    return (measurement_df, observable_df, parameter_df,
+            simulation_df, expected_residuals, expected_residuals_nonorm)
 
 
-def test_calculate_residuals_replicates():
-    """Test calculate.calculate_residuals with replicates."""
+def model_replicates():
+    """Model with replicates."""
     measurement_df = pd.DataFrame(data={
         OBSERVABLE_ID: ['obs_a', 'obs_a'],
         SIMULATION_CONDITION_ID: ['c0', 'c0'],
@@ -70,14 +62,15 @@ def test_calculate_residuals_replicates():
         columns={MEASUREMENT: SIMULATION})
     simulation_df[SIMULATION] = [2, 2]
 
-    residual_dfs = calculate_residuals(
-        measurement_df, simulation_df, observable_df, parameter_df)
+    expected_residuals = {(2-0)/2, (2-1)/2}
+    expected_residuals_nonorm = {2-0, 2-1}
 
-    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx({(2-0)/2, (2-1)/2})
+    return (measurement_df, observable_df, parameter_df,
+            simulation_df, expected_residuals, expected_residuals_nonorm)
 
 
-def test_calculate_residuals_scaling():
-    """Test calculate.calculate_residuals with scaling."""
+def model_scalings():
+    """Model with scalings."""
     measurement_df = pd.DataFrame(data={
         OBSERVABLE_ID: ['obs_a', 'obs_a'],
         SIMULATION_CONDITION_ID: ['c0', 'c0'],
@@ -101,16 +94,15 @@ def test_calculate_residuals_scaling():
         columns={MEASUREMENT: SIMULATION})
     simulation_df[SIMULATION] = [2, 3]
 
-    residual_dfs = calculate_residuals(
-        measurement_df, simulation_df, observable_df, parameter_df)
+    expected_residuals = {(np.log(2)-np.log(0.5))/2, (np.log(3)-np.log(1))/2}
+    expected_residuals_nonorm = {np.log(2)-np.log(0.5), np.log(3)-np.log(1)}
 
-    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
-        {(np.log(2)-np.log(0.5))/2, (np.log(3)-np.log(1))/2})
+    return (measurement_df, observable_df, parameter_df,
+            simulation_df, expected_residuals, expected_residuals_nonorm)
 
 
-def test_calculate_residuals_non_numeric_overrides():
-    """Test calculate.calculate_residuals with non-numeric noise formula
-    overrides."""
+def model_non_numeric_overrides():
+    """Model with non-numeric overrides."""
     measurement_df = pd.DataFrame(data={
         OBSERVABLE_ID: ['obs_a', 'obs_a'],
         SIMULATION_CONDITION_ID: ['c0', 'c0'],
@@ -136,8 +128,51 @@ def test_calculate_residuals_non_numeric_overrides():
         columns={MEASUREMENT: SIMULATION})
     simulation_df[SIMULATION] = [2, 3]
 
-    residual_dfs = calculate_residuals(
-        measurement_df, simulation_df, observable_df, parameter_df)
+    expected_residuals = {(np.log(2)-np.log(0.5))/(2*7+8+4),
+                          (np.log(3)-np.log(1))/(2*2+3+4)}
+    expected_residuals_nonorm = {np.log(2)-np.log(0.5), np.log(3)-np.log(1)}
 
-    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
-        {(np.log(2)-np.log(0.5))/(2*7+8+4), (np.log(3)-np.log(1))/(2*2+3+4)})
+    return (measurement_df, observable_df, parameter_df,
+            simulation_df, expected_residuals, expected_residuals_nonorm)
+
+
+@pytest.fixture
+def models():
+    """Test model collection covering different features."""
+    return [model_simple(), model_replicates(),
+            model_scalings(), model_non_numeric_overrides()]
+
+
+def test_calculate_residuals(models):  # pylint: disable=W0621
+    """Test calculate.calculate_residuals."""
+    for model in models:
+        (measurement_df, observable_df, parameter_df, simulation_df,
+         expected_residuals, _) = model
+        residual_dfs = calculate_residuals(
+            measurement_df, simulation_df, observable_df, parameter_df)
+        assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
+            expected_residuals)
+
+
+def test_calculate_non_normalized_residuals(models):  # pylint: disable=W0621
+    """Test calculate.calculate_residuals without normalization."""
+    for model in models:
+        (measurement_df, observable_df, parameter_df, simulation_df,
+         _, expected_residuals_nonorm) = model
+        residual_dfs = calculate_residuals(
+            measurement_df, simulation_df, observable_df, parameter_df,
+            normalize=False)
+        assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
+            expected_residuals_nonorm)
+
+
+def test_calculate_chi2(models):  # pylint: disable=W0621
+    """Test calculate.calculate_chi2."""
+    for model in models:
+        (measurement_df, observable_df, parameter_df, simulation_df,
+         expected_residuals, _) = model
+        chi2 = calculate_chi2(
+            measurement_df, simulation_df, observable_df, parameter_df)
+
+        expected = sum(np.array(list(expected_residuals))**2)
+        assert chi2 == pytest.approx(expected)
