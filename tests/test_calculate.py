@@ -142,7 +142,7 @@ def models():
             model_scalings(), model_non_numeric_overrides()]
 
 
-def test_calculate_residuals(models):
+def test_calculate_residuals(models):  # pylint: disable=W0621
     """Test calculate.calculate_residuals."""
     for model in models:
         (measurement_df, observable_df, parameter_df, simulation_df,
@@ -153,7 +153,7 @@ def test_calculate_residuals(models):
             expected_residuals)
 
 
-def test_calculate_non_normalized_residuals(models):
+def test_calculate_non_normalized_residuals(models):  # pylint: disable=W0621
     """Test calculate.calculate_residuals without normalization."""
     for model in models:
         (measurement_df, observable_df, parameter_df, simulation_df,
@@ -165,7 +165,7 @@ def test_calculate_non_normalized_residuals(models):
             expected_residuals_nonorm)
 
 
-def test_calculate_chi2(models):
+def test_calculate_chi2(models):  # pylint: disable=W0621
     """Test calculate.calculate_chi2."""
     for model in models:
         (measurement_df, observable_df, parameter_df, simulation_df,
