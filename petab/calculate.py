@@ -14,7 +14,7 @@ def calculate_residuals(
         measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
         simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
         observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-        parameter_df: Union[List[pd.DataFrame], pd.DataFrame],
+        parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
         normalize: bool = True,
         scale: bool = True
 ) -> List[pd.DataFrame]:
@@ -27,8 +27,8 @@ def calculate_residuals(
             Simulation tables corresponding to the measurement tables.
         observable_dfs:
             The problem observable tables.
-        parameter_df:
-            The problem parameter table.
+        parameter_dfs:
+            The problem parameter tables.
         normalize:
             Whether to normalize residuals by the noise standard deviation
             terms.
@@ -47,11 +47,13 @@ def calculate_residuals(
         simulation_dfs = [simulation_dfs]
     if isinstance(observable_dfs, pd.DataFrame):
         observable_dfs = [observable_dfs]
+    if isinstance(parameter_dfs, pd.DataFrame):
+        parameter_dfs = [parameter_dfs]
 
     # iterate over data frames
     residual_dfs = []
-    for (measurement_df, simulation_df, observable_df) in zip(
-            measurement_dfs, simulation_dfs, observable_dfs):
+    for (measurement_df, simulation_df, observable_df, parameter_df) in zip(
+            measurement_dfs, simulation_dfs, observable_dfs, parameter_dfs):
         residual_df = calculate_residuals_for_table(
             measurement_df, simulation_df, observable_df, parameter_df,
             normalize, scale)
@@ -128,7 +130,7 @@ def get_symbolic_noise_formulas(observable_df) -> dict:
     for row in observable_df.itertuples():
         observable_id = row.Index
         if NOISE_FORMULA not in observable_df.columns:
-            noise_formula = []
+            noise_formula = None
         else:
             noise_formula = sympy.sympify(row.noiseFormula)
         noise_formulas[observable_id] = noise_formula

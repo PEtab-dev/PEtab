@@ -4,6 +4,7 @@ from petab import calculate_residuals
 from petab.C import *
 import pandas as pd
 import numpy as np
+import pytest
 
 
 def test_calculate_residuals():
@@ -33,16 +34,16 @@ def test_calculate_residuals():
     residual_dfs = calculate_residuals(
         measurement_df, simulation_df, observable_df, parameter_df)
 
-    assert set(residual_dfs[0][RESIDUAL]) == \
-        {(2-0)/2, (2-1)/2, (19-20)/3, (20-22)/3}
+    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
+        {(2-0)/2, (2-1)/2, (19-20)/3, (20-22)/3})
 
     # don't apply normalization
     residual_dfs = calculate_residuals(
         measurement_df, simulation_df, observable_df,
         parameter_df, normalize=False)
 
-    assert set(residual_dfs[0][RESIDUAL]) == \
-        {(2-0), (2-1), (19-20), (20-22)}
+    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
+        {(2-0), (2-1), (19-20), (20-22)})
 
 
 def test_calculate_residuals_replicates():
@@ -72,7 +73,7 @@ def test_calculate_residuals_replicates():
     residual_dfs = calculate_residuals(
         measurement_df, simulation_df, observable_df, parameter_df)
 
-    assert set(residual_dfs[0][RESIDUAL]) == {(2-0)/2, (2-1)/2}
+    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx({(2-0)/2, (2-1)/2})
 
 
 def test_calculate_residuals_scaling():
@@ -103,8 +104,8 @@ def test_calculate_residuals_scaling():
     residual_dfs = calculate_residuals(
         measurement_df, simulation_df, observable_df, parameter_df)
 
-    assert set(residual_dfs[0][RESIDUAL]) == \
-        {(np.log(2)-np.log(0.5))/2, (np.log(3)-np.log(1))/2}
+    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
+        {(np.log(2)-np.log(0.5))/2, (np.log(3)-np.log(1))/2})
 
 
 def test_calculate_residuals_non_numeric_overrides():
@@ -138,5 +139,5 @@ def test_calculate_residuals_non_numeric_overrides():
     residual_dfs = calculate_residuals(
         measurement_df, simulation_df, observable_df, parameter_df)
 
-    assert set(residual_dfs[0][RESIDUAL]) == \
-        {(np.log(2)-np.log(0.5))/(2*7+8+4), (np.log(3)-np.log(1))/(2*2+3+4)}
+    assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
+        {(np.log(2)-np.log(0.5))/(2*7+8+4), (np.log(3)-np.log(1))/(2*2+3+4)})
