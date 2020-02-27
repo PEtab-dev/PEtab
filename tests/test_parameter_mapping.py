@@ -40,7 +40,7 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                       'dynamicParameter2': 2.0,
                       'dynamicParameter3': 3.0,
                       'fixedParameter1': 1.0},
-                    {},
+                     {},
                      {'dynamicParameter1': LIN,
                       'dynamicParameter2': LIN,
                       'dynamicParameter3': LIN}),
