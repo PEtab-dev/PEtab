@@ -138,6 +138,7 @@ def model_non_numeric_overrides():
 
 @pytest.fixture
 def models():
+    """Test model collection covering different features."""
     return [model_simple(), model_replicates(),
             model_scalings(), model_non_numeric_overrides()]
 
