@@ -229,3 +229,17 @@ def calculate_chi2_for_table_from_residuals(
         residual_df: pd.DataFrame) -> float:
     """Compute chi2 value for a single residual table."""
     return (np.array(residual_df[RESIDUAL])**2).sum()
+
+
+def calculate_llh(
+    measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+    simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+    observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+    parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+    normalize: bool = True,
+    scale: bool = True
+) -> float:
+    residual_dfs = calculate_residuals(
+        measurement_dfs, simulation_dfs, observable_dfs, parameter_dfs,
+        normalize, scale)
+    llhs = [calculate_llh_for_table_from_residuals(residual_df, 
