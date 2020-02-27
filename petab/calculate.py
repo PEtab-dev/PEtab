@@ -196,6 +196,26 @@ def calculate_chi2(
         normalize: bool = True,
         scale: bool = True
 ) -> float:
+    """Calculate the chi2 value.
+
+    Arguments:
+        measurement_dfs:
+            The problem measurement tables.
+        simulation_dfs:
+            Simulation tables corresponding to the measurement tables.
+        observable_dfs:
+            The problem observable tables.
+        parameter_dfs:
+            The problem parameter tables.
+        normalize:
+            Whether to normalize residuals by the noise standard deviation
+            terms.
+        scale:
+            Whether to calculate residuals of scaled values.
+
+    Returns:
+        chi2: The aggregated chi2 value.
+    """
     residual_dfs = calculate_residuals(
         measurement_dfs, simulation_dfs, observable_dfs, parameter_dfs,
         normalize, scale)
@@ -207,4 +227,5 @@ def calculate_chi2(
 
 def calculate_chi2_for_table_from_residuals(
         residual_df: pd.DataFrame) -> float:
+    """Compute chi2 value for a single residual table."""
     return (np.array(residual_df[RESIDUAL])**2).sum()
