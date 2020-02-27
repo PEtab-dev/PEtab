@@ -1,5 +1,6 @@
 """Functions performing various calculations."""
 
+import numpy as np
 import pandas as pd
 from functools import reduce
 from typing import List, Union
@@ -185,3 +186,25 @@ def evaluate_noise_formula(
             f"Cannot replace all parameters in noise formula {noise_value} "
             f"for observable {observable_id}.")
     return noise_value
+
+
+def calculate_chi2(
+        measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        normalize: bool = True,
+        scale: bool = True
+) -> float:
+    residual_dfs = calculate_residuals(
+        measurement_dfs, simulation_dfs, observable_dfs, parameter_dfs,
+        normalize, scale)
+    chi2s = [calculate_chi2_for_table_from_residuals(df)
+             for df in residual_dfs]
+    chi2 = sum(chi2s)
+    return chi2
+
+
+def calculate_chi2_for_table_from_residuals(
+        residual_df: pd.DataFrame) -> float:
+    return (np.array(residual_df[RESIDUAL])**2).sum()
