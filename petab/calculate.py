@@ -77,8 +77,6 @@ def calculate_residuals_for_table(
     # create residual df as copy of measurement df, change column
     residual_df = measurement_df.copy(deep=True).rename(
         columns={MEASUREMENT: RESIDUAL})
-    # record noise
-    residual_df[NOISE_VALUE] = None
 
     # matching columns
     compared_cols = set(MEASUREMENT_DF_COLS)
@@ -115,8 +113,7 @@ def calculate_residuals_for_table(
                 row, parameter_df, noise_formulas)
         residual /= noise_value
 
-        # fill in values
-        residual_df.loc[irow, NOISE_VALUE] = noise_value
+        # fill in value
         residual_df.loc[irow, RESIDUAL] = residual
     return residual_df
 
