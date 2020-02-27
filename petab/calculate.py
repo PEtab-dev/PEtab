@@ -233,10 +233,10 @@ def calculate_chi2_for_table_from_residuals(
 
 
 def calculate_llh(
-    measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-    simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-    observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
-    parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
 ) -> float:
     """Calculate total log likelihood.
 
