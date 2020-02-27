@@ -238,6 +238,21 @@ def calculate_llh(
     observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
     parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
 ) -> float:
+    """Calculate total log likelihood.
+
+    Arguments:
+        measurement_dfs:
+            The problem measurement tables.
+        simulation_dfs:
+            Simulation tables corresponding to the measurement tables.
+        observable_dfs:
+            The problem observable tables.
+        parameter_dfs:
+            The problem parameter tables.
+
+    Returns:
+        llh: The log-likelihood.
+    """
     # convenience
     if isinstance(measurement_dfs, pd.DataFrame):
         measurement_dfs = [measurement_dfs]
@@ -264,6 +279,8 @@ def calculate_llh_for_table(
         simulation_df: pd.DataFrame,
         observable_df: pd.DataFrame,
         parameter_df: pd.DataFrame) -> float:
+    """Calculate log-likelihood for one set of tables. For the arguments, see
+    `calculate_llh`."""
     llhs = []
 
     # matching columns
@@ -309,7 +326,19 @@ def calculate_single_llh(
         scale: str,
         noise_distribution: str,
         noise_value: float) -> float:
-    """Calculate a single log likelihood."""
+    """Calculate a single log likelihood.
+
+    Arguments:
+        measurement: The measurement value.
+        simulation: The simulated value.
+        scale: The scale on which the noise model is to be applied.
+        noise_distribution: The noise distribution.
+        noise_value: The considered noise models possess a single noise
+            parameter, e.g. the normal standard deviation.
+
+    Returns:
+        llh: The computed likelihood for the given values.
+    """
     # short-hand
     m, s, sigma = measurement, simulation, noise_value
     pi, log, log10 = np.pi, np.log, np.log10

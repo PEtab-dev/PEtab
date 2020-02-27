@@ -244,6 +244,7 @@ def test_calculate_llh(models):  # pylint: disable=W0621
 
 
 def test_calculate_single_llh():
+    """Test calculate.calculate_single_llh."""
     m, s, sigma = 5.3, 4.5, 1.6
     pi, log, log10 = np.pi, np.log, np.log10
 
