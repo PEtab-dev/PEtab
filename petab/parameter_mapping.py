@@ -63,8 +63,8 @@ def get_optimization_to_simulation_parameter_mapping(
         Parameter value and parameter scale mapping for all conditions.
 
         The length of the returned array is the number of unique combinations
-        of simulationConditionId and preequilibrationConditionId from the
-        measurement table. Each entry is a tuple of four dicts of length
+        of ``simulationConditionId``s and ``preequilibrationConditionId``s from
+        the measurement table. Each entry is a tuple of four dicts of length
         equal to the number of model parameters.
         The first two dicts map simulation parameter IDs to optimization
         parameter IDs or values (where values are fixed) for preequilibration
@@ -377,33 +377,33 @@ def _apply_parameter_table(par_mapping: ParMappingDict,
             par_mapping[row.Index] = row.Index
 
     # Replace any leftover mapped parameter coming from condition table
-    for key, value in par_mapping.items():
+    for problem_par, sim_par in par_mapping.items():
         # string indicates unmapped
-        if not isinstance(value, str):
+        if not isinstance(sim_par, str):
             continue
 
         try:
             # the overridee is a model parameter
-            par_mapping[key] = par_mapping[value]
-            scale_mapping[key] = scale_mapping[value]
+            par_mapping[problem_par] = par_mapping[sim_par]
+            scale_mapping[problem_par] = scale_mapping[sim_par]
         except KeyError:
             if parameter_df is None:
                 raise
 
             # or the overridee is only defined in the parameter table
-            scale = parameter_df.loc[value, PARAMETER_SCALE] \
+            scale = parameter_df.loc[sim_par, PARAMETER_SCALE] \
                 if PARAMETER_SCALE in parameter_df else LIN
 
             if ESTIMATE in parameter_df \
-                    and parameter_df.loc[value, ESTIMATE] == 0:
-                val = parameter_df.loc[value, NOMINAL_VALUE]
+                    and parameter_df.loc[sim_par, ESTIMATE] == 0:
+                val = parameter_df.loc[sim_par, NOMINAL_VALUE]
                 if scaled_parameters:
                     val = parameters.scale(val, scale)
                 else:
                     scale = LIN
-                par_mapping[key] = val
+                par_mapping[problem_par] = val
 
-            scale_mapping[key] = scale
+            scale_mapping[problem_par] = scale
 
 
 def _perform_mapping_checks(measurement_df: pd.DataFrame) -> None:
