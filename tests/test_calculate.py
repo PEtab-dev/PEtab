@@ -147,7 +147,7 @@ def test_calculate_residuals(models):  # pylint: disable=W0621
     """Test calculate.calculate_residuals."""
     for model in models:
         (measurement_df, observable_df, parameter_df, simulation_df,
-            expected_residuals, _) = model
+         expected_residuals, _) = model
         residual_dfs = calculate_residuals(
             measurement_df, simulation_df, observable_df, parameter_df)
         assert set(residual_dfs[0][RESIDUAL]) == pytest.approx(
@@ -158,7 +158,7 @@ def test_calculate_non_normalized_residuals(models):  # pylint: disable=W0621
     """Test calculate.calculate_residuals without normalization."""
     for model in models:
         (measurement_df, observable_df, parameter_df, simulation_df,
-            _, expected_residuals_nonorm) = model
+         _, expected_residuals_nonorm) = model
         residual_dfs = calculate_residuals(
             measurement_df, simulation_df, observable_df, parameter_df,
             normalize=False)
@@ -170,7 +170,7 @@ def test_calculate_chi2(models):  # pylint: disable=W0621
     """Test calculate.calculate_chi2."""
     for model in models:
         (measurement_df, observable_df, parameter_df, simulation_df,
-            expected_residuals, _) = model
+         expected_residuals, _) = model
         chi2 = calculate_chi2(
             measurement_df, simulation_df, observable_df, parameter_df)
 
