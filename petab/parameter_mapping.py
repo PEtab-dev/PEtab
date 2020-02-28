@@ -36,7 +36,9 @@ def get_optimization_to_simulation_parameter_mapping(
         sbml_model: Optional[libsbml.Model] = None,
         simulation_conditions: Optional[pd.DataFrame] = None,
         warn_unmapped: Optional[bool] = True,
-        scaled_parameters: bool = False) -> List[ParMappingDictTuple]:
+        scaled_parameters: bool = False
+) -> List[Tuple[ParMappingDict, ParMappingDict,
+                ScaleMappingDict, ScaleMappingDict]]:
     """
     Create list of mapping dicts from PEtab-problem to SBML parameters.
 
@@ -58,12 +60,22 @@ def get_optimization_to_simulation_parameter_mapping(
             Whether parameter values should be scaled.
 
     Returns:
-        The length of the returned array is n_conditions, each entry is a tuple
-        of two dicts of length n_par_sim, listing the optimization parameters
-        or constants to be mapped to the simulation parameters, first for
-        preequilibration (empty if no preequilibration condition is specified),
-        second for simulation. ``NaN`` is used where no mapping exists.
+        Parameter value and parameter scale mapping for all conditions.
+
+        The length of the returned array is the number of unique combinations
+        of ``simulationConditionId``s and ``preequilibrationConditionId``s from
+        the measurement table. Each entry is a tuple of four dicts of length
+        equal to the number of model parameters.
+        The first two dicts map simulation parameter IDs to optimization
+        parameter IDs or values (where values are fixed) for preequilibration
+        and simulation condition, respectively.
+        The last two dicts map simulation parameter IDs to the parameter scale
+        of the respective parameter, again for preequilibration and simulation
+        condition.
+        If no preequilibration condition is defined, the respective dicts will
+        be empty. ``NaN`` is used where no mapping exists.
     """
+
     # Ensure inputs are okay
     _perform_mapping_checks(measurement_df)
 
@@ -82,7 +94,7 @@ def get_optimization_to_simulation_parameter_mapping(
 
     num_threads = int(os.environ.get(ENV_NUM_THREADS, 1))
 
-    # If sequential execution is request, let's not create any
+    # If sequential execution is requested, let's not create any
     # thread-allocation overhead
     if num_threads == 1:
         mapping = map(
@@ -129,9 +141,10 @@ def _map_condition(packed_args):
     if PREEQUILIBRATION_CONDITION_ID not in condition \
             or not isinstance(condition[PREEQUILIBRATION_CONDITION_ID], str) \
             or not condition[PREEQUILIBRATION_CONDITION_ID]:
-        preeq_map = {}
+        par_map_preeq = {}
+        scale_map_preeq = {}
     else:
-        preeq_map = get_parameter_mapping_for_condition(
+        par_map_preeq, scale_map_preeq = get_parameter_mapping_for_condition(
             condition_id=condition[PREEQUILIBRATION_CONDITION_ID],
             is_preeq=True,
             cur_measurement_df=cur_measurement_df,
@@ -142,7 +155,7 @@ def _map_condition(packed_args):
             scaled_parameters=scaled_parameters,
         )
 
-    sim_map = get_parameter_mapping_for_condition(
+    par_map_sim, scale_map_sim = get_parameter_mapping_for_condition(
         condition_id=condition[SIMULATION_CONDITION_ID],
         is_preeq=False,
         cur_measurement_df=cur_measurement_df,
@@ -153,7 +166,7 @@ def _map_condition(packed_args):
         scaled_parameters=scaled_parameters
     )
 
-    return preeq_map, sim_map
+    return par_map_preeq, par_map_sim, scale_map_preeq, scale_map_sim
 
 
 def get_parameter_mapping_for_condition(
@@ -165,10 +178,11 @@ def get_parameter_mapping_for_condition(
         sbml_model: Optional[libsbml.Model] = None,
         simulation_parameters: Optional[Dict[str, str]] = None,
         warn_unmapped: bool = True,
-        scaled_parameters: bool = False) -> ParMappingDict:
+        scaled_parameters: bool = False
+) -> Tuple[ParMappingDict, ScaleMappingDict]:
     """
-    Create dictionary of mappings from PEtab-problem to SBML parameters for the
-    given condition.
+    Create dictionary of parameter value and parameter scale mappings from
+    PEtab-problem to SBML parameters for the given condition.
 
     Parameters:
         condition_id: Condition ID for which to perform mapping
@@ -197,9 +211,11 @@ def get_parameter_mapping_for_condition(
             If ``True``, log warning regarding unmapped parameters
 
     Returns:
-        Dictionary of parameter IDs with mapped parameters IDs to be estimated
-        or filled in values in case of non-estimated parameters. NaN is used
-        where no mapping exists.
+        Tuple of two dictionaries. First dictionary mapping model parameter IDs
+        to mapped parameters IDs to be estimated or to filled-in values in case
+        of non-estimated parameters.
+        Second dictionary mapping model parameter IDs to their scale.
+        NaN is used where no mapping exists.
     """
     _perform_mapping_checks(cur_measurement_df)
 
@@ -215,22 +231,24 @@ def get_parameter_mapping_for_condition(
     # NOTE: order matters here - the former is overwritten by the latter:
     #  SBML model < condition table < measurement < table parameter table
 
-    # initialize mapping dict
+    # initialize mapping dicts
     # for the case of matching simulation and optimization parameter vector
-    mapping = simulation_parameters.copy()
-
-    _output_parameters_to_nan(mapping)
+    par_mapping = simulation_parameters.copy()
+    scale_mapping = {par_id: LIN for par_id in par_mapping.keys()}
+    _output_parameters_to_nan(par_mapping)
 
     # not strictly necessary for preequilibration, be we do it to have
     # same length of parameter vectors
-    _apply_output_parameter_overrides(mapping, cur_measurement_df)
+    _apply_output_parameter_overrides(par_mapping, cur_measurement_df)
 
     if not is_preeq:
-        handle_missing_overrides(mapping, warn=warn_unmapped)
+        handle_missing_overrides(par_mapping, warn=warn_unmapped)
 
-    _apply_condition_parameters(mapping, condition_id, condition_df)
-    _apply_parameter_table(mapping, parameter_df, scaled_parameters)
-    return mapping
+    _apply_condition_parameters(par_mapping, condition_id, condition_df)
+    _apply_parameter_table(par_mapping, scale_mapping,
+                           parameter_df, scaled_parameters)
+
+    return par_mapping, scale_mapping
 
 
 def _output_parameters_to_nan(mapping: ParMappingDict) -> None:
@@ -300,15 +318,14 @@ def _apply_overrides_for_observable(
                             'placeholder parameters.') from e
 
 
-def _apply_condition_parameters(mapping: ParMappingDict,
+def _apply_condition_parameters(par_mapping: ParMappingDict,
                                 condition_id: str,
                                 condition_df: pd.DataFrame) -> None:
     """Replace parameter IDs in parameter mapping dictionary by condition
     table parameter values (in-place).
 
     Arguments:
-        mapping:
-            see get_parameter_mapping_for_condition
+        par_mapping: see get_parameter_mapping_for_condition
         condition_id: ID of condition to work on
         condition_df: PEtab condition table
     """
@@ -316,23 +333,24 @@ def _apply_condition_parameters(mapping: ParMappingDict,
         if overridee_id == CONDITION_NAME:
             continue
 
-        mapping[overridee_id] = core.to_float_if_float(
+        par_mapping[overridee_id] = core.to_float_if_float(
             condition_df.loc[condition_id, overridee_id])
 
 
-def _apply_parameter_table(mapping: ParMappingDict,
+def _apply_parameter_table(par_mapping: ParMappingDict,
+                           scale_mapping: ScaleMappingDict,
                            parameter_df: Optional[pd.DataFrame] = None,
                            scaled_parameters: bool = False
                            ) -> None:
     """Replace parameters from parameter table in mapping list for a given
-    condition.
+    condition and set the corresponding scale.
 
     Replace non-estimated parameters by ``nominalValues``
     (un-scaled / lin-scaled), replace estimated parameters by the respective
     ID.
 
     Arguments:
-        mapping:
+        par_mapping:
             mapping dict obtained from ``get_parameter_mapping_for_condition``
         parameter_df:
             PEtab parameter table
@@ -342,122 +360,50 @@ def _apply_parameter_table(mapping: ParMappingDict,
         return
 
     for row in parameter_df.itertuples():
-        if row.Index not in mapping:
+        if row.Index not in par_mapping:
             # The current parameter is not required for this condition
             continue
 
+        scale = getattr(row, PARAMETER_SCALE, LIN)
+        scale_mapping[row.Index] = scale
         if getattr(row, ESTIMATE) == 0:
             val = getattr(row, NOMINAL_VALUE)
             if scaled_parameters:
-                val = parameters.scale(val, getattr(row, PARAMETER_SCALE))
-            mapping[row.Index] = val
+                val = parameters.scale(val, scale)
+            else:
+                scale_mapping[row.Index] = LIN
+            par_mapping[row.Index] = val
         else:
-            mapping[row.Index] = row.Index
+            par_mapping[row.Index] = row.Index
 
     # Replace any leftover mapped parameter coming from condition table
-    for key, value in mapping.items():
+    for problem_par, sim_par in par_mapping.items():
         # string indicates unmapped
-        if isinstance(value, str):
-            try:
-                # the overridee is a model parameter
-                mapping[key] = mapping[value]
-            except KeyError:
-                if parameter_df is not None:
-                    # or the overridee is only defined in the parameter table
-                    if ESTIMATE in parameter_df \
-                            and parameter_df.loc[value, ESTIMATE] == 0:
-                        val = parameter_df.loc[value, NOMINAL_VALUE]
-                        if scaled_parameters:
-                            val = parameters.scale(
-                                val, parameter_df.loc[value, PARAMETER_SCALE])
-                        mapping[key] = val
-                else:
-                    raise
+        if not isinstance(sim_par, str):
+            continue
 
-
-def get_optimization_to_simulation_scale_mapping(
-        parameter_df: pd.DataFrame,
-        mapping_par_opt_to_par_sim: List[ParMappingDictTuple],
-        measurement_df: pd.DataFrame,
-        simulation_conditions: Optional[pd.DataFrame] = None
-) -> List[ScaleMappingDictTuple]:
-    """Get parameter scale mapping for all conditions
-
-    Arguments:
-        parameter_df:
-            PEtab parameter DataFrame
-        mapping_par_opt_to_par_sim:
-            Parameter mapping as obtained from
-            ``get_optimization_to_simulation_parameter_mapping``
-        measurement_df:
-            PEtab measurement DataFrame
-        simulation_conditions:
-            Result of ``petab.measurements.get_simulation_conditions`` to
-            avoid reevaluation.
-
-    Returns:
-        List of tuples with mapping dictionaries.
-    """
-    mapping_scale_opt_to_scale_sim = []
-
-    if simulation_conditions is None:
-        simulation_conditions = measurements.get_simulation_conditions(
-            measurement_df)
-
-    # iterate over conditions
-    for condition_ix, condition in simulation_conditions.iterrows():
-        if PREEQUILIBRATION_CONDITION_ID not in condition \
-                or not isinstance(condition.preequilibrationConditionId, str) \
-                or not condition.preequilibrationConditionId:
-            preeq_map = {}
-        else:
-            preeq_map = get_scale_mapping_for_condition(
-                parameter_df=parameter_df,
-                mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim[
-                    condition_ix][0]
-            )
-
-        sim_map = get_scale_mapping_for_condition(
-            parameter_df=parameter_df,
-            mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim[
-                condition_ix][1]
-        )
-
-        # append to mapping
-        mapping_scale_opt_to_scale_sim.append((preeq_map, sim_map),)
-
-    return mapping_scale_opt_to_scale_sim
-
-
-def get_scale_mapping_for_condition(
-        parameter_df: pd.DataFrame,
-        mapping_par_opt_to_par_sim: ParMappingDict) -> ScaleMappingDict:
-    """Get parameter scale mapping for the given condition.
-
-    Arguments:
-        parameter_df: PEtab parameter table
-        mapping_par_opt_to_par_sim:
-            Mapping as obtained from ``get_parameter_mapping_for_condition``
-
-    Returns:
-        Mapping dictionary: parameterId => parameterScale
-    """
-    def get_scale(par_id_or_val):
-        if isinstance(par_id_or_val, numbers.Number):
-            # fixed value assignment
-            return LIN
-
-        # is par opt id, thus extract its scale
         try:
-            return parameter_df.loc[par_id_or_val, PARAMETER_SCALE]
+            # the overridee is a model parameter
+            par_mapping[problem_par] = par_mapping[sim_par]
+            scale_mapping[problem_par] = scale_mapping[sim_par]
         except KeyError:
-            # This is a condition-table parameter which is not
-            # present in the parameter table. Those are assumed to be
-            # 'lin'
-            return LIN
+            if parameter_df is None:
+                raise
 
-    return {par: get_scale(val)
-            for par, val in mapping_par_opt_to_par_sim.items()}
+            # or the overridee is only defined in the parameter table
+            scale = parameter_df.loc[sim_par, PARAMETER_SCALE] \
+                if PARAMETER_SCALE in parameter_df else LIN
+
+            if ESTIMATE in parameter_df \
+                    and parameter_df.loc[sim_par, ESTIMATE] == 0:
+                val = parameter_df.loc[sim_par, NOMINAL_VALUE]
+                if scaled_parameters:
+                    val = parameters.scale(val, scale)
+                else:
+                    scale = LIN
+                par_mapping[problem_par] = val
+
+            scale_mapping[problem_par] = scale
 
 
 def _perform_mapping_checks(measurement_df: pd.DataFrame) -> None:
