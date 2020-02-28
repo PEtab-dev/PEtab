@@ -159,7 +159,7 @@ def evaluate_noise_formula(
 
     # extract measurement specific overrides
     observable_parameter_overrides = petab.split_parameter_replacement_list(
-        measurement.get(NOISE_PARAMETERS))
+        measurement.get(NOISE_PARAMETERS, None))
     overrides = {}
     # fill in measurement specific parameters
     for i_obs_par, obs_par in enumerate(observable_parameter_overrides):

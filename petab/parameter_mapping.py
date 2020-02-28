@@ -281,12 +281,12 @@ def _apply_output_parameter_overrides(
     for _, row in cur_measurement_df.iterrows():
         # we trust that the number of overrides matches (see above)
         overrides = measurements.split_parameter_replacement_list(
-            row.observableParameters)
+            row.get(OBSERVABLE_PARAMETERS, None))
         _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID],
                                         'observable', overrides)
 
         overrides = measurements.split_parameter_replacement_list(
-            row.noiseParameters)
+            row.get(NOISE_PARAMETERS, None))
         _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID], 'noise',
                                         overrides)
 
