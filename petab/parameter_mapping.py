@@ -26,6 +26,10 @@ ParMappingDictTuple = Tuple[ParMappingDict, ParMappingDict]
 # Same for scale mapping
 ScaleMappingDict = Dict[str, str]
 ScaleMappingDictTuple = Tuple[ScaleMappingDict, ScaleMappingDict]
+# Parameter mapping for combination of preequilibration and simulation
+# conditions, for parameter and scale mapping
+ParMappingDictQuadruple = Tuple[ParMappingDict, ParMappingDict,
+                                ScaleMappingDict, ScaleMappingDict]
 
 
 def get_optimization_to_simulation_parameter_mapping(
@@ -37,8 +41,7 @@ def get_optimization_to_simulation_parameter_mapping(
         simulation_conditions: Optional[pd.DataFrame] = None,
         warn_unmapped: Optional[bool] = True,
         scaled_parameters: bool = False
-) -> List[Tuple[ParMappingDict, ParMappingDict,
-                ScaleMappingDict, ScaleMappingDict]]:
+) -> List[ParMappingDictQuadruple]:
     """
     Create list of mapping dicts from PEtab-problem to SBML parameters.
 
