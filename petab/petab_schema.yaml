@@ -21,7 +21,7 @@ properties:
       One or multiple PEtab problems (sets of model, condition, observable
       and measurement files). If different model and data files are
       independent, they can be specified as separate PEtab problems, which
-      may allow more efficient handling. Files in one problem, cannot refer
+      may allow more efficient handling. Files in one problem cannot refer
       to models entities or data specified inside another problem.
     items:
 
