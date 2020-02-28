@@ -133,12 +133,12 @@ def check_measurement_df(df: pd.DataFrame,
         if OBSERVABLE_TRANSFORMATION in observable_df:
             # Check for positivity of measurements in case of
             #  log-transformation
-            for mes, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
+            for measurement, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
                 trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
-                if mes <= 0.0 and trafo in [LOG, LOG10]:
+                if measurement <= 0.0 and trafo in [LOG, LOG10]:
                     raise ValueError('Measurements with observable '
                                      f'transformation {trafo} must be '
-                                     f'positive, but {mes} <= 0.')
+                                     f'positive, but {measurement} <= 0.')
 
     if observable_df is not None:
         assert_measured_observables_defined(df, observable_df)
