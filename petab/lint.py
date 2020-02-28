@@ -529,6 +529,9 @@ def measurement_table_has_timepoint_specific_mappings(
     # since we edit it, copy it first
     measurement_df = copy.deepcopy(measurement_df)
 
+    if NOISE_PARAMETERS not in measurement_df:
+        measurement_df[NOISE_PARAMETERS] = np.nan
+
     measurement_df.loc[
         measurement_df.noiseParameters.apply(isinstance, args=(
             numbers.Number,)), NOISE_PARAMETERS] = np.nan
