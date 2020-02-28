@@ -7,3 +7,5 @@ problems:
   - Fujita_measurementData.tsv
   sbml_files:
   - Fujita_model.xml
+  observable_files:
+  - Fujita_observables.tsv
