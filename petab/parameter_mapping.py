@@ -281,12 +281,12 @@ def _apply_output_parameter_overrides(
     for _, row in cur_measurement_df.iterrows():
         # we trust that the number of overrides matches (see above)
         overrides = measurements.split_parameter_replacement_list(
-            row.observableParameters)
+            row.get(observableParameters, None))
         _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID],
                                         'observable', overrides)
 
         overrides = measurements.split_parameter_replacement_list(
-            row.noiseParameters)
+            row.get(noiseParameters, None))
         _apply_overrides_for_observable(mapping, row[OBSERVABLE_ID], 'noise',
                                         overrides)
 
@@ -359,7 +359,7 @@ def _apply_parameter_table(par_mapping: ParMappingDict,
     if parameter_df is None:
         return
 
-    for row in parameter_df.itertuples():
+    for row in parameter_of.itertuples():
         if row.Index not in par_mapping:
             # The current parameter is not required for this condition
             continue
