@@ -546,7 +546,7 @@ def measurement_table_has_observable_parameter_numeric_overrides(
 
     for _, row in measurement_df.iterrows():
         for override in measurements.split_parameter_replacement_list(
-                row.observableParameters):
+                row.get(OBSERVABLE_PARAMETERS, None)):
             if isinstance(override, numbers.Number):
                 return True
 
