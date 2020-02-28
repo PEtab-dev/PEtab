@@ -177,6 +177,23 @@ def check_parameter_df(
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
+    # nominal value is generally optional, but required if any for any
+    #  parameter estimate != 1
+    non_estimated_par_ids = list(df.index[(df[ESTIMATE] != 1)
+                                          | (df[ESTIMATE] != '1')])
+    if non_estimated_par_ids:
+        if NOMINAL_VALUE not in df:
+            raise AssertionError("Parameter table contains parameters "
+                                 f"{non_estimated_par_ids} that are not "
+                                 "specified to be estimated, "
+                                 f"but column {NOMINAL_VALUE} is missing.")
+        try:
+            df.loc[non_estimated_par_ids, NOMINAL_VALUE].apply(float)
+        except ValueError:
+            raise AssertionError("Expected numeric values for "
+                                 f"`{NOMINAL_VALUE}` in parameter table for "
+                                 "all non-estimated parameters.")
+
     assert_parameter_id_is_string(df)
     assert_parameter_scale_is_valid(df)
     assert_parameter_bounds_are_numeric(df)
