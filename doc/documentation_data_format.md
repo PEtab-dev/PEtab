@@ -70,7 +70,7 @@ different experimental conditions).
 
 This is specified as a tab-separated value file in the following way:
 
-| conditionId | [conditionName] | parameterOrStateOrCompartmentId1 | ... | parameterOrStateOrCompartmentId${n} |
+| conditionId | [conditionName] | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
 |---|---|---|---|---|
 | conditionId1 | conditionName1 | NUMERIC&#124;parameterId&#124;stateId&#124;compartmentId | ...| ...
 | conditionId2 | ... | ... | ...| ...
@@ -93,7 +93,7 @@ Additional columns are *not* allowed.
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- `${parameterOrStateOrCompartmentId1}`
+- `${parameterOrSpeciesOrCompartmentId1}`
 
   Further columns may be global parameter IDs, IDs of species or compartments
   as defined in the SBML model. Only one column is allowed per ID.
@@ -163,7 +163,7 @@ REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
   The `conditionId` to be used for preequilibration. E.g. for drug
   treatments the model would be preequilibrated with the no-drug condition.
-  Empty for no preequlibration.
+  Empty for no preequilibration.
 
 - `simulationConditionId` [STRING, NOT NULL,
 REFERENCES(conditionsTable.conditionID)]
@@ -180,7 +180,7 @@ condition-specific parameters used for simulation.
   Time point of the measurement in the time unit specified in the SBML model,
 numeric value or `inf` (lower-case) for steady-state measurements.
 
-- `observableParameters` [STRING OR NULL, OPTIONAL]
+- `observableParameters` [NUMERIC, STRING OR NULL, OPTIONAL]
 
   This field allows overriding or introducing condition-specific versions of
   output parameters defined in the observation model. The model can define
@@ -202,7 +202,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   All placeholders defined in the observation model must be overwritten here.
   If there are no placeholders used, this column may be omitted.
 
-- `noiseParameters` [STRING, OPTIONAL]
+- `noiseParameters` [NUMERIC, STRING OR NULL, OPTIONAL]
 
   The measurement standard deviation or `NaN` if the corresponding sigma is a
   model parameter.
@@ -215,7 +215,7 @@ numeric value or `inf` (lower-case) for steady-state measurements.
   The datasetId is used to group certain measurements to datasets. This is
   typically the case for data points which belong to the same observable,
   the same simulation and preequilibration condition, the same noise model,
-  the same observable tranformation and the same observable parameters.
+  the same observable transformation and the same observable parameters.
   This grouping makes it possible to use the plotting routines which are
   provided in the PEtab repository.
 
@@ -241,7 +241,7 @@ The observable table has the following columns:
 
 | observableId | [observableName] | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
 | --- | --- | --- | --- | --- | --- |
-| [String] | [String] | [String] | ['lin'(default)&#124;'log'&#124;'log10'] |  [String'log'&#124;Number] | ['laplace'&#124;'normal'] |
+| [String] | [String] | [String] | ['lin'(default)&#124;'log'&#124;'log10'] |  [String&#124;Number] | ['laplace'&#124;'normal'] |
 | e.g. | | | | | | 
 | relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1 * (protein1 + phospho_protein1 ) | lin | noiseParameter1 | normal |
 | ... |  ... | ... | ... | ... |
@@ -276,9 +276,7 @@ The observable table has the following columns:
   The measurements and model outputs are both assumed to be provided in linear
   space.
 
-* `noiseFormula` [STRING]
-
-  Noise model parameters as plain text formula expression.
+* `noiseFormula` [NUMERIC|STRING]
 
   Measurement noise can be specified as a numerical value which will
   default to a Gaussian noise model if not specified differently in
@@ -471,7 +469,7 @@ order:
 
 - `plotTypeSimulation` [STRING]
 
-  The type of the corresponding plot, can be `LinePlot` or `BarPlot`. Default
+  The type of the corresponding plot, can be `LinePlot`, `BarPlot` and `ScatterPlot`. Default
   is `LinePlot`.
 
 - `plotTypeData`
@@ -502,7 +500,7 @@ order:
 
 - `xScale` [STRING]
 
-  Scale of the independent variable, can be `lin`, `log`, or `log10`.
+  Scale of the independent variable, can be `lin`, `log`, `log10` or `order`.
 
 - `yValues` [observableId, REFERENCES(measurementTable.observableId)]
 

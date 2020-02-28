@@ -392,3 +392,28 @@ def test_check_ids():
 
     with pytest.raises(ValueError):
         lint.check_ids(['1'])
+
+
+def test_check_parameter_df():
+    """Check parameters.normalize_parameter_df."""
+
+    parameter_df = pd.DataFrame({
+        PARAMETER_ID: ['par0', 'par1', 'par2'],
+        PARAMETER_SCALE: [LOG10, LOG10, LIN],
+        NOMINAL_VALUE: [1e-2, 1e-3, 1e-4],
+        ESTIMATE: [1, 1, 0],
+        LOWER_BOUND: [1e-5, 1e-6, 1e-7],
+        UPPER_BOUND: [1e5, 1e6, 1e7]
+    }).set_index(PARAMETER_ID)
+
+    lint.check_parameter_df(df=parameter_df)
+
+    # NOMINAL_VALUE empty, for non-estimated parameter
+    parameter_df.loc['par2', NOMINAL_VALUE] = ""
+    with pytest.raises(AssertionError):
+        lint.check_parameter_df(df=parameter_df)
+
+    # NOMINAL_VALUE column missing, but non-estimated parameter
+    del parameter_df[NOMINAL_VALUE]
+    with pytest.raises(AssertionError):
+        lint.check_parameter_df(df=parameter_df)

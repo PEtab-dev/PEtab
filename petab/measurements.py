@@ -110,8 +110,8 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         Dataframe with columns 'simulationConditionId' and
-        'preequilibrationConditionId'. All-NULL columns will be omitted.
-        Missing `preequilibrationConditionId`s will be set to '' (empty
+        'preequilibrationConditionId'. All-null columns will be omitted.
+        Missing 'preequilibrationConditionId's will be set to '' (empty
         string).
     """
     # find columns to group by (i.e. if not all nans).
@@ -328,8 +328,8 @@ def assert_overrides_match_parameter_count(
             raise ValueError(
                 f"Observable {row[OBSERVABLE_ID]} used in measurement table "
                 f"is not defined.")
-        actual = len(
-            split_parameter_replacement_list(row[OBSERVABLE_PARAMETERS]))
+        actual = len(split_parameter_replacement_list(
+            row.get(OBSERVABLE_PARAMETERS, None)))
         # No overrides are also allowed
         if actual not in [0, expected]:
             formula = observable_df.loc[row[OBSERVABLE_ID], OBSERVABLE_FORMULA]
@@ -341,7 +341,7 @@ def assert_overrides_match_parameter_count(
 
         # check noise parameters
         replacements = split_parameter_replacement_list(
-            row.noiseParameters)
+            row.get(NOISE_PARAMETERS, None))
         try:
             expected = noise_parameters_count[row[OBSERVABLE_ID]]
 

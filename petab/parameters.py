@@ -183,9 +183,9 @@ def get_required_parameters_for_parameter_table(
     for _, row in measurement_df.iterrows():
         # we trust that the number of overrides matches
         append_overrides(measurements.split_parameter_replacement_list(
-            row.observableParameters))
+            row.get(OBSERVABLE_PARAMETERS, None)))
         append_overrides(measurements.split_parameter_replacement_list(
-            row.noiseParameters))
+            row.get(NOISE_PARAMETERS, None)))
 
     # Add condition table parametric overrides unless already defined in the
     # SBML model
@@ -264,9 +264,9 @@ def get_valid_parameters_for_parameter_table(
     for _, row in measurement_df.iterrows():
         # we trust that the number of overrides matches
         append_overrides(measurements.split_parameter_replacement_list(
-            row.observableParameters))
+            row.get(OBSERVABLE_PARAMETERS, None)))
         append_overrides(measurements.split_parameter_replacement_list(
-            row.noiseParameters))
+            row.get(NOISE_PARAMETERS, None)))
 
     # Append parameter overrides from condition table
     for p in conditions.get_parametric_overrides(condition_df):

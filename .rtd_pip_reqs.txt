@@ -4,3 +4,4 @@ sphinx-markdown-tables
 sphinx-rtd-theme
 recommonmark
 nbsphinx
+m2r

@@ -238,7 +238,12 @@ class Problem:
         """
         # function-level import, because module-level import interfered with
         # other SWIG interfaces
-        import libcombine
+        try:
+            import libcombine
+        except ImportError:
+            raise ImportError(
+                "To use PEtab's COMBINE functionality, libcombine "
+                "(python-libcombine) must be installed.")
 
         archive = libcombine.CombineArchive()
         if archive.initializeFromArchive(filename) is None:
@@ -603,19 +608,6 @@ class Problem:
                 self.sbml_model,
                 warn_unmapped=warn_unmapped,
                 scaled_parameters=scaled_parameters)
-
-    def get_optimization_to_simulation_scale_mapping(
-            self, mapping_par_opt_to_par_sim: List[
-                parameter_mapping.ParMappingDictTuple]
-    ) -> List[parameter_mapping.ScaleMappingDictTuple]:
-        """
-        See get_optimization_to_simulation_scale_mapping.
-        """
-        return parameter_mapping\
-            .get_optimization_to_simulation_scale_mapping(
-                measurement_df=self.measurement_df,
-                parameter_df=self.parameter_df,
-                mapping_par_opt_to_par_sim=mapping_par_opt_to_par_sim)
 
     def create_parameter_df(self, *args, **kwargs):
         """Create a new PEtab parameter table
