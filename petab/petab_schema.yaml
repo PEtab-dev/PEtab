@@ -18,11 +18,17 @@ properties:
   problems:
     type: array
     description: |
-      One or more (SBML model, measurement, condition files) tuples.
+      One or multiple PEtab problems (sets of model, condition, observable
+      and measurement files). If different model and data files are
+      independent, they can be specified as separate PEtab problems, which
+      may allow more efficient handling. Files in one problem, cannot refer
+      to models entities or data specified inside another problem.
     items:
 
       type: object
-      description: PEtab SBML, condition and measurement tables.
+      description: |
+        A set of PEtab model, condition, observable and measurement
+        files and optional visualization files.
       properties:
 
         sbml_files:
@@ -63,6 +69,7 @@ properties:
 
       required:
         - sbml_files
+        - observable_files
         - measurement_files
         - condition_files
 
