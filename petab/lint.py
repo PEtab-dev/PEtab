@@ -120,14 +120,25 @@ def check_measurement_df(df: pd.DataFrame,
             assert_no_leading_trailing_whitespace(
                 df[column_name].values, column_name)
 
-    if observable_df is not None \
-            and OBSERVABLE_TRANSFORMATION in observable_df:
-        # Check for positivity of measurements in case of log-transformation
-        for mes, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
-            trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
-            if mes <= 0.0 and trafo in [LOG, LOG10]:
-                raise ValueError('Measurements with observable transformation '
-                                 f'{trafo} must be positive, but {mes} <= 0.')
+    if observable_df is not None:
+        # Check all observables are defined
+        observables_defined = set(observable_df.index.values)
+        observables_used = set(df[OBSERVABLE_ID])
+        observables_undefined = observables_used - observables_defined
+        if observables_undefined:
+            raise ValueError(f"Observables {observables_undefined} used in "
+                             "measurement table but not defined in "
+                             "observables table.")
+
+        if OBSERVABLE_TRANSFORMATION in observable_df:
+            # Check for positivity of measurements in case of
+            #  log-transformation
+            for measurement, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
+                trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
+                if measurement <= 0.0 and trafo in [LOG, LOG10]:
+                    raise ValueError('Measurements with observable '
+                                     f'transformation {trafo} must be '
+                                     f'positive, but {measurement} <= 0.')
 
     if observable_df is not None:
         assert_measured_observables_defined(df, observable_df)
@@ -563,7 +574,7 @@ def measurement_table_has_observable_parameter_numeric_overrides(
 
     for _, row in measurement_df.iterrows():
         for override in measurements.split_parameter_replacement_list(
-                row.observableParameters):
+                row.get(OBSERVABLE_PARAMETERS, None)):
             if isinstance(override, numbers.Number):
                 return True
 
