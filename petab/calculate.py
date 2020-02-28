@@ -106,11 +106,12 @@ def calculate_residuals_for_table(
         # non-normalized residual is just the difference
         residual = simulation - measurement
 
+        noise_value = 1
         if normalize:
             # look up noise standard deviation
             noise_value = evaluate_noise_formula(
                 row, parameter_df, noise_formulas)
-            residual /= noise_value
+        residual /= noise_value
 
         # fill in value
         residual_df.loc[irow, RESIDUAL] = residual
@@ -158,7 +159,7 @@ def evaluate_noise_formula(
 
     # extract measurement specific overrides
     observable_parameter_overrides = petab.split_parameter_replacement_list(
-        measurement.get(NOISE_PARAMETERS))
+        measurement.get(NOISE_PARAMETERS, None))
     overrides = {}
     # fill in measurement specific parameters
     for i_obs_par, obs_par in enumerate(observable_parameter_overrides):
@@ -229,3 +230,130 @@ def calculate_chi2_for_table_from_residuals(
         residual_df: pd.DataFrame) -> float:
     """Compute chi2 value for a single residual table."""
     return (np.array(residual_df[RESIDUAL])**2).sum()
+
+
+def calculate_llh(
+        measurement_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        simulation_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        observable_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+        parameter_dfs: Union[List[pd.DataFrame], pd.DataFrame],
+) -> float:
+    """Calculate total log likelihood.
+
+    Arguments:
+        measurement_dfs:
+            The problem measurement tables.
+        simulation_dfs:
+            Simulation tables corresponding to the measurement tables.
+        observable_dfs:
+            The problem observable tables.
+        parameter_dfs:
+            The problem parameter tables.
+
+    Returns:
+        llh: The log-likelihood.
+    """
+    # convenience
+    if isinstance(measurement_dfs, pd.DataFrame):
+        measurement_dfs = [measurement_dfs]
+    if isinstance(simulation_dfs, pd.DataFrame):
+        simulation_dfs = [simulation_dfs]
+    if isinstance(observable_dfs, pd.DataFrame):
+        observable_dfs = [observable_dfs]
+    if isinstance(parameter_dfs, pd.DataFrame):
+        parameter_dfs = [parameter_dfs]
+
+    # iterate over data frames
+    llhs = []
+    for (measurement_df, simulation_df, observable_df, parameter_df) in zip(
+            measurement_dfs, simulation_dfs, observable_dfs, parameter_dfs):
+        _llh = calculate_llh_for_table(
+            measurement_df, simulation_df, observable_df, parameter_df)
+        llhs.append(_llh)
+    llh = sum(llhs)
+    return llh
+
+
+def calculate_llh_for_table(
+        measurement_df: pd.DataFrame,
+        simulation_df: pd.DataFrame,
+        observable_df: pd.DataFrame,
+        parameter_df: pd.DataFrame) -> float:
+    """Calculate log-likelihood for one set of tables. For the arguments, see
+    `calculate_llh`."""
+    llhs = []
+
+    # matching columns
+    compared_cols = set(MEASUREMENT_DF_COLS)
+    compared_cols -= {MEASUREMENT}
+    compared_cols &= set(measurement_df.columns)
+
+    # compute noise formulas for observables
+    noise_formulas = get_symbolic_noise_formulas(observable_df)
+
+    # iterate over measurements, find corresponding simulations
+    for irow, row in measurement_df.iterrows():
+        measurement = row[MEASUREMENT]
+
+        # look up in simulation df
+        masks = [simulation_df[col] == row[col] for col in compared_cols]
+        mask = reduce(lambda x, y: x & y, masks)
+
+        simulation = simulation_df.loc[mask][SIMULATION].iloc[0]
+
+        observable = observable_df.loc[row[OBSERVABLE_ID]]
+
+        # get scale
+        scale = observable.get(OBSERVABLE_TRANSFORMATION, LIN)
+
+        # get noise standard deviation
+        noise_value = evaluate_noise_formula(
+            row, parameter_df, noise_formulas)
+
+        # get noise distribution
+        noise_distribution = observable.get(NOISE_DISTRIBUTION, NORMAL)
+
+        llh = calculate_single_llh(
+            measurement, simulation, scale, noise_distribution, noise_value)
+        llhs.append(llh)
+    llh = sum(llhs)
+    return llh
+
+
+def calculate_single_llh(
+        measurement: float,
+        simulation: float,
+        scale: str,
+        noise_distribution: str,
+        noise_value: float) -> float:
+    """Calculate a single log likelihood.
+
+    Arguments:
+        measurement: The measurement value.
+        simulation: The simulated value.
+        scale: The scale on which the noise model is to be applied.
+        noise_distribution: The noise distribution.
+        noise_value: The considered noise models possess a single noise
+            parameter, e.g. the normal standard deviation.
+
+    Returns:
+        llh: The computed likelihood for the given values.
+    """
+    # short-hand
+    m, s, sigma = measurement, simulation, noise_value
+    pi, log, log10 = np.pi, np.log, np.log10
+
+    # go over the possible cases
+    if noise_distribution == NORMAL and scale == LIN:
+        llh = 0.5*log(2*pi*sigma**2) + 0.5*((s-m)/sigma)**2
+    elif noise_distribution == NORMAL and scale == LOG:
+        llh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log(s)-log(m))/sigma)**2
+    elif noise_distribution == NORMAL and scale == LOG10:
+        llh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log10(s)-log10(m))/sigma)**2
+    elif noise_distribution == LAPLACE and scale == LIN:
+        llh = log(2*sigma) + abs((s-m)/sigma)
+    elif noise_distribution == LAPLACE and scale == LOG:
+        llh = log(2*sigma*m) + abs((log(s)-log(m))/sigma)
+    elif noise_distribution == LAPLACE and scale == LOG10:
+        llh = log(2*sigma*m) + abs((log10(s)-log10(m))/sigma)
+    return llh
