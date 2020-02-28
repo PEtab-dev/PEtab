@@ -44,6 +44,8 @@ def parse_cli_args():
     # Call with set of files
     parser.add_argument('-s', '--sbml', dest='sbml_file_name',
                         help='SBML model filename')
+    parser.add_argument('-o', '--observables', dest='observable_file_name',
+                        help='Observable table')
     parser.add_argument('-m', '--measurements', dest='measurement_file_name',
                         help='Measurement table')
     parser.add_argument('-c', '--conditions', dest='condition_file_name',
@@ -96,7 +98,7 @@ def parse_cli_args():
     if (not args.model_name
             and not any([args.sbml_file_name, args.condition_file_name,
                          args.measurement_file_name, args.parameter_file_name,
-                         args.yaml_file_name])):
+                         args.observable_file_name, args.yaml_file_name])):
         parser.error('Neither model name nor any filename specified. '
                      'What shall I do?')
 
@@ -140,6 +142,8 @@ def main():
             logger.debug(f'\tSBML model: {args.sbml_file_name}')
         if args.condition_file_name:
             logger.debug(f'\tCondition table: {args.condition_file_name}')
+        if args.observable_file_name:
+            logger.debug(f'\tObservable table: {args.observable_file_name}')
         if args.measurement_file_name:
             logger.debug(f'\tMeasurement table: {args.measurement_file_name}')
         if args.parameter_file_name:
@@ -151,6 +155,7 @@ def main():
                 condition_file=args.condition_file_name,
                 measurement_file=args.measurement_file_name,
                 parameter_file=args.parameter_file_name,
+                observable_files=args.observable_file_name
             )
         except FileNotFoundError as e:
             logger.error(e)
