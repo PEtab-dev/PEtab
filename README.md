@@ -47,6 +47,8 @@ Where PEtab is used / supported:
 
   - [dmod](https://github.com/dkaschek/dMod/)
 
+  - [meigo](http://gingproc.iim.csic.es/meigo.html)
+
   - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)

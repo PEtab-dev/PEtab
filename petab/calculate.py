@@ -345,15 +345,17 @@ def calculate_single_llh(
 
     # go over the possible cases
     if noise_distribution == NORMAL and scale == LIN:
-        llh = 0.5*log(2*pi*sigma**2) + 0.5*((s-m)/sigma)**2
+        nllh = 0.5*log(2*pi*sigma**2) + 0.5*((s-m)/sigma)**2
     elif noise_distribution == NORMAL and scale == LOG:
-        llh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log(s)-log(m))/sigma)**2
+        nllh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log(s)-log(m))/sigma)**2
     elif noise_distribution == NORMAL and scale == LOG10:
-        llh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log10(s)-log10(m))/sigma)**2
+        nllh = 0.5*log(2*pi*sigma**2*m**2) + \
+            0.5*((log10(s)-log10(m))/sigma)**2
     elif noise_distribution == LAPLACE and scale == LIN:
-        llh = log(2*sigma) + abs((s-m)/sigma)
+        nllh = log(2*sigma) + abs((s-m)/sigma)
     elif noise_distribution == LAPLACE and scale == LOG:
-        llh = log(2*sigma*m) + abs((log(s)-log(m))/sigma)
+        nllh = log(2*sigma*m) + abs((log(s)-log(m))/sigma)
     elif noise_distribution == LAPLACE and scale == LOG10:
-        llh = log(2*sigma*m) + abs((log10(s)-log10(m))/sigma)
+        nllh = log(2*sigma*m) + abs((log10(s)-log10(m))/sigma)
+    llh = - nllh
     return llh
