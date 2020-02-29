@@ -392,6 +392,10 @@ def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
                             value='condition')
     if PLOT_NAME not in vis_spec.columns:
         vis_spec.insert(loc=1, column=PLOT_NAME, value='')
+    if PLOT_TYPE_DATA not in vis_spec.columns:
+        vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
+    if PLOT_TYPE_SIMULATION not in vis_spec.columns:
+        vis_spec[PLOT_TYPE_SIMULATION] = LINE_PLOT
 
     return vis_spec
 
