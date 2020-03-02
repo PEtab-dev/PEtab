@@ -358,40 +358,35 @@ def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
         raise NotImplementedError(
             "Please define column: \'xValues\' in visualization file.")
     if Y_LABEL not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=Y_LABEL, value='value')
+        vis_spec[Y_LABEL] = 'value'
     if Y_VALUES not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=Y_VALUES, value='')
+        vis_spec[Y_VALUES] = ''
     if X_LABEL not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=X_LABEL, value='time')
+        vis_spec[X_LABEL] = 'time'
     if X_OFFSET not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=X_OFFSET, value=0)
+        vis_spec[X_OFFSET] = 0
     if Y_SCALE not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=Y_SCALE, value=LIN)
+        vis_spec[Y_SCALE] = LIN
     if X_SCALE not in vis_spec.columns:
-        vis_spec.insert(loc=4, column=X_SCALE, value=LIN)
+        vis_spec[X_SCALE] = LIN
     if LEGEND_ENTRY not in vis_spec.columns:
-        # TODO:
         # if we have dataset_id_list and legend_dict is empty
         if dataset_id_list is not None and not bool(legend_dict):
             dataset_id_column = [i_dataset for sublist in dataset_id_list
                                  for i_dataset in sublist]
-            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
-                            value=dataset_id_column)
+            vis_spec[LEGEND_ENTRY] = dataset_id_column
         # if dataset_id_list is empty but we have legend_dict
         elif dataset_id_list is None and bool(legend_dict):
-            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
-                            value=legend_dict)
+            vis_spec[LEGEND_ENTRY] = legend_dict
         # if dataset_id_list is empty and legend_dict is empty, but
         # datasetID-column is available
         elif dataset_id_list is None and not bool(legend_dict) and \
                 DATASET_ID in vis_spec.columns:
-            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
-                            value=vis_spec[DATASET_ID])
+            vis_spec[LEGEND_ENTRY] = vis_spec[DATASET_ID]
         else:
-            vis_spec.insert(loc=4, column=LEGEND_ENTRY,
-                            value='condition')
+            vis_spec[LEGEND_ENTRY] = 'condition'
     if PLOT_NAME not in vis_spec.columns:
-        vis_spec.insert(loc=1, column=PLOT_NAME, value='')
+        vis_spec[PLOT_NAME] = ''
     if PLOT_TYPE_DATA not in vis_spec.columns:
         vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
     if PLOT_TYPE_SIMULATION not in vis_spec.columns:
