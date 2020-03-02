@@ -371,7 +371,8 @@ def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
         vis_spec[X_SCALE] = LIN
     if LEGEND_ENTRY not in vis_spec.columns:
         # if we have dataset_id_list and legend_dict is empty
-        if dataset_id_list is not None and not bool(legend_dict):
+        # if dataset_id_list is not None and not bool(legend_dict):
+        if dataset_id_list and not legend_dict:
             dataset_id_column = [i_dataset for sublist in dataset_id_list
                                  for i_dataset in sublist]
             vis_spec[LEGEND_ENTRY] = dataset_id_column
