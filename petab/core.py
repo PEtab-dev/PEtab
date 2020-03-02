@@ -1,14 +1,15 @@
 """PEtab core functions (or functions that don't fit anywhere else)"""
 
 import logging
+import os
 from typing import Iterable, Optional, Callable, Union, Any
 from warnings import warn
 
 import numpy as np
 import pandas as pd
 
+from . import yaml
 from .C import *  # noqa: F403
-
 
 logger = logging.getLogger(__name__)
 
@@ -247,3 +248,121 @@ def to_float_if_float(x: Any) -> Any:
         return float(x)
     except (ValueError, TypeError):
         return x
+
+
+def is_empty(val) -> bool:
+    """Check if the value `val`, e.g. a table entry, is empty.
+
+    Arguments:
+        val: The value to check.
+
+    Returns:
+        empty: Whether the field is to be considered empty.
+    """
+    return val == '' or pd.isnull(val)
+
+
+def create_combine_archive(
+        yaml_file: str, filename: str,
+        family_name: Optional[str] = None,
+        given_name: Optional[str] = None,
+        email: Optional[str] = None,
+        organization: Optional[str] = None,
+) -> None:
+    """Create COMBINE archive (http://co.mbine.org/documents/archive) based
+    on PEtab YAML file.
+
+    Arguments:
+        yaml_file: Path to PEtab YAML file
+        family_name: Family name of archive creator
+        given_name: Given name of archive creator
+        email: E-mail address of archive creator
+        organization: Organization of archive creator
+    """
+
+    path_prefix = os.path.dirname(yaml_file)
+    yaml_config = yaml.load_yaml(yaml_file)
+
+    # function-level import, because module-level import interfered with
+    # other SWIG interfaces
+    try:
+        import libcombine
+    except ImportError:
+        raise ImportError(
+            "To use PEtab's COMBINE functionality, libcombine "
+            "(python-libcombine) must be installed.")
+
+    def _add_file_metadata(location: str, description: str = ""):
+        """Add metadata to the added file"""
+        omex_description = libcombine.OmexDescription()
+        omex_description.setAbout(location)
+        omex_description.setDescription(description)
+        omex_description.setCreated(
+            libcombine.OmexDescription.getCurrentDateAndTime())
+        archive.addMetadata(location, omex_description)
+
+    archive = libcombine.CombineArchive()
+
+    # Add PEtab files and metadata
+    archive.addFile(
+        yaml_file,
+        os.path.basename(yaml_file),
+        libcombine.KnownFormats.lookupFormat("yaml"),
+        True
+    )
+    _add_file_metadata(location=os.path.basename(yaml_file),
+                       description="PEtab YAML file")
+    archive.addFile(
+        os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
+        yaml_config[PARAMETER_FILE],
+        libcombine.KnownFormats.lookupFormat("tsv"),
+        False
+    )
+    _add_file_metadata(location=yaml_config[PARAMETER_FILE],
+                       description="PEtab parameter file")
+    for problem in yaml_config[PROBLEMS]:
+        for sbml_file in problem[SBML_FILES]:
+            archive.addFile(
+                os.path.join(path_prefix, sbml_file),
+                sbml_file,
+                libcombine.KnownFormats.lookupFormat("sbml"),
+                False
+            )
+            _add_file_metadata(location=sbml_file, description="SBML model")
+
+        for field in [MEASUREMENT_FILES, OBSERVABLE_FILES,
+                      VISUALIZATION_FILES, CONDITION_FILES]:
+            if field not in problem:
+                continue
+
+            for file in problem[field]:
+                archive.addFile(
+                    os.path.join(path_prefix, file),
+                    file,
+                    libcombine.KnownFormats.lookupFormat("tsv"),
+                    False
+                )
+                desc = field.split("_")[0]
+                _add_file_metadata(location=file,
+                                   description=f"PEtab {desc} file")
+
+    # Add archive metadata
+    description = libcombine.OmexDescription()
+    description.setAbout(".")
+    description.setDescription("PEtab archive")
+    description.setCreated(libcombine.OmexDescription.getCurrentDateAndTime())
+
+    # Add creator info
+    creator = libcombine.VCard()
+    if family_name:
+        creator.setFamilyName(family_name)
+    if given_name:
+        creator.setGivenName(given_name)
+    if email:
+        creator.setEmail(email)
+    if organization:
+        creator.setOrganization(organization)
+    description.addCreator(creator)
+
+    archive.addMetadata(".", description)
+    archive.writeToFile(filename)

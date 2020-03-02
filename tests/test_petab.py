@@ -1,6 +1,7 @@
 import pickle
 import tempfile
 from math import nan
+import copy
 
 import libsbml
 import numpy as np
@@ -32,13 +33,10 @@ def minimal_sbml_model():
 
 
 @pytest.fixture
-def petab_problem():
+def petab_problem(minimal_sbml_model):  # pylint: disable=W0621
+    """Test petab problem."""
     # create test model
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    model.setTimeUnits("second")
-    model.setExtentUnits("mole")
-    model.setSubstanceUnits('mole')
+    document, model = minimal_sbml_model
 
     p = model.createParameter()
     p.setId('fixedParameter1')
@@ -82,11 +80,23 @@ def petab_problem():
         parameter_file_name = fh.name
         parameter_df.to_csv(fh, sep='\t', index=False)
 
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['observable_1'],
+        OBSERVABLE_NAME: ['julius'],
+        OBSERVABLE_FORMULA: ['observable_1'],
+        NOISE_FORMULA: [1],
+    })
+
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+        observable_file_name = fh.name
+        observable_df.to_csv(fh, sep='\t', index=False)
+
     problem = petab.Problem.from_files(
         sbml_file=sbml_file_name,
         measurement_file=measurement_file_name,
         condition_file=condition_file_name,
-        parameter_file=parameter_file_name)
+        parameter_file=parameter_file_name,
+        observable_files=observable_file_name)
 
     return problem
 
@@ -155,22 +165,59 @@ def test_get_observable_id():
     assert petab.get_observable_id('sigma_obs1') == 'obs1'
 
 
+def test_get_priors_from_df():
+    """Check petab.get_priors_from_df."""
+    parameter_df = pd.DataFrame({
+        PARAMETER_SCALE: [LOG10, LOG10, LOG10, LOG10, LOG10],
+        LOWER_BOUND: [1e-8, 1e-9, 1e-10, 1e-11, 1e-5],
+        UPPER_BOUND: [1e8, 1e9, 1e10, 1e11, 1e5],
+        ESTIMATE: [1, 1, 1, 1, 0],
+        INITIALIZATION_PRIOR_TYPE: ['', '',
+                                    UNIFORM, NORMAL, ''],
+        INITIALIZATION_PRIOR_PARAMETERS: ['', '-5;5', '1e-5;1e5', '0;1', '']
+    })
+
+    prior_list = petab.get_priors_from_df(parameter_df, mode=INITIALIZATION)
+
+    # only give values for estimated parameters
+    assert len(prior_list) == 4
+
+    # correct types
+    types = [entry[0] for entry in prior_list]
+    assert types == [PARAMETER_SCALE_UNIFORM, PARAMETER_SCALE_UNIFORM,
+                     UNIFORM, NORMAL]
+
+    # correct scales
+    scales = [entry[2] for entry in prior_list]
+    assert scales == [LOG10] * 4
+
+    # correct bounds
+    bounds = [entry[3] for entry in prior_list]
+    assert bounds == list(zip(parameter_df[LOWER_BOUND],
+                              parameter_df[UPPER_BOUND]))[:4]
+
+    # give correct value for empty
+    prior_pars = [entry[1] for entry in prior_list]
+    assert prior_pars[0] == (-8, 8)
+    assert prior_pars[1] == (-5, 5)
+    assert prior_pars[2] == (1e-5, 1e5)
+
+
 def test_startpoint_sampling(fujita_model_scaling):
-    startpoints = fujita_model_scaling.sample_parameter_startpoints(100)
+    n_starts = 10
+    startpoints = fujita_model_scaling.sample_parameter_startpoints(n_starts)
     assert (np.isfinite(startpoints)).all
-    assert startpoints.shape == (100, 19)
+    assert startpoints.shape == (n_starts, 19)
     for sp in startpoints:
         assert np.log10(31.62) <= sp[0] <= np.log10(316.23)
         assert -3 <= sp[1] <= 3
 
 
-def test_create_parameter_df(condition_df_2_conditions):
-    document = libsbml.SBMLDocument(3, 1)
-    model = document.createModel()
-    model.setTimeUnits("second")
-    model.setExtentUnits("mole")
-    model.setSubstanceUnits('mole')
-
+def test_create_parameter_df(
+        minimal_sbml_model,  # pylint: disable=W0621
+        condition_df_2_conditions):  # pylint: disable=W0621
+    """Test petab.create_parameter_df."""
+    _, model = minimal_sbml_model
     s = model.createSpecies()
     s.setId('x1')
 
@@ -331,22 +378,60 @@ def test_concat_measurements():
     a = pd.DataFrame({MEASUREMENT: [1.0]})
     b = pd.DataFrame({TIME: [1.0]})
 
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as fh:
+    with tempfile.NamedTemporaryFile(mode='w', delete=True) as fh:
         filename_a = fh.name
         a.to_csv(fh, sep='\t', index=False)
 
-    expected = pd.DataFrame({
-        MEASUREMENT: [1.0, nan],
-        TIME: [nan, 1.0]
-    })
+        # finish writing
+        fh.flush()
 
-    assert expected.equals(
-        petab.concat_tables([a, b],
-                            petab.measurements.get_measurement_df))
+        expected = pd.DataFrame({
+            MEASUREMENT: [1.0, nan],
+            TIME: [nan, 1.0]
+        })
 
-    assert expected.equals(
-        petab.concat_tables([filename_a, b],
-                            petab.measurements.get_measurement_df))
+        assert expected.equals(
+            petab.concat_tables([a, b],
+                                petab.measurements.get_measurement_df))
+
+        assert expected.equals(
+            petab.concat_tables([filename_a, b],
+                                petab.measurements.get_measurement_df))
+
+
+def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
+    """Test if observable ids functions returns correct value."""
+    assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
+
+
+def test_parameter_properties(petab_problem):  # pylint: disable=W0621
+    """
+    Test the petab.Problem functions to get parameter values.
+    """
+    petab_problem = copy.deepcopy(petab_problem)
+    petab_problem.parameter_df = pd.DataFrame(data={
+        PARAMETER_ID: ['par1', 'par2', 'par3'],
+        LOWER_BOUND: [0, 0.1, 0.1],
+        UPPER_BOUND: [100, 100, 200],
+        PARAMETER_SCALE: ['lin', 'log', 'log10'],
+        NOMINAL_VALUE: [7, 8, 9],
+        ESTIMATE: [1, 1, 0],
+    }).set_index(PARAMETER_ID)
+    assert petab_problem.x_ids == ['par1', 'par2', 'par3']
+    assert petab_problem.x_free_ids == ['par1', 'par2']
+    assert petab_problem.x_fixed_ids == ['par3']
+    assert petab_problem.lb == [0, 0.1, 0.1]
+    assert petab_problem.lb_scaled == [0, np.log(0.1), np.log10(0.1)]
+    assert petab_problem.get_lb(fixed=False, scaled=True) == [0, np.log(0.1)]
+    assert petab_problem.ub == [100, 100, 200]
+    assert petab_problem.ub_scaled == [100, np.log(100), np.log10(200)]
+    assert petab_problem.get_ub(fixed=False, scaled=True) == [100, np.log(100)]
+    assert petab_problem.x_nominal == [7, 8, 9]
+    assert petab_problem.x_nominal_scaled == [7, np.log(8), np.log10(9)]
+    assert petab_problem.x_nominal_free == [7, 8]
+    assert petab_problem.x_nominal_fixed == [9]
+    assert petab_problem.x_nominal_free_scaled == [7, np.log(8)]
+    assert petab_problem.x_nominal_fixed_scaled == [np.log10(9)]
 
 
 def test_to_float_if_float():
@@ -358,3 +443,29 @@ def test_to_float_if_float():
     assert to_float_if_float("1e1") == 10.0
     assert to_float_if_float("abc") == "abc"
     assert to_float_if_float([]) == []
+
+
+def test_to_files(petab_problem):  # pylint: disable=W0621
+    """Test problem.to_files."""
+    with tempfile.TemporaryDirectory() as folder:
+        # create target files
+        sbml_file = tempfile.mkstemp(dir=folder)[1]
+        condition_file = tempfile.mkstemp(dir=folder)[1]
+        measurement_file = tempfile.mkstemp(dir=folder)[1]
+        parameter_file = tempfile.mkstemp(dir=folder)[1]
+        observable_file = tempfile.mkstemp(dir=folder)[1]
+
+        # write contents to files
+        petab_problem.to_files(
+            sbml_file=sbml_file,
+            condition_file=condition_file,
+            measurement_file=measurement_file,
+            parameter_file=parameter_file,
+            visualization_file=None,
+            observable_file=observable_file)
+
+        # exemplarily load some
+        parameter_df = petab.get_parameter_df(parameter_file)
+        same_nans = parameter_df.isna() == petab_problem.parameter_df.isna()
+        assert ((parameter_df == petab_problem.parameter_df) | same_nans) \
+            .all().all()

@@ -1,4 +1,4 @@
-observableId	preequilibrationConditionId	simulationConditionId	simulatedData	time	observableParameters	noiseParameters	observableTransformation
+observableId	preequilibrationConditionId	simulationConditionId	simulation	time	observableParameters	noiseParameters	observableTransformation
 pEGFR_tot		model1_data1	0	0	scaling_pEGFR_tot	0.01	lin
 pEGFR_tot		model1_data1	0.012441876	60	scaling_pEGFR_tot	0.01	lin
 pEGFR_tot		model1_data1	0.0187120065	120	scaling_pEGFR_tot	0.01	lin

@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 import os
 import sys
+import re
 
 
 # Python version check. We need >= 3.6 due to e.g. f-strings
@@ -8,9 +9,22 @@ if sys.version_info < (3, 6):
     sys.exit('PEtab requires at least Python version 3.6')
 
 
-# read a file
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    """Read a file, replacing relative links."""
+    txt = open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+    raw_base = "(https://raw.githubusercontent.com/petab-dev/petab/master/"
+    embedded_base = "(https://github.com/petab-dev/petab/tree/master/"
+    # iterate over links
+    for var in re.findall(r'\[.*?\]\((?!http).*?\)', txt):
+        if re.match(r'.*?.(png|svg)\)', var):
+            # link to raw file
+            rep = var.replace("(", raw_base)
+        else:
+            # link to github embedded file
+            rep = var.replace("(", embedded_base)
+        txt = txt.replace(var, rep)
+    return txt
 
 
 # read version from file
@@ -32,10 +46,10 @@ setup(name='petab',
       long_description_content_type="text/markdown",
       author='The PEtab developers',
       author_email='daniel.weindl@helmholtz-muenchen.de',
-      url='https://github.com/icb-dcm/petab',
+      url='https://github.com/PEtab-dev/PEtab',
       packages=find_packages(exclude=['doc*', 'test*']),
       install_requires=['numpy>=1.15.1',
-                        'pandas>=0.23.4',
+                        'pandas>=1.0.1',
                         'matplotlib>=2.2.3',
                         'python-libsbml>=5.17.0',
                         'sympy',
@@ -45,8 +59,9 @@ setup(name='petab',
                         'jsonschema',
                         ],
       include_package_data=True,
-      tests_require=['flake8', 'pytest'],
+      tests_require=['flake8', 'pytest', 'python-libcombine'],
       python_requires='>=3.6',
       entry_points=ENTRY_POINTS,
-      extras_require={'reports': ['Jinja2']},
+      extras_require={'reports': ['Jinja2'],
+                      'combine': ['python-libcombine']},
       )
