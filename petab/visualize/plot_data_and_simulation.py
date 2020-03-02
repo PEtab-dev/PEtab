@@ -120,9 +120,7 @@ def plot_data_and_simulation(
 
     # Switch saving plots to file on or get axes
     plots_to_file = subplot_file_path != ''
-    if plots_to_file:
-        axes = []
-    else:
+    if not plots_to_file:
         fig, axes = create_figure(uni_plot_ids, plots_to_file)
 
     # loop over unique plotIds
@@ -130,7 +128,7 @@ def plot_data_and_simulation(
 
         if plots_to_file:
             fig, axes = create_figure(uni_plot_ids, plots_to_file)
-            ax = axes[0]
+            ax = axes[0, 0]
         else:
             ax = axes[var_plot_id]
 
@@ -143,7 +141,7 @@ def plot_data_and_simulation(
             handle_dataset_plot(plot_spec, ax, exp_data,
                                 exp_conditions, sim_data)
 
-        if BAR_PLOT in vis_spec[ind_plot][PLOT_TYPE_SIMULATION].values:
+        if BAR_PLOT in vis_spec.loc[ind_plot, PLOT_TYPE_SIMULATION]:
 
             legend = ['measurement']
 
