@@ -32,11 +32,11 @@ def plot_lowlevel(plot_spec: pd.Series,
     """
 
     # set yScale
-    if plot_spec.yScale == 'lin':
+    if plot_spec[Y_SCALE] == LIN:
         ax.set_yscale("linear")
-    elif plot_spec.yScale == 'log10':
+    elif plot_spec[Y_SCALE] == LOG10:
         ax.set_yscale("log")
-    elif plot_spec.yScale == 'log':
+    elif plot_spec[Y_SCALE] == LOG:
         ax.set_yscale("log", basey=np.e)
 
     # set type of noise
@@ -54,7 +54,7 @@ def plot_lowlevel(plot_spec: pd.Series,
             ax.set_xscale("linear")
         elif plot_spec[X_SCALE] == LOG10:
             ax.set_xscale("log")
-        elif plot_spec.yScale == 'log':
+        elif plot_spec[X_SCALE] == LOG:
             ax.set_xscale("log", basex=np.e)
         # equidistant
         elif plot_spec[X_SCALE] == 'order':
@@ -110,12 +110,12 @@ def plot_lowlevel(plot_spec: pd.Series,
         if plot_sim:
             bar_kwargs = {
                 'align': 'edge',
-                'width': 1/3,
+                'width': -1/3,
             }
         else:
             bar_kwargs = {
                 'align': 'center',
-                'width': 1.0,
+                'width': 2/3,
             }
 
         p = ax.bar(x_name, ms['mean'], yerr=ms[noise_col],
