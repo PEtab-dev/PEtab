@@ -34,7 +34,7 @@ def model_simple():
 
     expected_residuals = {(2-0)/2, (2-1)/2, (19-20)/3, (20-22)/3}
     expected_residuals_nonorm = {2-0, 2-1, 19-20, 20-22}
-    expected_llh = 0.5*(np.array(list(expected_residuals))**2).sum() + \
+    expected_llh = - 0.5*(np.array(list(expected_residuals))**2).sum() - \
         0.5*np.log(2*np.pi*np.array([2, 2, 3, 3])**2).sum()
 
     return (measurement_df, observable_df, parameter_df,
@@ -68,7 +68,7 @@ def model_replicates():
 
     expected_residuals = {(2-0)/2, (2-1)/2}
     expected_residuals_nonorm = {2-0, 2-1}
-    expected_llh = 0.5*(np.array(list(expected_residuals))**2).sum() + \
+    expected_llh = - 0.5*(np.array(list(expected_residuals))**2).sum() - \
         0.5*np.log(2*np.pi*np.array([2, 2])**2).sum()
 
     return (measurement_df, observable_df, parameter_df,
@@ -103,7 +103,7 @@ def model_scalings():
 
     expected_residuals = {(np.log(2)-np.log(0.5))/2, (np.log(3)-np.log(1))/2}
     expected_residuals_nonorm = {np.log(2)-np.log(0.5), np.log(3)-np.log(1)}
-    expected_llh = 0.5*(np.array(list(expected_residuals))**2).sum() + \
+    expected_llh = - 0.5*(np.array(list(expected_residuals))**2).sum() - \
         0.5*np.log(2*np.pi*np.array([2, 2])**2*np.array([0.5, 1])**2).sum()
 
     return (measurement_df, observable_df, parameter_df,
@@ -141,7 +141,7 @@ def model_non_numeric_overrides():
     expected_residuals = {(np.log(2)-np.log(0.5))/(2*7+8+4),
                           (np.log(3)-np.log(1))/(2*2+3+4)}
     expected_residuals_nonorm = {np.log(2)-np.log(0.5), np.log(3)-np.log(1)}
-    expected_llh = 0.5*(np.array(list(expected_residuals))**2).sum() + \
+    expected_llh = - 0.5*(np.array(list(expected_residuals))**2).sum() - \
         0.5*np.log(2*np.pi*np.array([2*7+8+4, 2*2+3+4])**2
                    * np.array([0.5, 1])**2).sum()
 
@@ -178,7 +178,7 @@ def model_custom_likelihood():
 
     expected_residuals = {(np.log(2)-np.log(0.5))/2, (3-2)/1.5}
     expected_residuals_nonorm = {np.log(2)-np.log(0.5), 3-2}
-    expected_llh = np.abs(list(expected_residuals)).sum() + \
+    expected_llh = - np.abs(list(expected_residuals)).sum() - \
         np.log(2*np.array([2, 1.5])*np.array([0.5, 1])).sum()
 
     return (measurement_df, observable_df, parameter_df,
@@ -250,32 +250,32 @@ def test_calculate_single_llh():
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=NORMAL, scale=LIN)
-    expected_llh = 0.5 * (((s-m)/sigma)**2 + log(2*pi*sigma**2))
+    expected_llh = - 0.5 * (((s-m)/sigma)**2 + log(2*pi*sigma**2))
     assert llh == pytest.approx(expected_llh)
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=NORMAL, scale=LOG)
-    expected_llh = 0.5 * (((log(s)-log(m))/sigma)**2 +
-                          log(2*pi*sigma**2*m**2))
+    expected_llh = - 0.5 * (((log(s)-log(m))/sigma)**2 +
+                            log(2*pi*sigma**2*m**2))
     assert llh == pytest.approx(expected_llh)
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=NORMAL, scale=LOG10)
-    expected_llh = 0.5 * (((log10(s)-log10(m))/sigma)**2 +
-                          log(2*pi*sigma**2*m**2))
+    expected_llh = - 0.5 * (((log10(s)-log10(m))/sigma)**2 +
+                            log(2*pi*sigma**2*m**2))
     assert llh == pytest.approx(expected_llh)
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=LAPLACE, scale=LIN)
-    expected_llh = abs((s-m)/sigma) + log(2*sigma)
+    expected_llh = - abs((s-m)/sigma) - log(2*sigma)
     assert llh == pytest.approx(expected_llh)
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=LAPLACE, scale=LOG)
-    expected_llh = abs((log(s)-log(m))/sigma) + log(2*sigma*m)
+    expected_llh = - abs((log(s)-log(m))/sigma) - log(2*sigma*m)
     assert llh == pytest.approx(expected_llh)
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=LAPLACE, scale=LOG10)
-    expected_llh = abs((log10(s)-log10(m))/sigma) + log(2*sigma*m)
+    expected_llh = - abs((log10(s)-log10(m))/sigma) - log(2*sigma*m)
     assert llh == pytest.approx(expected_llh)

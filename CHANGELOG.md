@@ -2,6 +2,31 @@
 
 ## 0.1 series
 
+### 0.1.3
+
+File format:
+
+* Updated documentation
+* Observables table in YAML file now mandatory in schema (was implicitly 
+  mandatory before, as observable table was required already)
+
+Library:
+* petablint:
+  * Fix: allow specifying observables file via CLI (Closes #302)
+  * Fix: nominalValue is optional unless estimated!=1 anywhere (Fixes #303)
+  * Fix: handle undefined observables more gracefully (Closes #300) (#351)
+* Parameter mapping: 
+  * Fix / refactor parameter mapping (breaking change) (#344)
+    (now performing parameter value and scale mapping together)
+  * check optional measurement cols in mapping (#350)
+* allow calculating llhs (#349), chi2 values (#348) and residuals (#345)
+* Visualization
+  * Basic Scatterplots & lot of bar plot fixes (#270)
+  * Fix incorrect length of bool `bool_preequ` when subsetting with ind_meas 
+    (Closes #322)
+* make libcombine optional (#338)
+
+
 ### 0.1.2
 
 Library:
