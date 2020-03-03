@@ -27,6 +27,21 @@ def data_file_Fujita_nanData():
 
 
 @pytest.fixture
+def simu_file_Fujita():
+    return "doc/example/example_Fujita/Fujita_simulatedData.tsv"
+
+
+@pytest.fixture
+def data_file_Fujita_minimal():
+    return "doc/example/example_Fujita/Fujita_measurementData_minimal.tsv"
+
+
+@pytest.fixture
+def visu_file_Fujita_minimal():
+    return "doc/example/example_Fujita/Fujita_visuSpec_minimal.tsv"
+
+
+@pytest.fixture
 def data_file_Isensee():
     return "doc/example/example_Isensee/Isensee_measurementData.tsv"
 
@@ -62,6 +77,34 @@ def test_visualization_with_vis(data_file_Isensee,
     plot_data_and_simulation(data_file_Isensee,
                              condition_file_Isensee,
                              vis_spec_file_Isensee)
+
+
+def test_visualization_minimal_visu_file(data_file_Fujita,
+                                         condition_file_Fujita,
+                                         visu_file_Fujita_minimal,
+                                         simu_file_Fujita):
+    """
+    Test: visualization spezification file only with mandatory columns
+    (optional columns are optional)
+    """
+    plot_data_and_simulation(data_file_Fujita,
+                             condition_file_Fujita,
+                             visu_file_Fujita_minimal,
+                             simu_file_Fujita)
+
+
+def test_visualization_minimal_data_file(data_file_Fujita_minimal,
+                                         condition_file_Fujita,
+                                         visu_file_Fujita_minimal,
+                                         simu_file_Fujita):
+    """
+    Test visualization, with the case: data file only with mandatory columns
+    (optional columns are optional)
+    """
+    plot_data_and_simulation(data_file_Fujita_minimal,
+                             condition_file_Fujita,
+                             visu_file_Fujita_minimal,
+                             simu_file_Fujita)
 
 
 def test_visualization_with_dataset_list(data_file_Isensee,
