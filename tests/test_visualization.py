@@ -268,3 +268,12 @@ def test_simple_visualization(data_file_Fujita, condition_file_Fujita):
     plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita)
     plot_measurements_by_observable(data_file_Fujita, condition_file_Fujita,
                                     plotted_noise=PROVIDED)
+
+
+def test_save_plots_to_file(data_file_Isensee, condition_file_Isensee,
+                            vis_spec_file_Isensee, simulation_file_Isensee):
+    plot_data_and_simulation(data_file_Isensee,
+                             condition_file_Isensee,
+                             vis_spec_file_Isensee,
+                             simulation_file_Isensee,
+                             subplot_file_path='./')
