@@ -3,19 +3,19 @@
 [![codecov](https://codecov.io/gh/PEtab-dev/PEtab/branch/master/graph/badge.svg)](https://codecov.io/gh/PEtab-dev/PEtab)
 [![PyPI version](https://badge.fury.io/py/petab.svg)](https://badge.fury.io/py/petab)
 
-# PEtab --- a data format for specifying parameter estimation problems in systems biology
+# PEtab -- a data format for specifying parameter estimation problems in systems biology
 
 ![Logo](doc/logo/PEtab.png)
 
-This repository describes *PEtab* --- a data format for specifying parameter 
-estimation problems in systems biology, provides a Python library for easy 
+*PEtab* is a data format for specifying parameter estimation problems in systems biology.
+This repository provides extensive documentation and a Python library for easy
 access and validation of *PEtab* files.
 
 ## About PEtab
 
 PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values 
 (TSV) files. It is meant as a standardized way to provide information for 
-parameter estimation which is out of the current scope of SBML. This includes
+parameter estimation, which is out of the current scope of SBML. This includes
 for example:
 
   - Specifying and linking measurements to models
@@ -38,17 +38,22 @@ Documentation of the PEtab data format and Python library is available at
 Where PEtab is used / supported:
 
   - Within the systems biology optimization 
-    [benchmark problem collection](https://github.com/LeonardSchmiester/Benchmark-Models/tree/hackathon/hackathon_contributions_new_data_format)
+    [benchmark problem collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab)
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
 
-  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
+  - [d2d](https://github.com/Data2Dynamics/d2d/)
+
+  - [dmod](https://github.com/dkaschek/dMod/)
+
+  - [meigo](http://gingproc.iim.csic.es/meigo.html)
 
   - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
-PEtab support for [D2D](https://github.com/Data2Dynamics/d2d/) and
-[AMIGO2](https://sites.google.com/site/amigo2toolbox/) is under development.
+  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
+
+  - [pyABC](https://github.com/ICB-DCM/pyABC/)
 
 If your project or tool is using PEtab, and you would like to have it listed
 here, please let us know.
@@ -58,7 +63,7 @@ here, please let us know.
 If you would like to use PEtab yourself, please have a look at 
 [doc/documentation_data_format.md](doc/documentation_data_format.md) or at
 the example models provided in the 
-[benchmark problem collection](https://github.com/LoosC/Benchmark-Models).
+[benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 
 To convert your existing parameter estimation problem to the PEtab format, you 
 will have to:

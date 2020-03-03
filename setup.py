@@ -1,18 +1,16 @@
 from setuptools import setup, find_packages
-import os
 import sys
+import os
 import re
 
 
-# Python version check. We need >= 3.6 due to e.g. f-strings
-if sys.version_info < (3, 6):
-    sys.exit('PEtab requires at least Python version 3.6')
-
-
 def read(fname):
-    """Read a file, replacing relative links."""
-    txt = open(os.path.join(os.path.dirname(__file__), fname)).read()
+    """Read a file."""
+    return open(fname).read()
 
+
+def absolute_links(txt):
+    """Replace relative petab github links by absolute links."""
     raw_base = "(https://raw.githubusercontent.com/petab-dev/petab/master/"
     embedded_base = "(https://github.com/petab-dev/petab/tree/master/"
     # iterate over links
@@ -26,6 +24,10 @@ def read(fname):
         txt = txt.replace(var, rep)
     return txt
 
+
+# Python version check. We need >= 3.6 due to e.g. f-strings
+if sys.version_info < (3, 6):
+    sys.exit('PEtab requires at least Python version 3.6')
 
 # read version from file
 version_file = os.path.join('petab', 'version.py')
@@ -42,7 +44,7 @@ ENTRY_POINTS = {
 setup(name='petab',
       version=__version__,  # noqa: F821
       description='Parameter estimation tabular data',
-      long_description=read('README.md'),
+      long_description=absolute_links(read('README.md')),
       long_description_content_type="text/markdown",
       author='The PEtab developers',
       author_email='daniel.weindl@helmholtz-muenchen.de',
