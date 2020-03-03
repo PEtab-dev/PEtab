@@ -99,7 +99,6 @@ def check_vis_spec_consistency(dataset_id_list,
             "of observable numbers, but not both. Stopping.")
     if observable_id_list is not None or observable_num_list is not None:
         group_by += 'observable'
-
     # consistency check. Warn or error, if grouping not clear
     if group_by == 'datasetsimulation':
         warnings.warn("Found grouping by datasetId and simulation condition. "
@@ -124,6 +123,13 @@ def check_vis_spec_consistency(dataset_id_list,
             "observables, but not both. Stopping.")
     elif group_by in ['simulation', 'observable', 'dataset']:
         pass
+    # if group_by is still empty (if visuSpec file is available but datasetId
+    # is not  available), default: observables
+    elif group_by == '':
+        group_by = 'observable'
+        warnings.warn('Default plotting: grouping by observable. If you want '
+                      'to specify another grouping option, please add '
+                      '\'datasetId\' columns.')
     else:
         raise NotImplementedError(
             "No information provided, how to plot data. Stopping.")
@@ -160,7 +166,7 @@ def create_dataset_id_list(simcond_id_list,
     tmp_obs = list(exp_data[OBSERVABLE_ID])
     for ind, cond_id in enumerate(tmp_simcond):
         # create and add dummy datasetID
-        dataset_id = tmp_simcond[ind] + ' - ' + tmp_obs[ind]
+        dataset_id = tmp_simcond[ind] + '_' + tmp_obs[ind]
         dataset_id_column.append(dataset_id)
 
         # create nicer legend entries from condition names instead of IDs
@@ -200,8 +206,12 @@ def create_dataset_id_list(simcond_id_list,
                                 i_cond_list] for i_cond_list in
                                simcond_num_list]
         for simcond in unique_simcond_list:
+            # ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
+            #    0:len(simcond)+3] == simcond + ' - ']
+            # ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
+            #    0:len(simcond) + 3] == simcond + '_']
             ds_dict[simcond] = [ds for ds in unique_dataset_list if ds[
-                0:len(simcond)+3] == simcond + ' - ']
+                0:len(simcond)] == simcond]
         grouped_list = simcond_id_list
 
     elif group_by == 'observable':
@@ -210,8 +220,10 @@ def create_dataset_id_list(simcond_id_list,
                                    i_obs_list] for i_obs_list in
                                   observable_num_list]
         for observable in unique_obs_list:
+            # ds_dict[observable] = [ds for ds in unique_dataset_list if ds[
+            #    -len(observable)-3:] == ' - ' + observable]
             ds_dict[observable] = [ds for ds in unique_dataset_list if ds[
-                -len(observable)-3:] == ' - ' + observable]
+                -len(observable) - 1:] == '_' + observable]
         grouped_list = observable_id_list
 
     else:
@@ -335,6 +347,118 @@ def get_default_vis_specs(exp_data,
         vis_spec.insert(loc=pos, column=col, value=val)
 
     return vis_spec, exp_data
+
+
+def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
+    """
+    Check the columns in Visu_Spec file, if non-mandotory columns does not
+    exist, create default columns
+    """
+    if X_VALUES not in vis_spec.columns:
+        raise NotImplementedError(
+            "Please define column: \'xValues\' in visualization file.")
+    if Y_LABEL not in vis_spec.columns:
+        vis_spec[Y_LABEL] = 'value'
+    if Y_VALUES not in vis_spec.columns:
+        vis_spec[Y_VALUES] = ''
+    if X_LABEL not in vis_spec.columns:
+        vis_spec[X_LABEL] = 'time'
+    if X_OFFSET not in vis_spec.columns:
+        vis_spec[X_OFFSET] = 0
+    if Y_SCALE not in vis_spec.columns:
+        vis_spec[Y_SCALE] = LIN
+    if X_SCALE not in vis_spec.columns:
+        vis_spec[X_SCALE] = LIN
+    if LEGEND_ENTRY not in vis_spec.columns:
+        # if we have dataset_id_list and legend_dict is empty
+        # if dataset_id_list is not None and not bool(legend_dict):
+        if dataset_id_list and not legend_dict:
+            dataset_id_column = [i_dataset for sublist in dataset_id_list
+                                 for i_dataset in sublist]
+            vis_spec[LEGEND_ENTRY] = dataset_id_column
+        # if dataset_id_list is empty but we have legend_dict
+        elif dataset_id_list is None and bool(legend_dict):
+            vis_spec[LEGEND_ENTRY] = legend_dict
+        # if dataset_id_list is empty and legend_dict is empty, but
+        # datasetID-column is available
+        elif dataset_id_list is None and not bool(legend_dict) and \
+                DATASET_ID in vis_spec.columns:
+            vis_spec[LEGEND_ENTRY] = vis_spec[DATASET_ID]
+        else:
+            vis_spec[LEGEND_ENTRY] = 'condition'
+    if PLOT_NAME not in vis_spec.columns:
+        vis_spec[PLOT_NAME] = ''
+    if PLOT_TYPE_DATA not in vis_spec.columns:
+        vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
+    if PLOT_TYPE_SIMULATION not in vis_spec.columns:
+        vis_spec[PLOT_TYPE_SIMULATION] = LINE_PLOT
+
+    return vis_spec
+
+
+def check_ex_exp_columns(exp_data,
+                         dataset_id_list,
+                         sim_cond_id_list,
+                         sim_cond_num_list,
+                         observable_id_list,
+                         observable_num_list,
+                         exp_conditions):
+    """
+    Check the columns in measurement file, if non-mandotory columns does not
+    exist, create default columns
+    """
+    # mandatory columns
+    if OBSERVABLE_ID not in exp_data.columns:
+        raise NotImplementedError(
+            "Column \'observableId\' is missing in measurement file. ")
+    if SIMULATION_CONDITION_ID not in exp_data.columns:
+        raise NotImplementedError(
+            "Column \'simulationConditionId\' is missing in measurement "
+            "file. ")
+    if MEASUREMENT not in exp_data.columns:
+        raise NotImplementedError(
+            "Column \'measurement\' is missing in measurement "
+            "file. ")
+    if TIME not in exp_data.columns:
+        raise NotImplementedError(
+            "Column \'time\' is missing in measurement "
+            "file. ")
+    # non-mandatory columns
+    if PREEQUILIBRATION_CONDITION_ID not in exp_data.columns:
+        exp_data.insert(loc=1, column=PREEQUILIBRATION_CONDITION_ID,
+                        value='')
+    if OBSERVABLE_PARAMETERS not in exp_data.columns:
+        exp_data.insert(loc=4, column=OBSERVABLE_PARAMETERS,
+                        value='')
+    if NOISE_PARAMETERS not in exp_data.columns:
+        exp_data.insert(loc=4, column=NOISE_PARAMETERS,
+                        value=0)
+    if REPLICATE_ID not in exp_data.columns:
+        exp_data.insert(loc=4, column=REPLICATE_ID,
+                        value='')
+    legend_dict = {}
+    if DATASET_ID not in exp_data.columns:
+        if dataset_id_list is not None:
+            exp_data.insert(loc=4, column=DATASET_ID,
+                            value=dataset_id_list)
+        else:
+            # datasetId_list will be created (possibly overwriting previous
+            # list - only in the local variable, not in the tsv-file)
+            # check consistency of settings
+            group_by = check_vis_spec_consistency(dataset_id_list,
+                                                  sim_cond_id_list,
+                                                  sim_cond_num_list,
+                                                  observable_id_list,
+                                                  observable_num_list,
+                                                  exp_data)
+            observable_id_list = \
+                [[el] for el in exp_data.observableId.unique()]
+
+            exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
+                sim_cond_id_list, sim_cond_num_list, observable_id_list,
+                observable_num_list, exp_data, exp_conditions, group_by)
+
+    return exp_data, dataset_id_list, legend_dict
 
 
 def handle_dataset_plot(plot_spec: pd.Series,
