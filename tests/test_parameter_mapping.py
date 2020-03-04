@@ -33,6 +33,11 @@ class TestGetSimulationToOptimizationParameterMapping(object):
         add_global_parameter(sbml_model, 'dynamicParameter1').setValue(1.0)
         add_global_parameter(sbml_model, 'dynamicParameter2').setValue(2.0)
         add_global_parameter(sbml_model, 'dynamicParameter3').setValue(3.0)
+        # add species, which will have initial concentration in condition table
+        #  but which should not show up in mapping
+        s = sbml_model.createSpecies()
+        s.setId("someSpecies")
+        condition_df["someSpecies"] = [0.0, 0.0]
 
         # Test without parameter table
         expected = [({},
@@ -43,7 +48,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      {},
                      {'dynamicParameter1': LIN,
                       'dynamicParameter2': LIN,
-                      'dynamicParameter3': LIN}),
+                      'dynamicParameter3': LIN,
+                      'fixedParameter1': LIN}),
                     ({},
                      {'dynamicParameter1': 1.0,
                       'dynamicParameter2': 2.0,
@@ -52,7 +58,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      {},
                      {'dynamicParameter1': LIN,
                       'dynamicParameter2': LIN,
-                      'dynamicParameter3': LIN}
+                      'dynamicParameter3': LIN,
+                      'fixedParameter1': LIN}
                      )]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
@@ -80,7 +87,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      {},
                      {'dynamicParameter1': LIN,
                       'dynamicParameter2': LOG10,
-                      'dynamicParameter3': LIN}),
+                      'dynamicParameter3': LIN,
+                      'fixedParameter1': LIN}),
                     ({},
                      {'dynamicParameter1': 11.0,
                       'dynamicParameter2': 'dynamicParameter2',
@@ -89,7 +97,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                      {},
                      {'dynamicParameter1': LIN,
                       'dynamicParameter2': LOG10,
-                      'dynamicParameter3': LIN})
+                      'dynamicParameter3': LIN,
+                      'fixedParameter1': LIN})
                     ]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
@@ -112,7 +121,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
              {},
              {'dynamicParameter1': LOG,
               'dynamicParameter2': LOG10,
-              'dynamicParameter3': LIN}),
+              'dynamicParameter3': LIN,
+              'fixedParameter1': LIN}),
             ({},
              {'dynamicParameter1': np.log(11.0),
               'dynamicParameter2': 'dynamicParameter2',
@@ -121,7 +131,8 @@ class TestGetSimulationToOptimizationParameterMapping(object):
              {},
              {'dynamicParameter1': LOG,
               'dynamicParameter2': LOG10,
-              'dynamicParameter3': LIN}),
+              'dynamicParameter3': LIN,
+              'fixedParameter1': LIN}),
         ]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
@@ -177,7 +188,9 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                  'observableParameter1_obs2': 'obs2par1cond1override',
                  },
                 {},
-                {'dynamicParameter1': LIN, 'dynamicParameter2': LIN,
+                {'fixedParameter1': LIN,
+                 'dynamicParameter1': LIN,
+                 'dynamicParameter2': LIN,
                  'observableParameter1_obs1': LIN,
                  'observableParameter2_obs1': LIN,
                  'observableParameter1_obs2': LIN
@@ -193,7 +206,9 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                  'observableParameter1_obs2': 'obs2par1cond2override'
                  },
                 {},
-                {'dynamicParameter1': LIN, 'dynamicParameter2': LIN,
+                {'fixedParameter1': LIN,
+                 'dynamicParameter1': LIN,
+                 'dynamicParameter2': LIN,
                  'observableParameter1_obs1': LIN,
                  'observableParameter2_obs1': LIN,
                  'observableParameter1_obs2': LIN
@@ -256,10 +271,12 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                       'observableParameter2_obs1': 'obs1par2cond1override',
                       'observableParameter1_obs2': np.nan,
                       },
-                     {}, {'dynamicParameter1': LIN,
-                          'observableParameter1_obs1': LIN,
-                          'observableParameter2_obs1': LIN,
-                          'observableParameter1_obs2': LIN}),
+                     {},
+                     {'fixedParameter1': LIN,
+                      'dynamicParameter1': LIN,
+                      'observableParameter1_obs1': LIN,
+                      'observableParameter2_obs1': LIN,
+                      'observableParameter1_obs2': LIN}),
                     ({},
                      {'fixedParameter1': 2.0,
                       'dynamicParameter1': 'dynamicParameter1',
@@ -267,10 +284,12 @@ class TestGetSimulationToOptimizationParameterMapping(object):
                       'observableParameter2_obs1': 'obs1par2cond2override',
                       'observableParameter1_obs2': 'obs2par1cond2override'
                       },
-                     {}, {'dynamicParameter1': LIN,
-                          'observableParameter1_obs1': LIN,
-                          'observableParameter2_obs1': LIN,
-                          'observableParameter1_obs2': LIN}),
+                     {},
+                     {'fixedParameter1': LIN,
+                      'dynamicParameter1': LIN,
+                      'observableParameter1_obs1': LIN,
+                      'observableParameter2_obs1': LIN,
+                      'observableParameter1_obs2': LIN}),
                     ]
 
         actual = petab.get_optimization_to_simulation_parameter_mapping(
