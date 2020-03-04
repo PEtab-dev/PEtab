@@ -37,7 +37,7 @@ def get_optimization_to_simulation_parameter_mapping(
         measurement_df: pd.DataFrame,
         parameter_df: Optional[pd.DataFrame] = None,
         observable_df: Optional[pd.DataFrame] = None,
-        sbml_model: Optional[libsbml.Model] = None,
+        sbml_model: libsbml.Model = None,
         simulation_conditions: Optional[pd.DataFrame] = None,
         warn_unmapped: Optional[bool] = True,
         scaled_parameters: bool = False
@@ -104,7 +104,7 @@ def get_optimization_to_simulation_parameter_mapping(
             _map_condition,
             _map_condition_arg_packer(
                 simulation_conditions, measurement_df, condition_df,
-                parameter_df, simulation_parameters, warn_unmapped,
+                parameter_df, sbml_model, simulation_parameters, warn_unmapped,
                 scaled_parameters))
         return list(mapping)
 
@@ -115,19 +115,20 @@ def get_optimization_to_simulation_parameter_mapping(
             _map_condition,
             _map_condition_arg_packer(
                 simulation_conditions, measurement_df, condition_df,
-                parameter_df, simulation_parameters, warn_unmapped,
+                parameter_df, sbml_model, simulation_parameters, warn_unmapped,
                 scaled_parameters))
     return list(mapping)
 
 
 def _map_condition_arg_packer(simulation_conditions, measurement_df,
-                              condition_df, parameter_df,
+                              condition_df, parameter_df, sbml_model,
                               simulation_parameters, warn_unmapped,
                               scaled_parameters):
     """Helper function to pack extra arguments for _map_condition"""
     for _, condition in simulation_conditions.iterrows():
         yield(condition, measurement_df, condition_df, parameter_df,
-              simulation_parameters, warn_unmapped, scaled_parameters)
+              sbml_model, simulation_parameters, warn_unmapped,
+              scaled_parameters)
 
 
 def _map_condition(packed_args):
@@ -135,7 +136,7 @@ def _map_condition(packed_args):
 
     For arguments see get_optimization_to_simulation_parameter_mapping"""
 
-    (condition, measurement_df, condition_df, parameter_df,
+    (condition, measurement_df, condition_df, parameter_df, sbml_model,
      simulation_parameters, warn_unmapped, scaled_parameters) = packed_args
 
     cur_measurement_df = measurements.get_rows_for_condition(
@@ -151,6 +152,7 @@ def _map_condition(packed_args):
             condition_id=condition[PREEQUILIBRATION_CONDITION_ID],
             is_preeq=True,
             cur_measurement_df=cur_measurement_df,
+            sbml_model=sbml_model,
             condition_df=condition_df,
             parameter_df=parameter_df,
             simulation_parameters=simulation_parameters,
@@ -162,6 +164,7 @@ def _map_condition(packed_args):
         condition_id=condition[SIMULATION_CONDITION_ID],
         is_preeq=False,
         cur_measurement_df=cur_measurement_df,
+        sbml_model=sbml_model,
         condition_df=condition_df,
         parameter_df=parameter_df,
         simulation_parameters=simulation_parameters,
@@ -176,9 +179,9 @@ def get_parameter_mapping_for_condition(
         condition_id: str,
         is_preeq: bool,
         cur_measurement_df: pd.DataFrame,
+        sbml_model: libsbml.Model,
         condition_df: pd.DataFrame,
         parameter_df: pd.DataFrame = None,
-        sbml_model: Optional[libsbml.Model] = None,
         simulation_parameters: Optional[Dict[str, str]] = None,
         warn_unmapped: bool = True,
         scaled_parameters: bool = False
@@ -203,12 +206,11 @@ def get_parameter_mapping_for_condition(
         sbml_model:
             The sbml model with observables and noise specified according to
             the PEtab format used to retrieve simulation parameter IDs.
-            Mutually exclusive with ``simulation_parameter_ids``.
 
         simulation_parameters:
             Model simulation parameter IDs mapped to parameter values (output
             of ``petab.sbml.get_model_parameters(.., with_values=True)``).
-            Mutually exclusive with ``sbml_model``.
+            Optional, saves time if precomputed.
 
         warn_unmapped:
             If ``True``, log warning regarding unmapped parameters
@@ -222,14 +224,9 @@ def get_parameter_mapping_for_condition(
     """
     _perform_mapping_checks(cur_measurement_df)
 
-    if simulation_parameters is not None and sbml_model is None:
-        pass
-    elif simulation_parameters is None and sbml_model is not None:
+    if simulation_parameters is None:
         simulation_parameters = sbml.get_model_parameters(sbml_model,
                                                           with_values=True)
-    else:
-        raise ValueError("Must provide exactly one of `sbml_model` and "
-                         "`simulation_parameter_ids`.")
 
     # NOTE: order matters here - the former is overwritten by the latter:
     #  SBML model < condition table < measurement < table parameter table
@@ -247,7 +244,8 @@ def get_parameter_mapping_for_condition(
     if not is_preeq:
         handle_missing_overrides(par_mapping, warn=warn_unmapped)
 
-    _apply_condition_parameters(par_mapping, condition_id, condition_df)
+    _apply_condition_parameters(par_mapping, scale_mapping, condition_id,
+                                condition_df, sbml_model)
     _apply_parameter_table(par_mapping, scale_mapping,
                            parameter_df, scaled_parameters)
 
@@ -322,8 +320,10 @@ def _apply_overrides_for_observable(
 
 
 def _apply_condition_parameters(par_mapping: ParMappingDict,
+                                scale_mapping: ScaleMappingDict,
                                 condition_id: str,
-                                condition_df: pd.DataFrame) -> None:
+                                condition_df: pd.DataFrame,
+                                sbml_model: libsbml.Model) -> None:
     """Replace parameter IDs in parameter mapping dictionary by condition
     table parameter values (in-place).
 
@@ -336,8 +336,15 @@ def _apply_condition_parameters(par_mapping: ParMappingDict,
         if overridee_id == CONDITION_NAME:
             continue
 
+        # Species and compartments are handled elsewhere
+        if sbml_model.getSpecies(overridee_id) is not None:
+            continue
+        if sbml_model.getCompartment(overridee_id) is not None:
+            continue
+
         par_mapping[overridee_id] = core.to_float_if_float(
             condition_df.loc[condition_id, overridee_id])
+        scale_mapping[overridee_id] = LIN
 
 
 def _apply_parameter_table(par_mapping: ParMappingDict,
