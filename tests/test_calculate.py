@@ -126,7 +126,7 @@ def model_non_numeric_overrides():
         OBSERVABLE_FORMULA: ['A'],
         OBSERVABLE_TRANSFORMATION: [LOG],
         NOISE_FORMULA: ['2*noiseParameter1_obs_a + '
-                        'noiseParameter2_obs_a + par2']
+                        'noiseParameter2_obs_a + par2 + obs_a']
     }).set_index([OBSERVABLE_ID])
 
     parameter_df = pd.DataFrame(data={
@@ -138,11 +138,11 @@ def model_non_numeric_overrides():
         columns={MEASUREMENT: SIMULATION})
     simulation_df[SIMULATION] = [2, 3]
 
-    expected_residuals = {(np.log(2)-np.log(0.5))/(2*7+8+4),
-                          (np.log(3)-np.log(1))/(2*2+3+4)}
+    expected_residuals = {(np.log(2)-np.log(0.5))/(2*7+8+4+np.log(2)),
+                          (np.log(3)-np.log(1))/(2*2+3+4+np.log(3))}
     expected_residuals_nonorm = {np.log(2)-np.log(0.5), np.log(3)-np.log(1)}
     expected_llh = - 0.5*(np.array(list(expected_residuals))**2).sum() - \
-        0.5*np.log(2*np.pi*np.array([2*7+8+4, 2*2+3+4])**2
+        0.5*np.log(2*np.pi*np.array([2*7+8+4+np.log(2), 2*2+3+4+np.log(3)])**2
                    * np.array([0.5, 1])**2).sum()
 
     return (measurement_df, observable_df, parameter_df,

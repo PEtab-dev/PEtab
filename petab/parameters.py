@@ -324,9 +324,13 @@ def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
 
     Arguments:
         parameter:
-            Parameter to be scaled
+            Parameter to be scaled.
         scale_str:
-            One of 'lin' (synonymous with ''), 'log', 'log10'
+            One of 'lin' (synonymous with ''), 'log', 'log10'.
+
+    Returns:
+        parameter:
+            The scaled parameter.
     """
 
     if scale_str == LIN or not scale_str:
@@ -335,6 +339,29 @@ def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
         return np.log(parameter)
     if scale_str == LOG10:
         return np.log10(parameter)
+    raise ValueError("Invalid parameter scaling: " + scale_str)
+
+
+def unscale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
+    """Unscale parameter according to scale_str
+
+    Arguments:
+        parameter:
+            Parameter to be unscaled.
+        scale_str:
+            One of 'lin' (synonymous with ''), 'log', 'log10'.
+
+    Returns:
+        parameter:
+            The unscaled parameter.
+    """
+
+    if scale_str == LIN or not scale_str:
+        return parameter
+    if scale_str == LOG:
+        return np.exp(parameter)
+    if scale_str == LOG10:
+        return 10**parameter
     raise ValueError("Invalid parameter scaling: " + scale_str)
 
 
