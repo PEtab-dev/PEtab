@@ -151,7 +151,7 @@ def evaluate_noise_formula(
         noise_formulas: The noise formulas as computed by
             `get_symbolic_noise_formulas`.
         parameter_df: The parameter table.
-        simulation: The simulation corresponding to the measurement.
+        simulation: The simulation corresponding to the measurement, scaled.
 
     Returns:
         noise_value: The noise value.
