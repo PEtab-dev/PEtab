@@ -129,6 +129,14 @@ def plot_data_and_simulation(
     if isinstance(sim_data, str):
         sim_data = core.get_simulation_df(sim_data)
 
+    if DATASET_ID not in exp_data:
+        raise ValueError(f'Visualization requires field {DATASET_ID} to be  '
+                         f'present in measurement table.')
+
+    if sim_data is not None and DATASET_ID not in sim_data:
+        raise ValueError(f'Visualization requires field {DATASET_ID} to be '
+                         f'present in simulation table.')
+
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True)
 
