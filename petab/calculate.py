@@ -110,7 +110,7 @@ def calculate_residuals_for_table(
         if normalize:
             # look up noise standard deviation
             noise_value = evaluate_noise_formula(
-                row, parameter_df, noise_formulas)
+                row, noise_formulas, parameter_df, simulation_df)
         residual /= noise_value
 
         # fill in value
@@ -141,8 +141,9 @@ def get_symbolic_noise_formulas(observable_df) -> dict:
 
 def evaluate_noise_formula(
         measurement: pd.Series,
+        noise_formulas: dict,
         parameter_df: pd.DataFrame,
-        noise_formulas: dict) -> float:
+        simulation_df: pd.DataFrame) -> float:
     """Fill in parameters for `measurement` and evaluate noise_formula.
 
     Arguments:
@@ -164,6 +165,10 @@ def evaluate_noise_formula(
     # fill in measurement specific parameters
     for i_obs_par, obs_par in enumerate(observable_parameter_overrides):
         overrides[f"noiseParameter{i_obs_par+1}_{observable_id}"] = obs_par
+
+    # fill in observables
+    for row in simulation_df.itertuples():
+        overrides[row.observableId] = row.simulation
 
     # fill in general parameters
     for row in parameter_df.itertuples():
@@ -308,7 +313,7 @@ def calculate_llh_for_table(
 
         # get noise standard deviation
         noise_value = evaluate_noise_formula(
-            row, parameter_df, noise_formulas)
+            row, noise_formulas, parameter_df, simulation_df)
 
         # get noise distribution
         noise_distribution = observable.get(NOISE_DISTRIBUTION, NORMAL)
