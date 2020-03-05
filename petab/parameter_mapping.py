@@ -492,17 +492,29 @@ def merge_preeq_and_sim_pars_condition(
         # nothing to do
         return
 
-    for idx, (par_preeq, par_sim, scale_preeq, scale_sim) \
-            in enumerate(zip(condition_map_preeq,
-                             condition_map_sim,
-                             condition_scale_map_preeq,
-                             condition_scale_map_sim)):
+    all_par_ids = set(condition_map_sim.keys()) \
+        | set(condition_map_preeq.keys())
+
+    for par_id in all_par_ids:
+        if par_id not in condition_map_preeq:
+            # nothing to do
+            continue
+
+        if par_id not in condition_map_sim:
+            # unmapped for simulation -> just add preeq
+            condition_map_sim[par_id] = condition_map_preeq[par_id]
+            condition_scale_map_sim[par_id] = condition_scale_map_preeq[par_id]
+            continue
+
+        # present in both
+        par_preeq = condition_map_preeq[par_id]
+        par_sim = condition_map_sim[par_id]
         if par_preeq != par_sim \
                 and not (np.isnan(par_sim) and np.isnan(par_preeq)):
             # both identical or both nan is okay
             if np.isnan(par_sim):
                 # unmapped for simulation
-                par_sim[idx] = par_preeq
+                condition_map_sim[par_id] = par_preeq
             elif np.isnan(par_preeq):
                 # unmapped for preeq is okay
                 pass
@@ -510,13 +522,17 @@ def merge_preeq_and_sim_pars_condition(
                 raise ValueError(
                     'Cannot handle different values for dynamic '
                     f'parameters: for condition {condition} '
-                    f'parameter {idx} is {par_preeq} for preeq '
+                    f'parameter {par_id} is {par_preeq} for preeq '
                     f'and {par_sim} for simulation.')
+
+        scale_preeq = condition_scale_map_preeq[par_id]
+        scale_sim = condition_scale_map_sim[par_id]
+
         if scale_preeq != scale_sim:
             # both identical is okay
             if np.isnan(par_sim):
                 # unmapped for simulation
-                scale_sim[idx] = scale_preeq
+                condition_scale_map_sim[par_id] = scale_preeq
             elif np.isnan(par_preeq):
                 # unmapped for preeq is okay
                 pass
@@ -524,7 +540,7 @@ def merge_preeq_and_sim_pars_condition(
                 raise ValueError(
                     'Cannot handle different parameter scales '
                     f'parameters: for condition {condition} '
-                    f'scale for parameter {idx} is {scale_preeq} for preeq '
+                    f'scale for parameter {par_id} is {scale_preeq} for preeq '
                     f'and {scale_sim} for simulation.')
 
 
