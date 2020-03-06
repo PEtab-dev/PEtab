@@ -8,7 +8,7 @@ from typing import Iterable, Set, List, Tuple, Dict, Union
 
 import libsbml
 
-from . import lint, core, measurements, sbml, conditions
+from . import lint, core, measurements, conditions, observables
 from .C import *  # noqa: F403
 
 
@@ -87,6 +87,7 @@ def get_optimization_parameter_scaling(
 
 def create_parameter_df(sbml_model: libsbml.Model,
                         condition_df: pd.DataFrame,
+                        observable_df: pd.DataFrame,
                         measurement_df: pd.DataFrame,
                         include_optional: bool = False,
                         parameter_scale: str = LOG10,
@@ -117,11 +118,11 @@ def create_parameter_df(sbml_model: libsbml.Model,
     if include_optional:
         parameter_ids = list(get_valid_parameters_for_parameter_table(
             sbml_model=sbml_model, condition_df=condition_df,
-            measurement_df=measurement_df))
+            observable_df=observable_df, measurement_df=measurement_df))
     else:
         parameter_ids = list(get_required_parameters_for_parameter_table(
             sbml_model=sbml_model, condition_df=condition_df,
-            measurement_df=measurement_df))
+            observable_df=observable_df, measurement_df=measurement_df))
 
     df = pd.DataFrame(
         data={
@@ -155,6 +156,7 @@ def create_parameter_df(sbml_model: libsbml.Model,
 def get_required_parameters_for_parameter_table(
         sbml_model: libsbml.Model,
         condition_df: pd.DataFrame,
+        observable_df: pd.DataFrame,
         measurement_df: pd.DataFrame) -> Set[str]:
     """
     Get set of parameters which need to go into the parameter table
@@ -162,6 +164,7 @@ def get_required_parameters_for_parameter_table(
     Arguments:
         sbml_model: PEtab SBML model
         condition_df: PEtab condition table
+        observable_df: PEtab observable table
         measurement_df: PEtab measurement table
 
     Returns:
@@ -187,6 +190,14 @@ def get_required_parameters_for_parameter_table(
         append_overrides(measurements.split_parameter_replacement_list(
             row.get(NOISE_PARAMETERS, None)))
 
+    # Add output parameters except for placeholders
+    output_parameters = observables.get_output_parameters(
+        observable_df, sbml_model)
+    placeholders = observables.get_placeholders(observable_df)
+    for p in output_parameters:
+        if p not in placeholders and sbml_model.getParameter(p) is None:
+            parameter_ids[p] = None
+
     # Add condition table parametric overrides unless already defined in the
     # SBML model
     for p in conditions.get_parametric_overrides(condition_df):
@@ -199,6 +210,7 @@ def get_required_parameters_for_parameter_table(
 def get_valid_parameters_for_parameter_table(
         sbml_model: libsbml.Model,
         condition_df: pd.DataFrame,
+        observable_df: pd.DataFrame,
         measurement_df: pd.DataFrame) -> Set[str]:
     """
     Get set of parameters which may be present inside the parameter table
@@ -206,6 +218,7 @@ def get_valid_parameters_for_parameter_table(
     Arguments:
         sbml_model: PEtab SBML model
         condition_df: PEtab condition table
+        observable_df: PEtab observable table
         measurement_df: PEtab measurement table
 
     Returns:
@@ -214,6 +227,7 @@ def get_valid_parameters_for_parameter_table(
     """
 
     # - grab all model parameters
+    # - grab all output parameters defined in {observable,noise}Formula
     # - grab all parameters from measurement table
     # - grab all parametric overrides from condition table
     # - remove parameters for which condition table columns exist
@@ -222,20 +236,7 @@ def get_valid_parameters_for_parameter_table(
     # - remove placeholder parameters
     #   (only partial overrides are not supported)
 
-    observables = sbml.get_observables(sbml_model)
-    sigmas = sbml.get_sigmas(sbml_model)
-
-    # collect placeholder parameters overwritten by
-    # {observable,noise}Parameters
-    placeholders = set()
-    for k, v in observables.items():
-        placeholders |= set(measurements.get_placeholders(
-            v['formula'],
-            core.get_observable_id(k),
-            'observable'))
-    for k, v in sigmas.items():
-        placeholders |= set(measurements.get_placeholders(
-            v, core.get_observable_id(k), 'noise'))
+    placeholders = set(observables.get_placeholders(observable_df))
 
     # exclude rule targets
     assignment_targets = {ar.getVariable()
@@ -244,7 +245,6 @@ def get_valid_parameters_for_parameter_table(
     # must not go into parameter table
     blackset = set()
     # collect assignment targets
-    blackset |= set(observables.keys())
     blackset |= placeholders
     blackset |= assignment_targets
     blackset |= set(condition_df.columns.values) - {CONDITION_NAME}
@@ -253,6 +253,13 @@ def get_valid_parameters_for_parameter_table(
     parameter_ids = OrderedDict.fromkeys(
         p.getId() for p in sbml_model.getListOfParameters()
         if p.getId() not in blackset)
+
+    # add output parameters from observables table
+    output_parameters = observables.get_output_parameters(
+        observable_df, sbml_model)
+    for p in output_parameters:
+        if p not in blackset:
+            parameter_ids[p] = None
 
     # Append parameters from measurement table, unless they occur as condition
     # table columns

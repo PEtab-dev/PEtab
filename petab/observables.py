@@ -1,12 +1,13 @@
 """Functions for working with the PEtab observables table"""
 
-from typing import Union, Set
+from typing import Union, Set, List
 
 import libsbml
 import pandas as pd
+import re
 import sympy as sp
 
-from . import lint
+from . import lint, core
 from .C import *  # noqa: F403
 
 
@@ -69,7 +70,8 @@ def get_output_parameters(observable_df: pd.DataFrame,
         List of output parameter IDs
     """
     formulas = set(observable_df[OBSERVABLE_FORMULA])
-    formulas |= set(observable_df[NOISE_FORMULA])
+    if NOISE_FORMULA in observable_df:
+        formulas |= set(observable_df[NOISE_FORMULA])
     output_parameters = set()
 
     for formula in formulas:
@@ -79,3 +81,69 @@ def get_output_parameters(observable_df: pd.DataFrame,
                 output_parameters.add(sym)
 
     return output_parameters
+
+
+def get_formula_placeholders(formula_string: str, observable_id: str,
+                             override_type: str) -> List[str]:
+    """
+    Get placeholder variables in noise or observable definition for the
+    given observable ID.
+
+    Arguments:
+        formula_string: observable formula
+        observable_id: ID of current observable
+        override_type: 'observable' or 'noise', depending on whether `formula`
+            is for observable or for noise model
+
+    Returns:
+        List of placeholder parameter IDs in the order expected in the
+        observableParameter column of the measurement table.
+    """
+    if not formula_string:
+        return []
+
+    if not isinstance(formula_string, str):
+        return []
+
+    pattern = re.compile(r'(?:^|\W)(' + re.escape(override_type)
+                         + r'Parameter\d+_' + re.escape(observable_id)
+                         + r')(?=\W|$)')
+    placeholder_set = set(pattern.findall(formula_string))
+
+    # need to sort and check that there are no gaps in numbering
+    placeholders = [f"{override_type}Parameter{i}_{observable_id}"
+                    for i in range(1, len(placeholder_set) + 1)]
+
+    if placeholder_set != set(placeholders):
+        raise AssertionError("Non-consecutive numbering of placeholder "
+                             f"parameter for {placeholder_set}")
+
+    return placeholders
+
+
+def get_placeholders(observable_df: pd.DataFrame) -> List[str]:
+    """Get all placeholder parameters from observable table observableFormulas
+    and noiseFormulas
+
+    Arguments:
+        observable_df: PEtab observable table
+
+    Returns:
+        List of placeholder parameters from observable table observableFormulas
+        and noiseFormulas.
+    """
+
+    # collect placeholder parameters overwritten by
+    # {observable,noise}Parameters
+    placeholders = []
+    for _, row in observable_df.iterrows():
+        for placeholder_type, formula_column \
+                in zip(['observable', 'noise'],
+                       [OBSERVABLE_FORMULA, NOISE_FORMULA]):
+            if formula_column not in row:
+                continue
+
+            cur_placeholders = get_formula_placeholders(
+                row[formula_column], row.name, placeholder_type)
+            placeholders.extend(cur_placeholders)
+    return core.unique_preserve_order(placeholders)
