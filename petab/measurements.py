@@ -4,15 +4,13 @@
 
 import itertools
 import numbers
-import re
 from typing import List, Union, Dict
 from warnings import warn
 
 import numpy as np
 import pandas as pd
 
-from . import lint
-from . import core
+from . import (lint, core, observables)
 from .C import *  # noqa: F403
 
 
@@ -179,17 +177,12 @@ def get_measurement_parameter_ids(measurement_df: pd.DataFrame) -> List[str]:
         List of parameter IDs
     """
 
-    def unique_preserve_order(seq):
-        seen = set()
-        seen_add = seen.add
-        return [x for x in seq if not (x in seen or seen_add(x))]
-
     def get_unique_parameters(series):
-        return unique_preserve_order(
+        return core.unique_preserve_order(
             itertools.chain.from_iterable(
                 series.apply(split_parameter_replacement_list)))
 
-    return unique_preserve_order(
+    return core.unique_preserve_order(
         get_unique_parameters(measurement_df[OBSERVABLE_PARAMETERS])
         + get_unique_parameters(measurement_df[NOISE_PARAMETERS]))
 
@@ -220,44 +213,6 @@ def split_parameter_replacement_list(
 
     result = [x.strip() for x in list_string.split(delim) if len(x.strip())]
     return [core.to_float_if_float(x) for x in result]
-
-
-def get_placeholders(formula_string: str, observable_id: str,
-                     override_type: str) -> List[str]:
-    """
-    Get placeholder variables in noise or observable definition for the
-    given observable ID.
-
-    Arguments:
-        formula_string: observable formula
-        observable_id: ID of current observable
-        override_type: 'observable' or 'noise', depending on whether `formula`
-            is for observable or for noise model
-
-    Returns:
-        List of placeholder parameter IDs in the order expected in the
-        observableParameter column of the measurement table.
-    """
-    if not formula_string:
-        return []
-
-    if not isinstance(formula_string, str):
-        return []
-
-    pattern = re.compile(r'(?:^|\W)(' + re.escape(override_type)
-                         + r'Parameter\d+_' + re.escape(observable_id)
-                         + r')(?=\W|$)')
-    placeholder_set = set(pattern.findall(formula_string))
-
-    # need to sort and check that there are no gaps in numbering
-    placeholders = [f"{override_type}Parameter{i}_{observable_id}"
-                    for i in range(1, len(placeholder_set) + 1)]
-
-    if placeholder_set != set(placeholders):
-        raise AssertionError("Non-consecutive numbering of placeholder "
-                             f"parameter for {placeholder_set}")
-
-    return placeholders
 
 
 def create_measurement_df() -> pd.DataFrame:
@@ -312,11 +267,13 @@ def assert_overrides_match_parameter_count(
 
     # sympify only once and save number of parameters
     observable_parameters_count = {
-        obs_id: len(get_placeholders(formula, obs_id, 'observable'))
+        obs_id: len(observables.get_formula_placeholders(
+            formula, obs_id, 'observable'))
         for obs_id, formula in zip(observable_df.index.values,
                                    observable_df[OBSERVABLE_FORMULA])}
     noise_parameters_count = {
-        obs_id: len(get_placeholders(formula, obs_id, 'noise'))
+        obs_id:
+            len(observables.get_formula_placeholders(formula, obs_id, 'noise'))
         for obs_id, formula in zip(observable_df.index.values,
                                    observable_df[NOISE_FORMULA])}
 

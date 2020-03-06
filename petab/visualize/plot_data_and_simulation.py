@@ -9,7 +9,9 @@ import pandas as pd
 
 from .helper_functions import (get_default_vis_specs,
                                create_figure,
-                               handle_dataset_plot)
+                               handle_dataset_plot,
+                               check_ex_visu_columns,
+                               check_ex_exp_columns)
 
 from .. import problem, measurements, core, conditions
 from ..C import *
@@ -89,17 +91,29 @@ def plot_data_and_simulation(
     None: In case subplots are save to file
     """
 
+    if isinstance(exp_conditions, str):
+        exp_conditions = conditions.get_condition_df(exp_conditions)
+
     if isinstance(exp_data, str):
         # import from file
         exp_data = measurements.get_measurement_df(exp_data)
-
-    if isinstance(exp_conditions, str):
-        exp_conditions = conditions.get_condition_df(exp_conditions)
+        # check columns, and add non-mandatory default columns
+        exp_data, dataset_id_list, legend_dict = \
+            check_ex_exp_columns(exp_data,
+                                 dataset_id_list,
+                                 sim_cond_id_list,
+                                 sim_cond_num_list,
+                                 observable_id_list,
+                                 observable_num_list,
+                                 exp_conditions)
 
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
         if vis_spec != '':
             vis_spec = core.get_visualization_df(vis_spec)
+            vis_spec = check_ex_visu_columns(vis_spec,
+                                             dataset_id_list,
+                                             legend_dict)
         else:
             # create them based on simulation conditions
             vis_spec, exp_data = get_default_vis_specs(exp_data,
@@ -115,38 +129,56 @@ def plot_data_and_simulation(
     if isinstance(sim_data, str):
         sim_data = core.get_simulation_df(sim_data)
 
+    if DATASET_ID not in exp_data:
+        raise ValueError(f'Visualization requires field {DATASET_ID} to be  '
+                         f'present in measurement table.')
+
+    if sim_data is not None and DATASET_ID not in sim_data:
+        raise ValueError(f'Visualization requires field {DATASET_ID} to be '
+                         f'present in simulation table.')
+
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True)
 
     # Switch saving plots to file on or get axes
-    plots_to_file = False
-    if subplot_file_path != '':
-        plots_to_file = True
-    else:
-        fig, ax, _, num_col = create_figure(uni_plot_ids, plots_to_file)
+    plots_to_file = subplot_file_path != ''
+    if not plots_to_file:
+        fig, axes = create_figure(uni_plot_ids, plots_to_file)
 
     # loop over unique plotIds
-    for i_plot_id, var_plot_id in enumerate(uni_plot_ids):
+    for var_plot_id in uni_plot_ids:
 
         if plots_to_file:
-            fig, ax, _, num_col = create_figure(uni_plot_ids,
-                                                plots_to_file)
-            i_row = 0
-            i_col = 0
+            fig, axes = create_figure(uni_plot_ids, plots_to_file)
+            ax = axes[0, 0]
         else:
-            # setting axis indices
-            i_row = int(np.ceil((i_plot_id + 1) / num_col)) - 1
-            i_col = int(((i_plot_id + 1) - i_row * num_col)) - 1
+            ax = axes[var_plot_id]
 
         # get indices for specific plotId
         ind_plot = (vis_spec[PLOT_ID] == var_plot_id)
 
         # loop over datsets
-        for i_visu_spec in vis_spec[ind_plot].index.values:
+        for _, plot_spec in vis_spec[ind_plot].iterrows():
             # handle plot of current dataset
-            ax = handle_dataset_plot(i_visu_spec, ind_plot, ax, i_row, i_col,
-                                     exp_data, exp_conditions, vis_spec,
-                                     sim_data)
+            handle_dataset_plot(plot_spec, ax, exp_data,
+                                exp_conditions, sim_data)
+
+        if BAR_PLOT in vis_spec.loc[ind_plot, PLOT_TYPE_SIMULATION]:
+
+            legend = ['measurement']
+
+            if sim_data is not None:
+                legend.append('simulation')
+
+            ax.legend(legend)
+            x_names = vis_spec.loc[ind_plot, LEGEND_ENTRY]
+            ax.set_xticks(range(len(x_names)))
+            ax.set_xticklabels(x_names)
+
+            for label in ax.get_xmajorticklabels():
+                label.set_rotation(30)
+                label.set_horizontalalignment("right")
+
         if plots_to_file:
             plt.tight_layout()
             plt.savefig(f'{subplot_file_path}/{var_plot_id}.png')
@@ -155,7 +187,7 @@ def plot_data_and_simulation(
     # finalize figure
     if not plots_to_file:
         fig.tight_layout()
-        return ax
+        return axes
 
     return None
 

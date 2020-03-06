@@ -110,7 +110,7 @@ def calculate_residuals_for_table(
         if normalize:
             # look up noise standard deviation
             noise_value = evaluate_noise_formula(
-                row, parameter_df, noise_formulas)
+                row, noise_formulas, parameter_df, simulation)
         residual /= noise_value
 
         # fill in value
@@ -141,15 +141,17 @@ def get_symbolic_noise_formulas(observable_df) -> dict:
 
 def evaluate_noise_formula(
         measurement: pd.Series,
+        noise_formulas: dict,
         parameter_df: pd.DataFrame,
-        noise_formulas: dict) -> float:
+        simulation: float) -> float:
     """Fill in parameters for `measurement` and evaluate noise_formula.
 
     Arguments:
         measurement: A measurement table row.
-        parameter_df: The parameter table.
         noise_formulas: The noise formulas as computed by
             `get_symbolic_noise_formulas`.
+        parameter_df: The parameter table.
+        simulation: The simulation corresponding to the measurement, scaled.
 
     Returns:
         noise_value: The noise value.
@@ -164,6 +166,9 @@ def evaluate_noise_formula(
     # fill in measurement specific parameters
     for i_obs_par, obs_par in enumerate(observable_parameter_overrides):
         overrides[f"noiseParameter{i_obs_par+1}_{observable_id}"] = obs_par
+
+    # fill in observables
+    overrides[observable_id] = simulation
 
     # fill in general parameters
     for row in parameter_df.itertuples():
@@ -308,7 +313,7 @@ def calculate_llh_for_table(
 
         # get noise standard deviation
         noise_value = evaluate_noise_formula(
-            row, parameter_df, noise_formulas)
+            row, noise_formulas, parameter_df, petab.scale(simulation, scale))
 
         # get noise distribution
         noise_distribution = observable.get(NOISE_DISTRIBUTION, NORMAL)
@@ -345,15 +350,17 @@ def calculate_single_llh(
 
     # go over the possible cases
     if noise_distribution == NORMAL and scale == LIN:
-        llh = 0.5*log(2*pi*sigma**2) + 0.5*((s-m)/sigma)**2
+        nllh = 0.5*log(2*pi*sigma**2) + 0.5*((s-m)/sigma)**2
     elif noise_distribution == NORMAL and scale == LOG:
-        llh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log(s)-log(m))/sigma)**2
+        nllh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log(s)-log(m))/sigma)**2
     elif noise_distribution == NORMAL and scale == LOG10:
-        llh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log10(s)-log10(m))/sigma)**2
+        nllh = 0.5*log(2*pi*sigma**2*m**2) + \
+            0.5*((log10(s)-log10(m))/sigma)**2
     elif noise_distribution == LAPLACE and scale == LIN:
-        llh = log(2*sigma) + abs((s-m)/sigma)
+        nllh = log(2*sigma) + abs((s-m)/sigma)
     elif noise_distribution == LAPLACE and scale == LOG:
-        llh = log(2*sigma*m) + abs((log(s)-log(m))/sigma)
+        nllh = log(2*sigma*m) + abs((log(s)-log(m))/sigma)
     elif noise_distribution == LAPLACE and scale == LOG10:
-        llh = log(2*sigma*m) + abs((log10(s)-log10(m))/sigma)
+        nllh = log(2*sigma*m) + abs((log10(s)-log10(m))/sigma)
+    llh = - nllh
     return llh
