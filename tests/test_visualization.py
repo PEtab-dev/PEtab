@@ -79,6 +79,7 @@ def test_visualization_with_vis(data_file_Isensee,
                              vis_spec_file_Isensee)
 
 
+@pytest.mark.xfail(raises=ValueError)
 def test_visualization_minimal_visu_file(data_file_Fujita,
                                          condition_file_Fujita,
                                          visu_file_Fujita_minimal,
@@ -93,6 +94,7 @@ def test_visualization_minimal_visu_file(data_file_Fujita,
                              simu_file_Fujita)
 
 
+@pytest.mark.xfail(raises=ValueError)
 def test_visualization_minimal_data_file(data_file_Fujita_minimal,
                                          condition_file_Fujita,
                                          visu_file_Fujita_minimal,
