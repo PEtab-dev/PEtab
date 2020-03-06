@@ -79,3 +79,44 @@ def test_get_output_parameters(minimal_sbml_model):
     output_parameters = petab.get_output_parameters(observable_df, model)
 
     assert output_parameters == {'scaling', 'offset'}
+
+
+def test_get_formula_placeholders():
+    """Test get_formula_placeholders"""
+
+    # no placeholder
+    assert petab.get_formula_placeholders('1.0', 'any', 'observable') == []
+
+    # multiple placeholders
+    assert petab.get_formula_placeholders(
+        'observableParameter1_twoParams * '
+        'observableParameter2_twoParams + otherParam',
+        'twoParams', 'observable') \
+        == ['observableParameter1_twoParams',
+            'observableParameter2_twoParams']
+
+    # noise placeholder
+    assert petab.get_formula_placeholders(
+        '3.0 * noiseParameter1_oneParam', 'oneParam', 'noise') \
+        == ['noiseParameter1_oneParam']
+
+    # multiple instances and in 'wrong' order
+    assert petab.get_formula_placeholders(
+        'observableParameter2_twoParams * '
+        'observableParameter1_twoParams + '
+        'otherParam / observableParameter2_twoParams',
+        'twoParams', 'observable') \
+        == ['observableParameter1_twoParams',
+            'observableParameter2_twoParams']
+
+    # non-consecutive numbering
+    with pytest.raises(AssertionError):
+        petab.get_formula_placeholders(
+            'observableParameter2_twoParams + observableParameter2_twoParams',
+            'twoParams', 'observable')
+
+    # empty
+    assert petab.get_formula_placeholders('', 'any', 'observable') == []
+
+    # non-string
+    assert petab.get_formula_placeholders(1, 'any', 'observable') == []
