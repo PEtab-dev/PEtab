@@ -617,6 +617,7 @@ class Problem:
         return parameters.create_parameter_df(
             self.sbml_model,
             self.condition_df,
+            self.observable_df,
             self.measurement_df,
             *args, **kwargs)
 
