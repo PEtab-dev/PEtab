@@ -17,6 +17,8 @@ import seaborn as sns
 from .plotting_config import plot_lowlevel
 from ..C import *
 
+from typing import Union
+
 sns.set()
 
 
@@ -237,23 +239,21 @@ def create_dataset_id_list(simcond_id_list,
     return exp_data, dataset_id_list, legend_dict
 
 
-def create_figure(uni_plot_ids, plots_to_file):
+def create_figure(uni_plot_ids: np.ndarray, plots_to_file: bool):
     """
     Helper function for plotting data and simulations, open figure and axes
 
     Parameters
     ----------
-    uni_plot_ids: ndarray
+    uni_plot_ids:
         Array with unique plot indices
-    plots_to_file: bool
+    plots_to_file:
         Indicator if plots are saved to file
 
     Returns
     -------
     fig: Figure object of the created plot.
     ax: Axis object of the created plot.
-    num_row: int, number of subplot rows
-    num_col: int, number of subplot columns
     """
 
     # Set Options for plots
@@ -268,23 +268,23 @@ def create_figure(uni_plot_ids, plots_to_file):
 
     # Check if plots are saved to file and return single subplot axis
     if plots_to_file:
-        fig, ax = plt.subplots(1, 1, squeeze=False)
-        return fig, ax, 1, 1
-
-    #  Initiate subplots
-    num_subplot = len(uni_plot_ids)
+        num_subplot = 1
+    else:
+        num_subplot = len(uni_plot_ids)
 
     # compute, how many rows and columns we need for the subplots
-    num_row = np.round(np.sqrt(num_subplot))
-    num_col = np.ceil(num_subplot / num_row)
+    num_row = int(np.round(np.sqrt(num_subplot)))
+    num_col = int(np.ceil(num_subplot / num_row))
 
-    # initialize figure
-    fig, ax = plt.subplots(int(num_row), int(num_col), squeeze=False)
-    # trim subplots output to the correct size
-    for axes in ax.flat[num_subplot:]:
-        axes.remove()
+    fig, axes = plt.subplots(num_row, num_col, squeeze=False)
 
-    return fig, ax, num_row, num_col
+    if not plots_to_file:
+        for ax in axes.flat[num_subplot:]:
+            ax.remove()
+
+        axes = dict(zip(uni_plot_ids, axes.flat))
+
+    return fig, axes
 
 
 def get_default_vis_specs(exp_data,
@@ -461,19 +461,17 @@ def check_ex_exp_columns(exp_data,
     return exp_data, dataset_id_list, legend_dict
 
 
-def handle_dataset_plot(i_visu_spec,
-                        ind_plot,
-                        ax,
-                        i_row,
-                        i_col,
-                        exp_data,
-                        exp_conditions,
-                        vis_spec,
-                        sim_data):
-    """Handle dataset plot"""
+def handle_dataset_plot(plot_spec: pd.Series,
+                        ax: plt.Axes,
+                        exp_data: pd.DataFrame,
+                        exp_conditions: pd.DataFrame,
+                        sim_data: pd.DataFrame):
+    """
+    Handle dataset plot
+    """
     # get datasetID and independent variable of first entry of plot1
-    dataset_id = vis_spec[DATASET_ID][i_visu_spec]
-    indep_var = vis_spec[X_VALUES][i_visu_spec]
+    dataset_id = plot_spec[DATASET_ID]
+    indep_var = plot_spec[X_VALUES]
 
     # define index to reduce exp_data to data linked to datasetId
     ind_dataset = exp_data[DATASET_ID] == dataset_id
@@ -497,45 +495,75 @@ def handle_dataset_plot(i_visu_spec,
         conditions = exp_conditions[ind_cond][indep_var]
 
     # retrieve measurements from dataframes
-    measurement_to_plot = get_data_to_plot(vis_spec, exp_data, sim_data,
-                                           uni_condition_id, i_visu_spec,
-                                           col_name_unique)
+    measurement_to_plot = get_data_to_plot(plot_spec, exp_data, sim_data,
+                                           uni_condition_id, col_name_unique)
 
     # check, whether simulation should be plotted
-    plot_sim = True
-    if sim_data is None:
-        plot_sim = False
+    plot_sim = sim_data is not None
 
     # plot data
     nan_set = all([np.isnan(val) for val in measurement_to_plot['mean']])
     if not nan_set:
-        ax = plot_lowlevel(vis_spec, ax, i_row, i_col, conditions,
-                           measurement_to_plot, ind_plot, i_visu_spec,
-                           plot_sim)
+        plot_lowlevel(plot_spec, ax, conditions, measurement_to_plot, plot_sim)
 
     # Beautify plots
-    ax[i_row, i_col].set_xlabel(
-        vis_spec.xLabel[i_visu_spec])
-    ax[i_row, i_col].set_ylabel(
-        vis_spec.yLabel[i_visu_spec])
-
-    return ax
+    ax.set_xlabel(
+        plot_spec.xLabel)
+    ax.set_ylabel(
+        plot_spec.yLabel)
 
 
-def get_data_to_plot(vis_spec: pd.DataFrame,
+def matches_plot_spec(df: pd.DataFrame,
+                      col_id: str,
+                      x_value: Union[float, str],
+                      plot_spec: pd.Series) -> pd.Series:
+    """
+    constructs an index for subsetting of the dataframe according to what is
+    specified in plot_spec.
+
+    Parameters:
+        df:
+            pandas data frame to subset, can be from measurement file or
+            simulation file
+        col_id:
+            name of the column that will be used for indexing in x variable
+        x_value:
+            subsetted x value
+        plot_spec:
+            visualization spec from the visualization file
+
+    Returns:
+        index:
+            boolean series that can be used for subsetting of the passed
+            dataframe
+    """
+    subset = (
+        (df[col_id] == x_value) &
+        (df[DATASET_ID] == plot_spec[DATASET_ID])
+    )
+    if plot_spec[Y_VALUES] == '':
+        if len(df.loc[subset, OBSERVABLE_ID].unique()) > 1:
+            ValueError(
+                f'{Y_VALUES} must be specified in visualization table if '
+                f'multiple different observables are available.'
+            )
+    else:
+        subset &= (df[OBSERVABLE_ID] == plot_spec[Y_VALUES])
+    return subset
+
+
+def get_data_to_plot(plot_spec: pd.Series,
                      m_data: pd.DataFrame,
                      simulation_data: pd.DataFrame,
                      condition_ids: np.ndarray,
-                     i_visu_spec: int,
                      col_id: str,
                      simulation_field: str = SIMULATION) -> pd.DataFrame:
     """
     group the data, which should be plotted and return it as dataframe.
 
     Parameters:
-        vis_spec:
-            pandas data frame, contains defined data format
-            (visualization file)
+        plot_spec:
+            information about contains defined data format (visualization file)
         m_data:
             pandas data frame, contains defined data format (measurement file)
         simulation_data:
@@ -544,9 +572,6 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
             numpy array, containing all unique condition IDs which should be
             plotted in one figure (can be found in measurementData file,
             column simulationConditionId)
-        i_visu_spec:
-            int, current index (row number) of row which should be plotted in
-            visualizationSpecification file
         col_id:
             str, the name of the column in visualization file, whose entries
             should be unique (depends on condition in column
@@ -564,52 +589,10 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
     # create empty dataframe for means and SDs
     data_to_plot = pd.DataFrame(
         columns=['mean', 'noise_model', 'sd', 'sem', 'repl', 'sim'],
-        index=condition_ids)
+        index=condition_ids
+    )
 
     for var_cond_id in condition_ids:
-        # get boolean vector which fulfill the requirements
-        vec_bool_meas = ((m_data[col_id] == var_cond_id)
-                         & (m_data[DATASET_ID]
-                            == vis_spec.datasetId[i_visu_spec]))
-        # get indices of rows with True values of vec_bool_meas
-        ind_meas = [i_visu_spec for i_visu_spec,
-                    x in enumerate(vec_bool_meas) if x]
-
-        # check that all entries for all columns-conditions are the same:
-        # check correct observable
-        bool_observable = (m_data[OBSERVABLE_PARAMETERS][ind_meas[0]] ==
-                           m_data[OBSERVABLE_PARAMETERS])
-        # special handling, if column in m_data.observableParameters is empty
-        if isinstance(m_data[OBSERVABLE_PARAMETERS][ind_meas[0]], Number) \
-                and np.isnan(m_data.observableParameters[ind_meas[0]]):
-            arr = np.array(m_data.observableParameters.iloc[ind_meas],
-                           dtype=float)
-            bool_observable = np.isnan(arr)
-
-        # check correct time point.
-        bool_time = True
-        if col_id != TIME:
-            bool_time = (m_data[TIME][ind_meas[0]] == m_data[TIME])
-
-        # check correct preqeuilibration condition
-        pre_cond = m_data[PREEQUILIBRATION_CONDITION_ID][ind_meas[0]]
-        bool_preequ = (pre_cond ==
-                       m_data[PREEQUILIBRATION_CONDITION_ID].iloc[ind_meas])
-        # special handling is needed, if preequilibration cond is left empty
-        if isinstance(pre_cond, Number) and np.isnan(pre_cond):
-            bool_preequ = np.isnan(
-                m_data[PREEQUILIBRATION_CONDITION_ID].iloc[ind_meas]
-            )
-
-        # combine all boolean vectors
-        vec_bool_allcond = bool_preequ & bool_observable & bool_time
-
-        # get indices of rows with "True" values, of vec_bool_allcond
-        ind_bool_allcond = [i_visu_spec for i_visu_spec,
-                            x in enumerate(vec_bool_allcond) if x]
-
-        # get intersection of ind_meas and ind_bool_allcond
-        ind_intersec = np.intersect1d(ind_meas, ind_bool_allcond)
 
         # TODO (#117): Here not the case: So, if entries in measurement file:
         #  preequCondId, time, observableParams, noiseParams,
@@ -625,13 +608,21 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
         # would take rows 0,6 and forget about rows 12,18
 
         # compute mean and standard deviation across replicates
-        data_to_plot.at[var_cond_id, 'mean'] = np.mean(
-            m_data[MEASUREMENT][ind_intersec])
-        data_to_plot.at[var_cond_id, 'sd'] = np.std(
-            m_data[MEASUREMENT][ind_intersec])
+        subset = matches_plot_spec(m_data, col_id, var_cond_id, plot_spec)
+        data_measurements = m_data.loc[
+            subset,
+            MEASUREMENT
+        ]
 
-        if vis_spec.plotTypeData[i_visu_spec] == PROVIDED:
-            tmp_noise = m_data[NOISE_PARAMETERS][ind_intersec].values[0]
+        data_to_plot.at[var_cond_id, 'mean'] = np.mean(data_measurements)
+        data_to_plot.at[var_cond_id, 'sd'] = np.std(data_measurements)
+
+        if (plot_spec.plotTypeData == PROVIDED) & sum(subset):
+            if len(m_data.loc[subset, NOISE_PARAMETERS].unique()) > 1:
+                raise NotImplementedError(
+                    f"Datapoints with inconsistent {NOISE_PARAMETERS} is "
+                    f"currently not implemented. Stopping.")
+            tmp_noise = m_data.loc[subset, NOISE_PARAMETERS].values[0]
             if isinstance(tmp_noise, str):
                 raise NotImplementedError(
                     "No numerical noise values provided in the measurement "
@@ -640,15 +631,21 @@ def get_data_to_plot(vis_spec: pd.DataFrame,
                 data_to_plot.at[var_cond_id, 'noise_model'] = tmp_noise
 
         # standard error of mean
-        data_to_plot.at[var_cond_id, 'sem'] = np.std(m_data[MEASUREMENT][
-            ind_intersec]) / np.sqrt(len(m_data[MEASUREMENT][ind_intersec]))
+        data_to_plot.at[var_cond_id, 'sem'] = \
+            np.std(data_measurements) / np.sqrt(len(data_measurements))
 
         # single replicates
         data_to_plot.at[var_cond_id, 'repl'] = \
-            m_data[MEASUREMENT][ind_intersec]
+            data_measurements
 
         if simulation_data is not None:
+            simulation_measurements = simulation_data.loc[
+                matches_plot_spec(simulation_data, col_id, var_cond_id,
+                                  plot_spec),
+                simulation_field
+            ]
             data_to_plot.at[var_cond_id, 'sim'] = np.mean(
-                simulation_data[simulation_field][ind_intersec])
+                simulation_measurements
+            )
 
     return data_to_plot
