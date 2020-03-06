@@ -221,11 +221,11 @@ def plot_petab_problem(petab_problem: problem.Problem,
                                     plotted_noise)
 
 
-def plot_measurements_by_observable(data_file_path: str,
-                                    condition_file_path: str,
-                                    plotted_noise: Optional[str] = MEAN_AND_SD
-                                    ) -> Optional[Union[Dict[str, plt.Subplot],
-                                                        'np.ndarray[plt.Subplot]']]:
+def plot_measurements_by_observable(
+        data_file_path: str,
+        condition_file_path: str,
+        plotted_noise: Optional[str] = MEAN_AND_SD
+) -> Optional[Union[Dict[str, plt.Subplot], 'np.ndarray[plt.Subplot]']]:
     """
     plot measurement data grouped by observable ID.
     A simple wrapper around the more complex function plot_data_and_simulation.
