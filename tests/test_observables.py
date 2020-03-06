@@ -6,6 +6,11 @@ import tempfile
 import petab
 from petab.C import *
 
+# import fixtures
+pytest_plugins = [
+    "tests.test_petab",
+]
+
 
 def test_get_observable_df():
     """Test measurements.get_measurement_df."""
@@ -120,3 +125,24 @@ def test_get_formula_placeholders():
 
     # non-string
     assert petab.get_formula_placeholders(1, 'any', 'observable') == []
+
+
+def test_get_placeholders():
+    """Test get_placeholders"""
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs_1', 'obs_2'],
+        OBSERVABLE_FORMULA: ['observableParameter1_obs_1 * 2 * foo',
+                             '1 + observableParameter1_obs_2'],
+    }).set_index(OBSERVABLE_ID)
+
+    # test with missing noiseFormula
+    expected = ['observableParameter1_obs_1', 'observableParameter1_obs_2']
+    actual = petab.get_placeholders(observable_df)
+    assert actual == expected
+
+    # test with noiseFormula
+    observable_df[NOISE_FORMULA] = ['noiseParameter1_obs_1', '2.0']
+    expected = ['observableParameter1_obs_1', 'noiseParameter1_obs_1',
+                'observableParameter1_obs_2']
+    actual = petab.get_placeholders(observable_df)
+    assert actual == expected

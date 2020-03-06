@@ -127,6 +127,10 @@ def get_placeholders(observable_df: pd.DataFrame) -> List[str]:
 
     Arguments:
         observable_df: PEtab observable table
+
+    Returns:
+        List of placeholder parameters from observable table observableFormulas
+        and noiseFormulas.
     """
 
     # collect placeholder parameters overwritten by
