@@ -1,7 +1,7 @@
 """Functions for plotting PEtab measurement files and simulation results in
 the same format."""
 
-from typing import Union, Optional, List
+from typing import Dict, Union, Optional, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,7 +33,8 @@ def plot_data_and_simulation(
         observable_id_list: Optional[List[IdsList]] = None,
         observable_num_list: Optional[List[NumList]] = None,
         plotted_noise: Optional[str] = MEAN_AND_SD,
-        subplot_file_path: str = ''):
+        subplot_file_path: str = '') -> Optional[Union[Dict[str, plt.Subplot],
+                                                 'np.ndarray[plt.Subplot]']]:
     """
     Main function for plotting data and simulations.
 
@@ -199,7 +200,9 @@ def plot_petab_problem(petab_problem: problem.Problem,
                        sim_cond_num_list: Optional[List[NumList]] = None,
                        observable_id_list: Optional[List[IdsList]] = None,
                        observable_num_list: Optional[List[NumList]] = None,
-                       plotted_noise: Optional[str] = MEAN_AND_SD,):
+                       plotted_noise: Optional[str] = MEAN_AND_SD
+                       ) -> Optional[Union[Dict[str, plt.Subplot],
+                                     'np.ndarray[plt.Subplot]']]:
     """
     Visualization using petab problem.
     For documentation, see function plot_data_and_simulation()
@@ -219,7 +222,9 @@ def plot_petab_problem(petab_problem: problem.Problem,
 
 def plot_measurements_by_observable(data_file_path: str,
                                     condition_file_path: str,
-                                    plotted_noise: str = MEAN_AND_SD):
+                                    plotted_noise: Optional[str] = MEAN_AND_SD
+                                    ) -> Optional[Union[Dict[str, plt.Subplot],
+                                                  'np.ndarray[plt.Subplot]']]:
     """
     plot measurement data grouped by observable ID.
     A simple wrapper around the more complex function plot_data_and_simulation.
@@ -227,11 +232,11 @@ def plot_measurements_by_observable(data_file_path: str,
     Parameters:
     ----------
 
-    data_file_path: str
+    data_file_path:
         file path of measurement data
-    condition_file_path: str
+    condition_file_path:
         file path of condition file
-    plotted_noise: str (optional)
+    plotted_noise:
         String indicating how noise should be visualized:
         ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
 

@@ -17,21 +17,27 @@ import seaborn as sns
 from .plotting_config import plot_lowlevel
 from ..C import *
 
-from typing import Union
+from typing import Dict, List, Optional, Tuple, Union
 
 sns.set()
 
+# for typehints
+IdsList = List[str]
+NumList = List[int]
 
-def import_from_files(data_file_path,
-                      condition_file_path,
-                      visualization_file_path,
-                      simulation_file_path,
-                      dataset_id_list,
-                      sim_cond_id_list,
-                      sim_cond_num_list,
-                      observable_id_list,
-                      observable_num_list,
-                      plotted_noise):
+
+def import_from_files(data_file_path: str,
+                      condition_file_path: str,
+                      visualization_file_path: str,
+                      simulation_file_path: str,
+                      dataset_id_list: List[IdsList],
+                      sim_cond_id_list: List[IdsList],
+                      sim_cond_num_list: List[NumList],
+                      observable_id_list: List[IdsList],
+                      observable_num_list: List[NumList],
+                      plotted_noise: str
+                      ) -> Tuple[pd.DataFrame, pd.DataFrame,
+                                 pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which imports data
     from PEtab files.
@@ -66,12 +72,13 @@ def import_from_files(data_file_path,
     return exp_data, exp_conditions, vis_spec, sim_data
 
 
-def check_vis_spec_consistency(dataset_id_list,
-                               sim_cond_id_list,
-                               sim_cond_num_list,
-                               observable_id_list,
-                               observable_num_list,
-                               exp_data):
+def check_vis_spec_consistency(
+        exp_data: pd.DataFrame,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None) -> str:
     """
     Helper function for plotting data and simulations, which check the
     visualization setting, if no visualization specification file is provided.
@@ -149,13 +156,14 @@ def check_vis_spec_consistency(dataset_id_list,
     return group_by
 
 
-def create_dataset_id_list(simcond_id_list,
-                           simcond_num_list,
-                           observable_id_list,
-                           observable_num_list,
-                           exp_data,
-                           exp_conditions,
-                           group_by):
+def create_dataset_id_list(simcond_id_list: List[IdsList],
+                           simcond_num_list: List[NumList],
+                           observable_id_list: List[IdsList],
+                           observable_num_list: List[NumList],
+                           exp_data: pd.DataFrame,
+                           exp_conditions: pd.DataFrame,
+                           group_by: str
+                           ) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """Create dataset id list"""
     # create a column of dummy datasetIDs and legend entries: preallocate
     dataset_id_column = []
@@ -239,7 +247,9 @@ def create_dataset_id_list(simcond_id_list,
     return exp_data, dataset_id_list, legend_dict
 
 
-def create_figure(uni_plot_ids: np.ndarray, plots_to_file: bool):
+def create_figure(uni_plot_ids: np.ndarray, plots_to_file: bool
+                  ) -> Tuple[plt.Figure, Union[Dict[str, plt.Subplot],
+                                               'np.ndarray[plt.Subplot]']]:
     """
     Helper function for plotting data and simulations, open figure and axes
 
@@ -287,14 +297,15 @@ def create_figure(uni_plot_ids: np.ndarray, plots_to_file: bool):
     return fig, axes
 
 
-def get_default_vis_specs(exp_data,
-                          exp_conditions,
-                          dataset_id_list=None,
-                          sim_cond_id_list=None,
-                          sim_cond_num_list=None,
-                          observable_id_list=None,
-                          observable_num_list=None,
-                          plotted_noise='MeanAndSD'):
+def get_default_vis_specs(exp_data: pd.DataFrame,
+                          exp_conditions: pd.DataFrame,
+                          dataset_id_list: Optional[List[IdsList]] = None,
+                          sim_cond_id_list: Optional[List[IdsList]] = None,
+                          sim_cond_num_list: Optional[List[NumList]] = None,
+                          observable_id_list: Optional[List[IdsList]] = None,
+                          observable_num_list: Optional[List[NumList]] = None,
+                          plotted_noise: Optional[str] = MEAN_AND_SD
+                          ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which creates a
     default visualization table.
@@ -304,8 +315,8 @@ def get_default_vis_specs(exp_data,
 
     # check consistency of settings
     group_by = check_vis_spec_consistency(
-        dataset_id_list, sim_cond_id_list, sim_cond_num_list,
-        observable_id_list, observable_num_list, exp_data)
+        exp_data, dataset_id_list, sim_cond_id_list, sim_cond_num_list,
+        observable_id_list, observable_num_list)
 
     if group_by != 'dataset':
         # datasetId_list will be created (possibly overwriting previous list
@@ -349,7 +360,9 @@ def get_default_vis_specs(exp_data,
     return vis_spec, exp_data
 
 
-def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
+def check_ex_visu_columns(vis_spec: pd.DataFrame,
+                          dataset_id_list: List[IdsList],
+                          legend_dict: Dict) -> pd.DataFrame:
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
@@ -396,13 +409,14 @@ def check_ex_visu_columns(vis_spec, dataset_id_list, legend_dict):
     return vis_spec
 
 
-def check_ex_exp_columns(exp_data,
-                         dataset_id_list,
-                         sim_cond_id_list,
-                         sim_cond_num_list,
-                         observable_id_list,
-                         observable_num_list,
-                         exp_conditions):
+def check_ex_exp_columns(exp_data: pd.DataFrame,
+                         dataset_id_list: List[IdsList],
+                         sim_cond_id_list: List[IdsList],
+                         sim_cond_num_list: List[NumList],
+                         observable_id_list: List[IdsList],
+                         observable_num_list: List[NumList],
+                         exp_conditions: pd.DataFrame
+                         ) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """
     Check the columns in measurement file, if non-mandotory columns does not
     exist, create default columns
@@ -445,12 +459,12 @@ def check_ex_exp_columns(exp_data,
             # datasetId_list will be created (possibly overwriting previous
             # list - only in the local variable, not in the tsv-file)
             # check consistency of settings
-            group_by = check_vis_spec_consistency(dataset_id_list,
+            group_by = check_vis_spec_consistency(exp_data,
+                                                  dataset_id_list,
                                                   sim_cond_id_list,
                                                   sim_cond_num_list,
                                                   observable_id_list,
-                                                  observable_num_list,
-                                                  exp_data)
+                                                  observable_num_list)
             observable_id_list = \
                 [[el] for el in exp_data.observableId.unique()]
 
@@ -565,15 +579,15 @@ def get_data_to_plot(plot_spec: pd.Series,
         plot_spec:
             information about contains defined data format (visualization file)
         m_data:
-            pandas data frame, contains defined data format (measurement file)
+            contains defined data format (measurement file)
         simulation_data:
-            pandas data frame, contains defined data format (simulation file)
+            contains defined data format (simulation file)
         condition_ids:
-            numpy array, containing all unique condition IDs which should be
+            contains all unique condition IDs which should be
             plotted in one figure (can be found in measurementData file,
             column simulationConditionId)
         col_id:
-            str, the name of the column in visualization file, whose entries
+            the name of the column in visualization file, whose entries
             should be unique (depends on condition in column
             independentVariableName)
         simulation_field:
@@ -582,7 +596,7 @@ def get_data_to_plot(plot_spec: pd.Series,
 
     Returns:
         data_to_plot:
-            pandas.DataFrame containing the data which should be plotted
+            contains the data which should be plotted
             (Mean and Std)
     """
 

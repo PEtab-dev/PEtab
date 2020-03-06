@@ -1,4 +1,6 @@
 """Plotting config"""
+from typing import List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -11,7 +13,7 @@ def plot_lowlevel(plot_spec: pd.Series,
                   ax: 'matplotlib.pyplot.Axes',
                   conditions: pd.Series,
                   ms: pd.DataFrame,
-                  plot_sim: bool):
+                  plot_sim: bool) -> 'matplotlib.pyplot.Axes':
     """
     plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
@@ -24,11 +26,11 @@ def plot_lowlevel(plot_spec: pd.Series,
     ax:
         axes to which to plot
     conditions:
-        pd.Series, Values on x-axis
+        Values on x-axis
     ms:
-        pd.DataFrame,  containing measurement data which should be plotted
+        contains measurement data which should be plotted
     plot_sim:
-        bool, tells whether or not simulated data should be plotted as well
+        tells whether or not simulated data should be plotted as well
     """
 
     # set yScale
@@ -155,7 +157,9 @@ def plot_lowlevel(plot_spec: pd.Series,
     return ax
 
 
-def square_plot_equal_ranges(ax, lim=None):
+def square_plot_equal_ranges(ax: 'matplotlib.pyplot.Axes',
+                             lim: Optional[Union[List, Tuple]] = None
+                             ) -> 'matplotlib.pyplot.Axes':
     """Square plot with equal range for scatter plots"""
 
     ax.axis('square')
