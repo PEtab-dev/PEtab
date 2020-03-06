@@ -2,6 +2,26 @@
 
 ## 0.1 series
 
+### 0.1.4
+
+Library:
+
+* Fixes / updates in functions for computing llh and chi2
+* Allow and require output parameters defined in observable table to be defined in parameter table
+* Fix merge_preeq_and_sim_pars_condition which incorrectly assumed lists
+  instead of dicts
+* Update parameter mapping to deal with species and compartments in
+  condition table
+* Removed `petab.migrations.sbml_observables_to_table`
+
+  For converting older PEtab files to observable table format, use one of the
+  previous releases
+
+* Visualization:
+  * Fix various issues with get_data_to_plot
+  * Fixed various issues with expected presence of optional columns
+
+
 ### 0.1.3
 
 File format:

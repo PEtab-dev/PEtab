@@ -6,6 +6,11 @@ import tempfile
 import petab
 from petab.C import *
 
+# import fixtures
+pytest_plugins = [
+    "tests.test_petab",
+]
+
 
 def test_get_observable_df():
     """Test measurements.get_measurement_df."""
@@ -79,3 +84,65 @@ def test_get_output_parameters(minimal_sbml_model):
     output_parameters = petab.get_output_parameters(observable_df, model)
 
     assert output_parameters == {'scaling', 'offset'}
+
+
+def test_get_formula_placeholders():
+    """Test get_formula_placeholders"""
+
+    # no placeholder
+    assert petab.get_formula_placeholders('1.0', 'any', 'observable') == []
+
+    # multiple placeholders
+    assert petab.get_formula_placeholders(
+        'observableParameter1_twoParams * '
+        'observableParameter2_twoParams + otherParam',
+        'twoParams', 'observable') \
+        == ['observableParameter1_twoParams',
+            'observableParameter2_twoParams']
+
+    # noise placeholder
+    assert petab.get_formula_placeholders(
+        '3.0 * noiseParameter1_oneParam', 'oneParam', 'noise') \
+        == ['noiseParameter1_oneParam']
+
+    # multiple instances and in 'wrong' order
+    assert petab.get_formula_placeholders(
+        'observableParameter2_twoParams * '
+        'observableParameter1_twoParams + '
+        'otherParam / observableParameter2_twoParams',
+        'twoParams', 'observable') \
+        == ['observableParameter1_twoParams',
+            'observableParameter2_twoParams']
+
+    # non-consecutive numbering
+    with pytest.raises(AssertionError):
+        petab.get_formula_placeholders(
+            'observableParameter2_twoParams + observableParameter2_twoParams',
+            'twoParams', 'observable')
+
+    # empty
+    assert petab.get_formula_placeholders('', 'any', 'observable') == []
+
+    # non-string
+    assert petab.get_formula_placeholders(1, 'any', 'observable') == []
+
+
+def test_get_placeholders():
+    """Test get_placeholders"""
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs_1', 'obs_2'],
+        OBSERVABLE_FORMULA: ['observableParameter1_obs_1 * 2 * foo',
+                             '1 + observableParameter1_obs_2'],
+    }).set_index(OBSERVABLE_ID)
+
+    # test with missing noiseFormula
+    expected = ['observableParameter1_obs_1', 'observableParameter1_obs_2']
+    actual = petab.get_placeholders(observable_df)
+    assert actual == expected
+
+    # test with noiseFormula
+    observable_df[NOISE_FORMULA] = ['noiseParameter1_obs_1', '2.0']
+    expected = ['observableParameter1_obs_1', 'noiseParameter1_obs_1',
+                'observableParameter1_obs_2']
+    actual = petab.get_placeholders(observable_df)
+    assert actual == expected

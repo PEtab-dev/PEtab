@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Iterable, Optional, Callable, Union, Any
+from typing import Iterable, Optional, Callable, Union, Any, Sequence, List
 from warnings import warn
 
 import numpy as np
@@ -366,3 +366,17 @@ def create_combine_archive(
 
     archive.addMetadata(".", description)
     archive.writeToFile(filename)
+
+
+def unique_preserve_order(seq: Sequence) -> List:
+    """Return a list of unique elements in Sequence, keeping only the first
+    occurrence of each element
+
+    seq: Sequence to prune
+
+    Returns:
+        List of unique elements in ``seq``
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]

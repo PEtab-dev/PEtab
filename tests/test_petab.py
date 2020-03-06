@@ -233,17 +233,10 @@ def test_create_parameter_df(
         parameter_name='Parameter 0',
         value=3.0)
 
-    petab.sbml.add_model_output_with_sigma(
-        sbml_model=model,
-        observable_id='obs1',
-        observable_name='Observable 1',
-        observable_formula='x1')
-
-    petab.add_model_output_with_sigma(
-        sbml_model=model,
-        observable_id='obs2',
-        observable_name='Observable 2',
-        observable_formula='2*x1')
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs1', 'obs2'],
+        OBSERVABLE_FORMULA: ['x1', '2*x1']
+    }).set_index(OBSERVABLE_ID)
 
     # Add assignment rule target which should be ignored
     petab.add_global_parameter(sbml_model=model,
@@ -260,6 +253,7 @@ def test_create_parameter_df(
     parameter_df = petab.create_parameter_df(
         model,
         condition_df_2_conditions,
+        observable_df,
         measurement_df)
 
     # first model parameters, then row by row noise and sigma overrides
@@ -275,6 +269,7 @@ def test_create_parameter_df(
     parameter_df = petab.create_parameter_df(
         model,
         condition_df_2_conditions,
+        observable_df,
         measurement_df)
     actual = parameter_df.index.values.tolist()
     assert actual == expected
@@ -285,6 +280,7 @@ def test_create_parameter_df(
     parameter_df = petab.create_parameter_df(
         model,
         condition_df_2_conditions,
+        observable_df,
         measurement_df,
         include_optional=True)
     actual = parameter_df.index.values.tolist()

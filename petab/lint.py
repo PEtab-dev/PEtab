@@ -149,6 +149,7 @@ def check_measurement_df(df: pd.DataFrame,
 def check_parameter_df(
         df: pd.DataFrame,
         sbml_model: Optional[libsbml.Model] = None,
+        observable_df: Optional[pd.DataFrame] = None,
         measurement_df: Optional[pd.DataFrame] = None,
         condition_df: Optional[pd.DataFrame] = None) -> None:
     """Run sanity checks on PEtab parameter table
@@ -156,6 +157,7 @@ def check_parameter_df(
     Arguments:
         df: PEtab condition DataFrame
         sbml_model: SBML Model for additional checking of parameter IDs
+        observable_df: PEtab observable table for additional checks
         measurement_df: PEtab measurement table for additional checks
         condition_df: PEtab condition table for additional checks
 
@@ -205,7 +207,7 @@ def check_parameter_df(
     if sbml_model and measurement_df is not None \
             and condition_df is not None:
         assert_all_parameters_present_in_parameter_df(
-            df, sbml_model, measurement_df, condition_df)
+            df, sbml_model, observable_df, measurement_df, condition_df)
 
 
 def check_observable_df(observable_df: pd.DataFrame) -> None:
@@ -256,6 +258,7 @@ def check_observable_df(observable_df: pd.DataFrame) -> None:
 def assert_all_parameters_present_in_parameter_df(
         parameter_df: pd.DataFrame,
         sbml_model: libsbml.Model,
+        observable_df: pd.DataFrame,
         measurement_df: pd.DataFrame,
         condition_df: pd.DataFrame) -> None:
     """Ensure all required parameters are contained in the parameter table
@@ -264,6 +267,7 @@ def assert_all_parameters_present_in_parameter_df(
     Arguments:
         parameter_df: PEtab parameter DataFrame
         sbml_model: PEtab SBML Model
+        observable_df: PEtab observable table
         measurement_df: PEtab measurement table
         condition_df: PEtab condition table
 
@@ -273,11 +277,11 @@ def assert_all_parameters_present_in_parameter_df(
 
     required = parameters.get_required_parameters_for_parameter_table(
         sbml_model=sbml_model, condition_df=condition_df,
-        measurement_df=measurement_df)
+        observable_df=observable_df, measurement_df=measurement_df)
 
     allowed = parameters.get_valid_parameters_for_parameter_table(
         sbml_model=sbml_model, condition_df=condition_df,
-        measurement_df=measurement_df)
+        observable_df=observable_df, measurement_df=measurement_df)
 
     actual = set(parameter_df.index)
 
@@ -681,6 +685,7 @@ def lint_problem(problem: 'petab.Problem') -> bool:
         logger.info("Checking parameter table...")
         try:
             check_parameter_df(problem.parameter_df, problem.sbml_model,
+                               problem.observable_df,
                                problem.measurement_df, problem.condition_df)
         except AssertionError as e:
             logger.error(e)
