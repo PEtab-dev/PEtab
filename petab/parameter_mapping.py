@@ -501,7 +501,7 @@ def merge_preeq_and_sim_pars_condition(
             continue
 
         if par_id not in condition_map_sim:
-            # unmapped for simulation -> just add preeq
+            # unmapped for simulation -> just use preeq values
             condition_map_sim[par_id] = condition_map_preeq[par_id]
             condition_scale_map_sim[par_id] = condition_scale_map_preeq[par_id]
             continue
