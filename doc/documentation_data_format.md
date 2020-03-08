@@ -436,7 +436,7 @@ provided) inside the measurement table.
 Expected to have the following columns in any (but preferably this)
 order:
 
-| plotId | [plotName] | plotTypeSimulation | plotTypeData | datasetId | ...
+| plotId | [plotName] | [plotTypeSimulation] | [plotTypeData] | [datasetId] | ...
 |---|---|---|---|---|---|
 | plotId | [plotName] | LinePlot | MeanAndSD | datasetId | ...
 |...|...|...|...|...|...|
@@ -463,62 +463,66 @@ order:
   An ID which corresponds to a specific plot. All datasets with the same
   plotId will be plotted into the same axes object.
 
-- `plotName` [STRING]
+- `plotName` [STRING, OPTIONAL]
 
   A name for the specific plot.
 
-- `plotTypeSimulation` [STRING]
+- `plotTypeSimulation` [STRING, OPTIONAL]
 
   The type of the corresponding plot, can be `LinePlot`, `BarPlot` and `ScatterPlot`. Default
   is `LinePlot`.
 
-- `plotTypeData`
+- `plotTypeData` [STRING, OPTIONAL]
 
   The type how replicates should be handled, can be `MeanAndSD`,
   `MeanAndSEM`, `replicate` (for plotting all replicates separately), or
   `provided` (if numeric values for the noise level are provided in the
   measurement table). Default is `MeanAndSD`.
 
- - `datasetId` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId)]
+- `datasetId` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId), OPTIONAL]
 
   The datasets, which should be grouped into one plot.
 
- - `xValues` [STRING]
+- `xValues` [STRING, OPTIONAL]
 
   The independent variable, which will be plotted on the x-axis. Can be 
   `time` (default, for time resolved data), or it can be `parameterOrStateId`
   for dose-response plots. The corresponding numeric values will be shown on
   the x-axis.
 
- - `xOffset` [NUMERIC]
+- `xOffset` [NUMERIC, OPTIONAL]
 
   Possible data-offsets for the independent variable (default is `0`).
 
- - `xLabel` [STRING]
+- `xLabel` [STRING, OPTIONAL]
 
   Label for the x-axis.
 
-- `xScale` [STRING]
+- `xScale` [STRING, OPTIONAL]
 
   Scale of the independent variable, can be `lin`, `log`, `log10` or `order`.
+  The `order` value should be used if values of the independent variable are
+  ordinal. This value can only be used in combination with `LinePlot` value for
+  the `plotTypeSimulation` column. In this case, points on x axis will be
+  placed equidistantly from each other.
 
-- `yValues` [observableId, REFERENCES(measurementTable.observableId)]
+- `yValues` [observableId, REFERENCES(measurementTable.observableId), OPTIONAL]
 
   The observable which should be plotted on the y-axis.
 
-- `yOffset` [NUMERIC]
+- `yOffset` [NUMERIC, OPTIONAL]
 
   Possible data-offsets for the observable (default is `0`).
 
-- `yLabel` [STRING]
+- `yLabel` [STRING, OPTIONAL]
 
   Label for the y-axis.
 
-- `yScale` [STRING]
+- `yScale` [STRING, OPTIONAL]
 
-  Scale of the observable, can be `lin`, `log`, or `log10`.
+  Scale of the observable, can be `lin`, `log`, or `log10`. Default is `lin`.
 
-- `legendEntry` [STRING]
+- `legendEntry` [STRING, OPTIONAL]
 
   The name that should be displayed for the corresponding dataset in the
   legend and which defaults to `datasetId`.
@@ -528,6 +532,13 @@ order:
 
 Additional columns, such as `Color`, etc. may be specified.
 
+### Examples
+
+Examples of the visualization table can be found in the
+[Benchmark model collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/).
+For example, for
+[Chen_MSB2009](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009)
+model.
 
 ## YAML file for grouping files
 
