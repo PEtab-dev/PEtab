@@ -1,6 +1,7 @@
 """Functions for working with the PEtab observables table"""
 
-from typing import Union, Set, List
+from _collections import OrderedDict
+from typing import Union, List
 
 import libsbml
 import pandas as pd
@@ -56,7 +57,7 @@ def write_observable_df(df: pd.DataFrame, filename: str) -> None:
 
 
 def get_output_parameters(observable_df: pd.DataFrame,
-                          sbml_model: libsbml.Model) -> Set[str]:
+                          sbml_model: libsbml.Model) -> List[str]:
     """Get output parameters
 
     Returns IDs of parameters used in observable and noise formulas that are
@@ -69,18 +70,20 @@ def get_output_parameters(observable_df: pd.DataFrame,
     Returns:
         List of output parameter IDs
     """
-    formulas = set(observable_df[OBSERVABLE_FORMULA])
+    formulas = list(observable_df[OBSERVABLE_FORMULA])
     if NOISE_FORMULA in observable_df:
-        formulas |= set(observable_df[NOISE_FORMULA])
-    output_parameters = set()
+        formulas.extend(observable_df[NOISE_FORMULA])
+    output_parameters = OrderedDict()
 
     for formula in formulas:
-        for free_sym in sp.sympify(formula).free_symbols:
+        free_syms = sorted(sp.sympify(formula).free_symbols,
+                           key=lambda symbol: symbol.name)
+        for free_sym in free_syms:
             sym = str(free_sym)
             if sbml_model.getElementBySId(sym) is None:
-                output_parameters.add(sym)
+                output_parameters[sym] = None
 
-    return output_parameters
+    return list(output_parameters.keys())
 
 
 def get_formula_placeholders(formula_string: str, observable_id: str,

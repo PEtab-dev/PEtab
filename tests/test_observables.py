@@ -83,7 +83,7 @@ def test_get_output_parameters(minimal_sbml_model):
 
     output_parameters = petab.get_output_parameters(observable_df, model)
 
-    assert output_parameters == {'scaling', 'offset'}
+    assert output_parameters == ['offset', 'scaling']
 
 
 def test_get_formula_placeholders():
