@@ -26,18 +26,18 @@ IdsList = List[str]
 NumList = List[int]
 
 
-def import_from_files(data_file_path: str,
-                      condition_file_path: str,
-                      visualization_file_path: str,
-                      simulation_file_path: str,
-                      dataset_id_list: List[IdsList],
-                      sim_cond_id_list: List[IdsList],
-                      sim_cond_num_list: List[NumList],
-                      observable_id_list: List[IdsList],
-                      observable_num_list: List[NumList],
-                      plotted_noise: str
-                      ) -> Tuple[pd.DataFrame, pd.DataFrame,
-                                 pd.DataFrame, pd.DataFrame]:
+def import_from_files(
+        data_file_path: str,
+        condition_file_path: str,
+        visualization_file_path: str,
+        simulation_file_path: str,
+        dataset_id_list: List[IdsList],
+        sim_cond_id_list: List[IdsList],
+        sim_cond_num_list: List[NumList],
+        observable_id_list: List[IdsList],
+        observable_num_list: List[NumList],
+        plotted_noise: str) -> Tuple[pd.DataFrame, pd.DataFrame,
+                                     pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which imports data
     from PEtab files.
@@ -247,9 +247,11 @@ def create_dataset_id_list(simcond_id_list: List[IdsList],
     return exp_data, dataset_id_list, legend_dict
 
 
-def create_figure(uni_plot_ids: np.ndarray, plots_to_file: bool
-                  ) -> Tuple[plt.Figure, Union[Dict[str, plt.Subplot],
-                                               'np.ndarray[plt.Subplot]']]:
+def create_figure(
+        uni_plot_ids: np.ndarray,
+        plots_to_file: bool) -> Tuple[plt.Figure,
+                                      Union[Dict[str, plt.Subplot],
+                                            'np.ndarray[plt.Subplot]']]:
     """
     Helper function for plotting data and simulations, open figure and axes
 
@@ -297,15 +299,16 @@ def create_figure(uni_plot_ids: np.ndarray, plots_to_file: bool
     return fig, axes
 
 
-def get_default_vis_specs(exp_data: pd.DataFrame,
-                          exp_conditions: pd.DataFrame,
-                          dataset_id_list: Optional[List[IdsList]] = None,
-                          sim_cond_id_list: Optional[List[IdsList]] = None,
-                          sim_cond_num_list: Optional[List[NumList]] = None,
-                          observable_id_list: Optional[List[IdsList]] = None,
-                          observable_num_list: Optional[List[NumList]] = None,
-                          plotted_noise: Optional[str] = MEAN_AND_SD
-                          ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def get_default_vis_specs(
+        exp_data: pd.DataFrame,
+        exp_conditions: pd.DataFrame,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None,
+        plotted_noise: Optional[str] = MEAN_AND_SD
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which creates a
     default visualization table.
@@ -409,14 +412,15 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
     return vis_spec
 
 
-def check_ex_exp_columns(exp_data: pd.DataFrame,
-                         dataset_id_list: List[IdsList],
-                         sim_cond_id_list: List[IdsList],
-                         sim_cond_num_list: List[NumList],
-                         observable_id_list: List[IdsList],
-                         observable_num_list: List[NumList],
-                         exp_conditions: pd.DataFrame
-                         ) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
+def check_ex_exp_columns(
+        exp_data: pd.DataFrame,
+        dataset_id_list: List[IdsList],
+        sim_cond_id_list: List[IdsList],
+        sim_cond_num_list: List[NumList],
+        observable_id_list: List[IdsList],
+        observable_num_list: List[NumList],
+        exp_conditions: pd.DataFrame
+) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """
     Check the columns in measurement file, if non-mandotory columns does not
     exist, create default columns

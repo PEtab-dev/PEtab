@@ -194,16 +194,16 @@ def plot_data_and_simulation(
     return None
 
 
-def plot_petab_problem(petab_problem: problem.Problem,
-                       sim_data: Optional[Union[str, pd.DataFrame]] = None,
-                       dataset_id_list: Optional[List[IdsList]] = None,
-                       sim_cond_id_list: Optional[List[IdsList]] = None,
-                       sim_cond_num_list: Optional[List[NumList]] = None,
-                       observable_id_list: Optional[List[IdsList]] = None,
-                       observable_num_list: Optional[List[NumList]] = None,
-                       plotted_noise: Optional[str] = MEAN_AND_SD
-                       ) -> Optional[Union[Dict[str, plt.Subplot],
-                                           'np.ndarray[plt.Subplot]']]:
+def plot_petab_problem(
+        petab_problem: problem.Problem,
+        sim_data: Optional[Union[str, pd.DataFrame]] = None,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None,
+        plotted_noise: Optional[str] = MEAN_AND_SD
+) -> Optional[Union[Dict[str, plt.Subplot], 'np.ndarray[plt.Subplot]']]:
     """
     Visualization using petab problem.
     For documentation, see function plot_data_and_simulation()

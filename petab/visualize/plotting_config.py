@@ -157,9 +157,9 @@ def plot_lowlevel(plot_spec: pd.Series,
     return ax
 
 
-def square_plot_equal_ranges(ax: 'matplotlib.pyplot.Axes',
-                             lim: Optional[Union[List, Tuple]] = None
-                             ) -> 'matplotlib.pyplot.Axes':
+def square_plot_equal_ranges(
+        ax: 'matplotlib.pyplot.Axes',
+        lim: Optional[Union[List, Tuple]] = None) -> 'matplotlib.pyplot.Axes':
     """Square plot with equal range for scatter plots"""
 
     ax.axis('square')
