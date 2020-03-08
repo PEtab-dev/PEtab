@@ -520,7 +520,7 @@ order:
 
 - `yScale` [STRING, OPTIONAL]
 
-  Scale of the observable, can be `lin`, `log`, or `log10`.
+  Scale of the observable, can be `lin`, `log`, or `log10`. Default is `lin`.
 
 - `legendEntry` [STRING, OPTIONAL]
 
