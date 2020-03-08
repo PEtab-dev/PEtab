@@ -156,14 +156,14 @@ def check_vis_spec_consistency(
     return group_by
 
 
-def create_dataset_id_list(simcond_id_list: List[IdsList],
-                           simcond_num_list: List[NumList],
-                           observable_id_list: List[IdsList],
-                           observable_num_list: List[NumList],
-                           exp_data: pd.DataFrame,
-                           exp_conditions: pd.DataFrame,
-                           group_by: str
-                           ) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
+def create_dataset_id_list(
+        simcond_id_list: List[IdsList],
+        simcond_num_list: List[NumList],
+        observable_id_list: List[IdsList],
+        observable_num_list: List[NumList],
+        exp_data: pd.DataFrame,
+        exp_conditions: pd.DataFrame,
+        group_by: str) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """Create dataset id list"""
     # create a column of dummy datasetIDs and legend entries: preallocate
     dataset_id_column = []
