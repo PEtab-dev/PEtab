@@ -88,7 +88,7 @@ different tools, based on passed test cases of the
 
     Legend:
     * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
-    * Second character indicates whether computing residuals are supported and correct (+) or not (-)
+    * Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-)
     * Third character indicates whether computing likelihoods is supported and correct (+) or not (-)
 
 ## Using PEtab
