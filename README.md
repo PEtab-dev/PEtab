@@ -35,7 +35,7 @@ Documentation of the PEtab data format and Python library is available at
 
 ## Examples
 
-A wide range of PEtab examples can be found in the systems biology optimization
+A wide range of PEtab examples can be found in the systems biology parameter estimation
 [benchmark problem collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 
 
