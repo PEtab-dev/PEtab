@@ -33,19 +33,23 @@ for example:
 Documentation of the PEtab data format and Python library is available at
 [https://petab.readthedocs.io/en/latest/](https://petab.readthedocs.io/en/latest/).
 
-## References
+## Examples
 
-Where PEtab is used / supported:
+A wide range of PEtab examples can be found in the systems biology optimization
+[benchmark problem collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 
-  - Within the systems biology optimization 
-    [benchmark problem collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab)
+
+## PEtab support in systems biology tools
+
+Where PEtab is supported:
+
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
 
   - [d2d](https://github.com/Data2Dynamics/d2d/)
 
-  - [dmod](https://github.com/dkaschek/dMod/)
+  - [dMod](https://github.com/dkaschek/dMod/)
 
   - [meigo](http://gingproc.iim.csic.es/meigo.html)
 
@@ -57,6 +61,35 @@ Where PEtab is used / supported:
 
 If your project or tool is using PEtab, and you would like to have it listed
 here, please let us know.
+
+### PEtab features supported in different tools
+
+The following list provides an overview of supported PEtab features in
+different tools, based on passed test cases of the
+[PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
+
+| ID | Test                                                           | AMICI | AMIGO | Copasi | D2D | dMod |
+|----|----------------------------------------------------------------|-------|-------|--------|-----|------|
+| 1  | Basic simulation                                               | +++   |       |        |     |      |
+| 2  | Multiple simulation conditions                                 | +++   |       |        |     |      |
+| 3  | Numeric observable parameter overrides in measurement table    | +++   |       |        |     |      |
+| 4  | Parametric observable parameter overrides in measurement table | +++   |       |        |     |      |
+| 5  | Parametric overrides in condition table                        | +++   |       |        |     |      |
+| 6  | Time-point specific overrides in the measurement table         | ---   |       |        |     |      |
+| 7  | Observable transformations (lin, log, log10)                   | +-+   |       |        |     |      |
+| 8  | Replicate measurements                                         | +++   |       |        |     |      |
+| 9  | Pre-equilibration                                              | +++   |       |        |     |      |
+| 10 | Partial pre-equilibration                                      | +++   |       |        |     |      |
+| 11 | Numeric initial concentration in condition table               | +++   |       |        |     |      |
+| 12 | Numeric initial compartment sizes in condition table           | ---   |       |        |     |      |
+| 13 | Parametric initial concentrations in condition table           | +++   |       |        |     |      |
+| 14 | Numeric noise parameter overrides in measurement table         | +++   |       |        |     |      |
+| 15 | Parametric noise parameter overrides in measurement table      | +++   |       |        |     |      |
+
+    Legend:
+    * First character indicates whether simulations the respective features is supported and simulations are correct (+) or not (-)
+    * Second character indicates whether computing residuals are supported and correct (+) or not (-)
+    * Third character indicates whether computing likelihood is supported and correct (+) or not (-)
 
 ## Using PEtab
 
