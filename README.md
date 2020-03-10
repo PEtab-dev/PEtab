@@ -108,6 +108,8 @@ will have to:
 
 1. Create a condition table, if appropriate
 
+1. Create a table of observables
+
 1. Create a table of measurements
 
 1. Create a parameter table
@@ -143,10 +145,11 @@ be:
     `petablint`
 
   - `petab.create_parameter_df` to create the parameter table, once you
-    have set up the model, condition table and measurement table
+    have set up the model, condition table, observable table and measurement
+    table
 
-  - Functions in `petab.migrations` for updating PEtab files from earlier
-    versions
+  - `petab.create_combine_archive` to create a
+    [COMBINE Archive](https://combinearchive.org/index/) from PEtab files
 
 ## Extending PEtab
 
