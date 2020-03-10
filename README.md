@@ -87,7 +87,7 @@ different tools, based on passed test cases of the
 | 15 | Parametric noise parameter overrides in measurement table      | +++   |       |        |     |      |      |
 
     Legend:
-    * First character indicates whether simulations the respective features is supported and simulations are correct (+) or not (-)
+    * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
     * Second character indicates whether computing residuals are supported and correct (+) or not (-)
     * Third character indicates whether computing likelihood is supported and correct (+) or not (-)
 
