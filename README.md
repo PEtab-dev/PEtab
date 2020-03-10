@@ -68,7 +68,7 @@ The following list provides an overview of supported PEtab features in
 different tools, based on passed test cases of the
 [PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
 
-| ID | Test                                                           | AMICI | AMIGO | Copasi | D2D | dMod |
+| ID | Test                                                           | AMICI<br>*`develop`* | AMIGO | Copasi | D2D | dMod |
 |----|----------------------------------------------------------------|-------|-------|--------|-----|------|
 | 1  | Basic simulation                                               | +++   |       |        |     |      |
 | 2  | Multiple simulation conditions                                 | +++   |       |        |     |      |
