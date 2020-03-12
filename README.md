@@ -76,7 +76,7 @@ different tools, based on passed test cases of the
 | 4  | Parametric observable parameter overrides in measurement table | +++   |       |        |     |      | +++   | +++  |
 | 5  | Parametric overrides in condition table                        | +++   |       |        |     |      | +++   | +++  |
 | 6  | Time-point specific overrides in the measurement table         | ---   |       |        |     |      | ---   | ---  |
-| 7  | Observable transformations (lin, log, log10)                   | +-+   |       |        |     |      | +-+   | +-+  |
+| 7  | Observable transformations to log10 scale                      | +-+   |       |        |     |      | +-+   | +-+  |
 | 8  | Replicate measurements                                         | +++   |       |        |     |      | +++   | +++  |
 | 9  | Pre-equilibration                                              | +++   |       |        |     |      | +++   | +++  |
 | 10 | Partial pre-equilibration                                      | +++   |       |        |     |      | +++   | +++  |
@@ -85,6 +85,7 @@ different tools, based on passed test cases of the
 | 13 | Parametric initial concentrations in condition table           | +++   |       |        |     |      | +++   | +++  |
 | 14 | Numeric noise parameter overrides in measurement table         | +++   |       |        |     |      | +++   | +++  |
 | 15 | Parametric noise parameter overrides in measurement table      | +++   |       |        |     |      | +++   | +++  |
+| 16 | Observable transformations to log scale                        | +-+   |       |        |     |      | +-+   | +-+  |
 
     Legend:
     * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
