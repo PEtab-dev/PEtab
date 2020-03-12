@@ -1,7 +1,7 @@
 # PEtab data format specification
 
 
-## Version: 1
+## Format version: 1
 
 This document explains the PEtab data format.
 
@@ -46,16 +46,16 @@ components in the core standard, which should provide all information for
 defining the parameter estimation problem.
 
 Extensions of this format (e.g. additional columns in the measurement table)
-are possible and intended. However, those columns should provide extra
+are possible and intended. However, while those columns may provide extra
 information for example for plotting, downstream analysis, or for more
-efficient parameter estimation, but they should not affect the optimization
+efficient parameter estimation, they should not affect the optimization
 problem as such.
 
 **General remarks**
 - All model entities, column names and row names are case-sensitive
 - All identifiers must consist only of upper and lower case letters, digits and
   underscores, and must not start with a digit.
-- Fields in "[]" in the second row are optional and may be left empty.
+- Fields in "[]" are optional and may be left empty.
 
 
 ## SBML model definition
@@ -72,9 +72,11 @@ This is specified as a tab-separated value file in the following way:
 
 | conditionId | [conditionName] | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
 |---|---|---|---|---|
-| conditionId1 | conditionName1 | NUMERIC&#124;parameterId&#124;stateId&#124;compartmentId | ...| ...
-| conditionId2 | ... | ... | ...| ...
-|... | ... | ... | ... |...| ...
+| STRING | [STRING] | NUMERIC&#124;STRING | ... | NUMERIC&#124;STRING |
+| e.g. | | | | |
+| conditionId1 | [conditionName1] | 0.42 | ...| parameterId|
+| conditionId2 | ... | ... | ...| ...|
+|... | ... | ... | ... |...| ...|
 
 Row- and column-ordering are arbitrary, although specifying `conditionId`
 first may improve human readability. 
@@ -127,10 +129,10 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time |...
-|---|---|---|---|---|---|
-| observableId | [conditionId] | conditionId | NUMERIC | NUMERIC&#124;'inf' |
-|...|...|...|...|...|...|
+| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time |
+|---|---|---|---|---|
+| observableId | [conditionId] | conditionId | NUMERIC | NUMERIC&#124;inf |
+|...|...|...|...|...|
 
 *(wrapped for readability)*
 
@@ -142,10 +144,10 @@ order:
 Additional (non-standard) columns may be added. If the additional plotting 
 functionality of PEtab should be used, such columns could be
 
-| ... | [datasetId] | [replicateId]  | ... |
-|---|---|---|---|
-|... | [String] | [String] | ... | 
-|...|...|...|...|
+| ... | [datasetId] | [replicateId]  |
+|---|---|---|
+|... | [datasetId] | [replicateId] |
+|...|...|...|
 
 where `datasetId` is a necessary column to use particular plotting 
 functionality, and `replicateId` is optional, which can be used to group 
@@ -162,7 +164,7 @@ replicates and plot error bars.
 REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
   The `conditionId` to be used for preequilibration. E.g. for drug
-  treatments the model would be preequilibrated with the no-drug condition.
+  treatments, the model would be preequilibrated with the no-drug condition.
   Empty for no preequilibration.
 
 - `simulationConditionId` [STRING, NOT NULL,
@@ -241,7 +243,7 @@ The observable table has the following columns:
 
 | observableId | [observableName] | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
 | --- | --- | --- | --- | --- | --- |
-| [String] | [String] | [String] | ['lin'(default)&#124;'log'&#124;'log10'] |  [String&#124;Number] | ['laplace'&#124;'normal'] |
+| STRING | [STRING] | STRING | [lin(default)&#124;log&#124;log10] |  STRING&#124;NUMBER | [laplace&#124;normal] |
 | e.g. | | | | | | 
 | relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1 * (protein1 + phospho_protein1 ) | lin | noiseParameter1 | normal |
 | ... |  ... | ... | ... | ... |
@@ -331,7 +333,7 @@ One row per parameter with arbitrary order of rows and columns:
 
 | parameterId | [parameterName] | parameterScale | lowerBound  |upperBound | nominalValue | estimate | [priorType] | [priorParameters] |
 |---|---|---|---|---|---|---|---|---|
-|STRING|STRING|log10&#124;lin&#124;log|NUMERIC|NUMERIC|NUMERIC|0&#124;1|*see below*|*see below*
+|STRING|[STRING]|log10&#124;lin&#124;log|NUMERIC|NUMERIC|NUMERIC|0&#124;1|*see below*|*see below*
 |...|...|...|...|...|...|...|...|...|
 
 Additional columns may be added.
@@ -436,24 +438,24 @@ provided) inside the measurement table.
 Expected to have the following columns in any (but preferably this)
 order:
 
-| plotId | [plotName] | [plotTypeSimulation] | [plotTypeData] | [datasetId] | ...
-|---|---|---|---|---|---|
-| plotId | [plotName] | LinePlot | MeanAndSD | datasetId | ...
-|...|...|...|...|...|...|
+| plotId | [plotName] | [plotTypeSimulation] | [plotTypeData] | [datasetId] |
+|---|---|---|---|---|
+| STRING | [STRING] | [LinePlot(default)&#124;BarPlot&#124;ScatterPlot] | [MeanAndSD(default)&#124;MeanAndSEM&#124;replicate;provided] | datasetId |
+|...|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... | [xValues] | [xOffset] | [xLabel] | [xScale] | ...
-|---|---|---|---|---|---|
-|... |  [parameterId] | [NUMERIC] | [STRING] | [STRING] | ...
-|...|...|...|...|...|...|
+| ... | [xValues] | [xOffset] | [xLabel] | xScale |
+|---|---|---|---|---|
+|... |  [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | lin&#124;log&#124;log10&#124;order |
+|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... | [yValues] | [yOffset] | [yLabel] | [yScale] | [legendEntry] |  ...
-|---|---|---|---|---|---|---|
-|... |  [observableId] | [NUMERIC] | [STRING] | [STRING] | [STRING] | ...
-|...|...|...|...|...|...|...|
+| ... | yValues | [yOffset] | [yLabel] | yScale | [legendEntry] |
+|---|---|---|---|---|---|
+|... |  observableId | [NUMERIC] | [STRING] | lin&#124;log&#124;log10 | [STRING] |
+|...|...|...|...|...|...|
 
 
 ### Detailed field description:
@@ -469,8 +471,7 @@ order:
 
 - `plotTypeSimulation` [STRING, OPTIONAL]
 
-  The type of the corresponding plot, can be `LinePlot`, `BarPlot` and `ScatterPlot`. Default
-  is `LinePlot`.
+  The type of the corresponding plot, can be `LinePlot`, `BarPlot` and `ScatterPlot`. Default is `LinePlot`.
 
 - `plotTypeData` [STRING, OPTIONAL]
 
@@ -481,7 +482,7 @@ order:
 
 - `datasetId` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId), OPTIONAL]
 
-  The datasets, which should be grouped into one plot.
+  The datasets which should be grouped into one plot.
 
 - `xValues` [STRING, OPTIONAL]
 
@@ -496,7 +497,7 @@ order:
 
 - `xLabel` [STRING, OPTIONAL]
 
-  Label for the x-axis.
+  Label for the x-axis. Defaults to the entry in `xValues`.
 
 - `xScale` [STRING, OPTIONAL]
 
@@ -516,7 +517,7 @@ order:
 
 - `yLabel` [STRING, OPTIONAL]
 
-  Label for the y-axis.
+  Label for the y-axis. Defaults to the entry in `yValues`.
 
 - `yScale` [STRING, OPTIONAL]
 
@@ -525,7 +526,7 @@ order:
 - `legendEntry` [STRING, OPTIONAL]
 
   The name that should be displayed for the corresponding dataset in the
-  legend and which defaults to `datasetId`.
+  legend and which defaults to the value in `datasetId`.
 
 
 ### Extensions
