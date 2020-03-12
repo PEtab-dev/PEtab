@@ -72,9 +72,9 @@ This is specified as a tab-separated value file in the following way:
 
 | conditionId | [conditionName] | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
 |---|---|---|---|---|
-| STRING | [STRING] | STRING | ... | STRING |
+| STRING | [STRING] | NUMERIC&#124;STRING | ... | NUMERIC&#124;STRING |
 | e.g. | | | | |
-| conditionId1 | [conditionName1] | NUMERIC&#124;parameterId&#124;stateId&#124;compartmentId | ...| ...|
+| conditionId1 | [conditionName1] | 0.42 | ...| parameterId|
 | conditionId2 | ... | ... | ...| ...|
 |... | ... | ... | ... |...| ...|
 
@@ -439,16 +439,16 @@ Expected to have the following columns in any (but preferably this)
 order:
 
 | plotId | [plotName] | [plotTypeSimulation] | [plotTypeData] | datasetId |
-|---|---|---|---|---|---|
+|---|---|---|---|---|
 | STRING | [STRING] | [LinePlot(default)&#124;BarPlot&#124;ScatterPlot] | [MeanAndSD(default)&#124;MeanAndSEM&#124;replicate;provided] | STRING |
-|...|...|...|...|...|
+|...|...|...|...|
 
 *(wrapped for readability)*
 
 | ... | [xValues] | [xOffset] | [xLabel] | xScale |
-|---|---|---|---|---|---|
+|---|---|---|---|---|
 |... |  [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | lin&#124;log&#124;log10&#124;order |
-|...|...|...|...|...|
+|...|...|...|...|
 
 *(wrapped for readability)*
 
@@ -469,7 +469,7 @@ order:
 
   A name for the specific plot.
 
-- `plotTypeSimulation` [STRING]
+- `plotTypeSimulation` [STRING, OPTIONAL]
 
   The type of the corresponding plot, can be `LinePlot`, `BarPlot` and `ScatterPlot`. Default is `LinePlot`.
 
