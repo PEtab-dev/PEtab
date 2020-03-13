@@ -354,13 +354,13 @@ def calculate_single_llh(
     elif noise_distribution == NORMAL and scale == LOG:
         nllh = 0.5*log(2*pi*sigma**2*m**2) + 0.5*((log(s)-log(m))/sigma)**2
     elif noise_distribution == NORMAL and scale == LOG10:
-        nllh = 0.5*log(2*pi*sigma**2*m**2) + \
+        nllh = 0.5*log(2*pi*sigma**2*m**2*log(10)**2) + \
             0.5*((log10(s)-log10(m))/sigma)**2
     elif noise_distribution == LAPLACE and scale == LIN:
         nllh = log(2*sigma) + abs((s-m)/sigma)
     elif noise_distribution == LAPLACE and scale == LOG:
         nllh = log(2*sigma*m) + abs((log(s)-log(m))/sigma)
     elif noise_distribution == LAPLACE and scale == LOG10:
-        nllh = log(2*sigma*m) + abs((log10(s)-log10(m))/sigma)
+        nllh = log(2*sigma*m*log(10)) + abs((log10(s)-log10(m))/sigma)
     llh = - nllh
     return llh
