@@ -131,6 +131,10 @@ def globalize_parameters(sbml_model: libsbml.Model,
             Prepend reaction id of local parameter when
             creating global parameters
     """
+
+    warn("This function will be removed in future releases.",
+         DeprecationWarning)
+
     for reaction in sbml_model.getListOfReactions():
         law = reaction.getKineticLaw()
         # copy first so we can delete in the following loop
