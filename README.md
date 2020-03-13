@@ -47,7 +47,7 @@ Where PEtab is supported:
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
 
-  - [d2d](https://github.com/Data2Dynamics/d2d/)
+  - [d2d](https://github.com/Data2Dynamics/d2d/) ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-of-PEtab))
 
   - [dMod](https://github.com/dkaschek/dMod/)
 
@@ -55,7 +55,7 @@ Where PEtab is supported:
 
   - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
-  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
+  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/) ([Example](https://pypesto.readthedocs.io/en/latest/example/petab_import.html))
 
   - [pyABC](https://github.com/ICB-DCM/pyABC/)
 
