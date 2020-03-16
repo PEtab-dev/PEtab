@@ -150,3 +150,15 @@ def get_placeholders(observable_df: pd.DataFrame) -> List[str]:
                 row[formula_column], row.name, placeholder_type)
             placeholders.extend(cur_placeholders)
     return core.unique_preserve_order(placeholders)
+
+
+def create_observable_df() -> pd.DataFrame:
+    """Create empty observable dataframe
+
+    Returns:
+        Created DataFrame
+    """
+
+    df = pd.DataFrame(data={col: [] for col in OBSERVABLE_DF_COLS})
+
+    return df
