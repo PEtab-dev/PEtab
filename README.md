@@ -47,7 +47,7 @@ Where PEtab is supported:
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
 
-  - [d2d](https://github.com/Data2Dynamics/d2d/) ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-of-PEtab))
+  - [d2d](https://github.com/Data2Dynamics/d2d/) ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-for-PEtab))
 
   - [dMod](https://github.com/dkaschek/dMod/)
 
@@ -70,22 +70,22 @@ different tools, based on passed test cases of the
 
 | ID | Test                                                           | AMICI<br>*`develop`* | AMIGO | Copasi | D2D | dMod | pyPESTO<br>*`develop`* | pyABC
 |----|----------------------------------------------------------------|-------|-------|--------|-----|------|-------|------|
-| 1  | Basic simulation                                               | +++   |       |        |     |      | +++   | +++  |
-| 2  | Multiple simulation conditions                                 | +++   |       |        |     |      | +++   | +++  |
-| 3  | Numeric observable parameter overrides in measurement table    | +++   |       |        |     |      | +++   | +++  |
-| 4  | Parametric observable parameter overrides in measurement table | +++   |       |        |     |      | +++   | +++  |
-| 5  | Parametric overrides in condition table                        | +++   |       |        |     |      | +++   | +++  |
-| 6  | Time-point specific overrides in the measurement table         | ---   |       |        |     |      | ---   | ---  |
-| 7  | Observable transformations to log10 scale                      | +-+   |       |        |     |      | +-+   | +-+  |
-| 8  | Replicate measurements                                         | +++   |       |        |     |      | +++   | +++  |
-| 9  | Pre-equilibration                                              | +++   |       |        |     |      | +++   | +++  |
-| 10 | Partial pre-equilibration                                      | +++   |       |        |     |      | +++   | +++  |
-| 11 | Numeric initial concentration in condition table               | +++   |       |        |     |      | +++   | +++  |
-| 12 | Numeric initial compartment sizes in condition table           | ---   |       |        |     |      | ---   | ---  |
-| 13 | Parametric initial concentrations in condition table           | +++   |       |        |     |      | +++   | +++  |
-| 14 | Numeric noise parameter overrides in measurement table         | +++   |       |        |     |      | +++   | +++  |
-| 15 | Parametric noise parameter overrides in measurement table      | +++   |       |        |     |      | +++   | +++  |
-| 16 | Observable transformations to log scale                        | +-+   |       |        |     |      | +-+   | +-+  |
+| 1  | Basic simulation                                               | +++   |       |        | +++ |      | +++   | +++  |
+| 2  | Multiple simulation conditions                                 | +++   |       |        | +++ |      | +++   | +++  |
+| 3  | Numeric observable parameter overrides in measurement table    | +++   |       |        | +++ |      | +++   | +++  |
+| 4  | Parametric observable parameter overrides in measurement table | +++   |       |        | +++ |      | +++   | +++  |
+| 5  | Parametric overrides in condition table                        | +++   |       |        | +++ |      | +++   | +++  |
+| 6  | Time-point specific overrides in the measurement table         | ---   |       |        | +++ |      | ---   | ---  |
+| 7  | Observable transformations to log10 scale                      | +-+   |       |        | +++ |      | +-+   | +-+  |
+| 8  | Replicate measurements                                         | +++   |       |        | +++ |      | +++   | +++  |
+| 9  | Pre-equilibration                                              | +++   |       |        | +++ |      | +++   | +++  |
+| 10 | Partial pre-equilibration                                      | +++   |       |        | +++ |      | +++   | +++  |
+| 11 | Numeric initial concentration in condition table               | +++   |       |        | +++ |      | +++   | +++  |
+| 12 | Numeric initial compartment sizes in condition table           | ---   |       |        | +++ |      | ---   | ---  |
+| 13 | Parametric initial concentrations in condition table           | +++   |       |        | +++ |      | +++   | +++  |
+| 14 | Numeric noise parameter overrides in measurement table         | +++   |       |        | +++ |      | +++   | +++  |
+| 15 | Parametric noise parameter overrides in measurement table      | +++   |       |        | +++ |      | +++   | +++  |
+| 16 | Observable transformations to log scale                        | +-+   |       |        | +++ |      | +-+   | +-+  |
 
     Legend:
     * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
