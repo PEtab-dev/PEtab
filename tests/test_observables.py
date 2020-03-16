@@ -127,6 +127,12 @@ def test_get_formula_placeholders():
     assert petab.get_formula_placeholders(1, 'any', 'observable') == []
 
 
+def test_create_observable_df():
+    """Test observables.create_measurement_df."""
+    df = petab.create_observable_df()
+    assert set(df.columns.values) == set(OBSERVABLE_DF_COLS)
+
+
 def test_get_placeholders():
     """Test get_placeholders"""
     observable_df = pd.DataFrame(data={
