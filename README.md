@@ -165,9 +165,12 @@ Examples for PEtab Python library usage:
 * [Visualization](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_visualization.ipynb)
 
 
+## Getting help
 
-## Extending PEtab
+If you have any question or problems with PEtab, feel free to post them at
+our GitHub [issue tracker](https://github.com/PEtab-dev/PEtab/issues/).
 
-We are aware of the fact that PEtab may not serve everybody's needs. If you 
-have a suggestion of how to extend PEtab, feel free to post an issue at our 
-github repository.
+## Contributing to PEtab
+
+Contributions and feedback to PEtab are very welcome, see our
+[contribution guide](CONTRIBUTING.md).
