@@ -41,26 +41,30 @@ A wide range of PEtab examples can be found in the systems biology parameter est
 
 ## PEtab support in systems biology tools
 
-Where PEtab is supported:
+Where PEtab is supported (in alphabetical order):
 
+
+  - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
 
-  - [d2d](https://github.com/Data2Dynamics/d2d/) ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-for-PEtab))
+  - [d2d](https://github.com/Data2Dynamics/d2d/)
+    ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-for-PEtab))
 
   - [dMod](https://github.com/dkaschek/dMod/)
 
-  - [meigo](http://gingproc.iim.csic.es/meigo.html)
+  - [MEIGO](http://gingproc.iim.csic.es/meigo.html)
 
-  - [AMICI](https://github.com/ICB-DCM/AMICI/)
-
-  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/) ([Example](https://pypesto.readthedocs.io/en/latest/example/petab_import.html))
+  - [parPE](https://github.com/ICB-DCM/parPE/)
 
   - [pyABC](https://github.com/ICB-DCM/pyABC/)
 
+  - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
+    ([Example](https://pypesto.readthedocs.io/en/latest/example/petab_import.html))
+
 If your project or tool is using PEtab, and you would like to have it listed
-here, please let us know.
+here, please let us [know](https://github.com/PEtab-dev/PEtab/issues).
 
 ### PEtab features supported in different tools
 
@@ -124,8 +128,9 @@ further questions regarding PEtab, feel free to post an
 
 ## PEtab Python library
 
-PEtab comes with a Python package for creating, checking, and working with 
-PEtab files. This library is available on pypi and the easiest way to install 
+PEtab comes with a Python package for creating, checking, visualizing and
+working with PEtab files. This library is available on
+[pypi](https://pypi.org/project/petab/) and the easiest way to install
 it is running
 
     pip3 install petab
@@ -151,6 +156,15 @@ be:
 
   - `petab.create_combine_archive` to create a
     [COMBINE Archive](https://combinearchive.org/index/) from PEtab files
+
+### Library examples
+
+Examples for PEtab Python library usage:
+
+* [Validation](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_petablint.ipynb)
+* [Visualization](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_visualization.ipynb)
+
+
 
 ## Extending PEtab
 
