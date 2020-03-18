@@ -58,13 +58,13 @@ Where PEtab is supported (in alphabetical order):
 
   - [parPE](https://github.com/ICB-DCM/parPE/)
 
-  - [pyABC](https://github.com/ICB-DCM/pyABC/)
+  - [pyABC](https://github.com/ICB-DCM/pyABC/) ([Example](https://pyabc.readthedocs.io/en/latest/examples/petab.html))
 
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
     ([Example](https://pypesto.readthedocs.io/en/latest/example/petab_import.html))
 
 If your project or tool is using PEtab, and you would like to have it listed
-here, please let us [know](https://github.com/PEtab-dev/PEtab/issues).
+here, please [let us know](https://github.com/PEtab-dev/PEtab/issues).
 
 ### PEtab features supported in different tools
 

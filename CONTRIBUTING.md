@@ -2,7 +2,7 @@
 
 We are happy about contributions to PEtab of any form.
 
-This is includes, but is not limited to:
+This includes, but is not limited to:
 
 * Extending / improving
   [documentation and examples](https://petab.readthedocs.io/en/latest/)
