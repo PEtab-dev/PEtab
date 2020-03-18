@@ -33,30 +33,68 @@ for example:
 Documentation of the PEtab data format and Python library is available at
 [https://petab.readthedocs.io/en/latest/](https://petab.readthedocs.io/en/latest/).
 
-## References
+## Examples
 
-Where PEtab is used / supported:
+A wide range of PEtab examples can be found in the systems biology parameter estimation
+[benchmark problem collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 
-  - Within the systems biology optimization 
-    [benchmark problem collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab)
+
+## PEtab support in systems biology tools
+
+Where PEtab is supported (in alphabetical order):
+
+
+  - [AMICI](https://github.com/ICB-DCM/AMICI/)
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
 
   - [d2d](https://github.com/Data2Dynamics/d2d/)
+    ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-for-PEtab))
 
-  - [dmod](https://github.com/dkaschek/dMod/)
+  - [dMod](https://github.com/dkaschek/dMod/)
 
-  - [meigo](http://gingproc.iim.csic.es/meigo.html)
+  - [MEIGO](http://gingproc.iim.csic.es/meigo.html)
 
-  - [AMICI](https://github.com/ICB-DCM/AMICI/)
+  - [parPE](https://github.com/ICB-DCM/parPE/)
+
+  - [pyABC](https://github.com/ICB-DCM/pyABC/) ([Example](https://pyabc.readthedocs.io/en/latest/examples/petab.html))
 
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
-
-  - [pyABC](https://github.com/ICB-DCM/pyABC/)
+    ([Example](https://pypesto.readthedocs.io/en/latest/example/petab_import.html))
 
 If your project or tool is using PEtab, and you would like to have it listed
-here, please let us know.
+here, please [let us know](https://github.com/PEtab-dev/PEtab/issues).
+
+### PEtab features supported in different tools
+
+The following list provides an overview of supported PEtab features in
+different tools, based on passed test cases of the
+[PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
+
+| ID | Test                                                           | AMICI<br>*`develop`* | Copasi | D2D | dMod | MEIGO | parPE<br>*`develop`*  | pyABC | pyPESTO<br>*`develop`* |
+|----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|-----------------------|-------|------------------------|
+| 1  | Basic simulation                                               | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 2  | Multiple simulation conditions                                 | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 3  | Numeric observable parameter overrides in measurement table    | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 4  | Parametric observable parameter overrides in measurement table | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 5  | Parametric overrides in condition table                        | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 6  | Time-point specific overrides in the measurement table         | ---                  |        | +++ |      | ---   | ---                   | ---   | ---                    |
+| 7  | Observable transformations to log10 scale                      | +-+                  |        | +++ |      | ++-   | --+                   | +-+   | +-+                    |
+| 8  | Replicate measurements                                         | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
+| 9  | Pre-equilibration                                              | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
+| 10 | Partial pre-equilibration                                      | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
+| 11 | Numeric initial concentration in condition table               | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
+| 12 | Numeric initial compartment sizes in condition table           | ---                  |        | +++ |      | ---   | ---                   | ---   | ---                    |
+| 13 | Parametric initial concentrations in condition table           | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
+| 14 | Numeric noise parameter overrides in measurement table         | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 15 | Parametric noise parameter overrides in measurement table      | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
+| 16 | Observable transformations to log scale                        | +-+                  |        | +++ |      | ++-   | --+                   | +-+   | +-+                    |
+
+    Legend:
+    * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
+    * Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-)
+    * Third character indicates whether computing likelihoods is supported and correct (+) or not (-)
 
 ## Using PEtab
 
@@ -75,6 +113,8 @@ will have to:
 
 1. Create a condition table, if appropriate
 
+1. Create a table of observables
+
 1. Create a table of measurements
 
 1. Create a parameter table
@@ -88,8 +128,9 @@ further questions regarding PEtab, feel free to post an
 
 ## PEtab Python library
 
-PEtab comes with a Python package for creating, checking, and working with 
-PEtab files. This library is available on pypi and the easiest way to install 
+PEtab comes with a Python package for creating, checking, visualizing and
+working with PEtab files. This library is available on
+[pypi](https://pypi.org/project/petab/) and the easiest way to install
 it is running
 
     pip3 install petab
@@ -110,13 +151,26 @@ be:
     `petablint`
 
   - `petab.create_parameter_df` to create the parameter table, once you
-    have set up the model, condition table and measurement table
+    have set up the model, condition table, observable table and measurement
+    table
 
-  - Functions in `petab.migrations` for updating PEtab files from earlier
-    versions
+  - `petab.create_combine_archive` to create a
+    [COMBINE Archive](https://combinearchive.org/index/) from PEtab files
 
-## Extending PEtab
+### Library examples
 
-We are aware of the fact that PEtab may not serve everybody's needs. If you 
-have a suggestion of how to extend PEtab, feel free to post an issue at our 
-github repository.
+Examples for PEtab Python library usage:
+
+* [Validation](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_petablint.ipynb)
+* [Visualization](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_visualization.ipynb)
+
+
+## Getting help
+
+If you have any question or problems with PEtab, feel free to post them at
+our GitHub [issue tracker](https://github.com/PEtab-dev/PEtab/issues/).
+
+## Contributing to PEtab
+
+Contributions and feedback to PEtab are very welcome, see our
+[contribution guide](CONTRIBUTING.md).

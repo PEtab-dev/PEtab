@@ -83,7 +83,7 @@ def test_get_output_parameters(minimal_sbml_model):
 
     output_parameters = petab.get_output_parameters(observable_df, model)
 
-    assert output_parameters == {'scaling', 'offset'}
+    assert output_parameters == ['offset', 'scaling']
 
 
 def test_get_formula_placeholders():
@@ -125,6 +125,12 @@ def test_get_formula_placeholders():
 
     # non-string
     assert petab.get_formula_placeholders(1, 'any', 'observable') == []
+
+
+def test_create_observable_df():
+    """Test observables.create_measurement_df."""
+    df = petab.create_observable_df()
+    assert set(df.columns.values) == set(OBSERVABLE_DF_COLS)
 
 
 def test_get_placeholders():

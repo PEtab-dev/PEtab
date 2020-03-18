@@ -262,7 +262,7 @@ def test_calculate_single_llh():
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=NORMAL, scale=LOG10)
     expected_llh = - 0.5 * (((log10(s)-log10(m))/sigma)**2 +
-                            log(2*pi*sigma**2*m**2))
+                            log(2*pi*sigma**2*m**2*log(10)**2))
     assert llh == pytest.approx(expected_llh)
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
@@ -277,5 +277,5 @@ def test_calculate_single_llh():
 
     llh = calculate_single_llh(measurement=m, simulation=s, noise_value=sigma,
                                noise_distribution=LAPLACE, scale=LOG10)
-    expected_llh = - abs((log10(s)-log10(m))/sigma) - log(2*sigma*m)
+    expected_llh = - abs((log10(s)-log10(m))/sigma) - log(2*sigma*m*log(10))
     assert llh == pytest.approx(expected_llh)
