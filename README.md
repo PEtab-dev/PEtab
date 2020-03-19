@@ -53,6 +53,7 @@ Where PEtab is supported (in alphabetical order):
     ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-for-PEtab))
 
   - [dMod](https://github.com/dkaschek/dMod/)
+    ([HOWTO](https://github.com/dkaschek/dMod/wiki/Support-for-PEtab))
 
   - [MEIGO](http://gingproc.iim.csic.es/meigo.html)
 
