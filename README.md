@@ -45,6 +45,7 @@ Where PEtab is supported (in alphabetical order):
 
 
   - [AMICI](https://github.com/ICB-DCM/AMICI/)
+    ([Example](https://github.com/ICB-DCM/AMICI/blob/master/python/examples/example_petab/petab.ipynb))
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
