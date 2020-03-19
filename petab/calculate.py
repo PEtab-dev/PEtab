@@ -89,13 +89,11 @@ def calculate_residuals_for_table(
     # iterate over measurements, find corresponding simulations
     for irow, row in measurement_df.iterrows():
         measurement = row[MEASUREMENT]
-
         # look up in simulation df
-        masks = [simulation_df[col] == row[col] for col in compared_cols]
+        masks = [(simulation_df[col] == row[col]) | petab.is_empty(row[col])
+                 for col in compared_cols]
         mask = reduce(lambda x, y: x & y, masks)
-
         simulation = simulation_df.loc[mask][SIMULATION].iloc[0]
-
         if scale:
             # apply scaling
             observable = observable_df.loc[row[OBSERVABLE_ID]]
@@ -301,7 +299,8 @@ def calculate_llh_for_table(
         measurement = row[MEASUREMENT]
 
         # look up in simulation df
-        masks = [simulation_df[col] == row[col] for col in compared_cols]
+        masks = [(simulation_df[col] == row[col]) | petab.is_empty(row[col])
+                 for col in compared_cols]
         mask = reduce(lambda x, y: x & y, masks)
 
         simulation = simulation_df.loc[mask][SIMULATION].iloc[0]
