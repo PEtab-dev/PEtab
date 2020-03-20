@@ -7,6 +7,9 @@ from typing import Any, Dict, Union, Optional
 import jsonschema
 import yaml
 from .C import *  # noqa: F403
+from . problem import get_default_condition_file_name, \
+    get_default_measurement_file_name, get_default_parameter_file_name, \
+    get_default_sbml_file_name
 
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
@@ -159,4 +162,20 @@ def write_yaml(yaml_config: Dict[str, Any], filename: str) -> None:
     """
 
     with open(filename, 'w') as outfile:
-        yaml.dump(yaml_config, outfile, default_flow_style=False)
+        yaml.dump(yaml_config, outfile, default_flow_style=False,
+                  sort_keys=False)
+
+
+def create_default_yaml(model_name):
+    yaml_dic = {"parameter_file": get_default_parameter_file_name(model_name),
+                "version": 1,
+                "problems": [{"condition_files": [
+                    get_default_condition_file_name(model_name)],
+                              "measurement_files": [
+                                  get_default_measurement_file_name(model_name)
+                              ],
+                              "sbml_files": [get_default_sbml_file_name(
+                                  model_name)],
+                              "observable_files": ['observables' +
+                                                   model_name]}]}
+    write_yaml(yaml_dic, model_name + '.yaml')
