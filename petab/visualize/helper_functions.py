@@ -500,7 +500,8 @@ def handle_dataset_plot(plot_spec: pd.Series,
     uni_condition_id, uind = np.unique(
         exp_data[ind_dataset][SIMULATION_CONDITION_ID],
         return_index=True)
-    # keep the ordering which was given by user from top to botom (avoid ordering by names '1','10','11','2',...)'
+    # keep the ordering which was given by user from top to bottom
+    # (avoid ordering by names '1','10','11','2',...)'
     uni_condition_id = uni_condition_id[np.argsort(uind)]
     col_name_unique = SIMULATION_CONDITION_ID
 

@@ -93,7 +93,7 @@ def plot_lowlevel(plot_spec: pd.Series,
         # construct errorbar-plots: noise specified above
         else:
             scond, smean, snoise = \
-                zip(*sorted(zip(conditions, ms['mean'],ms[noise_col])))
+                zip(*sorted(zip(conditions, ms['mean'], ms[noise_col])))
             p = ax.errorbar(
                 scond, smean, snoise,
                 linestyle='-.', marker='.', label=label_base
