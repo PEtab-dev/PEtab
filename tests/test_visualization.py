@@ -1,5 +1,5 @@
 import warnings
-
+from tempfile import TemporaryDirectory
 import pytest
 from petab.C import *
 from petab.visualize import (plot_data_and_simulation,
@@ -274,8 +274,10 @@ def test_simple_visualization(data_file_Fujita, condition_file_Fujita):
 
 def test_save_plots_to_file(data_file_Isensee, condition_file_Isensee,
                             vis_spec_file_Isensee, simulation_file_Isensee):
-    plot_data_and_simulation(data_file_Isensee,
-                             condition_file_Isensee,
-                             vis_spec_file_Isensee,
-                             simulation_file_Isensee,
-                             subplot_file_path='./')
+    with TemporaryDirectory() as temp_dir:
+        plot_data_and_simulation(
+            data_file_Isensee,
+            condition_file_Isensee,
+            vis_spec_file_Isensee,
+            simulation_file_Isensee,
+            subplot_file_path=temp_dir)
