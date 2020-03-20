@@ -495,8 +495,6 @@ def handle_dataset_plot(plot_spec: pd.Series,
     ind_dataset = exp_data[DATASET_ID] == dataset_id
 
     # gather simulationConditionIds belonging to datasetId
-    uni_condition_id = np.unique(
-        exp_data[ind_dataset][SIMULATION_CONDITION_ID])
     uni_condition_id, uind = np.unique(
         exp_data[ind_dataset][SIMULATION_CONDITION_ID],
         return_index=True)
