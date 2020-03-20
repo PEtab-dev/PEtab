@@ -2,6 +2,23 @@
 
 ## 0.1 series
 
+### 0.1.5
+
+Library:
+
+* New create empty observable function (issue 386) (#387)
+* Deprecate petab.sbml.globalize_parameters (#381)
+* Fix computing log10 likelihood (#380)
+* Documentation update and typehints for visualization  (#372)
+* Ordered result of `petab.get_output_parameters`
+* Fix missing argument to parameters.create_parameter_df
+
+Documentation:
+* Add overview of supported PEtab feature in toolboxes
+* Add contribution guide
+* Fix optional values in documentation (#378)
+
+
 ### 0.1.4
 
 Library:
