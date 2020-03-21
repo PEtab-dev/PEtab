@@ -395,8 +395,6 @@ def test_concat_measurements():
             petab.concat_tables([filename_a, b],
                                 petab.measurements.get_measurement_df))
 
-    os.delete(filename_a)
-
 
 def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
     """Test if observable ids functions returns correct value."""
