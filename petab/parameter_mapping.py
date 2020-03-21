@@ -40,7 +40,8 @@ def get_optimization_to_simulation_parameter_mapping(
         sbml_model: libsbml.Model = None,
         simulation_conditions: Optional[pd.DataFrame] = None,
         warn_unmapped: Optional[bool] = True,
-        scaled_parameters: bool = False
+        scaled_parameters: bool = False,
+        fill_fixed_parameters: bool = True,
 ) -> List[ParMappingDictQuadruple]:
     """
     Create list of mapping dicts from PEtab-problem to SBML parameters.
@@ -61,6 +62,9 @@ def get_optimization_to_simulation_parameter_mapping(
             If ``True``, log warning regarding unmapped parameters
         scaled_parameters:
             Whether parameter values should be scaled.
+        fill_fixed_parameters:
+            Whether to fill in nominal values for fixed parameters
+            (estimate=0 in parameters table).
 
     Returns:
         Parameter value and parameter scale mapping for all conditions.
@@ -105,7 +109,7 @@ def get_optimization_to_simulation_parameter_mapping(
             _map_condition_arg_packer(
                 simulation_conditions, measurement_df, condition_df,
                 parameter_df, sbml_model, simulation_parameters, warn_unmapped,
-                scaled_parameters))
+                scaled_parameters, fill_fixed_parameters))
         return list(mapping)
 
     # Run multi-threaded
@@ -116,19 +120,19 @@ def get_optimization_to_simulation_parameter_mapping(
             _map_condition_arg_packer(
                 simulation_conditions, measurement_df, condition_df,
                 parameter_df, sbml_model, simulation_parameters, warn_unmapped,
-                scaled_parameters))
+                scaled_parameters, fill_fixed_parameters))
     return list(mapping)
 
 
 def _map_condition_arg_packer(simulation_conditions, measurement_df,
                               condition_df, parameter_df, sbml_model,
                               simulation_parameters, warn_unmapped,
-                              scaled_parameters):
+                              scaled_parameters, fill_fixed_parameters):
     """Helper function to pack extra arguments for _map_condition"""
     for _, condition in simulation_conditions.iterrows():
         yield(condition, measurement_df, condition_df, parameter_df,
               sbml_model, simulation_parameters, warn_unmapped,
-              scaled_parameters)
+              scaled_parameters, fill_fixed_parameters)
 
 
 def _map_condition(packed_args):
@@ -137,7 +141,8 @@ def _map_condition(packed_args):
     For arguments see get_optimization_to_simulation_parameter_mapping"""
 
     (condition, measurement_df, condition_df, parameter_df, sbml_model,
-     simulation_parameters, warn_unmapped, scaled_parameters) = packed_args
+     simulation_parameters, warn_unmapped, scaled_parameters,
+     fill_fixed_parameters) = packed_args
 
     cur_measurement_df = measurements.get_rows_for_condition(
         measurement_df, condition)
@@ -158,6 +163,7 @@ def _map_condition(packed_args):
             simulation_parameters=simulation_parameters,
             warn_unmapped=warn_unmapped,
             scaled_parameters=scaled_parameters,
+            fill_fixed_parameters=fill_fixed_parameters,
         )
 
     par_map_sim, scale_map_sim = get_parameter_mapping_for_condition(
@@ -169,7 +175,8 @@ def _map_condition(packed_args):
         parameter_df=parameter_df,
         simulation_parameters=simulation_parameters,
         warn_unmapped=warn_unmapped,
-        scaled_parameters=scaled_parameters
+        scaled_parameters=scaled_parameters,
+        fill_fixed_parameters=fill_fixed_parameters,
     )
 
     return par_map_preeq, par_map_sim, scale_map_preeq, scale_map_sim
@@ -184,36 +191,36 @@ def get_parameter_mapping_for_condition(
         parameter_df: pd.DataFrame = None,
         simulation_parameters: Optional[Dict[str, str]] = None,
         warn_unmapped: bool = True,
-        scaled_parameters: bool = False
+        scaled_parameters: bool = False,
+        fill_fixed_parameters: bool = True,
 ) -> Tuple[ParMappingDict, ScaleMappingDict]:
     """
     Create dictionary of parameter value and parameter scale mappings from
     PEtab-problem to SBML parameters for the given condition.
 
     Parameters:
-        condition_id: Condition ID for which to perform mapping
-
-        is_preeq: If ``True``, output parameters will not be mapped
-
-        cur_measurement_df: Measurement sub-table for current condition
-
+        condition_id:
+            Condition ID for which to perform mapping
+        is_preeq:
+            If ``True``, output parameters will not be mapped
+        cur_measurement_df:
+            Measurement sub-table for current condition
         condition_df:
             PEtab condition DataFrame
-
         parameter_df:
             PEtab parameter DataFrame
-
         sbml_model:
             The sbml model with observables and noise specified according to
             the PEtab format used to retrieve simulation parameter IDs.
-
         simulation_parameters:
             Model simulation parameter IDs mapped to parameter values (output
             of ``petab.sbml.get_model_parameters(.., with_values=True)``).
             Optional, saves time if precomputed.
-
         warn_unmapped:
             If ``True``, log warning regarding unmapped parameters
+        fill_fixed_parameters:
+            Whether to fill in nominal values for fixed parameters
+            (estimate=0 in parameters table).
 
     Returns:
         Tuple of two dictionaries. First dictionary mapping model parameter IDs
@@ -247,7 +254,8 @@ def get_parameter_mapping_for_condition(
     _apply_condition_parameters(par_mapping, scale_mapping, condition_id,
                                 condition_df, sbml_model)
     _apply_parameter_table(par_mapping, scale_mapping,
-                           parameter_df, scaled_parameters)
+                           parameter_df, scaled_parameters,
+                           fill_fixed_parameters)
 
     return par_mapping, scale_mapping
 
@@ -350,7 +358,8 @@ def _apply_condition_parameters(par_mapping: ParMappingDict,
 def _apply_parameter_table(par_mapping: ParMappingDict,
                            scale_mapping: ScaleMappingDict,
                            parameter_df: Optional[pd.DataFrame] = None,
-                           scaled_parameters: bool = False
+                           scaled_parameters: bool = False,
+                           fill_fixed_parameters: bool = True,
                            ) -> None:
     """Replace parameters from parameter table in mapping list for a given
     condition and set the corresponding scale.
@@ -376,7 +385,7 @@ def _apply_parameter_table(par_mapping: ParMappingDict,
 
         scale = getattr(row, PARAMETER_SCALE, LIN)
         scale_mapping[row.Index] = scale
-        if getattr(row, ESTIMATE) == 0:
+        if fill_fixed_parameters and getattr(row, ESTIMATE) == 0:
             val = getattr(row, NOMINAL_VALUE)
             if scaled_parameters:
                 val = parameters.scale(val, scale)
@@ -404,7 +413,8 @@ def _apply_parameter_table(par_mapping: ParMappingDict,
             scale = parameter_df.loc[sim_par, PARAMETER_SCALE] \
                 if PARAMETER_SCALE in parameter_df else LIN
 
-            if ESTIMATE in parameter_df \
+            if fill_fixed_parameters \
+                    and ESTIMATE in parameter_df \
                     and parameter_df.loc[sim_par, ESTIMATE] == 0:
                 val = parameter_df.loc[sim_par, NOMINAL_VALUE]
                 if scaled_parameters:
