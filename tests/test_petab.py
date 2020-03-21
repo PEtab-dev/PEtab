@@ -2,7 +2,6 @@ import pickle
 import tempfile
 from math import nan
 import copy
-import os
 
 import libsbml
 import numpy as np
