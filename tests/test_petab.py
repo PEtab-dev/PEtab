@@ -2,6 +2,7 @@ import pickle
 import tempfile
 from math import nan
 import copy
+import os
 
 import libsbml
 import numpy as np
@@ -394,10 +395,12 @@ def test_concat_measurements():
             petab.concat_tables([filename_a, b],
                                 petab.measurements.get_measurement_df))
 
+    os.delete(filename_a)
+
 
 def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
     """Test if observable ids functions returns correct value."""
-    assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
+    assert set(petab_problem.get_observable_ids()) == {'observable_1'}
 
 
 def test_parameter_properties(petab_problem):  # pylint: disable=W0621
