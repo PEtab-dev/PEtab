@@ -1,0 +1,4 @@
+/* Enlarge to max-width 900px (default: 800px) */
+.wy-nav-content {
+   max-width: 900px !important;
+}

@@ -23,7 +23,13 @@ def absolute_links(txt):
     return txt
 
 
-txt = absolute_links(read("../README.md"))
-txt = m2r.convert(txt)
-with open("_static/README.rst", 'w') as f:
-    f.write(txt)
+def md2rst(source: str, target: str):
+    txt = absolute_links(read(source))
+    txt = m2r.convert(txt)
+    with open(target, 'w') as f:
+        f.write(txt)
+
+
+if __name__ == '__main__':
+    # parse readme
+    md2rst('../README.md', '_static/README.rst')

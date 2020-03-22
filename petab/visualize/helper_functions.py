@@ -495,8 +495,12 @@ def handle_dataset_plot(plot_spec: pd.Series,
     ind_dataset = exp_data[DATASET_ID] == dataset_id
 
     # gather simulationConditionIds belonging to datasetId
-    uni_condition_id = np.unique(
-        exp_data[ind_dataset][SIMULATION_CONDITION_ID])
+    uni_condition_id, uind = np.unique(
+        exp_data[ind_dataset][SIMULATION_CONDITION_ID],
+        return_index=True)
+    # keep the ordering which was given by user from top to bottom
+    # (avoid ordering by names '1','10','11','2',...)'
+    uni_condition_id = uni_condition_id[np.argsort(uind)]
     col_name_unique = SIMULATION_CONDITION_ID
 
     # Case separation of independent parameter: condition, time or custom

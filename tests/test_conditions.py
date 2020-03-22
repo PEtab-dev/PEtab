@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import tempfile
 import pytest
+import os
 
 import petab
 from petab import conditions
@@ -44,6 +45,8 @@ def test_get_condition_df():
     with pytest.raises(KeyError):
         petab.get_condition_df(file_name)
 
+    os.remove(file_name)
+
     # with ids
     condition_df = pd.DataFrame(data={
         CONDITION_ID: ['condition1', 'condition2'],
@@ -57,6 +60,8 @@ def test_get_condition_df():
 
     df = petab.get_condition_df(file_name).replace(np.nan, '')
     assert (df == condition_df.set_index(CONDITION_ID)).all().all()
+
+    os.remove(file_name)
 
     # test other arguments
     assert (petab.get_condition_df(condition_df) == condition_df).all().all()
