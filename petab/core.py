@@ -155,9 +155,9 @@ def flatten_timepoint_specific_output_overrides(
         df = measurement_df.loc[
             (measurement_df[OBSERVABLE_ID] ==
              df_unique_values.loc[irow, OBSERVABLE_ID])
-            & (not has_preeq or (
-                    measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
-                    df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
+            & (not has_preeq or
+                (measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
+                 df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
             & (measurement_df[SIMULATION_CONDITION_ID] <=
                df_unique_values.loc[irow, SIMULATION_CONDITION_ID])
             ]
@@ -174,8 +174,8 @@ def flatten_timepoint_specific_output_overrides(
                 # and unique_sc[j] in their corresponding column
                 # (full-string matches are denoted by zero)
                 idxs = (
-                        df[NOISE_PARAMETERS].str.find(cur_noise) +
-                        df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
+                    df[NOISE_PARAMETERS].str.find(cur_noise) +
+                    df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
                 )
                 tmp_ = df.loc[idxs == 0, OBSERVABLE_ID]
                 # Create replicate-specific observable name
