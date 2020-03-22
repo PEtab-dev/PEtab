@@ -183,8 +183,8 @@ def check_parameter_df(
     #  parameter estimate != 1
     non_estimated_par_ids = list(
         df.index[(df[ESTIMATE] != 1) | (
-                pd.api.types.is_string_dtype(df[ESTIMATE])
-                and df[ESTIMATE] != '1')])
+            pd.api.types.is_string_dtype(df[ESTIMATE])
+            and df[ESTIMATE] != '1')])
     if non_estimated_par_ids:
         if NOMINAL_VALUE not in df:
             raise AssertionError("Parameter table contains parameters "
