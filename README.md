@@ -93,10 +93,10 @@ different tools, based on passed test cases of the
 | 15 | Parametric noise parameter overrides in measurement table      | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
 | 16 | Observable transformations to log scale                        | +-+                  |        | +++ |      | ++-   | --+                   | +-+   | +-+                    |
 
-    Legend:
-    * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
-    * Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-)
-    * Third character indicates whether computing likelihoods is supported and correct (+) or not (-)
+Legend:
+* First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-).
+* Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-).
+* Third character indicates whether computing likelihoods is supported and correct (+) or not (-).
 
 ## Using PEtab
 
