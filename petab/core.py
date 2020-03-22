@@ -8,7 +8,6 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 
-import petab
 from . import yaml
 from .C import *  # noqa: F403
 
@@ -157,11 +156,11 @@ def flatten_timepoint_specific_output_overrides(
             (measurement_df[OBSERVABLE_ID] ==
              df_unique_values.loc[irow, OBSERVABLE_ID])
             & (not has_preeq or (
-               measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
-               df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
+                    measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
+                    df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
             & (measurement_df[SIMULATION_CONDITION_ID] <=
                df_unique_values.loc[irow, SIMULATION_CONDITION_ID])
-        ]
+            ]
 
         # Get list of unique observable parameters
         unique_sc = df[OBSERVABLE_PARAMETERS].unique()
@@ -175,8 +174,8 @@ def flatten_timepoint_specific_output_overrides(
                 # and unique_sc[j] in their corresponding column
                 # (full-string matches are denoted by zero)
                 idxs = (
-                    df[NOISE_PARAMETERS].str.find(cur_noise) +
-                    df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
+                        df[NOISE_PARAMETERS].str.find(cur_noise) +
+                        df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
                 )
                 tmp_ = df.loc[idxs == 0, OBSERVABLE_ID]
                 # Create replicate-specific observable name
@@ -187,7 +186,7 @@ def flatten_timepoint_specific_output_overrides(
                 while (df[OBSERVABLE_ID].str.find(
                         tmp.to_string()
                 ) == 0).any():
-                    tmp = tmp_ + counter*"_" + str(i_noise + i_sc + 1)
+                    tmp = tmp_ + counter * "_" + str(i_noise + i_sc + 1)
                     counter += 1
                 if not tmp_.empty and not tmp_.empty:
                     replacements[tmp.values[0]] = tmp_.values[0]
