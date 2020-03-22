@@ -156,8 +156,8 @@ def flatten_timepoint_specific_output_overrides(
             (measurement_df[OBSERVABLE_ID] ==
              df_unique_values.loc[irow, OBSERVABLE_ID])
             & (not has_preeq or
-                (measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
-                 df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
+               (measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
+                df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
             & (measurement_df[SIMULATION_CONDITION_ID] <=
                df_unique_values.loc[irow, SIMULATION_CONDITION_ID])
             ]
