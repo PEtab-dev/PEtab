@@ -8,6 +8,7 @@ from warnings import warn
 import numpy as np
 import pandas as pd
 
+import petab
 from . import yaml
 from .C import *  # noqa: F403
 
@@ -116,32 +117,50 @@ def flatten_timepoint_specific_output_overrides(
         petab_problem:
             PEtab problem to work on
     """
+    measurement_df = petab_problem.measurement_df
+
+    # remember if columns exist
+    has_obs_par = OBSERVABLE_PARAMETERS in measurement_df
+    has_noise_par = NOISE_PARAMETERS in measurement_df
+
+    # fill in optional columns to avoid special cases later
+    if not has_obs_par \
+            or np.all(measurement_df[OBSERVABLE_PARAMETERS].isnull()):
+        measurement_df[OBSERVABLE_PARAMETERS] = ''
+    if not has_noise_par \
+            or np.all(measurement_df[NOISE_PARAMETERS].isnull()):
+        measurement_df[NOISE_PARAMETERS] = ''
 
     # Create empty df -> to be filled with replicate-specific observables
     df_new = pd.DataFrame()
 
     # Get observableId, preequilibrationConditionId
     # and simulationConditionId columns in measurement df
-    df = petab_problem.measurement_df[
-        [OBSERVABLE_ID,
-         PREEQUILIBRATION_CONDITION_ID,
+    cols = get_notnull_columns(
+        measurement_df,
+        [OBSERVABLE_ID, PREEQUILIBRATION_CONDITION_ID,
          SIMULATION_CONDITION_ID]
-    ]
+    )
+    has_preeq = PREEQUILIBRATION_CONDITION_ID in cols
+    df = measurement_df[cols]
+
     # Get unique combinations of observableId, preequilibrationConditionId
     # and simulationConditionId
     df_unique_values = df.drop_duplicates()
 
     # replaced observables: new ID => old ID
     replacements = dict()
+
     # Loop over each unique combination
-    for nrow in range(len(df_unique_values.index)):
-        df = petab_problem.measurement_df.loc[
-            (petab_problem.measurement_df[OBSERVABLE_ID] ==
-             df_unique_values.loc[nrow, OBSERVABLE_ID])
-            & (petab_problem.measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
-               df_unique_values.loc[nrow, PREEQUILIBRATION_CONDITION_ID])
-            & (petab_problem.measurement_df[SIMULATION_CONDITION_ID] <=
-               df_unique_values.loc[nrow, SIMULATION_CONDITION_ID])
+    for irow in df_unique_values.index:
+        df = measurement_df.loc[
+            (measurement_df[OBSERVABLE_ID] ==
+             df_unique_values.loc[irow, OBSERVABLE_ID])
+            & (not has_preeq or (
+               measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
+               df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
+            & (measurement_df[SIMULATION_CONDITION_ID] <=
+               df_unique_values.loc[irow, SIMULATION_CONDITION_ID])
         ]
 
         # Get list of unique observable parameters
@@ -179,21 +198,30 @@ def flatten_timepoint_specific_output_overrides(
                 # (for continuation of the loop)
                 df.loc[idxs == 0, OBSERVABLE_ID] = tmp
 
+    # remove previously non-existent columns again
+    if not has_obs_par:
+        df_new.drop(columns=OBSERVABLE_PARAMETERS, inplace=True)
+    if not has_noise_par:
+        df_new.drop(columns=NOISE_PARAMETERS, inplace=True)
+
     # Update/Redefine measurement df with replicate-specific observables
     petab_problem.measurement_df = df_new
 
+    observable_df = petab_problem.observable_df
+
     # Update observables table
     for replacement, replacee in replacements.items():
-        new_obs = petab_problem.observable_df.loc[replacee].copy()
+        new_obs = observable_df.loc[replacee].copy()
         new_obs.name = replacement
         new_obs[OBSERVABLE_FORMULA] = new_obs[OBSERVABLE_FORMULA].replace(
             replacee, replacement)
         new_obs[NOISE_FORMULA] = new_obs[NOISE_FORMULA].replace(
             replacee, replacement)
-        petab_problem.observable_df = petab_problem.observable_df.append(
+        observable_df = observable_df.append(
             new_obs
         )
 
+    petab_problem.observable_df = observable_df
     petab_problem.observable_df.drop(index=set(replacements.values()),
                                      inplace=True)
 
