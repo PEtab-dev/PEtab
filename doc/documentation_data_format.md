@@ -245,7 +245,7 @@ The observable table has the following columns:
 | --- | --- | --- | --- | --- | --- |
 | STRING | [STRING] | STRING | [lin(default)&#124;log&#124;log10] |  STRING&#124;NUMBER | [laplace&#124;normal] |
 | e.g. | | | | | | 
-| relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1 * (protein1 + phospho_protein1 ) | lin | noiseParameter1 | normal |
+| relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1_relativeTotalProtein1  * (protein1 + phospho_protein1 ) | lin | noiseParameter1_relativeTotalProtein1  | normal |
 | ... |  ... | ... | ... | ... |
 
 
@@ -267,8 +267,8 @@ The observable table has the following columns:
   May contain any symbol defined in the SBML model or parameter table. In the
   simplest case just an SBML species ID or an `AssignmentRule` target.
 
-  May introduce new parameters of the form `observableParameter${n}`, which
-  are overridden by `observableParameters` in the measurement table
+  May introduce new parameters of the form `observableParameter${n}_${observableId}`,
+  which are overridden by `observableParameters` in the measurement table
   (see description there).
 
 - `observableTransformation` [STRING, OPTIONAL]
@@ -290,16 +290,18 @@ The observable table has the following columns:
   more complex noise models. A noise model which accounts for relative and
   absolute contributions could, e.g., be defined as
   ```
-  noiseParameter1_pErk + noiseParameter2_pErk*pErk
+  noiseParameter1_observable_pErk + noiseParameter2_observable_pErk*pErk
   ```
-  with `noiseParameter1_pErk` denoting the absolute and `noiseParameter2_pErk`
-  the relative contribution for the observable `pErk`. IDs of noise parameters
+  with `noiseParameter1_observable_pErk` denoting the absolute and
+  `noiseParameter2_observable_pErk` the relative contribution for the
+  observable `observable_pErk` corresponding to species `pErk`.
+  IDs of noise parameters
   that need to have different values for different measurements have the
   structure: `noiseParameter${indexOfNoiseParameter}_${observableId}`
   to facilitate automatic recognition. The specific values or parameters are
   assigned in the `noiseParameters` field of the *measurement table*
-  (see above). Any parameters named `noiseParameter${1..n}` *must* be
-  overwritten in the measurement table.
+  (see above). Any parameters named `noiseParameter${1..n}_${observableId}`
+  *must* be overwritten in the measurement table.
 
 - `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
 
