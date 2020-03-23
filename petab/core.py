@@ -121,6 +121,7 @@ def flatten_timepoint_specific_output_overrides(
     # remember if columns exist
     has_obs_par = OBSERVABLE_PARAMETERS in measurement_df
     has_noise_par = NOISE_PARAMETERS in measurement_df
+    has_preeq = PREEQUILIBRATION_CONDITION_ID in measurement_df
 
     # fill in optional columns to avoid special cases later
     if not has_obs_par \
@@ -129,13 +130,17 @@ def flatten_timepoint_specific_output_overrides(
     if not has_noise_par \
             or np.all(measurement_df[NOISE_PARAMETERS].isnull()):
         measurement_df[NOISE_PARAMETERS] = ''
-
-    # convert values to str because needed later
+    if not has_preeq \
+            or np.all(measurement_df[PREEQUILIBRATION_CONDITION_ID].isnull()):
+        measurement_df[PREEQUILIBRATION_CONDITION_ID] = ''
+    # convert to str row by row
     for irow, row in measurement_df.iterrows():
         if is_empty(row[OBSERVABLE_PARAMETERS]):
             measurement_df.at[irow, OBSERVABLE_PARAMETERS] = ''
         if is_empty(row[NOISE_PARAMETERS]):
             measurement_df.at[irow, NOISE_PARAMETERS] = ''
+        if is_empty(row[PREEQUILIBRATION_CONDITION_ID]):
+            measurement_df.at[irow, PREEQUILIBRATION_CONDITION_ID] = ''
 
     # Create empty df -> to be filled with replicate-specific observables
     df_new = pd.DataFrame()
@@ -147,7 +152,6 @@ def flatten_timepoint_specific_output_overrides(
         [OBSERVABLE_ID, PREEQUILIBRATION_CONDITION_ID,
          SIMULATION_CONDITION_ID]
     )
-    has_preeq = PREEQUILIBRATION_CONDITION_ID in cols
     df = measurement_df[cols]
 
     # Get unique combinations of observableId, preequilibrationConditionId
@@ -162,9 +166,8 @@ def flatten_timepoint_specific_output_overrides(
         df = measurement_df.loc[
             (measurement_df[OBSERVABLE_ID] ==
              df_unique_values.loc[irow, OBSERVABLE_ID])
-            & (not has_preeq or
-               (measurement_df[PREEQUILIBRATION_CONDITION_ID] ==
-                df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
+            & (measurement_df[PREEQUILIBRATION_CONDITION_ID] ==
+               df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID])
             & (measurement_df[SIMULATION_CONDITION_ID] ==
                df_unique_values.loc[irow, SIMULATION_CONDITION_ID])
             ]
@@ -209,6 +212,8 @@ def flatten_timepoint_specific_output_overrides(
         df_new.drop(columns=OBSERVABLE_PARAMETERS, inplace=True)
     if not has_noise_par:
         df_new.drop(columns=NOISE_PARAMETERS, inplace=True)
+    if not has_preeq:
+        df_new.drop(columns=PREEQUILIBRATION_CONDITION_ID, inplace=True)
 
     # Update/Redefine measurement df with replicate-specific observables
     petab_problem.measurement_df = df_new
