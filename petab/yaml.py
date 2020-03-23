@@ -7,10 +7,6 @@ from typing import Any, Dict, Union, Optional
 import jsonschema
 import yaml
 from .C import *  # noqa: F403
-from . problem import get_default_condition_file_name, \
-    get_default_measurement_file_name, get_default_parameter_file_name, \
-    get_default_sbml_file_name
-
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                       "petab_schema.yaml")
