@@ -52,9 +52,9 @@ def plot_data_and_simulation(
         measurement DataFrame in the PEtab format or path to the data file.
     exp_conditions:
         condition DataFrame in the PEtab format or path to the condition file.
-    vis_spec: str or pandas.Dataframe (optional)
+    vis_spec:
         Visualization specification DataFrame in the PEtab format or path to
-         visualization file.
+        visualization file.
     sim_data:
         simulation DataFrame in the PEtab format
         or path to the simulation output data file.

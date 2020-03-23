@@ -49,7 +49,7 @@ def get_data_per_observable(measurement_df: pd.DataFrame) -> pd.DataFrame:
         measurement_df: PEtab measurement data frame
     Returns:
         data_per_observable:
-            pivot table with number of data points per observable and condition
+            Pivot table with number of data points per observable and condition
     """
 
     my_measurements = measurement_df.copy()

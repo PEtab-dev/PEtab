@@ -15,7 +15,7 @@ def plot_lowlevel(plot_spec: pd.Series,
                   ms: pd.DataFrame,
                   plot_sim: bool) -> 'matplotlib.pyplot.Axes':
     """
-    plotting routine / preparations: set properties of figure and plot
+    Plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
 
     Parameters:

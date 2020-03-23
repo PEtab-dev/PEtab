@@ -92,7 +92,7 @@ def check_vis_spec_consistency(
 
     Returns:
         group_by:
-            specifies the grouping of data to plot.
+            Specifies the grouping of data to plot.
     """
 
     # We have no vis_spec file. Check how data should be grouped
@@ -399,7 +399,7 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
     exist, create default columns
 
     Returns:
-        updated visualization specification DataFrame
+        Updated visualization specification DataFrame
     """
     if X_VALUES not in vis_spec.columns:
         raise NotImplementedError(
@@ -591,7 +591,7 @@ def matches_plot_spec(df: pd.DataFrame,
 
     Returns:
         index:
-            boolean series that can be used for subsetting of the passed
+            Boolean series that can be used for subsetting of the passed
             dataframe
     """
     subset = (
@@ -616,7 +616,7 @@ def get_data_to_plot(plot_spec: pd.Series,
                      col_id: str,
                      simulation_field: str = SIMULATION) -> pd.DataFrame:
     """
-    group the data, which should be plotted and return it as dataframe.
+    Group the data, which should be plotted and return it as dataframe.
 
     Parameters:
         plot_spec:
@@ -632,14 +632,14 @@ def get_data_to_plot(plot_spec: pd.Series,
         col_id:
             the name of the column in visualization file, whose entries
             should be unique (depends on condition in column
-            independentVariableName)
+            xValues)
         simulation_field:
             Column name in ``simulation_data`` that contains the actual
             simulation result.
 
     Returns:
         data_to_plot:
-            contains the data which should be plotted
+            Contains the data which should be plotted
             (Mean and Std)
     """
 
