@@ -80,7 +80,7 @@ def check_vis_spec_consistency(
         observable_id_list: Optional[List[IdsList]] = None,
         observable_num_list: Optional[List[NumList]] = None) -> str:
     """
-    Helper function for plotting data and simulations, which check the
+    Helper function for plotting data and simulations, which checks the
     visualization setting, if no visualization specification file is provided.
 
     For documentation, see main function plot_data_and_simulation()
@@ -164,7 +164,16 @@ def create_dataset_id_list(
         exp_data: pd.DataFrame,
         exp_conditions: pd.DataFrame,
         group_by: str) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
-    """Create dataset id list"""
+    """
+    Create dataset id list
+
+    Parameters
+    ----------
+    group_by:
+        defines  grouping of ...
+
+    For additional documentation, see main function plot_data_and_simulation()
+    """
     # create a column of dummy datasetIDs and legend entries: preallocate
     dataset_id_column = []
     legend_dict = {}
@@ -223,6 +232,8 @@ def create_dataset_id_list(
         grouped_list = simcond_id_list
 
     elif group_by == 'observable':
+        if not observable_id_list and not observable_num_list:
+            observable_id_list = [unique_obs_list]
         if observable_id_list is None:
             observable_id_list = [[unique_obs_list[i_obs] for i_obs in
                                    i_obs_list] for i_obs_list in
