@@ -74,7 +74,7 @@ The following list provides an overview of supported PEtab features in
 different tools, based on passed test cases of the
 [PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
 
-| ID | Test                                                           | AMICI<br>*`develop`* | Copasi | D2D | dMod | MEIGO | parPE<br>*`develop`*  | pyABC | pyPESTO<br>*`develop`* |
+| ID | Test                                                           | AMICI<br>`>=0.10.20` | Copasi | D2D | dMod | MEIGO | parPE<br>`develop`  | pyABC<br>`>=0.10.1` | pyPESTO<br>`>=0.0.11` |
 |----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|-----------------------|-------|------------------------|
 | 1  | Basic simulation                                               | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
 | 2  | Multiple simulation conditions                                 | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
@@ -93,10 +93,10 @@ different tools, based on passed test cases of the
 | 15 | Parametric noise parameter overrides in measurement table      | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
 | 16 | Observable transformations to log scale                        | +-+                  |        | +++ |      | ++-   | --+                   | +-+   | +-+                    |
 
-    Legend:
-    * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
-    * Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-)
-    * Third character indicates whether computing likelihoods is supported and correct (+) or not (-)
+Legend:
+* First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-).
+* Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-).
+* Third character indicates whether computing likelihoods is supported and correct (+) or not (-).
 
 ## Using PEtab
 
@@ -108,18 +108,15 @@ the example models provided in the
 To convert your existing parameter estimation problem to the PEtab format, you 
 will have to:
 
-1. Specify your model in SBML
+1. Specify your model in SBML.
 
-1. Set up model outputs and noise model using `AssignmentRule`s as described in 
-  the PEtab documentation
+1. Create a condition table.
 
-1. Create a condition table, if appropriate
+1. Create a table of observables.
 
-1. Create a table of observables
+1. Create a table of measurements.
 
-1. Create a table of measurements
-
-1. Create a parameter table
+1. Create a parameter table.
 
 If you are using Python, some handy functions of the
 [PEtab library](https://petab.readthedocs.io/en/latest/modules.html) can help

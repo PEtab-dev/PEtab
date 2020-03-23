@@ -397,7 +397,7 @@ def test_concat_measurements():
 
 def test_get_obervable_ids(petab_problem):  # pylint: disable=W0621
     """Test if observable ids functions returns correct value."""
-    assert set(petab_problem.get_observable_ids()) == set(['observable_1'])
+    assert set(petab_problem.get_observable_ids()) == {'observable_1'}
 
 
 def test_parameter_properties(petab_problem):  # pylint: disable=W0621

@@ -23,6 +23,11 @@ author = 'Daniel Weindl, Yannik Schälte, Dantong Wang, Carolin Loos, Jan Hasena
 # The full version, including alpha/beta/rc tags
 release = 'latest'
 
+# -- Custom pre-build --------------------------------------------------------
+
+import subprocess
+
+subprocess.run(['python', 'md2rst.py'])
 
 # -- General configuration ---------------------------------------------------
 
@@ -35,7 +40,7 @@ extensions = [
     'recommonmark',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
-    'nbsphinx'
+    'nbsphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -73,7 +78,8 @@ source_suffix = {
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
-
+def setup(app):
+    app.add_stylesheet('custom.css')
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
