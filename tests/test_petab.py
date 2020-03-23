@@ -531,7 +531,8 @@ def test_to_files(petab_problem):  # pylint: disable=W0621
             measurement_file=measurement_file,
             parameter_file=parameter_file,
             visualization_file=None,
-            observable_file=observable_file)
+            observable_file=observable_file,
+            yaml_file=None)
 
         # exemplarily load some
         parameter_df = petab.get_parameter_df(parameter_file)
