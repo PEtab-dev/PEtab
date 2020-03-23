@@ -265,7 +265,8 @@ class Problem:
                  measurement_file: Optional[str] = None,
                  parameter_file: Optional[str] = None,
                  visualization_file: Optional[str] = None,
-                 observable_file: Optional[str] = None) -> None:
+                 observable_file: Optional[str] = None,
+                 yaml_file: Optional[str] = None) -> None:
         """
         Write PEtab tables to files for this problem
 
@@ -282,6 +283,7 @@ class Problem:
             parameter_file: Parameter table destination
             visualization_file: Visualization table destination
             observable_file: Observables table destination
+            yaml_file: YAML file destination
 
         Raises:
             ValueError: If a destination was provided for a non-existing
@@ -332,6 +334,12 @@ class Problem:
                                             visualization_file)
             else:
                 raise error("visualization")
+
+        if yaml_file:
+            yaml.create_default_yaml(sbml_file, condition_file,
+                                     measurement_file, parameter_file,
+                                     observable_file, yaml_file,
+                                     visualization_file)
 
     def get_optimization_parameters(self):
         """

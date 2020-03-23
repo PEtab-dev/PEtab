@@ -166,16 +166,32 @@ def write_yaml(yaml_config: Dict[str, Any], filename: str) -> None:
                   sort_keys=False)
 
 
-def create_default_yaml(model_name):
-    yaml_dic = {"parameter_file": get_default_parameter_file_name(model_name),
-                "version": 1,
-                "problems": [{"condition_files": [
-                    get_default_condition_file_name(model_name)],
-                              "measurement_files": [
-                                  get_default_measurement_file_name(model_name)
-                              ],
-                              "sbml_files": [get_default_sbml_file_name(
-                                  model_name)],
-                              "observable_files": ['observables' +
-                                                   model_name]}]}
-    write_yaml(yaml_dic, model_name + '.yaml')
+def create_default_yaml(sbml_file: str,
+                        condition_file: str,
+                        measurement_file: str,
+                        parameter_file: str,
+                        observable_file: str,
+                        yaml_file: str,
+                        visualization_file: Optional[str] = None) -> None:
+    """
+    Create and write default YAML file for a single PEtab problem
+
+    Arguments:
+        sbml_file: Path of SBML model file
+        condition_file: Path of condition file
+        measurement_file: Path of measurement file
+        parameter_file: Path of parameter file
+        observable_file: Path of observable file
+        yaml_file: Path to which YAML file should be written
+        visualization_file: Optional Path to visualization file
+    """
+    problem_dic = {"condition_files": [condition_file],
+                   "measurement_files": [measurement_file],
+                   "sbml_files": [sbml_file],
+                   "observable_files": [observable_file]}
+    if visualization_file is not None:
+        problem_dic.update({'visualization_files': [visualization_file]})
+    yaml_dic = {"parameter_file": parameter_file,
+                "format_version": 1,
+                "problems": [problem_dic]}
+    write_yaml(yaml_dic, yaml_file)
