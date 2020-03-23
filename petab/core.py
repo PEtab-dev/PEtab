@@ -130,6 +130,13 @@ def flatten_timepoint_specific_output_overrides(
             or np.all(measurement_df[NOISE_PARAMETERS].isnull()):
         measurement_df[NOISE_PARAMETERS] = ''
 
+    # convert values to str because needed later
+    for irow, row in measurement_df.iterrows():
+        if is_empty(row[OBSERVABLE_PARAMETERS]):
+            measurement_df.at[irow, OBSERVABLE_PARAMETERS] = ''
+        if is_empty(row[NOISE_PARAMETERS]):
+            measurement_df.at[irow, NOISE_PARAMETERS] = ''
+
     # Create empty df -> to be filled with replicate-specific observables
     df_new = pd.DataFrame()
 
@@ -156,9 +163,9 @@ def flatten_timepoint_specific_output_overrides(
             (measurement_df[OBSERVABLE_ID] ==
              df_unique_values.loc[irow, OBSERVABLE_ID])
             & (not has_preeq or
-               (measurement_df[PREEQUILIBRATION_CONDITION_ID] <=
+               (measurement_df[PREEQUILIBRATION_CONDITION_ID] ==
                 df_unique_values.loc[irow, PREEQUILIBRATION_CONDITION_ID]))
-            & (measurement_df[SIMULATION_CONDITION_ID] <=
+            & (measurement_df[SIMULATION_CONDITION_ID] ==
                df_unique_values.loc[irow, SIMULATION_CONDITION_ID])
             ]
 
@@ -174,8 +181,8 @@ def flatten_timepoint_specific_output_overrides(
                 # and unique_sc[j] in their corresponding column
                 # (full-string matches are denoted by zero)
                 idxs = (
-                    df[NOISE_PARAMETERS].str.find(cur_noise) +
-                    df[OBSERVABLE_PARAMETERS].str.find(cur_sc)
+                    df[NOISE_PARAMETERS].astype(str).str.find(cur_noise) +
+                    df[OBSERVABLE_PARAMETERS].astype(str).str.find(cur_sc)
                 )
                 tmp_ = df.loc[idxs == 0, OBSERVABLE_ID]
                 # Create replicate-specific observable name
