@@ -40,9 +40,14 @@ def import_from_files(
                                      pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which imports data
-    from PEtab files.
+    from PEtab files. If path to the visualization file is not provided, the
+    visualisation specification DataFrame will be generated automatically.
 
     For documentation, see main function plot_data_and_simulation()
+
+    Returns:
+        A tuple of experimental data, experimental conditions,
+        visualization specification and simulation data DataFrames.
     """
 
     # import measurement data and experimental condition
@@ -84,6 +89,10 @@ def check_vis_spec_consistency(
     visualization setting, if no visualization specification file is provided.
 
     For documentation, see main function plot_data_and_simulation()
+
+    Returns:
+        group_by:
+            specifies the grouping of data to plot.
     """
 
     # We have no vis_spec file. Check how data should be grouped
@@ -165,12 +174,15 @@ def create_dataset_id_list(
         exp_conditions: pd.DataFrame,
         group_by: str) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """
-    Create dataset id list
+    Create dataset id list and corresponding plot legends.
+    Additionally, update/create DATASET_ID column of exp_data
 
-    Parameters
-    ----------
-    group_by:
-        defines  grouping of ...
+    Parameters:
+        group_by: defines  grouping of data to plot
+
+    Returns:
+        A tuple of experimental DataFrame, list of datasetIds and
+        dictionary of plot legends, corresponding to the datasetIds
 
     For additional documentation, see main function plot_data_and_simulation()
     """
@@ -322,7 +334,12 @@ def get_default_vis_specs(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which creates a
-    default visualization table.
+    default visualization table and updates/creates DATASET_ID column of
+    exp_data
+
+    Returns:
+        A tuple of visualization specification DataFrame and experimental
+        DataFrame.
 
     For documentation, see main function plot_data_and_simulation()
     """
@@ -380,6 +397,9 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
+
+    Returns:
+        updated visualization specification DataFrame
     """
     if X_VALUES not in vis_spec.columns:
         raise NotImplementedError(
@@ -435,6 +455,10 @@ def check_ex_exp_columns(
     """
     Check the columns in measurement file, if non-mandotory columns does not
     exist, create default columns
+
+    Returns:
+        A tuple of experimental DataFrame, list of datasetIds and
+        dictionary of plot legends, corresponding to the datasetIds
     """
     # mandatory columns
     if OBSERVABLE_ID not in exp_data.columns:
