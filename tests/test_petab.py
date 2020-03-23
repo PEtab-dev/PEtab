@@ -370,6 +370,79 @@ def test_flatten_timepoint_specific_output_overrides():
     assert petab.lint_problem(problem) is False
 
 
+def test_flatten_timepoint_specific_output_overrides_special_cases():
+    """Test flatten_timepoint_specific_output_overrides
+    for special cases:
+    * no preequilibration
+    * no observable parameters
+    """
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs1'],
+        OBSERVABLE_FORMULA: ['species1'],
+        NOISE_FORMULA: ['noiseParameter1_obs1']
+    })
+    observable_df.set_index(OBSERVABLE_ID, inplace=True)
+
+    observable_df_expected = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs1_1', 'obs1_2'],
+        OBSERVABLE_FORMULA: [
+            'species1',
+            'species1'],
+        NOISE_FORMULA: ['noiseParameter1_obs1_1',
+                        'noiseParameter1_obs1_2']
+    })
+    observable_df_expected.set_index(OBSERVABLE_ID, inplace=True)
+
+    # Measurement table with timepoint-specific overrides
+    measurement_df = pd.DataFrame(data={
+        OBSERVABLE_ID:
+            ['obs1', 'obs1', 'obs1', 'obs1'],
+        SIMULATION_CONDITION_ID:
+            ['condition1', 'condition1', 'condition1', 'condition1'],
+        TIME:
+            [1.0, 1.0, 2.0, 2.0],
+        MEASUREMENT:
+            [np.nan] * 4,
+        NOISE_PARAMETERS:
+            ['noiseParOverride1', 'noiseParOverride1',
+             'noiseParOverride2', 'noiseParOverride2'],
+    })
+
+    measurement_df_expected = pd.DataFrame(data={
+        OBSERVABLE_ID:
+            ['obs1_1', 'obs1_1', 'obs1_2', 'obs1_2'],
+        SIMULATION_CONDITION_ID:
+            ['condition1', 'condition1', 'condition1', 'condition1'],
+        TIME:
+            [1.0, 1.0, 2.0, 2.0],
+        MEASUREMENT:
+            [np.nan] * 4,
+        NOISE_PARAMETERS:
+            ['noiseParOverride1', 'noiseParOverride1',
+             'noiseParOverride2', 'noiseParOverride2'],
+    })
+
+    problem = petab.Problem(measurement_df=measurement_df,
+                            observable_df=observable_df)
+
+    assert petab.lint_problem(problem) is False
+
+    # Ensure having timepoint-specific overrides
+    assert petab.lint.measurement_table_has_timepoint_specific_mappings(
+        measurement_df) is True
+
+    petab.flatten_timepoint_specific_output_overrides(problem)
+
+    # Timepoint-specific overrides should be gone now
+    assert petab.lint.measurement_table_has_timepoint_specific_mappings(
+        problem.measurement_df) is False
+
+    assert problem.observable_df.equals(observable_df_expected) is True
+    assert problem.measurement_df.equals(measurement_df_expected) is True
+
+    assert petab.lint_problem(problem) is False
+
+
 def test_concat_measurements():
     a = pd.DataFrame({MEASUREMENT: [1.0]})
     b = pd.DataFrame({TIME: [1.0]})
@@ -458,7 +531,8 @@ def test_to_files(petab_problem):  # pylint: disable=W0621
             measurement_file=measurement_file,
             parameter_file=parameter_file,
             visualization_file=None,
-            observable_file=observable_file)
+            observable_file=observable_file,
+            yaml_file=None)
 
         # exemplarily load some
         parameter_df = petab.get_parameter_df(parameter_file)

@@ -59,6 +59,10 @@ properties:
           type: array
           description: List of PEtab observable files.
 
+          items:
+            type: string
+            description: PEtab observable file name or URL.
+
         visualization_files:
           type: array
           description: List of PEtab visualization files.
