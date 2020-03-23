@@ -380,8 +380,8 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
             vis_spec[X_VALUES] = 'time'
             print('works')
         elif len(uni_time) == 1:
-            if np.isin(exp_conditions.columns.values,'conditionName').any():
-                conds  = exp_conditions.columns.drop('conditionName')
+            if np.isin(exp_conditions.columns.values, 'conditionName').any():
+                conds = exp_conditions.columns.drop('conditionName')
             else:
                 conds = exp_conditions.columns
             # default: first dose-response condition (first from condition
