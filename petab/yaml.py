@@ -2,7 +2,7 @@
 
 import os
 
-from typing import Any, Dict, Union, Optional
+from typing import Any, Dict, Union, Optional, List
 
 import jsonschema
 import yaml
@@ -162,32 +162,45 @@ def write_yaml(yaml_config: Dict[str, Any], filename: str) -> None:
                   sort_keys=False)
 
 
-def create_default_yaml(sbml_file: str,
-                        condition_file: str,
-                        measurement_file: str,
+def create_problem_yaml(sbml_files: Union[str, List[str]],
+                        condition_files: Union[str, List[str]],
+                        measurement_files: Union[str, List[str]],
                         parameter_file: str,
-                        observable_file: str,
+                        observable_files: Union[str, List[str]],
                         yaml_file: str,
-                        visualization_file: Optional[str] = None) -> None:
+                        visualization_files: Optional[Union[str, List[str]]]
+                        = None) -> None:
     """
     Create and write default YAML file for a single PEtab problem
 
     Arguments:
-        sbml_file: Path of SBML model file
-        condition_file: Path of condition file
-        measurement_file: Path of measurement file
+        sbml_files: Path of SBML model file or list of such
+        condition_files: Path of condition file or list of such
+        measurement_files: Path of measurement file or list of such
         parameter_file: Path of parameter file
-        observable_file: Path of observable file
+        observable_files: Path of observable file or lsit of such
         yaml_file: Path to which YAML file should be written
-        visualization_file: Optional Path to visualization file
+        visualization_files: Optional Path to visualization file or list of
+        such
     """
-    problem_dic = {"condition_files": [condition_file],
-                   "measurement_files": [measurement_file],
-                   "sbml_files": [sbml_file],
-                   "observable_files": [observable_file]}
-    if visualization_file is not None:
-        problem_dic.update({'visualization_files': [visualization_file]})
-    yaml_dic = {"parameter_file": parameter_file,
-                "format_version": 1,
-                "problems": [problem_dic]}
+    if isinstance(sbml_files, str):
+        sbml_files = [sbml_files]
+    if isinstance(condition_files, str):
+        condition_files = [condition_files]
+    if isinstance(measurement_files, str):
+        measurement_files = [measurement_files]
+    if isinstance(observable_files, str):
+        observable_files = [observable_files]
+    if isinstance(visualization_files, str):
+        visualization_files = [visualization_files]
+
+    problem_dic = {CONDITION_FILES: condition_files,
+                   MEASUREMENT_FILES: measurement_files,
+                   SBML_FILES: sbml_files,
+                   OBSERVABLE_FILES: observable_files}
+    if visualization_files is not None:
+        problem_dic.update({'visualization_files': visualization_files})
+    yaml_dic = {PARAMETER_FILE: parameter_file,
+                FORMAT_VERSION: 1,
+                PROBLEMS: [problem_dic]}
     write_yaml(yaml_dic, yaml_file)
