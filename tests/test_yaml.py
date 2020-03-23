@@ -52,4 +52,3 @@ def test_create_problem_yaml():
         create_problem_yaml(sbml_files, condition_files, measurement_files,
                             parameter_file, observable_files, yaml_file2)
         validate(yaml_file2)
-
