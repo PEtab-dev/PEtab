@@ -115,6 +115,8 @@ def plot_data_and_simulation(
             vis_spec = core.get_visualization_df(vis_spec)
             vis_spec = check_ex_visu_columns(vis_spec,
                                              dataset_id_list,
+                                             exp_data,
+                                             exp_conditions,
                                              legend_dict)
         else:
             # create them based on simulation conditions

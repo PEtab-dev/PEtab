@@ -365,14 +365,36 @@ def get_default_vis_specs(
 
 def check_ex_visu_columns(vis_spec: pd.DataFrame,
                           dataset_id_list: List[IdsList],
+                          exp_data: pd.DataFrame,
+                          exp_conditions: pd.DataFrame,
                           legend_dict: Dict) -> pd.DataFrame:
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
     """
     if X_VALUES not in vis_spec.columns:
-        raise NotImplementedError(
-            "Please define column: \'xValues\' in visualization file.")
+        # check if time is constant in expdata (if yes, plot dose response)
+        # otherwise plot time series
+        uni_time = pd.unique(exp_data[TIME])
+        if len(uni_time) > 1:
+            vis_spec[X_VALUES] = 'time'
+            print('works')
+        elif len(uni_time) == 1:
+            if np.isin(exp_conditions.columns.values,'conditionName').any():
+                conds  = exp_conditions.columns.drop('conditionName')
+            else:
+                conds = exp_conditions.columns
+            # default: first dose-response condition (first from condition
+            # table) is plotted
+            vis_spec[X_VALUES] = conds[0]
+            warnings.warn(
+                '\n First dose-response condition is plotted. \n Check which '
+                'condition you want to plot \n and possibly enter it into the '
+                'column *xValues* \n in the visualization table.')
+        else:
+            raise NotImplementedError(
+                'Strange Error. There is no time defined in the measurement '
+                'table?')
     if Y_LABEL not in vis_spec.columns:
         vis_spec[Y_LABEL] = 'value'
     if Y_VALUES not in vis_spec.columns:
