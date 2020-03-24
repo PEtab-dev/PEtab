@@ -13,7 +13,8 @@ from .C import *  # noqa: F403
 
 
 def get_parameter_df(
-        parameter_file: Union[str, pd.DataFrame, None]) -> pd.DataFrame:
+        parameter_file: Union[str, List[str], pd.DataFrame, None]
+) -> pd.DataFrame:
     """
     Read the provided parameter file into a ``pandas.Dataframe``.
 
@@ -26,22 +27,49 @@ def get_parameter_df(
     if parameter_file is None:
         return parameter_file
 
+    parameter_df = None
+
+    if isinstance(parameter_file, pd.DataFrame):
+        parameter_df = parameter_file
+
     if isinstance(parameter_file, str):
-        parameter_file = pd.read_csv(parameter_file, sep='\t')
+        parameter_df = pd.read_csv(parameter_file, sep='\t')
+
+    if isinstance(parameter_file, list):
+        for parameter_subset_file in parameter_file:
+            parameter_df = pd.concat([parameter_df, pd.read_csv(
+                parameter_subset_file, sep='\t')])
+            # Remove identical parameter definitions
+            parameter_df.drop_duplicates(inplace = True, ignore_index = True)
+            # Check for contradicting parameter definitions
+            if (parameter_df.nunique()[PARAMETER_ID]
+                < parameter_df.count()[PARAMETER_ID]):
+                parameter_duplicates = set(
+                    parameter_df[PARAMETER_ID].loc[parameter_df.duplicated(
+                        subset=[PARAMETER_ID])]
+                    )
+                raise ValueError(
+                    f'The values of {PARAMETER_ID} must be unique or'
+                    + ' identical between all parameter subset files. The'
+                    + ' following duplicates were found:\n'
+                    + '{}\n'.format('\n'.join(parameter_duplicates))
+                    + 'The following file contained at least one copy of'
+                    + ' these duplicates:\n' + f'"{parameter_subset_file}".'
+                )
 
     lint.assert_no_leading_trailing_whitespace(
-        parameter_file.columns.values, "parameter")
+        parameter_df.columns.values, "parameter")
 
-    if not isinstance(parameter_file.index, pd.RangeIndex):
-        parameter_file.reset_index(inplace=True)
+    if not isinstance(parameter_df.index, pd.RangeIndex):
+        parameter_df.reset_index(inplace=True)
 
     try:
-        parameter_file.set_index([PARAMETER_ID], inplace=True)
+        parameter_df.set_index([PARAMETER_ID], inplace=True)
     except KeyError:
         raise KeyError(
             f"Parameter table missing mandatory field {PARAMETER_ID}.")
 
-    return parameter_file
+    return parameter_df
 
 
 def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
