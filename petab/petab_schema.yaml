@@ -10,10 +10,12 @@ properties:
     description: Version of the PEtab format (e.g. 1).
 
   parameter_file:
-    type: string
+    type:
+        oneof: [string, array]
     description: |
       File name (absolute or relative) or URL to PEtab parameter table
-      containing parameters of all models listed in `problems`.
+      containing parameters of all models listed in `problems`. A single
+      table may be split into multiple files and described as an array here.
 
   problems:
     type: array
