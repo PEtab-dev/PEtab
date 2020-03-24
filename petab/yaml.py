@@ -85,8 +85,15 @@ def validate_yaml_semantics(
             raise AssertionError(f"File '{_filename}' provided as '{_field}' "
                                  "does not exist.")
 
-    _check_file(os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
-                PARAMETER_FILE)
+    # Handles both a single parameter file, and a parameter file that has been
+    # split into multiple subset files.
+    for parameter_file_subset in (
+            list(np.array(yaml_config[PARAMETER_FILE]).flat)):
+        _check_file(
+                os.path.join(path_prefix, parameter_subset_file),
+                parameter_subset_file
+        )
+
     for problem_config in yaml_config[PROBLEMS]:
         for field in [SBML_FILES, CONDITION_FILES, MEASUREMENT_FILES,
                       VISUALIZATION_FILES, OBSERVABLE_FILES]:
