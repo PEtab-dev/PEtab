@@ -25,7 +25,7 @@ NumList = List[int]
 def plot_data_and_simulation(
         exp_data: Union[str, pd.DataFrame],
         exp_conditions: Union[str, pd.DataFrame],
-        vis_spec: Optional[Union[str, pd.DataFrame]] = '',
+        vis_spec: Optional[Union[str, pd.DataFrame]] = None,
         sim_data: Optional[Union[str, pd.DataFrame]] = None,
         dataset_id_list: Optional[List[IdsList]] = None,
         sim_cond_id_list: Optional[List[IdsList]] = None,
@@ -110,13 +110,12 @@ def plot_data_and_simulation(
                                  exp_conditions)
 
     # import visualization specification, if file was specified
-    if vis_spec:
-        if isinstance(vis_spec, str):
-            vis_spec = core.get_visualization_df(vis_spec)
-            vis_spec = check_ex_visu_columns(vis_spec,
-                                             dataset_id_list,
-                                             legend_dict)
-    else:
+    if isinstance(vis_spec, str):
+        vis_spec = core.get_visualization_df(vis_spec)
+        vis_spec = check_ex_visu_columns(vis_spec,
+                                         dataset_id_list,
+                                         legend_dict)
+    elif vis_spec is None:
         # create them based on simulation conditions
         vis_spec, exp_data = get_default_vis_specs(exp_data,
                                                    exp_conditions,

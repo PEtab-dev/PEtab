@@ -29,18 +29,18 @@ NumList = List[int]
 def import_from_files(
         data_file_path: str,
         condition_file_path: str,
-        visualization_file_path: str,
         simulation_file_path: str,
         dataset_id_list: List[IdsList],
         sim_cond_id_list: List[IdsList],
         sim_cond_num_list: List[NumList],
         observable_id_list: List[IdsList],
         observable_num_list: List[NumList],
-        plotted_noise: str) -> Tuple[pd.DataFrame, pd.DataFrame,
-                                     pd.DataFrame, pd.DataFrame]:
+        plotted_noise: str,
+        visualization_file_path: str = None
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which imports data
-    from PEtab files. If path to the visualization file is not provided, the
+    from PEtab files. If `visualization_file_path` is not provided, the
     visualisation specification DataFrame will be generated automatically.
 
     For documentation, see main function plot_data_and_simulation()
@@ -55,7 +55,7 @@ def import_from_files(
     exp_conditions = petab.get_condition_df(condition_file_path)
 
     # import visualization specification, if file was specified
-    if visualization_file_path != '':
+    if visualization_file_path:
         vis_spec = petab.get_visualization_df(visualization_file_path)
     else:
         # create them based on simulation conditions
