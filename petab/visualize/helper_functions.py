@@ -433,7 +433,8 @@ def check_ex_exp_columns(
         raise NotImplementedError(
             "Column \'simulationConditionId\' is missing in measurement "
             "file. ")
-    if MEASUREMENT not in exp_data.columns:
+    if MEASUREMENT not in exp_data.columns and SIMULATION not in \
+            exp_data.columns:
         raise NotImplementedError(
             "Column \'measurement\' is missing in measurement "
             "file. ")

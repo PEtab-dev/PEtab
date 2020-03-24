@@ -100,7 +100,7 @@ def plot_data_and_simulation(
         # import from file
         exp_data = measurements.get_measurement_df(exp_data)
         # check columns, and add non-mandatory default columns
-        exp_data, dataset_id_list, legend_dict = \
+        exp_data, _, legend_dict = \
             check_ex_exp_columns(exp_data,
                                  dataset_id_list,
                                  sim_cond_id_list,
@@ -130,6 +130,14 @@ def plot_data_and_simulation(
     # import simulation file, if file was specified
     if isinstance(sim_data, str):
         sim_data = core.get_simulation_df(sim_data)
+        # check columns, and add non-mandatory default columns
+        sim_data, _, _ = check_ex_exp_columns(sim_data,
+                                              dataset_id_list,
+                                              sim_cond_id_list,
+                                              sim_cond_num_list,
+                                              observable_id_list,
+                                              observable_num_list,
+                                              exp_conditions)
 
     if DATASET_ID not in exp_data:
         raise ValueError(f'Visualization requires field {DATASET_ID} to be  '
