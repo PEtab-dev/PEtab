@@ -15,22 +15,24 @@ def plot_lowlevel(plot_spec: pd.Series,
                   ms: pd.DataFrame,
                   plot_sim: bool) -> 'matplotlib.pyplot.Axes':
     """
-    plotting routine / preparations: set properties of figure and plot
+    Plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
 
-    Parameters
-    ----------
+    Parameters:
 
-    plot_spec:
-        contains defined data format (visualization file)
-    ax:
-        axes to which to plot
-    conditions:
-        Values on x-axis
-    ms:
-        contains measurement data which should be plotted
-    plot_sim:
-        tells whether or not simulated data should be plotted as well
+        plot_spec:
+            contains defined data format (visualization file)
+        ax:
+            axes to which to plot
+        conditions:
+            Values on x-axis
+        ms:
+            contains measurement data which should be plotted
+        plot_sim:
+            tells whether or not simulated data should be plotted as well
+
+    Returns:
+        Updated axis object.
     """
 
     # set yScale
@@ -162,7 +164,12 @@ def plot_lowlevel(plot_spec: pd.Series,
 def square_plot_equal_ranges(
         ax: 'matplotlib.pyplot.Axes',
         lim: Optional[Union[List, Tuple]] = None) -> 'matplotlib.pyplot.Axes':
-    """Square plot with equal range for scatter plots"""
+    """
+    Square plot with equal range for scatter plots
+
+    Returns:
+        Updated axis object.
+    """
 
     ax.axis('square')
 
