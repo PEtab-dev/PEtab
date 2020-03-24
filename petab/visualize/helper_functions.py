@@ -29,20 +29,25 @@ NumList = List[int]
 def import_from_files(
         data_file_path: str,
         condition_file_path: str,
-        visualization_file_path: str,
         simulation_file_path: str,
         dataset_id_list: List[IdsList],
         sim_cond_id_list: List[IdsList],
         sim_cond_num_list: List[NumList],
         observable_id_list: List[IdsList],
         observable_num_list: List[NumList],
-        plotted_noise: str) -> Tuple[pd.DataFrame, pd.DataFrame,
-                                     pd.DataFrame, pd.DataFrame]:
+        plotted_noise: str,
+        visualization_file_path: str = None
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which imports data
-    from PEtab files.
+    from PEtab files. If `visualization_file_path` is not provided, the
+    visualisation specification DataFrame will be generated automatically.
 
     For documentation, see main function plot_data_and_simulation()
+
+    Returns:
+        A tuple of experimental data, experimental conditions,
+        visualization specification and simulation data DataFrames.
     """
 
     # import measurement data and experimental condition
@@ -50,7 +55,7 @@ def import_from_files(
     exp_conditions = petab.get_condition_df(condition_file_path)
 
     # import visualization specification, if file was specified
-    if visualization_file_path != '':
+    if visualization_file_path:
         vis_spec = petab.get_visualization_df(visualization_file_path)
     else:
         # create them based on simulation conditions
@@ -80,10 +85,14 @@ def check_vis_spec_consistency(
         observable_id_list: Optional[List[IdsList]] = None,
         observable_num_list: Optional[List[NumList]] = None) -> str:
     """
-    Helper function for plotting data and simulations, which check the
+    Helper function for plotting data and simulations, which checks the
     visualization setting, if no visualization specification file is provided.
 
     For documentation, see main function plot_data_and_simulation()
+
+    Returns:
+        group_by:
+            Specifies the grouping of data to plot.
     """
 
     # We have no vis_spec file. Check how data should be grouped
@@ -164,7 +173,19 @@ def create_dataset_id_list(
         exp_data: pd.DataFrame,
         exp_conditions: pd.DataFrame,
         group_by: str) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
-    """Create dataset id list"""
+    """
+    Create dataset id list and corresponding plot legends.
+    Additionally, update/create DATASET_ID column of exp_data
+
+    Parameters:
+        group_by: defines  grouping of data to plot
+
+    Returns:
+        A tuple of experimental DataFrame, list of datasetIds and
+        dictionary of plot legends, corresponding to the datasetIds
+
+    For additional documentation, see main function plot_data_and_simulation()
+    """
     # create a column of dummy datasetIDs and legend entries: preallocate
     dataset_id_column = []
     legend_dict = {}
@@ -223,6 +244,8 @@ def create_dataset_id_list(
         grouped_list = simcond_id_list
 
     elif group_by == 'observable':
+        if not observable_id_list and not observable_num_list:
+            observable_id_list = [unique_obs_list]
         if observable_id_list is None:
             observable_id_list = [[unique_obs_list[i_obs] for i_obs in
                                    i_obs_list] for i_obs_list in
@@ -311,7 +334,12 @@ def get_default_vis_specs(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Helper function for plotting data and simulations, which creates a
-    default visualization table.
+    default visualization table and updates/creates DATASET_ID column of
+    exp_data
+
+    Returns:
+        A tuple of visualization specification DataFrame and experimental
+        DataFrame.
 
     For documentation, see main function plot_data_and_simulation()
     """
@@ -369,6 +397,9 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
+
+    Returns:
+        Updated visualization specification DataFrame
     """
     if X_VALUES not in vis_spec.columns:
         raise NotImplementedError(
@@ -424,6 +455,10 @@ def check_ex_exp_columns(
     """
     Check the columns in measurement file, if non-mandotory columns does not
     exist, create default columns
+
+    Returns:
+        A tuple of experimental DataFrame, list of datasetIds and
+        dictionary of plot legends, corresponding to the datasetIds
     """
     # mandatory columns
     if OBSERVABLE_ID not in exp_data.columns:
@@ -557,7 +592,7 @@ def matches_plot_spec(df: pd.DataFrame,
 
     Returns:
         index:
-            boolean series that can be used for subsetting of the passed
+            Boolean series that can be used for subsetting of the passed
             dataframe
     """
     subset = (
@@ -582,7 +617,7 @@ def get_data_to_plot(plot_spec: pd.Series,
                      col_id: str,
                      simulation_field: str = SIMULATION) -> pd.DataFrame:
     """
-    group the data, which should be plotted and return it as dataframe.
+    Group the data, which should be plotted and return it as dataframe.
 
     Parameters:
         plot_spec:
@@ -598,14 +633,14 @@ def get_data_to_plot(plot_spec: pd.Series,
         col_id:
             the name of the column in visualization file, whose entries
             should be unique (depends on condition in column
-            independentVariableName)
+            xValues)
         simulation_field:
             Column name in ``simulation_data`` that contains the actual
             simulation result.
 
     Returns:
         data_to_plot:
-            contains the data which should be plotted
+            Contains the data which should be plotted
             (Mean and Std)
     """
 
