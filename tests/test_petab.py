@@ -184,7 +184,7 @@ def test_get_priors_from_df():
 
     # correct types
     types = [entry[0] for entry in prior_list]
-    assert types == [UNINFORMATIVE, UNINFORMATIVE,
+    assert types == [PARAMETER_SCALE_UNIFORM, PARAMETER_SCALE_UNIFORM,
                      UNIFORM, NORMAL]
 
     # correct scales
