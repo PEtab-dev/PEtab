@@ -129,7 +129,7 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_rows_for_condition(measurement_df: pd.DataFrame,
-                           condition: Union[pd.DataFrame, Dict]
+                           condition: Union[pd.Series, pd.DataFrame, Dict]
                            ) -> pd.DataFrame:
     """
     Extract rows in `measurement_df` for `condition` according
