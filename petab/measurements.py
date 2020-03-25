@@ -129,7 +129,7 @@ def get_simulation_conditions(measurement_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_rows_for_condition(measurement_df: pd.DataFrame,
-                           condition: Union[pd.DataFrame, Dict]
+                           condition: Union[pd.Series, pd.DataFrame, Dict]
                            ) -> pd.DataFrame:
     """
     Extract rows in `measurement_df` for `condition` according
@@ -140,7 +140,7 @@ def get_rows_for_condition(measurement_df: pd.DataFrame,
         measurement_df:
             PEtab measurement DataFrame
         condition:
-            DataFrame with single row and columns
+            DataFrame with single row (or Series) and columns
             'preequilibrationConditionId' and 'simulationConditionId'.
             Or dictionary with those keys.
 
