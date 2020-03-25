@@ -392,8 +392,8 @@ Additional columns may be added.
 
   Possible prior types are:
 
-    - *uninformative* (default): flat prior on original parameter
-      scale (equivalent to "no prior")
+    - *uninformative* (default): flat prior in respective parameter scale 
+    (equivalent to "no prior")
     - *uniform*: flat prior in linear parameters
     - *normal*: Gaussian prior in linear parameters
     - *laplace*: Laplace prior in linear parameters

@@ -368,7 +368,7 @@ def unscale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
     if scale_str == LOG:
         return np.exp(parameter)
     if scale_str == LOG10:
-        return 10.**parameter
+        return np.power(10., parameter)
     raise ValueError("Invalid parameter scaling: " + scale_str)
 
 

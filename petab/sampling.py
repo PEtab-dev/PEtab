@@ -43,8 +43,8 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
 
     # define lambda functions for each parameter
     if p_type == UNINFORMATIVE:
-        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
-                                                             )) + p_params[0]
+        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,)) \
+             + p_params[0]
 
     elif p_type == UNIFORM:
         sp = scale((p_params[1] - p_params[0]) * np.random.random((
