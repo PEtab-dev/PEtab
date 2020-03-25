@@ -3,7 +3,7 @@ EGFR_turnover	EGFR_{turnover}	log10	1E-08	100000000	0.001479614562719	1	uniform	
 init_AKT	init_{AKT}	log10	1E-08	100000000	0.026930923029049	1	uninformative	-3;3	uninformative	-3;3
 init_EGFR	init_{EGFR}	log10	1E-08	100000000	37536153.8059105	1	normal	1000;50	normal	1000:50
 init_S6	init_{S6}	log10	1E-08	100000000	188.063148677911	1	logNormal	3;2	logNormal	3;2
-reaction_1_k1	reaction_{1,k1}	log10	1E-08	100000000	0.003690766129111	1	logScaleNormal	1;2	normal	1;2
+reaction_1_k1	reaction_{1,k1}	log10	1E-08	100000000	0.003690766129111	1	logNormal	1;2	normal	1;2
 reaction_1_k2	reaction_{1,k2}	log10	1E-08	100000000	0.002301175486005	1	laplace	1000;20	laplace	1000;20
 reaction_2_k1	reaction_{2,k1}	log10	1E-08	100000000	0.000936500808211	1	logLaplace	2;1	logLaplace	2;1
 reaction_2_k2	reaction_{2,k2}	log10	1E-08	100000000	60965.2066642586	1	logLaplace	2;1	uninformative	2;1
