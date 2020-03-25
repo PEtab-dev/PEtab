@@ -89,7 +89,7 @@ different tools, based on passed test cases of the
 | 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | ---   | --+                   | +++   | +++                    |
 | 11 | Numeric initial concentration in condition table               | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
 | 12 | Numeric initial compartment sizes in condition table           | ---                  | +--    | +++ | +++  | ---   | ---                   | ---   | ---                    |
-| 13 | Parametric initial concentrations in condition table           | +++                  | ---    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 13 | Parametric initial concentrations in condition table           | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
 | 14 | Numeric noise parameter overrides in measurement table         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
 | 15 | Parametric noise parameter overrides in measurement table      | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
 | 16 | Observable transformations to log scale                        | +-+                  | +--    | +++ | ++-  | ++-   | --+                   | +-+   | +-+                    |
