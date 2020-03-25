@@ -388,18 +388,19 @@ Additional columns may be added.
 
   Prior types used for sampling of initial points for optimization. Sampled
   points are clipped to lie inside the parameter boundaries specified by
-  `lowerBound` and `upperBound`. Defaults to `uninformative`.
+  `lowerBound` and `upperBound`. Defaults to `parameterScaleUniform`.
 
   Possible prior types are:
 
-    - *uninformative* (default): flat prior in respective parameter scale 
-    (equivalent to "no prior")
-    - *uniform*: flat prior in linear parameters
-    - *normal*: Gaussian prior in linear parameters
-    - *laplace*: Laplace prior in linear parameters
-    - *logUniform*: exponentiated flat prior in linear parameters
-    - *logNormal*: exponentiated Gaussian prior in linear parameters
-    - *logLaplace*: exponentiated Laplace prior in linear parameters
+    - *uniform*: flat prior on linear parameters
+    - *normal*: Gaussian prior on linear parameters
+    - *laplace*: Laplace prior on linear parameters
+    - *logNormal*: exponentiated Gaussian prior on linear parameters
+    - *logLaplace*: exponentiated Laplace prior on linear parameters
+    - *parameterScaleUniform* (default): Flat prior on original parameter
+      scale (equivalent to "no prior")
+    - *parameterScaleNormal*: Gaussian prior on original parameter scale
+    - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
 - `initializationPriorParameters` [STRING, OPTIONAL]
 
@@ -409,13 +410,14 @@ Additional columns may be added.
   So far, only numeric values will be supported, no parameter names. 
   Parameters for the different prior types are:
   
-    - uninformative: lower bound; upper bound
     - uniform: lower bound; upper bound
     - normal: mean; standard deviation (**not** variance)
     - laplace: location; scale
-    - logUniform: lower bound; upper bound
     - logNormal: parameters of corresp. normal distribution (see: normal)
     - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
+    - parameterScaleUniform: lower bound; upper bound
+    - parameterScaleNormal: mean; standard deviation (**not** variance)
+    - parameterScaleLaplace: location; scale
 
 - `objectivePriorType` [STRING, OPTIONAL]
 
