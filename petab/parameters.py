@@ -302,7 +302,7 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
         # retrieve info about type
         prior_type = str(row.get(f'{mode}PriorType', ''))
         if core.is_empty(prior_type):
-            prior_type = PARAMETER_SCALE_UNIFORM
+            prior_type = UNINFORMATIVE
 
         # retrieve info about parameters of priors, make it a tuple of floats
         pars_str = str(row.get(f'{mode}PriorParameters', ''))
@@ -316,9 +316,9 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
         par_scale = row[PARAMETER_SCALE]
         par_bounds = (row[LOWER_BOUND], row[UPPER_BOUND])
 
-        # if no prior is specified, we assume a non-informative (uniform) one
+        # if no prior is specified, we assume a non-informative one
         if prior_type == 'nan':
-            prior_type = PARAMETER_SCALE_UNIFORM
+            prior_type = UNINFORMATIVE
             prior_pars = (row[LOWER_BOUND], row[UPPER_BOUND])
 
         prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
@@ -368,7 +368,7 @@ def unscale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
     if scale_str == LOG:
         return np.exp(parameter)
     if scale_str == LOG10:
-        return 10**parameter
+        return np.power(10., parameter)
     raise ValueError("Invalid parameter scaling: " + scale_str)
 
 
@@ -393,16 +393,16 @@ def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:
     for prior_type_col, prior_par_col in zip(prior_type_cols, prior_par_cols):
         # fill in default values for prior type
         if prior_type_col not in df:
-            df[prior_type_col] = PARAMETER_SCALE_UNIFORM
+            df[prior_type_col] = UNINFORMATIVE
         else:
             for irow, row in df.iterrows():
                 if core.is_empty(row[prior_type_col]):
-                    df.loc[irow, prior_type_col] = PARAMETER_SCALE_UNIFORM
+                    df.loc[irow, prior_type_col] = UNINFORMATIVE
         if prior_par_col not in df:
             df[prior_par_col] = None
         for irow, row in df.iterrows():
             if core.is_empty(row[prior_par_col]) \
-                    and row[prior_type_col] == PARAMETER_SCALE_UNIFORM:
+                    and row[prior_type_col] == UNINFORMATIVE:
                 lb, ub = map_scale([row[LOWER_BOUND], row[UPPER_BOUND]],
                                    [row[PARAMETER_SCALE]] * 2)
                 df.loc[irow, prior_par_col] = f'{lb};{ub}'

@@ -42,13 +42,17 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
         return x
 
     # define lambda functions for each parameter
-    if p_type == UNIFORM:
+    if p_type == UNINFORMATIVE:
+        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,)) \
+             + p_params[0]
+
+    elif p_type == UNIFORM:
         sp = scale((p_params[1] - p_params[0]) * np.random.random((
             n_starts,)) + p_params[0])
 
-    elif p_type == PARAMETER_SCALE_UNIFORM:
-        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
-                                                             )) + p_params[0]
+    elif p_type == LOG_UNIFORM:
+        sp = scale(np.exp((p_params[1] - p_params[0]) * np.random.random((
+            n_starts,)) + p_params[0]))
 
     elif p_type == NORMAL:
         sp = scale(np.random.normal(loc=p_params[0], scale=p_params[1],
@@ -58,10 +62,6 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
         sp = scale(np.exp(np.random.normal(
             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
 
-    elif p_type == PARAMETER_SCALE_NORMAL:
-        sp = np.random.normal(loc=p_params[0], scale=p_params[1],
-                              size=(n_starts,))
-
     elif p_type == LAPLACE:
         sp = scale(np.random.laplace(
             loc=p_params[0], scale=p_params[1], size=(n_starts,)))
@@ -69,10 +69,6 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
     elif p_type == LOG_LAPLACE:
         sp = scale(np.exp(np.random.laplace(
             loc=p_params[0], scale=p_params[1], size=(n_starts,))))
-
-    elif p_type == PARAMETER_SCALE_LAPLACE:
-        sp = np.random.laplace(loc=p_params[0], scale=p_params[1],
-                               size=(n_starts,))
 
     else:
         raise NotImplementedError(

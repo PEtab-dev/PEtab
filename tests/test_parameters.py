@@ -94,9 +94,9 @@ def test_normalize_parameter_df():
 
     expected = parameter_df.copy(deep=True)
     expected[PARAMETER_NAME] = parameter_df.reset_index()[PARAMETER_ID]
-    expected[INITIALIZATION_PRIOR_TYPE] = [PARAMETER_SCALE_UNIFORM] * 3
+    expected[INITIALIZATION_PRIOR_TYPE] = [UNINFORMATIVE] * 3
     expected[INITIALIZATION_PRIOR_PARAMETERS] = ["-5;5", "-6;6", "1e-7;1e7"]
-    expected[OBJECTIVE_PRIOR_TYPE] = [PARAMETER_SCALE_UNIFORM] * 3
+    expected[OBJECTIVE_PRIOR_TYPE] = [UNINFORMATIVE] * 3
     expected[OBJECTIVE_PRIOR_PARAMETERS] = ["-5;5", "-6;6", "1e-7;1e7"]
 
     # check ids

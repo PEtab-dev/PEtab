@@ -474,12 +474,12 @@ def assert_parameter_prior_parameters_are_valid(
         for _, row in parameter_df.iterrows():
             # get type
             if type_col not in row or core.is_empty(row[type_col]):
-                type_ = PARAMETER_SCALE_UNIFORM
+                type_ = UNINFORMATIVE
             else:
                 type_ = row[type_col]
             # get parameters
             pars_str = row.get(par_col, '')
-            with_default_parameters = [PARAMETER_SCALE_UNIFORM]
+            with_default_parameters = [UNINFORMATIVE]
             # check if parameters are empty
             if core.is_empty(pars_str):
                 if type_ not in with_default_parameters:
