@@ -419,29 +419,32 @@ def check_ex_exp_columns(
         sim_cond_num_list: List[NumList],
         observable_id_list: List[IdsList],
         observable_num_list: List[NumList],
-        exp_conditions: pd.DataFrame
+        exp_conditions: pd.DataFrame,
+        sim: Optional[bool] = False
 ) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """
     Check the columns in measurement file, if non-mandotory columns does not
     exist, create default columns
     """
+    data_type = MEASUREMENT
+    if sim:
+        data_type = SIMULATION
     # mandatory columns
     if OBSERVABLE_ID not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'observableId\' is missing in measurement file. ")
+            f"Column \'observableId\' is missing in {data_type} file. ")
     if SIMULATION_CONDITION_ID not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'simulationConditionId\' is missing in measurement "
-            "file. ")
-    if MEASUREMENT not in exp_data.columns and SIMULATION not in \
-            exp_data.columns:
+            f"Column \'simulationConditionId\' is missing in {data_type} "
+            f"file. ")
+    if data_type not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'measurement\' is missing in measurement "
-            "file. ")
+            f"Column \'{data_type}\' is missing in {data_type} "
+            f"file. ")
     if TIME not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'time\' is missing in measurement "
-            "file. ")
+            f"Column \'time\' is missing in {data_type} "
+            f"file. ")
     # non-mandatory columns
     if PREEQUILIBRATION_CONDITION_ID not in exp_data.columns:
         exp_data.insert(loc=1, column=PREEQUILIBRATION_CONDITION_ID,
