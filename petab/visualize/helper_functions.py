@@ -201,12 +201,11 @@ def create_dataset_id_list(
         # create nicer legend entries from condition names instead of IDs
         if dataset_id not in legend_dict.keys():
             tmp = exp_conditions.loc[exp_conditions.index == cond_id]
-            try:
-                legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
-                    tmp_obs[ind]
-            except AttributeError:
-                legend_dict[dataset_id] = tmp.index[0] + ' - ' + \
-                    tmp_obs[ind]
+            if CONDITION_NAME not in tmp.columns or tmp[
+                    CONDITION_NAME].isna().any():
+                tmp.loc[:, CONDITION_NAME] = tmp.index.tolist()
+            legend_dict[dataset_id] = tmp[CONDITION_NAME][0] + ' - ' + \
+                tmp_obs[ind]
 
     # add these column to the measurement table (possibly overwrite)
     if DATASET_ID in exp_data.columns:
@@ -412,6 +411,8 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
         vis_spec[X_LABEL] = 'time'
     if X_OFFSET not in vis_spec.columns:
         vis_spec[X_OFFSET] = 0
+    if Y_OFFSET not in vis_spec.columns:
+        vis_spec[Y_OFFSET] = 0
     if Y_SCALE not in vis_spec.columns:
         vis_spec[Y_SCALE] = LIN
     if X_SCALE not in vis_spec.columns:
@@ -450,7 +451,8 @@ def check_ex_exp_columns(
         sim_cond_num_list: List[NumList],
         observable_id_list: List[IdsList],
         observable_num_list: List[NumList],
-        exp_conditions: pd.DataFrame
+        exp_conditions: pd.DataFrame,
+        sim: Optional[bool] = False
 ) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
     """
     Check the columns in measurement file, if non-mandotory columns does not
@@ -460,22 +462,25 @@ def check_ex_exp_columns(
         A tuple of experimental DataFrame, list of datasetIds and
         dictionary of plot legends, corresponding to the datasetIds
     """
+    data_type = MEASUREMENT
+    if sim:
+        data_type = SIMULATION
     # mandatory columns
     if OBSERVABLE_ID not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'observableId\' is missing in measurement file. ")
+            f"Column \'observableId\' is missing in {data_type} file. ")
     if SIMULATION_CONDITION_ID not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'simulationConditionId\' is missing in measurement "
-            "file. ")
-    if MEASUREMENT not in exp_data.columns:
+            f"Column \'simulationConditionId\' is missing in {data_type} "
+            f"file. ")
+    if data_type not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'measurement\' is missing in measurement "
-            "file. ")
+            f"Column \'{data_type}\' is missing in {data_type} "
+            f"file. ")
     if TIME not in exp_data.columns:
         raise NotImplementedError(
-            "Column \'time\' is missing in measurement "
-            "file. ")
+            f"Column \'time\' is missing in {data_type} "
+            f"file. ")
     # non-mandatory columns
     if PREEQUILIBRATION_CONDITION_ID not in exp_data.columns:
         exp_data.insert(loc=1, column=PREEQUILIBRATION_CONDITION_ID,

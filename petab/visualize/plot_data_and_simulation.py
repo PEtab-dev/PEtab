@@ -16,7 +16,6 @@ from .helper_functions import (get_default_vis_specs,
 from .. import problem, measurements, core, conditions
 from ..C import *
 
-
 # for typehints
 IdsList = List[str]
 NumList = List[int]
@@ -96,26 +95,41 @@ def plot_data_and_simulation(
     if isinstance(exp_conditions, str):
         exp_conditions = conditions.get_condition_df(exp_conditions)
 
-    if isinstance(exp_data, str):
-        # import from file
-        exp_data = measurements.get_measurement_df(exp_data)
+    # import simulation file, if file was specified
+    if sim_data is not None:
+        if isinstance(sim_data, str):
+            sim_data = core.get_simulation_df(sim_data)
         # check columns, and add non-mandatory default columns
-        exp_data, dataset_id_list, legend_dict = \
-            check_ex_exp_columns(exp_data,
-                                 dataset_id_list,
-                                 sim_cond_id_list,
-                                 sim_cond_num_list,
-                                 observable_id_list,
-                                 observable_num_list,
-                                 exp_conditions)
+        sim_data, _, _ = check_ex_exp_columns(sim_data,
+                                              dataset_id_list,
+                                              sim_cond_id_list,
+                                              sim_cond_num_list,
+                                              observable_id_list,
+                                              observable_num_list,
+                                              exp_conditions,
+                                              sim=True)
 
-    # import visualization specification, if file was specified
-    if isinstance(vis_spec, str):
-        vis_spec = core.get_visualization_df(vis_spec)
+    # import from file in case experimental data is provided in file
+    if isinstance(exp_data, str):
+        exp_data = measurements.get_measurement_df(exp_data)
+    # check columns, and add non-mandatory default columns
+    exp_data, dataset_id_list, legend_dict = \
+        check_ex_exp_columns(exp_data,
+                             dataset_id_list,
+                             sim_cond_id_list,
+                             sim_cond_num_list,
+                             observable_id_list,
+                             observable_num_list,
+                             exp_conditions)
+
+    if vis_spec is not None:
+        # import visualization specification, if file was specified
+        if isinstance(vis_spec, str):
+            vis_spec = core.get_visualization_df(vis_spec)
         vis_spec = check_ex_visu_columns(vis_spec,
                                          dataset_id_list,
                                          legend_dict)
-    elif vis_spec is None:
+    else:
         # create them based on simulation conditions
         vis_spec, exp_data = get_default_vis_specs(exp_data,
                                                    exp_conditions,
@@ -125,18 +139,8 @@ def plot_data_and_simulation(
                                                    observable_id_list,
                                                    observable_num_list,
                                                    plotted_noise)
-
-    # import simulation file, if file was specified
-    if isinstance(sim_data, str):
-        sim_data = core.get_simulation_df(sim_data)
-
-    if DATASET_ID not in exp_data:
-        raise ValueError(f'Visualization requires field {DATASET_ID} to be  '
-                         f'present in measurement table.')
-
-    if sim_data is not None and DATASET_ID not in sim_data:
-        raise ValueError(f'Visualization requires field {DATASET_ID} to be '
-                         f'present in simulation table.')
+        if sim_data is not None:
+            sim_data[DATASET_ID] = exp_data[DATASET_ID]
 
     # get unique plotIDs
     uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True)

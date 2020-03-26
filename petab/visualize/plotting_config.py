@@ -43,6 +43,12 @@ def plot_lowlevel(plot_spec: pd.Series,
     elif plot_spec[Y_SCALE] == LOG:
         ax.set_yscale("log", basey=np.e)
 
+    # add yOffset
+    ms.loc[:, 'mean'] = ms['mean'] + plot_spec[Y_OFFSET]
+    ms.loc[:, 'repl'] = ms['repl'] + plot_spec[Y_OFFSET]
+    if plot_sim:
+        ms.loc[:, 'sim'] = ms['sim'] + plot_spec[Y_OFFSET]
+
     # set type of noise
     if plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SD:
         noise_col = 'sd'
@@ -80,9 +86,6 @@ def plot_lowlevel(plot_spec: pd.Series,
         # add xOffset
         conditions = conditions + plot_spec[X_OFFSET]
 
-        # TODO sort mean and sd/sem by x values (as for simulatedData below)
-        #  to avoid crazy lineplots in case x values are not sorted by default.
-        #  cf issue #207
         # plotting all measurement data
         label_base = plot_spec[LEGEND_ENTRY]
         if plot_spec[PLOT_TYPE_DATA] == REPLICATE:
