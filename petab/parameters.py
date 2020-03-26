@@ -36,26 +36,20 @@ def get_parameter_df(
         parameter_df = pd.read_csv(parameter_file, sep='\t')
 
     if isinstance(parameter_file, list):
-        for parameter_subset_file in parameter_file:
-            parameter_df = pd.concat([parameter_df, pd.read_csv(
-                parameter_subset_file, sep='\t')])
-            # Remove identical parameter definitions
-            parameter_df.drop_duplicates(inplace=True, ignore_index=True)
-            # Check for contradicting parameter definitions
-            if (parameter_df.nunique()[PARAMETER_ID]
-                    < parameter_df.count()[PARAMETER_ID]):
-                parameter_duplicates = set(
-                    parameter_df[PARAMETER_ID].loc[parameter_df.duplicated(
-                        subset=[PARAMETER_ID])]
-                    )
-                raise ValueError(
-                    f'The values of {PARAMETER_ID} must be unique or'
-                    + ' identical between all parameter subset files. The'
-                    + ' following duplicates were found:\n'
-                    + '{}\n'.format('\n'.join(parameter_duplicates))
-                    + 'The following file contained at least one copy of'
-                    + ' these duplicates:\n' + f'"{parameter_subset_file}".'
-                )
+        parameter_df = pd.concat([pd.read_csv(subset_file, sep='\t')
+                for subset_file in parameter_file])
+        # Remove identical parameter definitions
+        parameter_df.drop_duplicates(inplace=True, ignore_index=True)
+        # Check for contradicting parameter definitions
+        parameter_duplicates = set(parameter_df[PARAMETER_ID].loc[
+                parameter_df[PARAMETER_ID].duplicated()])
+        if parameter_duplicates:
+            raise ValueError(
+                f'The values of {PARAMETER_ID} must be unique or'
+                ' identical between all parameter subset files. The'
+                ' following duplicates were found:\n'
+                '{}\n'.format('\n'.join(parameter_duplicates))
+            )
 
     lint.assert_no_leading_trailing_whitespace(
         parameter_df.columns.values, "parameter")
