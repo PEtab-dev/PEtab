@@ -11,7 +11,8 @@ from .helper_functions import (get_default_vis_specs,
                                create_figure,
                                handle_dataset_plot,
                                check_ex_visu_columns,
-                               check_ex_exp_columns)
+                               check_ex_exp_columns,
+                               create_or_update_vis_spec)
 
 from .. import problem, measurements, core, conditions
 from ..C import *
@@ -122,28 +123,30 @@ def plot_data_and_simulation(
                              observable_num_list,
                              exp_conditions)
 
-    if vis_spec is not None:
-        # import visualization specification, if file was specified
-        if isinstance(vis_spec, str):
-            vis_spec = core.get_visualization_df(vis_spec)
-        vis_spec = check_ex_visu_columns(vis_spec,
-                                         dataset_id_list,
-                                         legend_dict)
-    else:
-        # create them based on simulation conditions
-        vis_spec, exp_data = get_default_vis_specs(exp_data,
+    # so vis_spec can be None, pd.DataFrame, str
+    # import visualization specification, if file was specified
+    if isinstance(vis_spec, str):
+        vis_spec = core.get_visualization_df(vis_spec)
+
+    exp_data, vis_spec = create_or_update_vis_spec(exp_data,
                                                    exp_conditions,
+                                                   vis_spec,
                                                    dataset_id_list,
                                                    sim_cond_id_list,
                                                    sim_cond_num_list,
                                                    observable_id_list,
                                                    observable_num_list,
                                                    plotted_noise)
-        if sim_data is not None:
-            sim_data[DATASET_ID] = exp_data[DATASET_ID]
+    # check columns, and add non-mandatory default columns
+    vis_spec = check_ex_visu_columns(vis_spec,
+                                     dataset_id_list,
+                                     legend_dict)
+
+    if sim_data is not None:
+        sim_data[DATASET_ID] = exp_data[DATASET_ID]
 
     # get unique plotIDs
-    uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True)
+    uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True) # remove return_index=True
 
     # Switch saving plots to file on or get axes
     plots_to_file = subplot_file_path != ''

@@ -9,3 +9,5 @@ problems:
   - Fujita_model.xml
   observable_files:
   - Fujita_observables.tsv
+  visualization_files:
+  - Fujita_visuSpec_mandatory.tsv

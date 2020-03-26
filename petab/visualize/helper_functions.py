@@ -172,7 +172,7 @@ def create_dataset_id_list(
         observable_num_list: List[NumList],
         exp_data: pd.DataFrame,
         exp_conditions: pd.DataFrame,
-        group_by: str) -> Tuple[pd.DataFrame, List[IdsList], Dict]:
+        group_by: str) -> Tuple[pd.DataFrame, List[IdsList], Dict, Dict]:
     """
     Create dataset id list and corresponding plot legends.
     Additionally, update/create DATASET_ID column of exp_data
@@ -189,6 +189,7 @@ def create_dataset_id_list(
     # create a column of dummy datasetIDs and legend entries: preallocate
     dataset_id_column = []
     legend_dict = {}
+    yvalues_dict = {}
 
     # loop over experimental data table, create datasetId for each entry
     tmp_simcond = list(exp_data[SIMULATION_CONDITION_ID])
@@ -206,6 +207,7 @@ def create_dataset_id_list(
                 tmp.loc[:, CONDITION_NAME] = tmp.index.tolist()
             legend_dict[dataset_id] = tmp[CONDITION_NAME][0] + ' - ' + \
                 tmp_obs[ind]
+            yvalues_dict[dataset_id] = tmp_obs[ind]
 
     # add these column to the measurement table (possibly overwrite)
     if DATASET_ID in exp_data.columns:
@@ -266,7 +268,7 @@ def create_dataset_id_list(
                                   for dset in ds_dict[sublist_entry]]
         dataset_id_list.append(datasets_for_this_plot)
 
-    return exp_data, dataset_id_list, legend_dict
+    return exp_data, dataset_id_list, legend_dict, yvalues_dict
 
 
 def create_figure(
@@ -351,9 +353,10 @@ def get_default_vis_specs(
     if group_by != 'dataset':
         # datasetId_list will be created (possibly overwriting previous list
         #  - only in the local variable, not in the tsv-file)
-        exp_data, dataset_id_list, legend_dict = create_dataset_id_list(
-            sim_cond_id_list, sim_cond_num_list, observable_id_list,
-            observable_num_list, exp_data, exp_conditions, group_by)
+        exp_data, dataset_id_list, legend_dict, yvalues_dict = \
+            create_dataset_id_list(sim_cond_id_list, sim_cond_num_list,
+                                   observable_id_list, observable_num_list,
+                                   exp_data, exp_conditions, group_by)
 
     dataset_id_column = [i_dataset for sublist in dataset_id_list
                          for i_dataset in sublist]
@@ -390,6 +393,142 @@ def get_default_vis_specs(
     return vis_spec, exp_data
 
 
+def get_plotid_datasetid_datasetlabel_columns(
+        exp_data: pd.DataFrame,
+        exp_conditions: pd.DataFrame,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None
+):
+
+    # check consistency of settings
+    group_by = check_vis_spec_consistency(
+        exp_data, dataset_id_list, sim_cond_id_list, sim_cond_num_list,
+        observable_id_list, observable_num_list)
+
+    if group_by != 'dataset':
+        # datasetId_list will be created (possibly overwriting previous list
+        #  - only in the local variable, not in the tsv-file)
+        exp_data, dataset_id_list, legend_dict, yvalues_dict = create_dataset_id_list(
+            sim_cond_id_list, sim_cond_num_list, observable_id_list,
+            observable_num_list, exp_data, exp_conditions, group_by)
+
+
+    dataset_id_column = [i_dataset for sublist in dataset_id_list
+                         for i_dataset in sublist]
+
+    if group_by != 'dataset':
+        dataset_label_column = [legend_dict[i_dataset] for sublist in
+                                dataset_id_list for i_dataset in sublist]
+        yvalues_column = [yvalues_dict[i_dataset] for sublist in dataset_id_list
+                          for i_dataset in sublist]
+    else:
+        dataset_label_column = dataset_id_column
+        yvalues_column = ['']*len(dataset_id_column)
+
+    # get number of plots and create plotId-lists
+    plot_id_column = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
+        dataset_id_list) for _ in inner_list]
+
+    columns_dict = {PLOT_ID: plot_id_column,
+                    DATASET_ID: dataset_id_column,
+                    LEGEND_ENTRY: dataset_label_column,
+                    Y_VALUES: yvalues_column}
+    return exp_data, columns_dict
+
+
+def expand_vis_spec_settings(vis_spec, columns_dict):
+    """
+    only makes sense if DATASET_ID is not in vis_spec.columns?
+
+    :param vis_spec:
+    :param plot_id_column:
+    :param dataset_id_column:
+    :param dataset_label_column:
+    :param yvalues_column:
+    :return:
+    """
+
+    if Y_VALUES in vis_spec.columns:
+        for column in vis_spec.columns:
+            if column in [PLOT_NAME, PLOT_TYPE_SIMULATION, PLOT_TYPE_DATA,
+                          X_VALUES, X_OFFSET, X_LABEL, X_SCALE, Y_OFFSET,
+                          Y_LABEL, Y_SCALE, LEGEND_ENTRY]:
+                column_entries = []
+                for i, plot_id in enumerate(columns_dict[PLOT_ID]):
+                    select_conditions = (vis_spec[PLOT_ID] == plot_id) & (
+                            vis_spec[Y_VALUES] == columns_dict[Y_VALUES][i])
+                    column_entries.append(
+                        vis_spec[select_conditions].loc[:, column].values[0])
+                columns_dict[column] = column_entries
+    else:
+        for column in vis_spec.columns:
+            if column in [PLOT_NAME, PLOT_TYPE_SIMULATION, PLOT_TYPE_DATA,
+                          X_VALUES, X_OFFSET, X_LABEL, X_SCALE, Y_OFFSET,
+                          Y_LABEL, Y_SCALE, LEGEND_ENTRY]:
+                column_entries = []
+                for plot_id in columns_dict[PLOT_ID]:
+                    select_conditions = vis_spec[PLOT_ID] == plot_id
+                    column_entries.append(
+                        vis_spec[select_conditions].loc[:, column].values[0])
+                columns_dict[column] = column_entries
+    vis_spec = pd.DataFrame(columns_dict)
+    return vis_spec
+
+
+def create_or_update_vis_spec(
+        exp_data: pd.DataFrame,
+        exp_conditions: pd.DataFrame,
+        vis_spec=None,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None,
+        plotted_noise: Optional[str] = MEAN_AND_SD):
+    if vis_spec is None:
+        # create dataframe
+        exp_data, columns_dict = \
+            get_plotid_datasetid_datasetlabel_columns(exp_data,
+                                                      exp_conditions,
+                                                      dataset_id_list,
+                                                      sim_cond_id_list,
+                                                      sim_cond_num_list,
+                                                      observable_id_list,
+                                                      observable_num_list)
+        vis_spec = pd.DataFrame(columns_dict)
+    else:
+        # TODO: do validation
+        # so, plotid is definitely there
+        if DATASET_ID not in vis_spec.columns:
+            if Y_VALUES in vis_spec.columns:
+                plot_id_list = np.unique(vis_spec[PLOT_ID])
+                observable_id_list = [
+                    list(vis_spec[vis_spec[PLOT_ID] == plot_id].loc[:, Y_VALUES])
+                    for plot_id in plot_id_list]
+                exp_data, columns_dict = \
+                    get_plotid_datasetid_datasetlabel_columns(
+                        exp_data,
+                        exp_conditions,
+                        observable_id_list=observable_id_list)
+                # get other settings that could have potentially been there
+                # and expand according to plot_id_column
+                vis_spec = expand_vis_spec_settings(vis_spec, columns_dict)
+            else:
+                # plotid is there, but NOT dataseid, not yvalues,
+                # but potentially some settings.
+                # only one plotId makes sense? TODO: error if not
+                exp_data, columns_dict = \
+                    get_plotid_datasetid_datasetlabel_columns(
+                        exp_data,
+                        exp_conditions)
+                vis_spec = expand_vis_spec_settings(vis_spec, columns_dict)
+        # if dataset_id is there, then nothing to expand?
+    return exp_data, vis_spec
+
+
 def check_ex_visu_columns(vis_spec: pd.DataFrame,
                           dataset_id_list: List[IdsList],
                           legend_dict: Dict) -> pd.DataFrame:
@@ -400,23 +539,31 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
     Returns:
         Updated visualization specification DataFrame
     """
+    # DATASET_ID should already be there ?
+    if PLOT_NAME not in vis_spec.columns:
+        vis_spec[PLOT_NAME] = ''
+    if PLOT_TYPE_SIMULATION not in vis_spec.columns:
+        vis_spec[PLOT_TYPE_SIMULATION] = LINE_PLOT
+    if PLOT_TYPE_DATA not in vis_spec.columns:
+        vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
     if X_VALUES not in vis_spec.columns:
-        raise NotImplementedError(
-            "Please define column: \'xValues\' in visualization file.")
-    if Y_LABEL not in vis_spec.columns:
-        vis_spec[Y_LABEL] = 'value'
-    if Y_VALUES not in vis_spec.columns:
-        vis_spec[Y_VALUES] = ''
-    if X_LABEL not in vis_spec.columns:
-        vis_spec[X_LABEL] = 'time'
+        vis_spec[X_VALUES] = 'time'
+        # raise NotImplementedError(
+        #     "Please define column: \'xValues\' in visualization file.")
     if X_OFFSET not in vis_spec.columns:
         vis_spec[X_OFFSET] = 0
-    if Y_OFFSET not in vis_spec.columns:
-        vis_spec[Y_OFFSET] = 0
-    if Y_SCALE not in vis_spec.columns:
-        vis_spec[Y_SCALE] = LIN
+    if X_LABEL not in vis_spec.columns:
+        vis_spec[X_LABEL] = 'time'
     if X_SCALE not in vis_spec.columns:
         vis_spec[X_SCALE] = LIN
+    if Y_VALUES not in vis_spec.columns:
+        vis_spec[Y_VALUES] = ''
+    if Y_OFFSET not in vis_spec.columns:
+        vis_spec[Y_OFFSET] = 0
+    if Y_LABEL not in vis_spec.columns:
+        vis_spec[Y_LABEL] = 'value'
+    if Y_SCALE not in vis_spec.columns:
+        vis_spec[Y_SCALE] = LIN
     if LEGEND_ENTRY not in vis_spec.columns:
         # if we have dataset_id_list and legend_dict is empty
         # if dataset_id_list is not None and not bool(legend_dict):
@@ -434,12 +581,6 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
             vis_spec[LEGEND_ENTRY] = vis_spec[DATASET_ID]
         else:
             vis_spec[LEGEND_ENTRY] = 'condition'
-    if PLOT_NAME not in vis_spec.columns:
-        vis_spec[PLOT_NAME] = ''
-    if PLOT_TYPE_DATA not in vis_spec.columns:
-        vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
-    if PLOT_TYPE_SIMULATION not in vis_spec.columns:
-        vis_spec[PLOT_TYPE_SIMULATION] = LINE_PLOT
 
     return vis_spec
 
