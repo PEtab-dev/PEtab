@@ -412,6 +412,8 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
         vis_spec[X_LABEL] = 'time'
     if X_OFFSET not in vis_spec.columns:
         vis_spec[X_OFFSET] = 0
+    if Y_OFFSET not in vis_spec.columns:
+        vis_spec[Y_OFFSET] = 0
     if Y_SCALE not in vis_spec.columns:
         vis_spec[Y_SCALE] = LIN
     if X_SCALE not in vis_spec.columns:
