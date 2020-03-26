@@ -44,10 +44,10 @@ def plot_lowlevel(plot_spec: pd.Series,
         ax.set_yscale("log", basey=np.e)
 
     # add yOffset
-    ms['mean'] = ms['mean'] + plot_spec[Y_OFFSET]
-    ms['repl'] = ms['repl'] + plot_spec[Y_OFFSET]
+    ms.loc[:, 'mean'] = ms['mean'] + plot_spec[Y_OFFSET]
+    ms.loc[:, 'repl'] = ms['repl'] + plot_spec[Y_OFFSET]
     if plot_sim:
-        ms['sim'] = ms['sim'] + plot_spec[Y_OFFSET]
+        ms.loc[:, 'sim'] = ms['sim'] + plot_spec[Y_OFFSET]
 
     # set type of noise
     if plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SD:

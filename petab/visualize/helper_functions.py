@@ -201,12 +201,11 @@ def create_dataset_id_list(
         # create nicer legend entries from condition names instead of IDs
         if dataset_id not in legend_dict.keys():
             tmp = exp_conditions.loc[exp_conditions.index == cond_id]
-            try:
-                legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
-                    tmp_obs[ind]
-            except (AttributeError, np.UFuncTypeError):
-                legend_dict[dataset_id] = tmp.index[0] + ' - ' + \
-                    tmp_obs[ind]
+            if CONDITION_NAME not in tmp.columns or tmp[
+                    CONDITION_NAME].isna().any():
+                tmp.loc[:, CONDITION_NAME] = tmp.index.tolist()
+            legend_dict[dataset_id] = tmp[CONDITION_NAME][0] + ' - ' + \
+                tmp_obs[ind]
 
     # add these column to the measurement table (possibly overwrite)
     if DATASET_ID in exp_data.columns:
