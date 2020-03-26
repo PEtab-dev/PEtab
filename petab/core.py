@@ -363,8 +363,8 @@ def create_combine_archive(
             False
         )
         _add_file_metadata(
-                location=parameter_subset_file,
-                description=f"PEtab parameter file"
+            location=parameter_subset_file,
+            description=f"PEtab parameter file"
         )
 
     for problem in yaml_config[PROBLEMS]:
