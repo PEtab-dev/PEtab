@@ -204,7 +204,7 @@ def create_dataset_id_list(
             try:
                 legend_dict[dataset_id] = tmp.conditionName[0] + ' - ' + \
                     tmp_obs[ind]
-            except AttributeError:
+            except (AttributeError, np.UFuncTypeError):
                 legend_dict[dataset_id] = tmp.index[0] + ' - ' + \
                     tmp_obs[ind]
 
