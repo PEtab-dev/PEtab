@@ -40,10 +40,10 @@ def get_parameter_df(
             parameter_df = pd.concat([parameter_df, pd.read_csv(
                 parameter_subset_file, sep='\t')])
             # Remove identical parameter definitions
-            parameter_df.drop_duplicates(inplace = True, ignore_index = True)
+            parameter_df.drop_duplicates(inplace=True, ignore_index=True)
             # Check for contradicting parameter definitions
             if (parameter_df.nunique()[PARAMETER_ID]
-                < parameter_df.count()[PARAMETER_ID]):
+                    < parameter_df.count()[PARAMETER_ID]):
                 parameter_duplicates = set(
                     parameter_df[PARAMETER_ID].loc[parameter_df.duplicated(
                         subset=[PARAMETER_ID])]

@@ -7,6 +7,7 @@ from typing import Any, Dict, Union, Optional, List
 import jsonschema
 import yaml
 from .C import *  # noqa: F403
+import numpy as np
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                       "petab_schema.yaml")
@@ -87,11 +88,11 @@ def validate_yaml_semantics(
 
     # Handles both a single parameter file, and a parameter file that has been
     # split into multiple subset files.
-    for parameter_file_subset in (
+    for parameter_subset_file in (
             list(np.array(yaml_config[PARAMETER_FILE]).flat)):
         _check_file(
-                os.path.join(path_prefix, parameter_subset_file),
-                parameter_subset_file
+            os.path.join(path_prefix, parameter_subset_file),
+            parameter_subset_file
         )
 
     for problem_config in yaml_config[PROBLEMS]:
