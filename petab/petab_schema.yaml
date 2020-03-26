@@ -11,7 +11,7 @@ properties:
 
   parameter_file:
     type:
-        oneof: [string, array]
+        oneOf: [string, array]
     description: |
       File name (absolute or relative) or URL to PEtab parameter table
       containing parameters of all models listed in `problems`. A single
