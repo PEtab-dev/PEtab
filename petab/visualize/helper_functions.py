@@ -59,14 +59,14 @@ def import_from_files(
         vis_spec = petab.get_visualization_df(visualization_file_path)
     else:
         # create them based on simulation conditions
-        vis_spec = get_default_vis_specs(exp_data,
-                                         exp_conditions,
-                                         dataset_id_list,
-                                         sim_cond_id_list,
-                                         sim_cond_num_list,
-                                         observable_id_list,
-                                         observable_num_list,
-                                         plotted_noise)
+        vis_spec, exp_data = get_default_vis_specs(exp_data,
+                                                   exp_conditions,
+                                                   dataset_id_list,
+                                                   sim_cond_id_list,
+                                                   sim_cond_num_list,
+                                                   observable_id_list,
+                                                   observable_num_list,
+                                                   plotted_noise)
 
     # import simulation file, if file was specified
     if simulation_file_path != '':
@@ -103,8 +103,8 @@ def check_vis_spec_consistency(
     # check whether grouping by simulation condition should be done
     if sim_cond_id_list is not None and sim_cond_num_list is not None:
         raise NotImplementedError(
-            "Either specify a list of dataset IDs or a list of dataset "
-            "numbers, but not both. Stopping.")
+            "Either specify a list of simulation condition IDs or a list of "
+            "simulation condition numbers, but not both. Stopping.")
     if sim_cond_id_list is not None or sim_cond_num_list is not None:
         group_by += 'simulation'
 
