@@ -79,9 +79,9 @@ def test_visualization_with_vis(data_file_Isensee,
                              vis_spec_file_Isensee)
 
 
-def test_visualization_minimal_visu_file(data_file_Fujita,
-                                         condition_file_Fujita,
-                                         visu_file_Fujita_minimal):
+def test_visualization_minimal_visu_file_w_datasetid(data_file_Fujita,
+                                                     condition_file_Fujita,
+                                                     visu_file_Fujita_minimal):
     """
     Test: visualization spezification file only with mandatory columns
     (optional columns are optional)
