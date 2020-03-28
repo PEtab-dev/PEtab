@@ -48,7 +48,7 @@ def get_parameter_df(
                 f'The values of {PARAMETER_ID} must be unique or'
                 ' identical between all parameter subset files. The'
                 ' following duplicates were found:\n'
-                '{}\n'.format('\n'.join(parameter_duplicates))
+                f'{parameter_duplicates}'
             )
 
     lint.assert_no_leading_trailing_whitespace(
