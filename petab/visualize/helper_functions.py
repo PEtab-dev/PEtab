@@ -356,7 +356,7 @@ def get_default_vis_specs(
     if group_by != 'dataset':
         # datasetId_list will be created (possibly overwriting previous list
         #  - only in the local variable, not in the tsv-file)
-        exp_data, dataset_id_list, legend_dict, yvalues_dict = \
+        exp_data, dataset_id_list, legend_dict, _ = \
             create_dataset_id_list(sim_cond_id_list, sim_cond_num_list,
                                    observable_id_list, observable_num_list,
                                    exp_data, exp_conditions, group_by)
@@ -404,7 +404,17 @@ def get_vis_spec_dependent_columns_dict(
         sim_cond_num_list: Optional[List[NumList]] = None,
         observable_id_list: Optional[List[IdsList]] = None,
         observable_num_list: Optional[List[NumList]] = None
-):
+) -> Tuple[pd.DataFrame, Dict]:
+    """
+    Helper function for creating values for columns PLOT_ID, DATASET_ID,
+    LEGEND_ENTRY, Y_VALUES for visualization specification file.
+    DATASET_ID column of exp_data is updated accordingly.
+
+    Returns:
+        A tuple of experimental DataFrame and a dictionary with values for
+        columns PLOT_ID, DATASET_ID, LEGEND_ENTRY, Y_VALUES for visualization
+        specification file.
+    """
 
     # check consistency of settings
     group_by = check_vis_spec_consistency(
