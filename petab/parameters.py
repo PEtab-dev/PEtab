@@ -37,12 +37,12 @@ def get_parameter_df(
 
     if isinstance(parameter_file, list):
         parameter_df = pd.concat([pd.read_csv(subset_file, sep='\t')
-                for subset_file in parameter_file])
+                                  for subset_file in parameter_file])
         # Remove identical parameter definitions
         parameter_df.drop_duplicates(inplace=True, ignore_index=True)
         # Check for contradicting parameter definitions
         parameter_duplicates = set(parameter_df[PARAMETER_ID].loc[
-                parameter_df[PARAMETER_ID].duplicated()])
+            parameter_df[PARAMETER_ID].duplicated()])
         if parameter_duplicates:
             raise ValueError(
                 f'The values of {PARAMETER_ID} must be unique or'
