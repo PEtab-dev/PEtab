@@ -469,7 +469,7 @@ def expand_vis_spec_settings(vis_spec, columns_dict):
             if Y_VALUES in vis_spec.columns:
                 for i, plot_id in enumerate(columns_dict[PLOT_ID]):
                     select_conditions = (vis_spec[PLOT_ID] == plot_id) & (
-                            vis_spec[Y_VALUES] == columns_dict[Y_VALUES][i])
+                        vis_spec[Y_VALUES] == columns_dict[Y_VALUES][i])
                     column_entries.append(
                         vis_spec[select_conditions].loc[:, column].values[0])
             else:
@@ -521,7 +521,8 @@ def create_or_update_vis_spec(
             if Y_VALUES in vis_spec.columns:
                 plot_id_list = np.unique(vis_spec[PLOT_ID])
                 observable_id_list = [
-                    list(vis_spec[vis_spec[PLOT_ID] == plot_id].loc[:, Y_VALUES])
+                    vis_spec[vis_spec[PLOT_ID] ==
+                             plot_id].loc[:, Y_VALUES].values 
                     for plot_id in plot_id_list]
                 exp_data, columns_dict = \
                     get_vis_spec_dependent_columns_dict(
