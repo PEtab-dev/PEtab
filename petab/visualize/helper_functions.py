@@ -531,7 +531,7 @@ def create_or_update_vis_spec(
             vis_spec = expand_vis_spec_settings(vis_spec, columns_dict)
 
         # if dataset_id is there, then nothing to expand?
-        # TODO: plotted_noise
+    vis_spec[PLOT_TYPE_DATA] = plotted_noise
 
     # check columns, and add non-mandatory default columns
     vis_spec = check_ex_visu_columns(vis_spec)
@@ -560,7 +560,7 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
         vis_spec[X_LABEL] = 'time'
     if X_SCALE not in vis_spec.columns:
         vis_spec[X_SCALE] = LIN
-    # TODO: LEGEND_ENTRY colum will already be there?
+    # TODO: Y_VALUES column will already be there?
     if Y_VALUES not in vis_spec.columns:
         vis_spec[Y_VALUES] = ''
     if Y_OFFSET not in vis_spec.columns:
@@ -569,7 +569,6 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
         vis_spec[Y_LABEL] = 'value'
     if Y_SCALE not in vis_spec.columns:
         vis_spec[Y_SCALE] = LIN
-    # TODO: LEGEND_ENTRY colum will already be there?
     if LEGEND_ENTRY not in vis_spec.columns:
         vis_spec[LEGEND_ENTRY] = vis_spec[DATASET_ID]
         # # if we have dataset_id_list and legend_dict is empty
