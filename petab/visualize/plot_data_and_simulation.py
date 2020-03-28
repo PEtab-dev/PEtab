@@ -123,7 +123,6 @@ def plot_data_and_simulation(
                              observable_num_list,
                              exp_conditions)
 
-    # so vis_spec can be None, pd.DataFrame, str
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
         vis_spec = core.get_visualization_df(vis_spec)
@@ -137,16 +136,12 @@ def plot_data_and_simulation(
                                                    observable_id_list,
                                                    observable_num_list,
                                                    plotted_noise)
-    # check columns, and add non-mandatory default columns
-    vis_spec = check_ex_visu_columns(vis_spec,
-                                     dataset_id_list,
-                                     legend_dict)
 
     if sim_data is not None:
         sim_data[DATASET_ID] = exp_data[DATASET_ID]
 
     # get unique plotIDs
-    uni_plot_ids, _ = np.unique(vis_spec[PLOT_ID], return_index=True) # remove return_index=True
+    uni_plot_ids = np.unique(vis_spec[PLOT_ID])
 
     # Switch saving plots to file on or get axes
     plots_to_file = subplot_file_path != ''
