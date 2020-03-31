@@ -515,7 +515,7 @@ def create_or_update_vis_spec(
                                                 observable_num_list)
         vis_spec = pd.DataFrame(columns_dict)
     else:
-        # TODO: do validation
+        # TODO: do validation issue #190
         # so, plotid is definitely there
         if DATASET_ID not in vis_spec.columns:
             if Y_VALUES in vis_spec.columns:
@@ -581,22 +581,6 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
         vis_spec[Y_SCALE] = LIN
     if LEGEND_ENTRY not in vis_spec.columns:
         vis_spec[LEGEND_ENTRY] = vis_spec[DATASET_ID]
-        # # if we have dataset_id_list and legend_dict is empty
-        # # if dataset_id_list is not None and not bool(legend_dict):
-        # if dataset_id_list and not legend_dict:
-        #     dataset_id_column = [i_dataset for sublist in dataset_id_list
-        #                          for i_dataset in sublist]
-        #     vis_spec[LEGEND_ENTRY] = dataset_id_column
-        # # if dataset_id_list is empty but we have legend_dict
-        # elif dataset_id_list is None and bool(legend_dict):
-        #     vis_spec[LEGEND_ENTRY] = legend_dict
-        # # if dataset_id_list is empty and legend_dict is empty, but
-        # # datasetID-column is available
-        # elif dataset_id_list is None and not bool(legend_dict) and \
-        #         DATASET_ID in vis_spec.columns:
-        #     vis_spec[LEGEND_ENTRY] = vis_spec[DATASET_ID]
-        # else:
-        #     vis_spec[LEGEND_ENTRY] = 'condition'
 
     return vis_spec
 
