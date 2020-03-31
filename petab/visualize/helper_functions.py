@@ -7,7 +7,7 @@ hence not be directly visible/usable when using `import petab.visualize`.
 import functools
 import warnings
 from numbers import Number
-from warnings import warn
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -345,8 +345,8 @@ def get_default_vis_specs(
 
     For documentation, see main function plot_data_and_simulation()
     """
-    warn("This function will be removed in future releases. ",
-         DeprecationWarning)
+    warnings.warn("This function will be removed in future releases. ",
+                  DeprecationWarning)
 
     # check consistency of settings
     group_by = check_vis_spec_consistency(

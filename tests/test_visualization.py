@@ -4,6 +4,7 @@ import pytest
 from petab.C import *
 from petab.visualize import (plot_data_and_simulation,
                              plot_measurements_by_observable)
+import matplotlib.pyplot as plt
 
 
 @pytest.fixture
@@ -37,8 +38,23 @@ def data_file_Fujita_minimal():
 
 
 @pytest.fixture
+def visu_file_Fujita_small():
+    return "doc/example/example_Fujita/Fujita_visuSpec_small.tsv"
+
+
+@pytest.fixture
+def visu_file_Fujita_wo_dsid():
+    return "doc/example/example_Fujita/visuSpecs/Fujita_visuSpec_1.tsv"
+
+
+@pytest.fixture
 def visu_file_Fujita_minimal():
-    return "doc/example/example_Fujita/Fujita_visuSpec_minimal.tsv"
+    return "doc/example/example_Fujita/visuSpecs/Fujita_visuSpec_mandatory.tsv"
+
+
+@pytest.fixture
+def visu_file_Fujita_empty():
+    return "doc/example/example_Fujita/visuSpecs/Fujita_visuSpec_empty.tsv"
 
 
 @pytest.fixture
@@ -79,11 +95,37 @@ def test_visualization_with_vis(data_file_Isensee,
                              vis_spec_file_Isensee)
 
 
-def test_visualization_minimal_visu_file_w_datasetid(data_file_Fujita,
+def test_visualization_small_visu_file_w_datasetid(data_file_Fujita,
                                                      condition_file_Fujita,
-                                                     visu_file_Fujita_minimal):
+                                                     visu_file_Fujita_small):
     """
-    Test: visualization spezification file only with mandatory columns
+    Test: visualization spezification file only with few columns in
+    particular datasetId
+    (optional columns are optional)
+    """
+    plot_data_and_simulation(data_file_Fujita,
+                             condition_file_Fujita,
+                             visu_file_Fujita_small)
+
+
+def test_visualization_small_visu_file_wo_datasetid(data_file_Fujita,
+                                                     condition_file_Fujita,
+                                                     visu_file_Fujita_wo_dsid):
+    """
+    Test: visualization spezification file only with few columns in
+    particular no datasetId column
+    (optional columns are optional)
+    """
+    plot_data_and_simulation(data_file_Fujita,
+                             condition_file_Fujita,
+                             visu_file_Fujita_wo_dsid)
+
+
+def test_visualization_minimal_visu_file(data_file_Fujita,
+                                         condition_file_Fujita,
+                                         visu_file_Fujita_minimal):
+    """
+    Test: visualization spezification file only with mandatory column plotId
     (optional columns are optional)
     """
     plot_data_and_simulation(data_file_Fujita,
@@ -91,16 +133,28 @@ def test_visualization_minimal_visu_file_w_datasetid(data_file_Fujita,
                              visu_file_Fujita_minimal)
 
 
+def test_visualization_empty_visu_file(data_file_Fujita,
+                                       condition_file_Fujita,
+                                       visu_file_Fujita_empty):
+    """
+    Test: Empty visualization spezification file should default to routine
+    for no file at all
+    """
+    plot_data_and_simulation(data_file_Fujita,
+                             condition_file_Fujita,
+                             visu_file_Fujita_empty)
+
+
 def test_visualization_minimal_data_file(data_file_Fujita_minimal,
                                          condition_file_Fujita,
-                                         visu_file_Fujita_minimal):
+                                         visu_file_Fujita_small):
     """
     Test visualization, with the case: data file only with mandatory columns
     (optional columns are optional)
     """
     plot_data_and_simulation(data_file_Fujita_minimal,
                              condition_file_Fujita,
-                             visu_file_Fujita_minimal)
+                             visu_file_Fujita_small)
 
 
 def test_visualization_with_dataset_list(data_file_Isensee,
@@ -247,6 +301,9 @@ def test_visualization_warnings(data_file_Isensee, condition_file_Isensee):
                  'JI09_160201_Drg453-452_CycNuc__Sp8_Br_cAMPS_AM']]
     sim_cond_num_list = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 5]]
     observable_num_list = [[0], [1], [2], [0, 2], [1, 2]]
+
+    # close open figures to avoid runtime warnings
+    plt.close("all")
 
     with warnings.catch_warnings(record=True) as warnMsg:
         # Cause all warnings to always be triggered.
