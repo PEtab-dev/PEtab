@@ -440,17 +440,18 @@ provided) inside the measurement table.
 Expected to have the following columns in any (but preferably this)
 order:
 
-| plotId | [plotName] | [plotTypeSimulation] | [plotTypeData] | [datasetId] |
-|---|---|---|---|---|
-| STRING | [STRING] | [LinePlot(default)&#124;BarPlot&#124;ScatterPlot] | [MeanAndSD(default)&#124;MeanAndSEM&#124;replicate;provided] | [datasetId] |
-|...|...|...|...|...|
+| plotId | [plotName] | [plotTypeSimulation] | [plotTypeData] |
+|---|---|---|---|
+| STRING | [STRING] | [LinePlot(default)&#124;BarPlot&#124;ScatterPlot] | [MeanAndSD(default)&#124;MeanAndSEM&#124;replicate;provided] |
+|...|...|...|...|
 
 *(wrapped for readability)*
 
-| ... | [xValues] | [xOffset] | [xLabel] | [xScale] |
-|---|---|---|---|---|
-|... |  [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | [lin&#124;log&#124;log10&#124;order] |
-|...|...|...|...|
+| ... | [datasetId] | [xValues] | [xOffset] | [xLabel] | xScale |
+|---|---|---|---|---|---|
+|... | [datasetId] | [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | lin&#124;log&#124;log10&#124;order |
+|...|...|...|...|...|
+
 
 *(wrapped for readability)*
 
