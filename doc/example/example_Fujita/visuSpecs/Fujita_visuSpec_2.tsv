@@ -1,0 +1,4 @@
+plotId	yValues	yOffset	yScale	plotName
+plot1	pEGFR_tot	0	log	pEGFR total
+plot2	pAkt_tot	300	lin	pAkt total and pS6 total
+plot2	pS6_tot	305	lin	pAkt total and pS6 total

@@ -447,17 +447,17 @@ order:
 
 *(wrapped for readability)*
 
-| ... | [datasetId] | [xValues] | [xOffset] | [xLabel] | xScale |
+| ... | [datasetId] | [xValues] | [xOffset] | [xLabel] | [xScale] |
 |---|---|---|---|---|---|
-|... | [datasetId] | [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | lin&#124;log&#124;log10&#124;order |
+|... | [datasetId] | [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | [lin&#124;log&#124;log10&#124;order] |
 |...|...|...|...|...|
 
 
 *(wrapped for readability)*
 
-| ... | yValues | [yOffset] | [yLabel] | [yScale] | [legendEntry] |
+| ... | [yValues] | [yOffset] | [yLabel] | [yScale] | [legendEntry] |
 |---|---|---|---|---|---|
-|... |  observableId | [NUMERIC] | [STRING] | [lin&#124;log&#124;log10] | [STRING] |
+|... |  [observableId] | [NUMERIC] | [STRING] | [lin&#124;log&#124;log10] | [STRING] |
 |...|...|...|...|...|...|
 
 
@@ -510,7 +510,7 @@ order:
   the `plotTypeSimulation` column. In this case, points on x axis will be
   placed equidistantly from each other. Default is `lin`.
 
-- `yValues` [observableId, REFERENCES(measurementTable.observableId)]
+- `yValues` [observableId, REFERENCES(measurementTable.observableId), OPTIONAL]
 
   The observable which should be plotted on the y-axis.
 
