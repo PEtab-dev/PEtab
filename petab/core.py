@@ -355,14 +355,22 @@ def create_combine_archive(
     )
     _add_file_metadata(location=os.path.basename(yaml_file),
                        description="PEtab YAML file")
-    archive.addFile(
-        os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
-        yaml_config[PARAMETER_FILE],
-        libcombine.KnownFormats.lookupFormat("tsv"),
-        False
-    )
-    _add_file_metadata(location=yaml_config[PARAMETER_FILE],
-                       description="PEtab parameter file")
+
+    # Add parameter file(s) that describe a single parameter table.
+    # Works for a single file name, or a list of file names.
+    for parameter_subset_file in (
+            list(np.array(yaml_config[PARAMETER_FILE]).flat)):
+        archive.addFile(
+            os.path.join(path_prefix, parameter_subset_file),
+            parameter_subset_file,
+            libcombine.KnownFormats.lookupFormat("tsv"),
+            False
+        )
+        _add_file_metadata(
+            location=parameter_subset_file,
+            description=f"PEtab parameter file"
+        )
+
     for problem in yaml_config[PROBLEMS]:
         for sbml_file in problem[SBML_FILES]:
             archive.addFile(

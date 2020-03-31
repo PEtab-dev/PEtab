@@ -7,6 +7,7 @@ from typing import Any, Dict, Union, Optional, List
 import jsonschema
 import yaml
 from .C import *  # noqa: F403
+import numpy as np
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                       "petab_schema.yaml")
@@ -85,8 +86,15 @@ def validate_yaml_semantics(
             raise AssertionError(f"File '{_filename}' provided as '{_field}' "
                                  "does not exist.")
 
-    _check_file(os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
-                PARAMETER_FILE)
+    # Handles both a single parameter file, and a parameter file that has been
+    # split into multiple subset files.
+    for parameter_subset_file in (
+            list(np.array(yaml_config[PARAMETER_FILE]).flat)):
+        _check_file(
+            os.path.join(path_prefix, parameter_subset_file),
+            parameter_subset_file
+        )
+
     for problem_config in yaml_config[PROBLEMS]:
         for field in [SBML_FILES, CONDITION_FILES, MEASUREMENT_FILES,
                       VISUALIZATION_FILES, OBSERVABLE_FILES]:
