@@ -49,6 +49,8 @@ def get_visualization_df(visualization_file: str) -> pd.DataFrame:
     try:
         vis_spec = pd.read_csv(visualization_file, sep="\t", index_col=None)
     except pd.errors.EmptyDataError:
+        warn("Visualization table is empty. Defaults will be used. "
+             "Refer to the documentation for details.")
         vis_spec = pd.DataFrame()
     return vis_spec
 
