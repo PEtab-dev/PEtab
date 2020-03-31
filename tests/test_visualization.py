@@ -96,8 +96,8 @@ def test_visualization_with_vis(data_file_Isensee,
 
 
 def test_visualization_small_visu_file_w_datasetid(data_file_Fujita,
-                                                     condition_file_Fujita,
-                                                     visu_file_Fujita_small):
+                                                   condition_file_Fujita,
+                                                   visu_file_Fujita_small):
     """
     Test: visualization spezification file only with few columns in
     particular datasetId
@@ -109,8 +109,8 @@ def test_visualization_small_visu_file_w_datasetid(data_file_Fujita,
 
 
 def test_visualization_small_visu_file_wo_datasetid(data_file_Fujita,
-                                                     condition_file_Fujita,
-                                                     visu_file_Fujita_wo_dsid):
+                                                    condition_file_Fujita,
+                                                    visu_file_Fujita_wo_dsid):
     """
     Test: visualization spezification file only with few columns in
     particular no datasetId column
