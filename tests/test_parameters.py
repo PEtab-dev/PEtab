@@ -64,6 +64,48 @@ def test_get_parameter_df():
     df = petab.get_parameter_df(file_name)
     assert (df == parameter_df.set_index(PARAMETER_ID)).all().all()
 
+    # Test parameter subset files
+    with tempfile.TemporaryDirectory() as directory:
+        parameter_dfs, parameter_files = ({}, {})
+        parameter_dfs['complete'] = pd.DataFrame(data={
+            PARAMETER_ID: ['id1', 'id2', 'id3'],
+            PARAMETER_NAME: ['name1', 'name2', 'name3']
+        })
+        parameter_dfs['subset1'] = pd.DataFrame(data={
+            PARAMETER_ID: ['id1', 'id2'],
+            PARAMETER_NAME: ['name1', 'name2']
+        })
+        parameter_dfs['subset2_strict'] = pd.DataFrame(data={
+            PARAMETER_ID: ['id3'],
+            PARAMETER_NAME: ['name3']
+        })
+        parameter_dfs['subset2_overlap'] = pd.DataFrame(data={
+            PARAMETER_ID: ['id2', 'id3'],
+            PARAMETER_NAME: ['name2', 'name3']
+        })
+        parameter_dfs['subset2_error'] = pd.DataFrame(data={
+            PARAMETER_ID: ['id2', 'id3'],
+            PARAMETER_NAME: ['different_name2', 'name3']
+        })
+        for name, df in parameter_dfs.items():
+            with tempfile.NamedTemporaryFile(
+                    mode='w', delete=False, dir=directory) as fh:
+                parameter_files[name] = fh.name
+                parameter_dfs[name].to_csv(fh, sep='\t', index=False)
+        # Check that subset files are correctly combined
+        assert(petab.get_parameter_df(parameter_files['complete']).equals(
+            petab.get_parameter_df([parameter_files['subset1'],
+                                    parameter_files['subset2_strict']])))
+        # Check that identical parameter definitions are correctly combined
+        assert(petab.get_parameter_df(parameter_files['complete']).equals(
+            petab.get_parameter_df([parameter_files['subset1'],
+                                    parameter_files['subset2_overlap']])))
+        # Ensure an error is raised if there exist parameterId duplicates
+        # with non-identical parameter definitions
+        with pytest.raises(ValueError):
+            petab.get_parameter_df([parameter_files['subset1'],
+                                    parameter_files['subset2_error']])
+
 
 def test_write_parameter_df():
     """Test parameters.write_parameter_df."""
