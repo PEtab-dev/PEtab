@@ -1,0 +1,7 @@
+plotId	plotTypeSimulation	plotTypeData	datasetId	xValues
+plot1	LinePlot	provided	model1_data1_pEGFR_tot	time
+plot2	LinePlot	provided	model1_data2_pEGFR_tot	time
+plot2	LinePlot	provided	model1_data3_pEGFR_tot	time
+plot3	LinePlot	provided	model1_data4_pEGFR_tot	time
+plot3	LinePlot	provided	model1_data5_pEGFR_tot	time
+plot3	LinePlot	provided	model1_data6_pEGFR_tot	time

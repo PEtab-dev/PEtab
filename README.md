@@ -45,6 +45,7 @@ Where PEtab is supported (in alphabetical order):
 
 
   - [AMICI](https://github.com/ICB-DCM/AMICI/)
+    ([Example](https://github.com/ICB-DCM/AMICI/blob/master/python/examples/example_petab/petab.ipynb))
 
   - A PEtab -> [COPASI](http://copasi.org/)
     [converter](https://github.com/copasi/python-petab-importer)
@@ -53,6 +54,7 @@ Where PEtab is supported (in alphabetical order):
     ([HOWTO](https://github.com/Data2Dynamics/d2d/wiki/Support-for-PEtab))
 
   - [dMod](https://github.com/dkaschek/dMod/)
+    ([HOWTO](https://github.com/dkaschek/dMod/wiki/Support-for-PEtab))
 
   - [MEIGO](http://gingproc.iim.csic.es/meigo.html)
 
@@ -72,29 +74,30 @@ The following list provides an overview of supported PEtab features in
 different tools, based on passed test cases of the
 [PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
 
-| ID | Test                                                           | AMICI<br>*`develop`* | Copasi | D2D | dMod | MEIGO | parPE<br>*`develop`*  | pyABC | pyPESTO<br>*`develop`* |
-|----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|-----------------------|-------|------------------------|
-| 1  | Basic simulation                                               | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 2  | Multiple simulation conditions                                 | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 3  | Numeric observable parameter overrides in measurement table    | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 4  | Parametric observable parameter overrides in measurement table | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 5  | Parametric overrides in condition table                        | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 6  | Time-point specific overrides in the measurement table         | ---                  |        | +++ |      | ---   | ---                   | ---   | ---                    |
-| 7  | Observable transformations to log10 scale                      | +-+                  |        | +++ |      | ++-   | --+                   | +-+   | +-+                    |
-| 8  | Replicate measurements                                         | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
-| 9  | Pre-equilibration                                              | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
-| 10 | Partial pre-equilibration                                      | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
-| 11 | Numeric initial concentration in condition table               | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
-| 12 | Numeric initial compartment sizes in condition table           | ---                  |        | +++ |      | ---   | ---                   | ---   | ---                    |
-| 13 | Parametric initial concentrations in condition table           | +++                  |        | +++ |      | ---   | --+                   | +++   | +++                    |
-| 14 | Numeric noise parameter overrides in measurement table         | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 15 | Parametric noise parameter overrides in measurement table      | +++                  |        | +++ |      | +++   | --+                   | +++   | +++                    |
-| 16 | Observable transformations to log scale                        | +-+                  |        | +++ |      | ++-   | --+                   | +-+   | +-+                    |
 
-    Legend:
-    * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-)
-    * Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-)
-    * Third character indicates whether computing likelihoods is supported and correct (+) or not (-)
+| ID | Test                                                           | AMICI<br>`>=0.10.20` | Copasi | D2D | dMod | MEIGO | parPE<br>`develop`  | pyABC<br>`>=0.10.1` | pyPESTO<br>`>=0.0.11` |
+|----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|-----------------------|-------|------------------------|
+| 1  | Basic simulation                                               | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 2  | Multiple simulation conditions                                 | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 3  | Numeric observable parameter overrides in measurement table    | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 4  | Parametric observable parameter overrides in measurement table | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 5  | Parametric overrides in condition table                        | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 6  | Time-point specific overrides in the measurement table         | ---                  | ---    | +++ | +++  | ---   | ---                   | ---   | ---                    |
+| 7  | Observable transformations to log10 scale                      | +-+                  | +--    | +++ | ++-  | ++-   | --+                   | +-+   | +-+                    |
+| 8  | Replicate measurements                                         | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 9  | Pre-equilibration                                              | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 11 | Numeric initial concentration in condition table               | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 12 | Numeric initial compartment sizes in condition table           | ---                  | +--    | +++ | +++  | ---   | ---                   | ---   | ---                    |
+| 13 | Parametric initial concentrations in condition table           | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 14 | Numeric noise parameter overrides in measurement table         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 15 | Parametric noise parameter overrides in measurement table      | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 16 | Observable transformations to log scale                        | +-+                  | +--    | +++ | ++-  | ++-   | --+                   | +-+   | +-+                    |
+
+Legend:
+* First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-).
+* Second character indicates whether computing chi2 values of residuals are supported and correct (+) or not (-).
+* Third character indicates whether computing likelihoods is supported and correct (+) or not (-).
 
 ## Using PEtab
 
@@ -106,18 +109,15 @@ the example models provided in the
 To convert your existing parameter estimation problem to the PEtab format, you 
 will have to:
 
-1. Specify your model in SBML
+1. Specify your model in SBML.
 
-1. Set up model outputs and noise model using `AssignmentRule`s as described in 
-  the PEtab documentation
+1. Create a condition table.
 
-1. Create a condition table, if appropriate
+1. Create a table of observables.
 
-1. Create a table of observables
+1. Create a table of measurements.
 
-1. Create a table of measurements
-
-1. Create a parameter table
+1. Create a parameter table.
 
 If you are using Python, some handy functions of the
 [PEtab library](https://petab.readthedocs.io/en/latest/modules.html) can help

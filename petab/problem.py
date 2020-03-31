@@ -87,7 +87,7 @@ class Problem:
     def from_files(sbml_file: str = None,
                    condition_file: str = None,
                    measurement_file: Union[str, Iterable[str]] = None,
-                   parameter_file: str = None,
+                   parameter_file: Union[str, List[str]] = None,
                    visualization_files: Union[str, Iterable[str]] = None,
                    observable_files: Union[str, Iterable[str]] = None
                    ) -> 'Problem':
@@ -171,14 +171,22 @@ class Problem:
 
         yaml.assert_single_condition_and_sbml_file(problem0)
 
+        if isinstance(yaml_config[PARAMETER_FILE], list):
+            parameter_file = [
+                os.path.join(path_prefix, f)
+                for f in yaml_config[PARAMETER_FILE]
+            ]
+        else:
+            parameter_file = os.path.join(
+                path_prefix, yaml_config[PARAMETER_FILE])
+
         return Problem.from_files(
             sbml_file=os.path.join(path_prefix, problem0[SBML_FILES][0]),
             measurement_file=[os.path.join(path_prefix, f)
                               for f in problem0[MEASUREMENT_FILES]],
             condition_file=os.path.join(
                 path_prefix, problem0[CONDITION_FILES][0]),
-            parameter_file=os.path.join(
-                path_prefix, yaml_config[PARAMETER_FILE]),
+            parameter_file=parameter_file,
             visualization_files=[
                 os.path.join(path_prefix, f)
                 for f in problem0.get(VISUALIZATION_FILES, [])],
@@ -265,7 +273,8 @@ class Problem:
                  measurement_file: Optional[str] = None,
                  parameter_file: Optional[str] = None,
                  visualization_file: Optional[str] = None,
-                 observable_file: Optional[str] = None) -> None:
+                 observable_file: Optional[str] = None,
+                 yaml_file: Optional[str] = None) -> None:
         """
         Write PEtab tables to files for this problem
 
@@ -282,6 +291,7 @@ class Problem:
             parameter_file: Parameter table destination
             visualization_file: Visualization table destination
             observable_file: Observables table destination
+            yaml_file: YAML file destination
 
         Raises:
             ValueError: If a destination was provided for a non-existing
@@ -332,6 +342,12 @@ class Problem:
                                             visualization_file)
             else:
                 raise error("visualization")
+
+        if yaml_file:
+            yaml.create_problem_yaml(sbml_file, condition_file,
+                                     measurement_file, parameter_file,
+                                     observable_file, yaml_file,
+                                     visualization_file)
 
     def get_optimization_parameters(self):
         """

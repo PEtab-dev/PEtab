@@ -15,22 +15,24 @@ def plot_lowlevel(plot_spec: pd.Series,
                   ms: pd.DataFrame,
                   plot_sim: bool) -> 'matplotlib.pyplot.Axes':
     """
-    plotting routine / preparations: set properties of figure and plot
+    Plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
 
-    Parameters
-    ----------
+    Parameters:
 
-    plot_spec:
-        contains defined data format (visualization file)
-    ax:
-        axes to which to plot
-    conditions:
-        Values on x-axis
-    ms:
-        contains measurement data which should be plotted
-    plot_sim:
-        tells whether or not simulated data should be plotted as well
+        plot_spec:
+            contains defined data format (visualization file)
+        ax:
+            axes to which to plot
+        conditions:
+            Values on x-axis
+        ms:
+            contains measurement data which should be plotted
+        plot_sim:
+            tells whether or not simulated data should be plotted as well
+
+    Returns:
+        Updated axis object.
     """
 
     # set yScale
@@ -40,6 +42,12 @@ def plot_lowlevel(plot_spec: pd.Series,
         ax.set_yscale("log")
     elif plot_spec[Y_SCALE] == LOG:
         ax.set_yscale("log", basey=np.e)
+
+    # add yOffset
+    ms.loc[:, 'mean'] = ms['mean'] + plot_spec[Y_OFFSET]
+    ms.loc[:, 'repl'] = ms['repl'] + plot_spec[Y_OFFSET]
+    if plot_sim:
+        ms.loc[:, 'sim'] = ms['sim'] + plot_spec[Y_OFFSET]
 
     # set type of noise
     if plot_spec[PLOT_TYPE_DATA] == MEAN_AND_SD:
@@ -78,9 +86,6 @@ def plot_lowlevel(plot_spec: pd.Series,
         # add xOffset
         conditions = conditions + plot_spec[X_OFFSET]
 
-        # TODO sort mean and sd/sem by x values (as for simulatedData below)
-        #  to avoid crazy lineplots in case x values are not sorted by default.
-        #  cf issue #207
         # plotting all measurement data
         label_base = plot_spec[LEGEND_ENTRY]
         if plot_spec[PLOT_TYPE_DATA] == REPLICATE:
@@ -92,8 +97,10 @@ def plot_lowlevel(plot_spec: pd.Series,
 
         # construct errorbar-plots: noise specified above
         else:
+            scond, smean, snoise = \
+                zip(*sorted(zip(conditions, ms['mean'], ms[noise_col])))
             p = ax.errorbar(
-                conditions, ms['mean'], ms[noise_col],
+                scond, smean, snoise,
                 linestyle='-.', marker='.', label=label_base
             )
         # construct simulation plot
@@ -160,7 +167,12 @@ def plot_lowlevel(plot_spec: pd.Series,
 def square_plot_equal_ranges(
         ax: 'matplotlib.pyplot.Axes',
         lim: Optional[Union[List, Tuple]] = None) -> 'matplotlib.pyplot.Axes':
-    """Square plot with equal range for scatter plots"""
+    """
+    Square plot with equal range for scatter plots
+
+    Returns:
+        Updated axis object.
+    """
 
     ax.axis('square')
 

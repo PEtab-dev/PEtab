@@ -145,6 +145,41 @@ class TestGetSimulationToOptimizationParameterMapping(object):
 
         assert actual == expected
 
+        # Test without fixed overrides
+
+        expected = [
+            ({},
+             {'dynamicParameter1': 'dynamicParameter1',
+              'dynamicParameter2': 'dynamicParameter2',
+              'dynamicParameter3': 'dynamicParameter3',
+              'fixedParameter1': 1.0},
+             {},
+             {'dynamicParameter1': LOG,
+              'dynamicParameter2': LOG10,
+              'dynamicParameter3': LIN,
+              'fixedParameter1': LIN}),
+            ({},
+             {'dynamicParameter1': 'dynamicParameter1',
+              'dynamicParameter2': 'dynamicParameter2',
+              'dynamicParameter3': 'dynamicParameter3',
+              'fixedParameter1': 2.0},
+             {},
+             {'dynamicParameter1': LOG,
+              'dynamicParameter2': LOG10,
+              'dynamicParameter3': LIN,
+              'fixedParameter1': LIN}),
+        ]
+
+        actual = petab.get_optimization_to_simulation_parameter_mapping(
+            sbml_model=sbml_model,
+            measurement_df=measurement_df,
+            condition_df=condition_df,
+            parameter_df=parameter_df,
+            fill_fixed_parameters=False
+        )
+
+        assert actual == expected
+
     @staticmethod
     def test_all_override(condition_df_2_conditions,
                           minimal_sbml_model):
