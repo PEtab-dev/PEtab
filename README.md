@@ -56,7 +56,8 @@ Where PEtab is supported (in alphabetical order):
   - [dMod](https://github.com/dkaschek/dMod/)
     ([HOWTO](https://github.com/dkaschek/dMod/wiki/Support-for-PEtab))
 
-  - [MEIGO](http://gingproc.iim.csic.es/meigo.html)
+  - [MEIGO](https://github.com/gingproc-IIM-CSIC/MEIGO64)
+  ([PEtab code](https://github.com/gingproc-IIM-CSIC/MEIGO64/tree/master/MEIGO/PEtabMeigo))
 
   - [parPE](https://github.com/ICB-DCM/parPE/)
 
