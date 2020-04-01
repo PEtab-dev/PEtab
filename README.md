@@ -86,8 +86,8 @@ different tools, based on passed test cases of the
 | 6  | Time-point specific overrides in the measurement table         | ---                  | ---    | +++ | +++  | +++   | ---                   | ---   | ---                    |
 | 7  | Observable transformations to log10 scale                      | +-+                  | +--    | +++ | ++-  | +++   | --+                   | +-+   | +-+                    |
 | 8  | Replicate measurements                                         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
-| 9  | Pre-equilibration                                              | +++                  | +--    | +++ | +++  | ---   | --+                   | +++   | +++                    |
-| 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | ---   | --+                   | +++   | +++                    |
+| 9  | Pre-equilibration                                              | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
+| 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | +++   | --+                   | +++   | +++                    |
 | 11 | Numeric initial concentration in condition table               | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
 | 12 | Numeric initial compartment sizes in condition table           | ---                  | +--    | +++ | +++  | +++   | ---                   | ---   | ---                    |
 | 13 | Parametric initial concentrations in condition table           | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    |
