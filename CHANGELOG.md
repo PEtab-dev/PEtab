@@ -2,6 +2,14 @@
 
 ## 0.1 series
 
+### 0.1.7
+
+Documentation:
+
+* Update coverage and links of supporting tools
+* Update explanatory figure
+
+
 ### 0.1.6
 
 Library:
