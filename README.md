@@ -28,6 +28,8 @@ for example:
 
   - Specifying multiple simulation condition with potentially shared parameters
 
+![PEtab files](doc/gfx/petab_files.png)
+
 ## Documentation
 
 Documentation of the PEtab data format and Python library is available at
