@@ -2,6 +2,40 @@
 
 ## 0.1 series
 
+### 0.1.7
+
+Documentation:
+
+* Update coverage and links of supporting tools
+* Update explanatory figure
+
+
+### 0.1.6
+
+Library:
+
+* Fix handling of empty columns for residual calculation (#392)
+* Allow optional fixing of fixed parameters in parameter mapping (#399)
+* Fix function to flatten out time-point specific overrides (#404)
+* Add function to create a problem yaml file (#398)
+* Allow merging of multiple parameter files (#407)
+
+Documentation:
+
+* In README, add to the overview table the coverage for the supporting tools,
+  and links and usage examples (various commits)
+* Show REAMDE on readthedocs documentation front page (#400)
+* Correct description of observable and noise formulas (#401)
+* Update documentation on optional visualization values (#405, #419)
+
+Visualization:
+
+* Fix sorting problem (#396)
+* More generously handle optional values (#405, #419)
+* Create dataset id also for simulation dataframe (#408)
+* Extend test suite for visualization (#418)
+
+
 ### 0.1.5
 
 Library:

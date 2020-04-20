@@ -2,12 +2,12 @@
 
 import os
 
-from typing import Any, Dict, Union, Optional
+from typing import Any, Dict, Union, Optional, List
 
 import jsonschema
 import yaml
 from .C import *  # noqa: F403
-
+import numpy as np
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                       "petab_schema.yaml")
@@ -86,8 +86,15 @@ def validate_yaml_semantics(
             raise AssertionError(f"File '{_filename}' provided as '{_field}' "
                                  "does not exist.")
 
-    _check_file(os.path.join(path_prefix, yaml_config[PARAMETER_FILE]),
-                PARAMETER_FILE)
+    # Handles both a single parameter file, and a parameter file that has been
+    # split into multiple subset files.
+    for parameter_subset_file in (
+            list(np.array(yaml_config[PARAMETER_FILE]).flat)):
+        _check_file(
+            os.path.join(path_prefix, parameter_subset_file),
+            parameter_subset_file
+        )
+
     for problem_config in yaml_config[PROBLEMS]:
         for field in [SBML_FILES, CONDITION_FILES, MEASUREMENT_FILES,
                       VISUALIZATION_FILES, OBSERVABLE_FILES]:
@@ -159,4 +166,49 @@ def write_yaml(yaml_config: Dict[str, Any], filename: str) -> None:
     """
 
     with open(filename, 'w') as outfile:
-        yaml.dump(yaml_config, outfile, default_flow_style=False)
+        yaml.dump(yaml_config, outfile, default_flow_style=False,
+                  sort_keys=False)
+
+
+def create_problem_yaml(sbml_files: Union[str, List[str]],
+                        condition_files: Union[str, List[str]],
+                        measurement_files: Union[str, List[str]],
+                        parameter_file: str,
+                        observable_files: Union[str, List[str]],
+                        yaml_file: str,
+                        visualization_files: Optional[Union[str, List[str]]]
+                        = None) -> None:
+    """
+    Create and write default YAML file for a single PEtab problem
+
+    Arguments:
+        sbml_files: Path of SBML model file or list of such
+        condition_files: Path of condition file or list of such
+        measurement_files: Path of measurement file or list of such
+        parameter_file: Path of parameter file
+        observable_files: Path of observable file or lsit of such
+        yaml_file: Path to which YAML file should be written
+        visualization_files: Optional Path to visualization file or list of
+        such
+    """
+    if isinstance(sbml_files, str):
+        sbml_files = [sbml_files]
+    if isinstance(condition_files, str):
+        condition_files = [condition_files]
+    if isinstance(measurement_files, str):
+        measurement_files = [measurement_files]
+    if isinstance(observable_files, str):
+        observable_files = [observable_files]
+    if isinstance(visualization_files, str):
+        visualization_files = [visualization_files]
+
+    problem_dic = {CONDITION_FILES: condition_files,
+                   MEASUREMENT_FILES: measurement_files,
+                   SBML_FILES: sbml_files,
+                   OBSERVABLE_FILES: observable_files}
+    if visualization_files is not None:
+        problem_dic.update({'visualization_files': visualization_files})
+    yaml_dic = {PARAMETER_FILE: parameter_file,
+                FORMAT_VERSION: 1,
+                PROBLEMS: [problem_dic]}
+    write_yaml(yaml_dic, yaml_file)
