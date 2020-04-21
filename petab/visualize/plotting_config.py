@@ -97,6 +97,10 @@ def plot_lowlevel(plot_spec: pd.Series,
 
         # construct errorbar-plots: noise specified above
         else:
+            # sort index for the case that indices of conditions and ms differ
+            conditions.sort_index(inplace=True)
+            ms.sort_index(inplace=True)
+            # sorts according to ascending order of conditions
             scond, smean, snoise = \
                 zip(*sorted(zip(conditions, ms['mean'], ms[noise_col])))
             p = ax.errorbar(
