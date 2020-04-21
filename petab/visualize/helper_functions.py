@@ -396,17 +396,6 @@ def get_default_vis_specs(
     return vis_spec, exp_data
 
 
-# <<<<<<< HEAD
-# def check_ex_visu_columns(vis_spec: pd.DataFrame,
-#                           dataset_id_list: List[IdsList],
-#                           exp_data: pd.DataFrame,
-#                           exp_conditions: pd.DataFrame,
-#                           legend_dict: Dict) -> pd.DataFrame:
-# ||||||| merged common ancestors
-# def check_ex_visu_columns(vis_spec: pd.DataFrame,
-#                          dataset_id_list: List[IdsList],
-#                          legend_dict: Dict) -> pd.DataFrame:
-# =======
 def get_vis_spec_dependent_columns_dict(
         exp_data: pd.DataFrame,
         exp_conditions: pd.DataFrame,
@@ -452,9 +441,26 @@ def get_vis_spec_dependent_columns_dict(
         dataset_label_column = dataset_id_column
         yvalues_column = ['']*len(dataset_id_column)
 
+    # TODO
     # get number of plots and create plotId-lists
-    plot_id_column = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
-        dataset_id_list) for _ in inner_list]
+    if group_by == 'observable':
+        obs_uni = list(np.unique(exp_data[OBSERVABLE_ID]))
+        plot_id_column = dataset_id_list[0].copy()
+        for i_obs in range(0, len(obs_uni)):
+            # get dataset_ids which include observables
+            # TODO: check why dataset_id_list[0], is it always [0]?
+            matching = [s for s in dataset_id_list[0] if obs_uni[i_obs] in s]
+            # find the index in the whole dataset_id list for the observable
+            # related dataset_ids and replace it with plotId #obs
+            for m_i in matching:
+                for d_i in dataset_id_list[0]:
+                    if m_i == d_i:
+                        plot_id_column[dataset_id_list[0].index(d_i)] = \
+                            'plot%s' % str(i_obs + 1)
+    else:
+        # get number of plots and create plotId-lists
+        plot_id_column = ['plot%s' % str(ind + 1) for ind, inner_list in
+                          enumerate(dataset_id_list) for _ in inner_list]
 
     columns_dict = {PLOT_ID: plot_id_column,
                     DATASET_ID: dataset_id_column,
@@ -556,17 +562,13 @@ def create_or_update_vis_spec(
     vis_spec[PLOT_TYPE_DATA] = plotted_noise
 
     # check columns, and add non-mandatory default columns
-    vis_spec = check_ex_visu_columns(vis_spec)
+    vis_spec = check_ex_visu_columns(vis_spec, exp_data, exp_conditions)
     return exp_data, vis_spec
 
 
-# def check_ex_visu_columns(vis_spec: pd.DataFrame,
-#                           dataset_id_list: List[IdsList],
-#                           exp_data: pd.DataFrame,
-#                           exp_conditions: pd.DataFrame,
-#                           legend_dict: Dict) -> pd.DataFrame:
-def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
-    # >>>>>>> develop
+def check_ex_visu_columns(vis_spec: pd.DataFrame,
+                          exp_data: pd.DataFrame,
+                          exp_conditions: pd.DataFrame) -> pd.DataFrame:
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
@@ -581,7 +583,6 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
     if PLOT_TYPE_DATA not in vis_spec.columns:
         vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
     if X_VALUES not in vis_spec.columns:
-        # <<<<<<< HEAD
         # check if time is constant in expdata (if yes, plot dose response)
         # otherwise plot time series
         uni_time = pd.unique(exp_data[TIME])
@@ -604,24 +605,6 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
             raise NotImplementedError(
                 'Strange Error. There is no time defined in the measurement '
                 'table?')
-    # if Y_LABEL not in vis_spec.columns:
-    #     vis_spec[Y_LABEL] = 'value'
-    # if Y_VALUES not in vis_spec.columns:
-    #     vis_spec[Y_VALUES] = ''
-    # if X_LABEL not in vis_spec.columns:
-    #     vis_spec[X_LABEL] = 'time'
-    # ||||||| merged common ancestors
-    #         raise NotImplementedError(
-    #             "Please define column: \'xValues\' in visualization file.")
-    # if Y_LABEL not in vis_spec.columns:
-    #     vis_spec[Y_LABEL] = 'value'
-    # if Y_VALUES not in vis_spec.columns:
-    #     vis_spec[Y_VALUES] = ''
-    # if X_LABEL not in vis_spec.columns:
-    #     vis_spec[X_LABEL] = 'time'
-    # =======
-    #         vis_spec[X_VALUES] = 'time'
-    # >>>>>>> develop
     if X_OFFSET not in vis_spec.columns:
         vis_spec[X_OFFSET] = 0
     if X_LABEL not in vis_spec.columns:
