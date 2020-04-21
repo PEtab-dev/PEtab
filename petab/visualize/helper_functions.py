@@ -441,22 +441,18 @@ def get_vis_spec_dependent_columns_dict(
         dataset_label_column = dataset_id_column
         yvalues_column = ['']*len(dataset_id_column)
 
-    # TODO
     # get number of plots and create plotId-lists
     if group_by == 'observable':
         obs_uni = list(np.unique(exp_data[OBSERVABLE_ID]))
-        plot_id_column = dataset_id_list[0].copy()
+        # copy of datasetids, for later replacing with plotIds
+        plot_id_column = dataset_id_column.copy()
         for i_obs in range(0, len(obs_uni)):
-            # get dataset_ids which include observables
-            # TODO: check why dataset_id_list[0], is it always [0]?
-            matching = [s for s in dataset_id_list[0] if obs_uni[i_obs] in s]
-            # find the index in the whole dataset_id list for the observable
-            # related dataset_ids and replace it with plotId #obs
+            # get dataset_ids which include observable name
+            matching = [s for s in dataset_id_column if obs_uni[i_obs] in s]
+            # replace the datasetids with plotID with grouping of observables
             for m_i in matching:
-                for d_i in dataset_id_list[0]:
-                    if m_i == d_i:
-                        plot_id_column[dataset_id_list[0].index(d_i)] = \
-                            'plot%s' % str(i_obs + 1)
+                plot_id_column = [sub.replace(m_i, 'plot%s' % str(i_obs + 1))
+                                  for sub in plot_id_column]
     else:
         # get number of plots and create plotId-lists
         plot_id_column = ['plot%s' % str(ind + 1) for ind, inner_list in
@@ -588,7 +584,6 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
         uni_time = pd.unique(exp_data[TIME])
         if len(uni_time) > 1:
             vis_spec[X_VALUES] = 'time'
-            print('works')
         elif len(uni_time) == 1:
             if np.isin(exp_conditions.columns.values, 'conditionName').any():
                 conds = exp_conditions.columns.drop('conditionName')
@@ -596,7 +591,9 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame,
                 conds = exp_conditions.columns
             # default: first dose-response condition (first from condition
             # table) is plotted
+            # TODO: expand to automatic plotting of all conditions
             vis_spec[X_VALUES] = conds[0]
+            vis_spec[X_LABEL] = conds[0]
             warnings.warn(
                 '\n First dose-response condition is plotted. \n Check which '
                 'condition you want to plot \n and possibly enter it into the '
