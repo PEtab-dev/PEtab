@@ -486,6 +486,23 @@ def expand_vis_spec_settings(vis_spec, columns_dict):
                     column_entries.append(
                         vis_spec[select_conditions].loc[:, column].values[0])
             else:
+                # get unique plotIDs from visspecfile
+                vis_plotid_u = vis_spec[PLOT_ID].unique()
+                auto_plotid_u = list(set(columns_dict[PLOT_ID]))
+                # if number of plotIds does not coincide (autmatically
+                # generated plotIds according to observable grouping, vs
+                # plotIds specified in the visu_Spec)
+                if len(vis_plotid_u) is not len(auto_plotid_u):
+                    # which items are not in visu_plotId:
+                    del_plotid = \
+                        list(set(columns_dict[PLOT_ID]) - set(vis_plotid_u))
+                    # replace automatically generated plotIds with 'plot1' from
+                    # visu file
+                    for d_i in del_plotid:
+                        columns_dict[PLOT_ID] = [
+                            sub.replace(d_i, vis_plotid_u[0])
+                            for sub in columns_dict[PLOT_ID]]
+
                 for plot_id in columns_dict[PLOT_ID]:
                     select_conditions = vis_spec[PLOT_ID] == plot_id
                     column_entries.append(
