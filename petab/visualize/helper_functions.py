@@ -444,7 +444,7 @@ def get_vis_spec_dependent_columns_dict(
     # get number of plots and create plotId-lists
     if group_by == 'observable':
         obs_uni = list(np.unique(exp_data[OBSERVABLE_ID]))
-        # copy of datasetids, for later replacing with plotIds
+        # copy of dataset ids, for later replacing with plot ids
         plot_id_column = dataset_id_column.copy()
         for i_obs in range(0, len(obs_uni)):
             # get dataset_ids which include observable name
