@@ -449,7 +449,7 @@ def get_vis_spec_dependent_columns_dict(
         for i_obs in range(0, len(obs_uni)):
             # get dataset_ids which include observable name
             matching = [s for s in dataset_id_column if obs_uni[i_obs] in s]
-            # replace the datasetids with plotID with grouping of observables
+            # replace the dataset ids with plot id with grouping of observables
             for m_i in matching:
                 plot_id_column = [sub.replace(m_i, 'plot%s' % str(i_obs + 1))
                                   for sub in plot_id_column]
