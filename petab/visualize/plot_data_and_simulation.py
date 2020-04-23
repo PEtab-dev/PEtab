@@ -123,51 +123,7 @@ def plot_data_and_simulation(
 
     # import visualization specification, if file was specified
     if isinstance(vis_spec, str):
-        # <<<<<<< HEAD
-        #         if vis_spec != '':
-        #             vis_spec = core.get_visualization_df(vis_spec)
-        #             vis_spec = check_ex_visu_columns(vis_spec,
-        #                                              dataset_id_list,
-        #                                              exp_data,
-        #                                              exp_conditions,
-        #                                              legend_dict)
-        #         else:
-        #             # create them based on simulation conditions
-        #             vis_spec, exp_data = get_default_vis_specs(exp_data,
-        #                                                        exp_conditions,
-        #                                                        dataset_id_list,
-        #                                                        sim_cond_id_list,
-        #                                                        sim_cond_num_list,
-        #                                                        observable_id_list,
-        #                                                        observable_num_list,
-        #                                                        plotted_noise)
-        #
-        #     # import simulation file, if file was specified
-        #     if isinstance(sim_data, str):
-        #         sim_data = core.get_simulation_df(sim_data)
-        # ||||||| merged common ancestors
-        #         if vis_spec != '':
-        #             vis_spec = core.get_visualization_df(vis_spec)
-        #             vis_spec = check_ex_visu_columns(vis_spec,
-        #                                              dataset_id_list,
-        #                                              legend_dict)
-        #         else:
-        #             # create them based on simulation conditions
-        #             vis_spec, exp_data = get_default_vis_specs(exp_data,
-        #                                                        exp_conditions,
-        #                                                        dataset_id_list,
-        #                                                        sim_cond_id_list,
-        #                                                        sim_cond_num_list,
-        #                                                        observable_id_list,
-        #                                                        observable_num_list,
-        #                                                        plotted_noise)
-        #
-        #     # import simulation file, if file was specified
-        #     if isinstance(sim_data, str):
-        #         sim_data = core.get_simulation_df(sim_data)
-        # =======
         vis_spec = core.get_visualization_df(vis_spec)
-        # >>>>>>> develop
 
     exp_data, vis_spec = create_or_update_vis_spec(exp_data,
                                                    exp_conditions,

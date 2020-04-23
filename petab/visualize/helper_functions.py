@@ -370,7 +370,7 @@ def get_default_vis_specs(
         dataset_label_column = dataset_id_column
 
     # get number of plots and create plotId-lists
-    plot_id_list = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
+    plot_id_list = [f'plot{ind+1}' for ind, inner_list in enumerate(
         dataset_id_list) for _ in inner_list]
 
     # create dataframe
