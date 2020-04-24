@@ -97,7 +97,7 @@ def plot_lowlevel(plot_spec: pd.Series,
 
         # construct errorbar-plots: noise specified above
         else:
-            # sort index for the case that indices of conditions and ms differ
+            # sort index for the case that indices of conditions and measurements differ
             # if indep_var='time', conditions is a numpy array,
             # for indep_var=observable its a Series
             if isinstance(conditions, np.ndarray):
