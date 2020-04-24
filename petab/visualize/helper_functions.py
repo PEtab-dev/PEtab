@@ -370,7 +370,7 @@ def get_default_vis_specs(
         dataset_label_column = dataset_id_column
 
     # get number of plots and create plotId-lists
-    plot_id_list = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
+    plot_id_list = [f'plot{ind+1}' for ind, inner_list in enumerate(
         dataset_id_list) for _ in inner_list]
 
     # create dataframe
@@ -442,8 +442,21 @@ def get_vis_spec_dependent_columns_dict(
         yvalues_column = ['']*len(dataset_id_column)
 
     # get number of plots and create plotId-lists
-    plot_id_column = ['plot%s' % str(ind + 1) for ind, inner_list in enumerate(
-        dataset_id_list) for _ in inner_list]
+    if group_by == 'observable':
+        obs_uni = list(np.unique(exp_data[OBSERVABLE_ID]))
+        # copy of dataset ids, for later replacing with plot ids
+        plot_id_column = dataset_id_column.copy()
+        for i_obs in range(0, len(obs_uni)):
+            # get dataset_ids which include observable name
+            matching = [s for s in dataset_id_column if obs_uni[i_obs] in s]
+            # replace the dataset ids with plot id with grouping of observables
+            for m_i in matching:
+                plot_id_column = [sub.replace(m_i, 'plot%s' % str(i_obs + 1))
+                                  for sub in plot_id_column]
+    else:
+        # get number of plots and create plotId-lists
+        plot_id_column = ['plot%s' % str(ind + 1) for ind, inner_list in
+                          enumerate(dataset_id_list) for _ in inner_list]
 
     columns_dict = {PLOT_ID: plot_id_column,
                     DATASET_ID: dataset_id_column,
@@ -473,6 +486,23 @@ def expand_vis_spec_settings(vis_spec, columns_dict):
                     column_entries.append(
                         vis_spec[select_conditions].loc[:, column].values[0])
             else:
+                # get unique plotIDs from visspecfile
+                vis_plotid_u = vis_spec[PLOT_ID].unique()
+                auto_plotid_u = list(set(columns_dict[PLOT_ID]))
+                # if number of plotIds does not coincide (autmatically
+                # generated plotIds according to observable grouping, vs
+                # plotIds specified in the visu_Spec)
+                if len(vis_plotid_u) is not len(auto_plotid_u):
+                    # which items are not in visu_plotId:
+                    del_plotid = \
+                        list(set(columns_dict[PLOT_ID]) - set(vis_plotid_u))
+                    # replace automatically generated plotIds with 'plot1' from
+                    # visu file
+                    for d_i in del_plotid:
+                        columns_dict[PLOT_ID] = [
+                            sub.replace(d_i, vis_plotid_u[0])
+                            for sub in columns_dict[PLOT_ID]]
+
                 for plot_id in columns_dict[PLOT_ID]:
                     select_conditions = vis_spec[PLOT_ID] == plot_id
                     column_entries.append(
@@ -545,11 +575,13 @@ def create_or_update_vis_spec(
     vis_spec[PLOT_TYPE_DATA] = plotted_noise
 
     # check columns, and add non-mandatory default columns
-    vis_spec = check_ex_visu_columns(vis_spec)
+    vis_spec = check_ex_visu_columns(vis_spec, exp_data, exp_conditions)
     return exp_data, vis_spec
 
 
-def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
+def check_ex_visu_columns(vis_spec: pd.DataFrame,
+                          exp_data: pd.DataFrame,
+                          exp_conditions: pd.DataFrame) -> pd.DataFrame:
     """
     Check the columns in Visu_Spec file, if non-mandotory columns does not
     exist, create default columns
@@ -564,7 +596,29 @@ def check_ex_visu_columns(vis_spec: pd.DataFrame) -> pd.DataFrame:
     if PLOT_TYPE_DATA not in vis_spec.columns:
         vis_spec[PLOT_TYPE_DATA] = MEAN_AND_SD
     if X_VALUES not in vis_spec.columns:
-        vis_spec[X_VALUES] = 'time'
+        # check if time is constant in expdata (if yes, plot dose response)
+        # otherwise plot time series
+        uni_time = pd.unique(exp_data[TIME])
+        if len(uni_time) > 1:
+            vis_spec[X_VALUES] = 'time'
+        elif len(uni_time) == 1:
+            if np.isin(exp_conditions.columns.values, 'conditionName').any():
+                conds = exp_conditions.columns.drop('conditionName')
+            else:
+                conds = exp_conditions.columns
+            # default: first dose-response condition (first from condition
+            # table) is plotted
+            # TODO: expand to automatic plotting of all conditions
+            vis_spec[X_VALUES] = conds[0]
+            vis_spec[X_LABEL] = conds[0]
+            warnings.warn(
+                '\n First dose-response condition is plotted. \n Check which '
+                'condition you want to plot \n and possibly enter it into the '
+                'column *xValues* \n in the visualization table.')
+        else:
+            raise NotImplementedError(
+                'Strange Error. There is no time defined in the measurement '
+                'table?')
     if X_OFFSET not in vis_spec.columns:
         vis_spec[X_OFFSET] = 0
     if X_LABEL not in vis_spec.columns:
