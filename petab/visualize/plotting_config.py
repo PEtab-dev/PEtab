@@ -106,7 +106,7 @@ def plot_lowlevel(plot_spec: pd.Series,
                 conditions.sort_index(inplace=True)
             else:
                 raise ValueError('Strange: conditions object is neither numpy'
-                                 ' nor Series...')
+                                 ' nor series...')
             ms.sort_index(inplace=True)
             # sorts according to ascending order of conditions
             scond, smean, snoise = \
