@@ -65,5 +65,5 @@ setup(name='petab',
       python_requires='>=3.6',
       entry_points=ENTRY_POINTS,
       extras_require={'reports': ['Jinja2'],
-                      'combine': ['python-libcombine']},
+                      'combine': ['python-libcombine==0.2.3']},
       )
