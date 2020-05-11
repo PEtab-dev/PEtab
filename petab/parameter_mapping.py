@@ -520,12 +520,12 @@ def merge_preeq_and_sim_pars_condition(
         par_preeq = condition_map_preeq[par_id]
         par_sim = condition_map_sim[par_id]
         if par_preeq != par_sim \
-                and not (np.isnan(par_sim) and np.isnan(par_preeq)):
+                and not (core.is_empty(par_sim) and core.is_empty(par_preeq)):
             # both identical or both nan is okay
-            if np.isnan(par_sim):
+            if core.is_empty(par_sim):
                 # unmapped for simulation
                 condition_map_sim[par_id] = par_preeq
-            elif np.isnan(par_preeq):
+            elif core.is_empty(par_preeq):
                 # unmapped for preeq is okay
                 pass
             else:
@@ -540,10 +540,10 @@ def merge_preeq_and_sim_pars_condition(
 
         if scale_preeq != scale_sim:
             # both identical is okay
-            if np.isnan(par_sim):
+            if core.is_empty(par_sim):
                 # unmapped for simulation
                 condition_scale_map_sim[par_id] = scale_preeq
-            elif np.isnan(par_preeq):
+            elif core.is_empty(par_preeq):
                 # unmapped for preeq is okay
                 pass
             else:
