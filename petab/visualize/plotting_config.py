@@ -97,6 +97,18 @@ def plot_lowlevel(plot_spec: pd.Series,
 
         # construct errorbar-plots: noise specified above
         else:
+            # sort index for the case that indices of conditions and
+            # measurements differ if indep_var='time', conditions is a numpy
+            # array, for indep_var=observable its a Series
+            if isinstance(conditions, np.ndarray):
+                conditions.sort()
+            elif isinstance(conditions, pd.core.series.Series):
+                conditions.sort_index(inplace=True)
+            else:
+                raise ValueError('Strange: conditions object is neither numpy'
+                                 ' nor series...')
+            ms.sort_index(inplace=True)
+            # sorts according to ascending order of conditions
             scond, smean, snoise = \
                 zip(*sorted(zip(conditions, ms['mean'], ms[noise_col])))
             p = ax.errorbar(
