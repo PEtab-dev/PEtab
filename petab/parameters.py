@@ -33,10 +33,12 @@ def get_parameter_df(
         parameter_df = parameter_file
 
     if isinstance(parameter_file, str):
-        parameter_df = pd.read_csv(parameter_file, sep='\t')
+        parameter_df = pd.read_csv(parameter_file, sep='\t',
+                                   float_precision='round_trip')
 
     if isinstance(parameter_file, list):
-        parameter_df = pd.concat([pd.read_csv(subset_file, sep='\t')
+        parameter_df = pd.concat([pd.read_csv(subset_file, sep='\t',
+                                              float_precision='round_trip')
                                   for subset_file in parameter_file])
         # Remove identical parameter definitions
         parameter_df.drop_duplicates(inplace=True, ignore_index=True)
