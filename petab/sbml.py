@@ -368,7 +368,7 @@ def get_sigmas(sbml_model: libsbml.Model, remove: bool = False) -> dict:
         remove=remove
     )
     # set correct observable name
-    sigmas = {re.sub(f'^sigma_', 'observable_', key): value['formula']
+    sigmas = {re.sub('^sigma_', 'observable_', key): value['formula']
               for key, value in sigmas.items()}
     return sigmas
 
