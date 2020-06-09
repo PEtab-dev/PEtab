@@ -23,7 +23,8 @@ def get_condition_df(
         return condition_file
 
     if isinstance(condition_file, str):
-        condition_file = pd.read_csv(condition_file, sep='\t')
+        condition_file = pd.read_csv(condition_file, sep='\t',
+                                     float_precision='round_trip')
 
     lint.assert_no_leading_trailing_whitespace(
         condition_file.columns.values, "condition")
