@@ -81,7 +81,7 @@ def get_output_parameters(observable_df: pd.DataFrame,
                            key=lambda symbol: symbol.name)
         for free_sym in free_syms:
             sym = str(free_sym)
-            if sbml_model.getElementBySId(sym) is None:
+            if sbml_model.getElementBySId(sym) is None and sym != 'time':
                 output_parameters[sym] = None
 
     return list(output_parameters.keys())
