@@ -133,6 +133,9 @@ def check_measurement_df(df: pd.DataFrame,
         if OBSERVABLE_TRANSFORMATION in observable_df:
             # Check for positivity of measurements in case of
             #  log-transformation
+            assert_observable_id_is_unique(observable_df)
+            # If the above is not checked, in the following loop
+            # trafo may become a pandas Series
             for measurement, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
                 trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
                 if measurement <= 0.0 and trafo in [LOG, LOG10]:
@@ -238,6 +241,7 @@ def check_observable_df(observable_df: pd.DataFrame) -> None:
                 observable_df[column_name].values, column_name)
 
     assert_noise_distributions_valid(observable_df)
+    assert_observable_id_is_unique(observable_df)
 
     # Check that formulas are parsable
     for row in observable_df.itertuples():
@@ -619,6 +623,21 @@ def assert_noise_distributions_valid(observable_df: pd.DataFrame) -> None:
                 raise ValueError(
                     f"Unrecognized noise distribution in observable "
                     f"table: {distr}.")
+
+
+def assert_observable_id_is_unique(observable_df: pd.DataFrame) -> None:
+    """
+    Check if the observableId column of the observable table is unique.
+
+    Arguments:
+        observable_df: PEtab observable DataFrame
+
+    Raises:
+        AssertionError: in case of problems
+    """
+    if len(observable_df.index) != len(set(observable_df.index)):
+        raise AssertionError(
+            f"{OBSERVABLE_ID} column in observable table is not unique.")
 
 
 def lint_problem(problem: 'petab.Problem') -> bool:
