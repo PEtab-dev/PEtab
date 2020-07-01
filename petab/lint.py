@@ -5,6 +5,7 @@ import logging
 import numbers
 import re
 from typing import Optional, Iterable
+from collections import Counter
 
 import libsbml
 import numpy as np
@@ -133,6 +134,9 @@ def check_measurement_df(df: pd.DataFrame,
         if OBSERVABLE_TRANSFORMATION in observable_df:
             # Check for positivity of measurements in case of
             #  log-transformation
+            assert_unique_observable_ids(observable_df)
+            # If the above is not checked, in the following loop
+            # trafo may become a pandas Series
             for measurement, obs_id in zip(df[MEASUREMENT], df[OBSERVABLE_ID]):
                 trafo = observable_df.loc[obs_id, OBSERVABLE_TRANSFORMATION]
                 if measurement <= 0.0 and trafo in [LOG, LOG10]:
@@ -202,7 +206,7 @@ def check_parameter_df(
     assert_parameter_scale_is_valid(df)
     assert_parameter_bounds_are_numeric(df)
     assert_parameter_estimate_is_boolean(df)
-    assert_parameter_id_is_unique(df)
+    assert_unique_parameter_ids(df)
     check_parameter_bounds(df)
     assert_parameter_prior_type_is_valid(df)
 
@@ -238,6 +242,7 @@ def check_observable_df(observable_df: pd.DataFrame) -> None:
                 observable_df[column_name].values, column_name)
 
     assert_noise_distributions_valid(observable_df)
+    assert_unique_observable_ids(observable_df)
 
     # Check that formulas are parsable
     for row in observable_df.itertuples():
@@ -359,7 +364,7 @@ def assert_parameter_id_is_string(parameter_df: pd.DataFrame) -> None:
             raise AssertionError(f"Empty {PARAMETER_ID} found.")
 
 
-def assert_parameter_id_is_unique(parameter_df: pd.DataFrame) -> None:
+def assert_unique_parameter_ids(parameter_df: pd.DataFrame) -> None:
     """
     Check if the parameterId column of the parameter table is unique.
 
@@ -369,9 +374,11 @@ def assert_parameter_id_is_unique(parameter_df: pd.DataFrame) -> None:
     Raises:
         AssertionError: in case of problems
     """
-    if len(parameter_df.index) != len(set(parameter_df.index)):
+    non_unique_ids = get_non_unique(parameter_df.index)
+    if len(non_unique_ids) > 0:
         raise AssertionError(
-            f"{PARAMETER_ID} column in parameter table is not unique.")
+            f"Non-unique values found in the {PARAMETER_ID} column"
+            " of the parameter table: " + str(non_unique_ids))
 
 
 def assert_parameter_scale_is_valid(parameter_df: pd.DataFrame) -> None:
@@ -619,6 +626,28 @@ def assert_noise_distributions_valid(observable_df: pd.DataFrame) -> None:
                 raise ValueError(
                     f"Unrecognized noise distribution in observable "
                     f"table: {distr}.")
+
+
+def assert_unique_observable_ids(observable_df: pd.DataFrame) -> None:
+    """
+    Check if the observableId column of the observable table is unique.
+
+    Arguments:
+        observable_df: PEtab observable DataFrame
+
+    Raises:
+        AssertionError: in case of problems
+    """
+    non_unique_ids = get_non_unique(observable_df.index)
+    if len(non_unique_ids) > 0:
+        raise AssertionError(
+            f"Non-unique values found in the {OBSERVABLE_ID} column"
+            " of the observable table: " + str(non_unique_ids))
+
+
+def get_non_unique(values):
+    counter = Counter(values)
+    return [value for (value, count) in counter.items() if count > 1]
 
 
 def lint_problem(problem: 'petab.Problem') -> bool:
