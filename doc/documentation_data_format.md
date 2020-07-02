@@ -79,7 +79,7 @@ This is specified as a tab-separated value file in the following way:
 |... | ... | ... | ... |...| ...|
 
 Row- and column-ordering are arbitrary, although specifying `conditionId`
-first may improve human readability. 
+first may improve human readability.
 
 Additional columns are *not* allowed.
 
@@ -102,7 +102,7 @@ Additional columns are *not* allowed.
   Values for these condition parameters may be provided either as numeric
   values, or as IDs defined in the SBML model, the parameter table or both.
 
-  - `${parameterId}` 
+  - `${parameterId}`
 
     The values will override any parameter values specified in the model.
 
@@ -114,7 +114,7 @@ Additional columns are *not* allowed.
     condition. If `NaN` is provided for a condition, the result of the
     preequilibration (or initial concentration/amount from the SBML model, if
     no preequilibration is defined) is used.
-  
+
   - `${compartmentId}`
 
     If a compartment ID is provided, it is interpreted as the initial
@@ -141,7 +141,7 @@ order:
 |... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]]
 |...|...|...|
 
-Additional (non-standard) columns may be added. If the additional plotting 
+Additional (non-standard) columns may be added. If the additional plotting
 functionality of PEtab should be used, such columns could be
 
 | ... | [datasetId] | [replicateId]  |
@@ -149,9 +149,9 @@ functionality of PEtab should be used, such columns could be
 |... | [datasetId] | [replicateId] |
 |...|...|...|
 
-where `datasetId` is a necessary column to use particular plotting 
-functionality, and `replicateId` is optional, which can be used to group 
-replicates and plot error bars. 
+where `datasetId` is a necessary column to use particular plotting
+functionality, and `replicateId` is optional, which can be used to group
+replicates and plot error bars.
 
 
 ### Detailed field description
@@ -244,7 +244,7 @@ The observable table has the following columns:
 | observableId | [observableName] | observableFormula | [observableTransformation] | noiseFormula | [noiseDistribution] |
 | --- | --- | --- | --- | --- | --- |
 | STRING | [STRING] | STRING | [lin(default)&#124;log&#124;log10] |  STRING&#124;NUMBER | [laplace&#124;normal] |
-| e.g. | | | | | | 
+| e.g. | | | | | |
 | relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1_relativeTotalProtein1  * (protein1 + phospho_protein1 ) | lin | noiseParameter1_relativeTotalProtein1  | normal |
 | ... |  ... | ... | ... | ... |
 
@@ -264,8 +264,9 @@ The observable table has the following columns:
 * `observableFormula` [STRING]
 
   Observation function as plain text formula expression.
-  May contain any symbol defined in the SBML model or parameter table. In the
-  simplest case just an SBML species ID or an `AssignmentRule` target.
+  May contain any symbol defined in the SBML model (including model time `time`)
+  or parameter table. In the simplest case just an SBML species ID
+  or an `AssignmentRule` target.
 
   May introduce new parameters of the form `observableParameter${n}_${observableId}`,
   which are overridden by `observableParameters` in the measurement table
@@ -306,7 +307,7 @@ The observable table has the following columns:
 - `noiseDistribution` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed noise distribution for the given measurement. Only normally or
-  Laplace distributed noise is currently allowed (log-normal and 
+  Laplace distributed noise is currently allowed (log-normal and
   log-laplace are obtained by setting `observableTransformation` to `log`).
   Defaults to `normal`. If `normal`, the specified `noiseParameters` will be
   interpreted as standard deviation (*not* variance).
@@ -407,9 +408,9 @@ Additional columns may be added.
   Prior parameters used for sampling of initial points for optimization,
   separated by a semicolon. Defaults to `lowerBound;upperBound`.
 
-  So far, only numeric values will be supported, no parameter names. 
+  So far, only numeric values will be supported, no parameter names.
   Parameters for the different prior types are:
-  
+
     - uniform: lower bound; upper bound
     - normal: mean; standard deviation (**not** variance)
     - laplace: location; scale
@@ -433,8 +434,8 @@ Additional columns may be added.
 ## Visualization table
 
 A tab-separated value file containing the specification of the visualization
-routines which come with the PEtab repository. Plots are in general 
-collections of different datasets as specified using their `datasetId` (if 
+routines which come with the PEtab repository. Plots are in general
+collections of different datasets as specified using their `datasetId` (if
 provided) inside the measurement table.
 
 Expected to have the following columns in any (but preferably this)
@@ -489,7 +490,7 @@ order:
 
 - `xValues` [STRING, OPTIONAL]
 
-  The independent variable, which will be plotted on the x-axis. Can be 
+  The independent variable, which will be plotted on the x-axis. Can be
   `time` (default, for time resolved data), or it can be `parameterOrStateId`
   for dose-response plots. The corresponding numeric values will be shown on
   the x-axis.

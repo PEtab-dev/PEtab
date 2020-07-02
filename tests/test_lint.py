@@ -417,3 +417,21 @@ def test_check_parameter_df():
     del parameter_df[NOMINAL_VALUE]
     with pytest.raises(AssertionError):
         lint.check_parameter_df(df=parameter_df)
+
+
+def test_check_observable_df():
+    """Check that we correctly detect errors in observable table"""
+
+    observable_df = pd.DataFrame(data={
+        OBSERVABLE_ID: ['obs1', 'obs2'],
+        OBSERVABLE_FORMULA: ['x1', 'x2'],
+        NOISE_FORMULA: ['sigma1', 'sigma2']
+    }).set_index(OBSERVABLE_ID)
+
+    lint.check_observable_df(observable_df)
+
+    # Check that duplicated observables ids are detected
+    bad_observable_df = observable_df.copy()
+    bad_observable_df.index = ['obs1', 'obs1']
+    with pytest.raises(AssertionError):
+        lint.check_observable_df(bad_observable_df)
