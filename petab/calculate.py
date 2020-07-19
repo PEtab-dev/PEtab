@@ -82,6 +82,7 @@ def calculate_residuals_for_table(
     compared_cols = set(MEASUREMENT_DF_COLS)
     compared_cols -= {MEASUREMENT}
     compared_cols &= set(measurement_df.columns)
+    compared_cols &= set(simulation_df.columns)
 
     # compute noise formulas for observables
     noise_formulas = get_symbolic_noise_formulas(observable_df)
@@ -290,6 +291,7 @@ def calculate_llh_for_table(
     compared_cols = set(MEASUREMENT_DF_COLS)
     compared_cols -= {MEASUREMENT}
     compared_cols &= set(measurement_df.columns)
+    compared_cols &= set(simulation_df.columns)
 
     # compute noise formulas for observables
     noise_formulas = get_symbolic_noise_formulas(observable_df)
