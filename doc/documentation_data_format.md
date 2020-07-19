@@ -334,10 +334,17 @@ it *may* include:
 
 One row per parameter with arbitrary order of rows and columns:
 
-| parameterId | [parameterName] | parameterScale | lowerBound  |upperBound | nominalValue | estimate | [priorType] | [priorParameters] |
-|---|---|---|---|---|---|---|---|---|
-|STRING|[STRING]|log10&#124;lin&#124;log|NUMERIC|NUMERIC|NUMERIC|0&#124;1|*see below*|*see below*
-|...|...|...|...|...|...|...|...|...|
+| parameterId | [parameterName] | parameterScale | lowerBound  |upperBound | nominalValue | estimate | ... |
+|---|---|---|---|---|---|---|---|
+|STRING|[STRING]|log10&#124;lin&#124;log|NUMERIC|NUMERIC|NUMERIC|0&#124;1| ... |
+|...|...|...|...|...|...|...|...|
+
+*(wrapped for readability)*
+
+| ... | \[initializationPriorType\] | \[initializationPriorParameters\] | \[objectivePriorType\] | \[objectivePriorParameters\] |
+|---|---|---|---|---|
+| ... | *see below* | *see below* | *see below* | *see below* |
+|...|...|...|...|...|
 
 Additional columns may be added.
 
