@@ -5,7 +5,7 @@
    :maxdepth: 3
    :caption: Data format
 
-   Data format <documentation_data_format.md>
+   Data format <documentation_data_format.rst>
 
 .. toctree::
    :maxdepth: 3
