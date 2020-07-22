@@ -1,19 +1,23 @@
-# PEtab data format specification
+PEtab data format specification
+===============================
 
 
-## Format version: 1
+Format version: 1
+-----------------
 
 This document explains the PEtab data format.
 
 
-## Purpose
+Purpose
+-------
 
 Providing a standardized way for specifying parameter estimation problems in
 systems biology, especially for the case of Ordinary Differential Equation
 (ODE) models.
 
 
-## Overview
+Overview
+---------
 
 The PEtab data format specifies a parameter estimation problem using a number
 of text-based files ([Systems Biology Markup Language (SBML)](http://sbml.org)
@@ -52,17 +56,21 @@ efficient parameter estimation, they should not affect the optimization
 problem as such.
 
 **General remarks**
+
 - All model entities, column names and row names are case-sensitive
 - All identifiers must consist only of upper and lower case letters, digits and
   underscores, and must not start with a digit.
 - Fields in "[]" are optional and may be left empty.
 
 
-## SBML model definition
+SBML model definition
+---------------------
 
 The model must be specified as valid SBML. There are no further restrictions.
 
-## Condition table
+
+Condition table
+---------------
 
 The condition table specifies parameters, or initial values of species and
 compartments for specific simulation conditions (generally corresponding to
@@ -70,20 +78,28 @@ different experimental conditions).
 
 This is specified as a tab-separated value file in the following way:
 
-| conditionId | [conditionName] | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
-|---|---|---|---|---|
-| STRING | [STRING] | NUMERIC&#124;STRING | ... | NUMERIC&#124;STRING |
-| e.g. | | | | |
-| conditionId1 | [conditionName1] | 0.42 | ...| parameterId|
-| conditionId2 | ... | ... | ...| ...|
-|... | ... | ... | ... |...| ...|
++--------------+------------------+------------------------------------+-----+---------------------------------------+
+| conditionId  | [conditionName]  | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
++--------------+------------------+------------------------------------+-----+---------------------------------------+
+| STRING       | [STRING]         | NUMERIC&#124;STRING                | ... | NUMERIC&#124;STRING                   |
++--------------+------------------+------------------------------------+-----+---------------------------------------+
+| e.g.         |                  |                                    |     |                                       |
++--------------+------------------+------------------------------------+-----+---------------------------------------+
+| conditionId1 | [conditionName1] | 0.42                               | ... | parameterId                           |
++--------------+------------------+------------------------------------+-----+---------------------------------------+
+| conditionId2 | ...              | ...                                | ... | ...                                   |
++--------------+------------------+------------------------------------+-----+---------------------------------------+
+|...           | ...              | ...                                | ... |...                                    |
++--------------+------------------+------------------------------------+-----+---------------------------------------+
 
 Row- and column-ordering are arbitrary, although specifying `conditionId`
 first may improve human readability.
 
 Additional columns are *not* allowed.
 
-### Detailed field description
+
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - `conditionId` [STRING, NOT NULL]
 
