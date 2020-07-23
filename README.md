@@ -105,7 +105,7 @@ Legend:
 ## Using PEtab
 
 If you would like to use PEtab yourself, please have a look at 
-[doc/documentation_data_format.md](doc/documentation_data_format.md) or at
+[doc/documentation_data_format.rst](doc/documentation_data_format.rst) or at
 the example models provided in the 
 [benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 
