@@ -82,7 +82,7 @@ This is specified as a tab-separated value file in the following way:
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
 | conditionId  | [conditionName]  | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
 +==============+==================+====================================+=====+=======================================+
-| STRING       | [STRING]         | NUMERIC&#124;STRING                | ... | NUMERIC&#124;STRING                   |
+| STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
 | e.g.         |                  |                                    |     |                                       |
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
@@ -147,23 +147,23 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-+--------------+-------------------------------+-----------------------+-------------+------------------+
-| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time             |
-+==============+===============================+=======================+=============+==================+
-| observableId | [conditionId]                 | conditionId           | NUMERIC     | NUMERIC&#124;inf |
-+--------------+-------------------------------+-----------------------+-------------+------------------+
-| ...          | ...                           | ...                   | ...         | ...              |
-+--------------+-------------------------------+-----------------------+-------------+------------------+
++--------------+-------------------------------+-----------------------+-------------+--------------+
+| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time         |
++==============+===============================+=======================+=============+==============+
+| observableId | [conditionId]                 | conditionId           | NUMERIC     | NUMERIC\|inf |
++--------------+-------------------------------+-----------------------+-------------+--------------+
+| ...          | ...                           | ...                   | ...         | ...          |
++--------------+-------------------------------+-----------------------+-------------+--------------+
 
 *(wrapped for readability)*
 
-+-----+------------------------------------------------------------+------------------------------------------------------------+
-| ... | [observableParameters]                                     | [noiseParameters]                                          |
-+=====+============================================================+============================================================+
-| ... | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] | [parameterId&#124;NUMERIC[;parameterId&#124;NUMERIC][...]] |
-+-----+------------------------------------------------------------+------------------------------------------------------------+
-| ... | ...                                                        | ...                                                        |
-+-----+------------------------------------------------------------+------------------------------------------------------------+
++-----+----------------------------------------------------+----------------------------------------------------+
+| ... | [observableParameters]                             | [noiseParameters]                                  |
++=====+====================================================+====================================================+
+| ... | [parameterId\|NUMERIC[;parameterId\|NUMERIC][...]] | [parameterId\|NUMERIC[;parameterId\|NUMERIC][...]] |
++-----+----------------------------------------------------+----------------------------------------------------+
+| ... | ...                                                | ...                                                |
++-----+----------------------------------------------------+----------------------------------------------------+
 
 Additional (non-standard) columns may be added. If the additional plotting
 functionality of PEtab should be used, such columns could be
@@ -280,17 +280,17 @@ The observable table has the following columns:
 
 *(wrapped for readability)*
 
-+-----+------------------------------------+---------------------------------------+-----------------------+
-| ... | [observableTransformation]         | noiseFormula                          | [noiseDistribution]   |
-+=====+====================================+=======================================+=======================+
-| ... | [lin(default)&#124;log&#124;log10] | STRING&#124;NUMBER                    | [laplace&#124;normal] |
-+-----+------------------------------------+---------------------------------------+-----------------------+
-| ... | e.g.                               |                                       |                       |
-+-----+------------------------------------+---------------------------------------+-----------------------+
-| ... | lin                                | noiseParameter1_relativeTotalProtein1 | normal                |
-+-----+------------------------------------+---------------------------------------+-----------------------+
-| ... | ...                                | ...                                   | ...                   |
-+-----+------------------------------------+---------------------------------------+-----------------------+
++-----+----------------------------+---------------------------------------+-----------------------+
+| ... | [observableTransformation] | noiseFormula                          | [noiseDistribution]   |
++=====+============================+=======================================+=======================+
+| ... | [lin(default)\|log\|log10] | STRING\|NUMBER                        | [laplace\|normal]     |
++-----+----------------------------+---------------------------------------+-----------------------+
+| ... | e.g.                       |                                       |                       |
++-----+----------------------------+---------------------------------------+-----------------------+
+| ... | lin                        | noiseParameter1_relativeTotalProtein1 | normal                |
++-----+----------------------------+---------------------------------------+-----------------------+
+| ... | ...                        | ...                                   | ...                   |
++-----+----------------------------+---------------------------------------+-----------------------+
 
 
 Detailed field description
@@ -348,7 +348,7 @@ Detailed field description
   assigned in the ``noiseParameters`` field of the *measurement table*
   (see above). Any parameters named ``noiseParameter${1..n}_${observableId}``
   *must* be overwritten in the measurement table.
-`
+
 - ``noiseDistribution`` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed noise distribution for the given measurement. Only normally or
@@ -361,7 +361,7 @@ Detailed field description
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-For ``noiseDistribution``, ``normal`` and ``laplace`` are supported. For ``observableTransformation``, ``lin``, ``log`` and ``log10`` are supported. Denote by :math:`y` the simulation, :math:`m` the measurement, and :math:`sigma` the standard deviation of a normal, or the scale parameter of a laplace model, as given via the ``noiseFormula`` field. Then we have the following effective noise distributions.
+For ``noiseDistribution``, ``normal`` and ``laplace`` are supported. For ``observableTransformation``, ``lin``, ``log`` and ``log10`` are supported. Denote by :math:`y` the simulation, :math:`m` the measurement, and :math:`\sigma` the standard deviation of a normal, or the scale parameter of a laplace model, as given via the ``noiseFormula`` field. Then we have the following effective noise distributions.
 
 - Normal distribution:
 
@@ -419,6 +419,7 @@ and *must not* include:
 - Parameters that are AssignmentRule targets in the SBML model
 
 it *may* include:
+
 - Any SBML model parameter that was not excluded above
 - Named parameter overrides introduced in the *conditions table*
 
@@ -427,7 +428,7 @@ One row per parameter with arbitrary order of rows and columns:
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
 | parameterId | [parameterName] | parameterScale          | lowerBound  | upperBound | nominalValue | estimate | ... |
 +=============+=================+=========================+=============+============+==============+==========+=====+
-|STRING       | [STRING]        | log10&#124;lin&#124;log | NUMERIC     | NUMERIC    | NUMERIC      | 0&#124;1 | ... |
+|STRING       | [STRING]        | log10\|lin\|log         | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
 | ...         | ...             | ...                     | ...         | ...        | ...          | ... | ...      |
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
@@ -546,33 +547,33 @@ provided) inside the measurement table.
 Expected to have the following columns in any (but preferably this)
 order:
 
-+--------+------------+---------------------------------------------------+--------------------------------------------------------------+
-| plotId | [plotName] | [plotTypeSimulation]                              | [plotTypeData]                                               |
-+========+============+===================================================+==============================================================+
-| STRING | [STRING]   | [LinePlot(default)&#124;BarPlot&#124;ScatterPlot] | [MeanAndSD(default)&#124;MeanAndSEM&#124;replicate;provided] |
-+--------+------------+---------------------------------------------------+--------------------------------------------------------------+
-| ...    | ...        | ...                                               | ...                                                          |
-+--------+------------+---------------------------------------------------+--------------------------------------------------------------+
++--------+------------+-------------------------------------------+------------------------------------------------------+
+| plotId | [plotName] | [plotTypeSimulation]                      | [plotTypeData]                                       |
++========+============+===========================================+======================================================+
+| STRING | [STRING]   | [LinePlot(default)\|BarPlot\|ScatterPlot] | [MeanAndSD(default)\|MeanAndSEM\|replicate;provided] |
++--------+------------+-------------------------------------------+------------------------------------------------------+
+| ...    | ...        | ...                                       | ...                                                  |
++--------+------------+-------------------------------------------+------------------------------------------------------+
 
 *(wrapped for readability)*
 
-+-----+-------------+-----------------------------------------+-----------+----------+--------------------------------------+
-| ... | [datasetId] | [xValues]                               | [xOffset] | [xLabel] | [xScale]                             |
-+=====+=============+=========================================+===========+==========+======================================+
-| ... | [datasetId] | [time(default)&#124;parameterOrStateId] | [NUMERIC] | [STRING] | [lin&#124;log&#124;log10&#124;order] |
-+-----+-------------+-----------------------------------------+-----------+----------+--------------------------------------+
-| ... | ...         | ...                                     | ...       | ...      | ...                                  |
-+-----+-------------+-----------------------------------------+-----------+----------+--------------------------------------+
++-----+-------------+-------------------------------------+-----------+----------+--------------------------+
+| ... | [datasetId] | [xValues]                           | [xOffset] | [xLabel] | [xScale]                 |
++=====+=============+=====================================+===========+==========+==========================+
+| ... | [datasetId] | [time(default)\|parameterOrStateId] | [NUMERIC] | [STRING] | [lin\|log\|log10\|order] |
++-----+-------------+-------------------------------------+-----------+----------+--------------------------+
+| ... | ...         | ...                                 | ...       | ...      | ...                      |
++-----+-------------+-------------------------------------+-----------+----------+--------------------------+
 
 *(wrapped for readability)*
 
-+-----+----------------+-----------+----------+---------------------------+---------------+
-| ... | [yValues]      | [yOffset] | [yLabel] | [yScale]                  | [legendEntry] |
-+=====+================+===========+==========+===========================+===============+
-| ... | [observableId] | [NUMERIC] | [STRING] | [lin&#124;log&#124;log10] | [STRING]      |
-+-----+----------------+-----------+----------+---------------------------+---------------+
-| ... | ...            | ...       | ...      | ...                       | ...           |
-+-----+----------------+-----------+----------+---------------------------+---------------+
++-----+----------------+-----------+----------+-------------------+---------------+
+| ... | [yValues]      | [yOffset] | [yLabel] | [yScale]          | [legendEntry] |
++=====+================+===========+==========+===================+===============+
+| ... | [observableId] | [NUMERIC] | [STRING] | [lin\|log\|log10] | [STRING]      |
++-----+----------------+-----------+----------+-------------------+---------------+
+| ... | ...            | ...       | ...      | ...               | ...           |
++-----+----------------+-----------+----------+-------------------+---------------+
 
 
 Detailed field description
@@ -594,7 +595,7 @@ Detailed field description
 - ``plotTypeData`` [STRING, OPTIONAL]
 
   The type how replicates should be handled, can be ``MeanAndSD``,
-  ``MeanAndSEM``, ``replicate` (for plotting all replicates separately), or
+  ``MeanAndSEM``, ``replicate`` (for plotting all replicates separately), or
   ``provided`` (if numeric values for the noise level are provided in the
   measurement table). Default is ``MeanAndSD``.
 
@@ -619,7 +620,7 @@ Detailed field description
 
 - ``xScale`` [STRING, OPTIONAL]
 
-  Scale of the independent variable, can be ``lin``, ``log``, ``log10`` or `order``.
+  Scale of the independent variable, can be ``lin``, ``log``, ``log10`` or ``order``.
   The ``order`` value should be used if values of the independent variable are
   ordinal. This value can only be used in combination with ``LinePlot`` value for
   the ``plotTypeSimulation`` column. In this case, points on x axis will be
