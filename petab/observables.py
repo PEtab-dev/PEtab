@@ -28,7 +28,8 @@ def get_observable_df(
         return observable_file
 
     if isinstance(observable_file, str):
-        observable_file = pd.read_csv(observable_file, sep='\t')
+        observable_file = pd.read_csv(observable_file, sep='\t',
+                                      float_precision='round_trip')
 
     lint.assert_no_leading_trailing_whitespace(
         observable_file.columns.values, "observable")
@@ -80,7 +81,7 @@ def get_output_parameters(observable_df: pd.DataFrame,
                            key=lambda symbol: symbol.name)
         for free_sym in free_syms:
             sym = str(free_sym)
-            if sbml_model.getElementBySId(sym) is None:
+            if sbml_model.getElementBySId(sym) is None and sym != 'time':
                 output_parameters[sym] = None
 
     return list(output_parameters.keys())

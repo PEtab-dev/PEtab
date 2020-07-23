@@ -2,6 +2,32 @@
 
 ## 0.1 series
 
+
+### 0.1.8
+
+Library:
+
+* Use ``core.is_empty`` to check for empty values (#434)
+* Move tests to python 3.8 (#435)
+* Update to libcombine 0.2.6 (#437)
+* Make float parsing from CSV round-trip (#444)
+* Lint: Allow model time in observable formulas (#445)
+* Lint: Detect duplicated observable ids (#446)
+* Fix likelihood calculation with missing values (#451)
+
+Documentation:
+
+* Move format documentation to restructuredtext format (#452)
+* Document all noise distributions and observable scales (#452)
+* Fix documentation for prior distribution (#449)
+
+Visualization:
+
+* Make XValue column non-mandatory (#429)
+* Apply correct condition sorting (#430)
+* Apply correct default x label (#431)
+
+
 ### 0.1.7
 
 Documentation:

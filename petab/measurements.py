@@ -30,7 +30,8 @@ def get_measurement_df(
         return measurement_file
 
     if isinstance(measurement_file, str):
-        measurement_file = pd.read_csv(measurement_file, sep='\t')
+        measurement_file = pd.read_csv(measurement_file, sep='\t',
+                                       float_precision='round_trip')
 
     lint.assert_no_leading_trailing_whitespace(
         measurement_file.columns.values, MEASUREMENT)

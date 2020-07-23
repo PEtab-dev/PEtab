@@ -23,7 +23,8 @@ def get_simulation_df(simulation_file: str) -> pd.DataFrame:
     Returns:
         Simulation DataFrame
     """
-    return pd.read_csv(simulation_file, sep="\t", index_col=None)
+    return pd.read_csv(simulation_file, sep="\t", index_col=None,
+                       float_precision='round_trip')
 
 
 def write_simulation_df(df: pd.DataFrame, filename: str) -> None:
@@ -47,7 +48,8 @@ def get_visualization_df(visualization_file: str) -> pd.DataFrame:
         Visualization DataFrame
     """
     try:
-        vis_spec = pd.read_csv(visualization_file, sep="\t", index_col=None)
+        vis_spec = pd.read_csv(visualization_file, sep="\t", index_col=None,
+                               float_precision='round_trip')
     except pd.errors.EmptyDataError:
         warn("Visualization table is empty. Defaults will be used. "
              "Refer to the documentation for details.")
@@ -370,7 +372,7 @@ def create_combine_archive(
         )
         _add_file_metadata(
             location=parameter_subset_file,
-            description=f"PEtab parameter file"
+            description="PEtab parameter file"
         )
 
     for problem in yaml_config[PROBLEMS]:
