@@ -348,23 +348,56 @@ Detailed field description
   assigned in the ``noiseParameters`` field of the *measurement table*
   (see above). Any parameters named ``noiseParameter${1..n}_${observableId}``
   *must* be overwritten in the measurement table.
-
+`
 - ``noiseDistribution`` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed noise distribution for the given measurement. Only normally or
   Laplace distributed noise is currently allowed (log-normal and
-  log-laplace are obtained by setting ``observableTransformation`` to ``log``).
+  log-Laplace are obtained by setting ``observableTransformation`` to ``log``, similarly for ``log10``).
   Defaults to ``normal``. If ``normal``, the specified ``noiseParameters`` will be
-  interpreted as standard deviation (*not* variance).
+  interpreted as standard deviation (*not* variance). If ``Laplace`` ist specified, the specified ``noiseParameter`` will be interpreted as the scale, or diversity, parameter.
 
 
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-The ``noiseDistribution``s ``normal`` and ``laplace`` are supported. Combined with the ``observableTransformation``s ``lin``, ``log`` and ``log10``, this results in the following effective noise distributions:
+For ``noiseDistribution``, ``normal`` and ``laplace`` are supported. For ``observableTransformation``, ``lin``, ``log`` and ``log10`` are supported. Denote by :math:`y` the simulation, :math:`m` the measurement, and :math:`sigma` the standard deviation of a normal, or the scale parameter of a laplace model, as given via the ``noiseFormula`` field. Then we have the following effective noise distributions.
+
+- Normal distribution:
+
+  .. math::
+     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
+
+- Log-normal distribution (i.e. log(m) is normally distributed):
+
+  .. math::
+     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
+
+- Log10-normal distribution (i.e. log10(m) is normally distributed):
+
+  .. math::
+     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m \log(10)}\exp\left(-\frac{(\log_{10} m - \log_{10} y)^2}{2\sigma^2}\right)
+
+- Laplace distribution:
+
+  .. math::
+     \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
+
+- Log-Laplace distribution (i.e. log(m) is Laplace distributed):
+
+  .. math::
+     \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
+
+- Log10-Laplace distribution (i.e. log10(m) is Laplace distributed):
+
+  .. math::
+     \pi(m|y,\sigma) = \frac{1}{2\sigma m \log(10)}\exp\left(-\frac{|\log_{10} m - \log_{10} y|}{\sigma}\right)
+
+
+The distributions above are for a single data point. For a collection :math:`D=\{m_i\}_i` of data points and corresponding simulations :math:`Y=\{y_i\}_i` and noise parameters :math:`\Sigma=\{\sigma_i\}_i`, the current specification assumes independence, i.e. the full distributions is
 
 .. math::
-   \pi
+   \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
 
 
 Parameter table
