@@ -10,10 +10,7 @@ import pandas as pd
 from .helper_functions import (create_figure,
                                handle_dataset_plot,
                                check_ex_exp_columns,
-                               create_or_update_vis_spec,
-                               get_vis_spec_dependent_columns_dict,
-                               expand_vis_spec_settings,
-                               check_ex_visu_columns)
+                               create_or_update_vis_spec)
 
 from .. import problem, measurements, core, conditions
 from ..C import *
