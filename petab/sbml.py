@@ -406,3 +406,62 @@ def write_sbml(sbml_doc: libsbml.SBMLDocument, filename: str) -> None:
     if not ret:
         raise RuntimeError(f"libSBML reported error {ret} when trying to "
                            f"create SBML file {filename}.")
+
+
+def get_sbml_model(
+        filepath_or_buffer
+) -> Tuple[libsbml.SBMLReader, libsbml.SBMLDocument, libsbml.Model]:
+    """Get an SBML model from file or URL or file handle
+
+    :param filepath_or_buffer:
+        File or URL or file handle to read the model from
+    :return: The SBML document, model and reader
+    """
+
+    from pandas.io.common import get_filepath_or_buffer, is_url, is_file_like
+
+    if is_file_like(filepath_or_buffer) or is_url(filepath_or_buffer):
+        buffer = get_filepath_or_buffer(filepath_or_buffer, mode='r')[0]
+        if is_url(filepath_or_buffer):
+            buffer = ''.join(line.decode('utf-8') for line in buffer)
+        else:
+            buffer = ''.join(line for line in buffer)
+
+        # URL or already opened file, we will load the model from a string
+
+        return load_sbml_from_string(buffer)
+
+    return load_sbml_from_file(filepath_or_buffer)
+
+
+def load_sbml_from_string(
+        sbml_string: str
+) -> Tuple[libsbml.SBMLReader, libsbml.SBMLDocument, libsbml.Model]:
+    """Load SBML model from string
+
+    :param sbml_string: Model as XML string
+    :return: The SBML document, model and reader
+    """
+
+    sbml_reader = libsbml.SBMLReader()
+    sbml_document = \
+        sbml_reader.readSBMLFromString(sbml_string)
+    sbml_model = sbml_document.getModel()
+
+    return sbml_reader, sbml_document, sbml_model
+
+
+def load_sbml_from_file(
+        sbml_file: str
+) -> Tuple[libsbml.SBMLReader, libsbml.SBMLDocument, libsbml.Model]:
+    """Load SBML model from file
+
+    :param sbml_file: Filename of the SBML file
+    :return: The SBML document, model and reader
+    """
+
+    sbml_reader = libsbml.SBMLReader()
+    sbml_document = sbml_reader.readSBML(sbml_file)
+    sbml_model = sbml_document.getModel()
+
+    return sbml_reader, sbml_document, sbml_model
