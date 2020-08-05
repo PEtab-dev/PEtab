@@ -2,8 +2,7 @@
 from warnings import warn
 import logging
 import re
-from typing import Dict, Any, List, Union
-
+from typing import Dict, Any, List, Union, Tuple
 import libsbml
 
 logger = logging.getLogger(__name__)
