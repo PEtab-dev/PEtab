@@ -539,3 +539,15 @@ def test_to_files(petab_problem):  # pylint: disable=W0621
         same_nans = parameter_df.isna() == petab_problem.parameter_df.isna()
         assert ((parameter_df == petab_problem.parameter_df) | same_nans) \
             .all().all()
+
+
+def test_load_remote():
+    """Test loading remote files"""
+
+    yaml_url = "https://raw.githubusercontent.com/PEtab-dev/petab_test_suite" \
+               "/master/cases/0001/_0001.yaml"
+    petab_problem = petab.Problem.from_yaml(yaml_url)
+
+    assert petab_problem.sbml_model is not None
+    assert petab_problem.measurement_df is not None \
+           and not petab_problem.measurement_df.empty

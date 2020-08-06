@@ -1,13 +1,14 @@
 """Code regarding the PEtab YAML config files"""
 
 import os
-
 from typing import Any, Dict, Union, Optional, List
 
 import jsonschema
-import yaml
-from .C import *  # noqa: F403
 import numpy as np
+import yaml
+from pandas.io.common import get_filepath_or_buffer
+
+from .C import *  # noqa: F403
 
 SCHEMA = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                       "petab_schema.yaml")
@@ -106,23 +107,29 @@ def validate_yaml_semantics(
 def load_yaml(yaml_config: Union[Dict, str]) -> Dict:
     """Load YAML
 
-    Convenience function to allow for providing YAML inputs either as filename
+    Convenience function to allow for providing YAML inputs as filename, URL
     or as dictionary.
 
     Arguments:
         yaml_config:
-            PEtab YAML config as filename or dict.
+            PEtab YAML config as filename or dict or URL.
 
     Returns:
         The unmodified dictionary if ``yaml_config`` was dictionary.
         Otherwise the parsed the YAML file.
     """
 
-    if isinstance(yaml_config, str):
-        with open(yaml_config) as f:
-            return yaml.full_load(f)
+    # already parsed? all PEtab problem yaml files are dictionaries
+    if isinstance(yaml_config, dict):
+        return yaml_config
 
-    return yaml_config
+    filepath_or_buffer = get_filepath_or_buffer(yaml_config, mode='r')[0]
+    if isinstance(filepath_or_buffer, str):
+        # a filename
+        with open(filepath_or_buffer, 'r') as f:
+            return yaml.safe_load(f)
+    # a stream
+    return yaml.safe_load(filepath_or_buffer)
 
 
 def is_composite_problem(yaml_config: Union[Dict, str]) -> bool:
