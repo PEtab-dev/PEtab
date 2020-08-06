@@ -76,10 +76,8 @@ class Problem:
         # load SBML model from pickled string
         sbml_string = state.pop('sbml_string', None)
         if sbml_string:
-            self.sbml_reader = libsbml.SBMLReader()
-            self.sbml_document = \
-                self.sbml_reader.readSBMLFromString(sbml_string)
-            self.sbml_model = self.sbml_document.getModel()
+            self.sbml_reader, self.sbml_document, self.sbml_model = \
+                sbml.load_sbml_from_string(sbml_string)
 
         self.__dict__.update(state)
 
@@ -119,9 +117,8 @@ class Problem:
             parameter_df = parameters.get_parameter_df(parameter_file)
 
         if sbml_file:
-            sbml_reader = libsbml.SBMLReader()
-            sbml_document = sbml_reader.readSBML(sbml_file)
-            sbml_model = sbml_document.getModel()
+            sbml_reader, sbml_document, sbml_model = \
+                sbml.get_sbml_model(sbml_file)
 
         if visualization_files:
             # If there are multiple tables, we will merge them
