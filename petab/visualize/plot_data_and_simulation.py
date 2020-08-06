@@ -275,7 +275,7 @@ def save_vis_spec(
         output_file_path: str = 'visuSpec.tsv'
 ):
     """
-    Generates and saves visualization specification to a file.
+    Generate and save visualization specification to a file.
     If vis_spec is provided, the missing columns will be added.
 
     Parameters
