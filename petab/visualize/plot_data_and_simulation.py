@@ -313,7 +313,7 @@ def save_vis_spec(
         String indicating how noise should be visualized:
         ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
     output_file_path:
-        File path to which generated visualization specification is saved.
+        File path to which  the generated visualization specification is saved.
     """
     # import from file in case experimental data is provided in file
     if isinstance(exp_data, str):
