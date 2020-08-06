@@ -283,7 +283,7 @@ def save_vis_spec(
     exp_data:
         Measurement DataFrame in the PEtab format or path to the data file.
     exp_conditions:
-        condition DataFrame in the PEtab format or path to the condition file.
+        Condition DataFrame in the PEtab format or path to the condition file.
     vis_spec:
         Visualization specification DataFrame in the PEtab format or path to
         visualization file.
