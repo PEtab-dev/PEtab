@@ -206,7 +206,7 @@ def flatten_timepoint_specific_output_overrides(
                 ) == 0).any():
                     tmp = tmp_ + counter * "_" + str(i_noise + i_sc + 1)
                     counter += 1
-                if not tmp_.empty and not tmp_.empty:
+                if not tmp_.empty:
                     replacements[tmp.values[0]] = tmp_.values[0]
                 df.loc[idxs == 0, OBSERVABLE_ID] = tmp
                 # Append the result in a new df
