@@ -53,8 +53,9 @@ def write_observable_df(df: pd.DataFrame, filename: str) -> None:
         df: PEtab observable table
         filename: Destination file name
     """
+    lint.check_observable_df(df)
     with open(filename, 'w') as fh:
-        df.to_csv(fh, sep='\t', index=True)
+        df.to_csv(fh, sep='\t', index=False)
 
 
 def get_output_parameters(observable_df: pd.DataFrame,

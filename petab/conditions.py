@@ -48,8 +48,9 @@ def write_condition_df(df: pd.DataFrame, filename: str) -> None:
         df: PEtab condition table
         filename: Destination file name
     """
+    lint.check_condition_df(df)
     with open(filename, 'w') as fh:
-        df.to_csv(fh, sep='\t', index=True)
+        df.to_csv(fh, sep='\t', index=False)
 
 
 def create_condition_df(parameter_ids: Iterable[str],

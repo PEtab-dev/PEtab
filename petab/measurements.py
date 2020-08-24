@@ -46,6 +46,7 @@ def write_measurement_df(df: pd.DataFrame, filename: str) -> None:
         df: PEtab measurement table
         filename: Destination file name
     """
+    lint.check_measurement_df(df)
     with open(filename, 'w') as fh:
         df.to_csv(fh, sep='\t', index=False)
 
