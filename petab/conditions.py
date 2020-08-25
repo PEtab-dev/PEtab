@@ -24,19 +24,11 @@ def get_condition_df(
 
     if isinstance(condition_file, str):
         condition_file = pd.read_csv(condition_file, sep='\t',
-                                     float_precision='round_trip')
+                                     float_precision='round_trip',
+                                     index_col=CONDITION_ID)
 
     lint.assert_no_leading_trailing_whitespace(
         condition_file.columns.values, "condition")
-
-    if not isinstance(condition_file.index, pd.RangeIndex):
-        condition_file.reset_index(inplace=True)
-
-    try:
-        condition_file.set_index([CONDITION_ID], inplace=True)
-    except KeyError:
-        raise KeyError(
-            f'Condition table missing mandatory field {CONDITION_ID}.')
 
     return condition_file
 
