@@ -11,7 +11,7 @@ from .C import *
 
 def get_condition_df(
         condition_file: Union[str, pd.DataFrame, None]
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, None]:
     """Read the provided condition file into a ``pandas.Dataframe``
 
     Conditions are rows, parameters are columns, conditionId is index.
@@ -26,6 +26,17 @@ def get_condition_df(
         condition_file = pd.read_csv(condition_file, sep='\t',
                                      float_precision='round_trip',
                                      index_col=CONDITION_ID)
+    else:
+        # this adapts the index of programmatically created or externally
+        # read DataFrames
+        if not isinstance(condition_file.index, pd.RangeIndex):
+            condition_file.reset_index(inplace=True)
+
+        try:
+            condition_file.set_index([CONDITION_ID], inplace=True)
+        except KeyError:
+            raise KeyError(
+                f'Condition table missing mandatory field {CONDITION_ID}.')
 
     lint.assert_no_leading_trailing_whitespace(
         condition_file.columns.values, "condition")
@@ -45,7 +56,7 @@ def write_condition_df(df: pd.DataFrame, filename: str,
     if validate:
         lint.check_condition_df(df)
     with open(filename, 'w') as fh:
-        df.to_csv(fh, sep='\t', index=False)
+        df.to_csv(fh, sep='\t', index=not isinstance(df.index, pd.RangeIndex))
 
 
 def create_condition_df(parameter_ids: Iterable[str],

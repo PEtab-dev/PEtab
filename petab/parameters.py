@@ -14,7 +14,7 @@ from .C import *  # noqa: F403
 
 def get_parameter_df(
         parameter_file: Union[str, List[str], pd.DataFrame, None]
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, None]:
     """
     Read the provided parameter file into a ``pandas.Dataframe``.
 

@@ -14,7 +14,7 @@ from .C import *  # noqa: F403
 
 def get_observable_df(
         observable_file: Union[str, pd.DataFrame, None]
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, None]:
     """
     Read the provided observable file into a ``pandas.Dataframe``.
 

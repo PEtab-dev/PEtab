@@ -16,7 +16,7 @@ from .C import *  # noqa: F403
 
 def get_measurement_df(
         measurement_file: Union[None, str, pd.DataFrame]
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, None]:
     """
     Read the provided measurement file into a ``pandas.Dataframe``.
 
