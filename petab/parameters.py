@@ -68,14 +68,17 @@ def get_parameter_df(
     return parameter_df
 
 
-def write_parameter_df(df: pd.DataFrame, filename: str) -> None:
+def write_parameter_df(df: pd.DataFrame, filename: str,
+                       validate: bool = True) -> None:
     """Write PEtab parameter table
 
     Arguments:
         df: PEtab parameter table
-        filename: Destination file name
+        filename: destination file name
+        validate: whether condition table should be validated before writing
     """
-    lint.check_parameter_df(df)
+    if validate:
+        lint.check_parameter_df(df)
     with open(filename, 'w') as fh:
         df.to_csv(fh, sep='\t', index=False)
 

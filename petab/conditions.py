@@ -33,14 +33,17 @@ def get_condition_df(
     return condition_file
 
 
-def write_condition_df(df: pd.DataFrame, filename: str) -> None:
+def write_condition_df(df: pd.DataFrame, filename: str,
+                       validate: bool = True) -> None:
     """Write PEtab condition table
 
     Arguments:
         df: PEtab condition table
-        filename: Destination file name
+        filename: destination file name
+        validate: whether condition table should be validated before writing
     """
-    lint.check_condition_df(df)
+    if validate:
+        lint.check_condition_df(df)
     with open(filename, 'w') as fh:
         df.to_csv(fh, sep='\t', index=False)
 

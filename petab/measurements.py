@@ -39,14 +39,17 @@ def get_measurement_df(
     return measurement_file
 
 
-def write_measurement_df(df: pd.DataFrame, filename: str) -> None:
+def write_measurement_df(df: pd.DataFrame, filename: str,
+                         validate: bool = True) -> None:
     """Write PEtab measurement table
 
     Arguments:
         df: PEtab measurement table
-        filename: Destination file name
+        filename: destination file name
+        validate: whether measurement table should be validated before writing
     """
-    lint.check_measurement_df(df)
+    if validate:
+        lint.check_measurement_df(df)
     with open(filename, 'w') as fh:
         df.to_csv(fh, sep='\t', index=False)
 

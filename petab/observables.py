@@ -46,14 +46,17 @@ def get_observable_df(
     return observable_file
 
 
-def write_observable_df(df: pd.DataFrame, filename: str) -> None:
+def write_observable_df(df: pd.DataFrame, filename: str,
+                        validate: bool = True) -> None:
     """Write PEtab observable table
 
     Arguments:
         df: PEtab observable table
         filename: Destination file name
+        validate: whether condition table should be validated before writing
     """
-    lint.check_observable_df(df)
+    if validate:
+        lint.check_observable_df(df)
     with open(filename, 'w') as fh:
         df.to_csv(fh, sep='\t', index=False)
 
