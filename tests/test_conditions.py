@@ -42,7 +42,7 @@ def test_get_condition_df():
         file_name = fh.name
         condition_df.to_csv(fh, sep='\t', index=False)
 
-    with pytest.raises(KeyError):
+    with pytest.raises((KeyError, ValueError),):
         petab.get_condition_df(file_name)
 
     os.remove(file_name)

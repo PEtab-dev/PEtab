@@ -45,7 +45,7 @@ def get_condition_df(
 
 
 def write_condition_df(df: pd.DataFrame, filename: str,
-                       validate: bool = True) -> None:
+                       validate: bool = False) -> None:
     """Write PEtab condition table
 
     Arguments:
@@ -56,7 +56,7 @@ def write_condition_df(df: pd.DataFrame, filename: str,
     if validate:
         lint.check_condition_df(df)
     with open(filename, 'w') as fh:
-        df.to_csv(fh, sep='\t', index=not isinstance(df.index, pd.RangeIndex))
+        df.reset_index().to_csv(fh, sep='\t', index=False)
 
 
 def create_condition_df(parameter_ids: Iterable[str],

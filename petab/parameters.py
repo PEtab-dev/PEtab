@@ -69,7 +69,7 @@ def get_parameter_df(
 
 
 def write_parameter_df(df: pd.DataFrame, filename: str,
-                       validate: bool = True) -> None:
+                       validate: bool = False) -> None:
     """Write PEtab parameter table
 
     Arguments:
@@ -80,7 +80,7 @@ def write_parameter_df(df: pd.DataFrame, filename: str,
     if validate:
         lint.check_parameter_df(df)
     with open(filename, 'w') as fh:
-        df.to_csv(fh, sep='\t', index=False)
+        df.reset_index().to_csv(fh, sep='\t', index=False)
 
 
 def get_optimization_parameters(parameter_df: pd.DataFrame) -> List[str]:

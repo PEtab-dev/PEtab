@@ -40,7 +40,7 @@ def get_measurement_df(
 
 
 def write_measurement_df(df: pd.DataFrame, filename: str,
-                         validate: bool = True) -> None:
+                         validate: bool = False) -> None:
     """Write PEtab measurement table
 
     Arguments:
