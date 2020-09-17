@@ -832,7 +832,7 @@ def is_valid_identifier(x: str) -> bool:
     Returns:
         ``True`` if valid, ``False`` otherwise
     """
-    if pd.isnull(x):
+    if pd.isna(x):
         return False
 
     return re.match(r'^[a-zA-Z_]\w*$', x) is not None
@@ -858,6 +858,6 @@ def check_ids(ids: Iterable[str], kind: str = '') -> None:
         offset = 2
         error_output = '\n'.join([
             f'Line {index+offset}: ' +
-            ('Missing ID' if pd.isnull(_id) else _id)
+            ('Missing ID' if pd.isna(_id) else _id)
             for index, _id in invalids])
         raise ValueError(f"Invalid {kind} ID(s):\n{error_output}")
