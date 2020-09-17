@@ -832,8 +832,7 @@ def is_valid_identifier(x: str) -> bool:
     Returns:
         ``True`` if valid, ``False`` otherwise
     """
-    # Missing IDs are float('nan')
-    if isinstance(x, float) and np.isnan(x):
+    if pd.isnull(x):
         return False
 
     return re.match(r'^[a-zA-Z_]\w*$', x) is not None
@@ -857,10 +856,8 @@ def check_ids(ids: Iterable[str], kind: str = '') -> None:
         # The first row is the header row, and Python lists are zero-indexed,
         # hence need to add 2 for the correct line number.
         offset = 2
-        # Missing IDs are float('nan')
         error_output = '\n'.join([
             f'Line {index+offset}: ' +
-            ('Missing ID' if isinstance(_id, float) and np.isnan(_id)
-                         else _id)
+            ('Missing ID' if pd.isnull(_id) else _id)
             for index, _id in invalids])
         raise ValueError(f"Invalid {kind} ID(s):\n{error_output}")
