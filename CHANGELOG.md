@@ -10,13 +10,13 @@ Library:
 * Allow model time in observable formulas (#445)
 * Make float parsing from CSV round-trip (#444)
 * Validator: Error message for missing IDs, with line numbers. (#467)
-* Validator: detect duplicated observable IDs (#446)
+* Validator: Detect duplicated observable IDs (#446)
 * Some documentation and CI fixes / updates
 * Visualization: Add option to save visualization specification (#457)
-* Visualization: column XValue not mandatory anymore (#429)
-* Visualization: add sorting of indices of dataframes for the correct sorting
+* Visualization: Column XValue not mandatory anymore (#429)
+* Visualization: Add sorting of indices of dataframes for the correct sorting
   of x-values (#430)
-* Visualization: default value for the column x_label in vis_spec (#431)
+* Visualization: Default value for the column x_label in vis_spec (#431)
 
 
 ### 0.1.8
