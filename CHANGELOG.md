@@ -2,6 +2,10 @@
 
 ## 0.1 series
 
+### 0.1.10
+
+*Fixed deployment setup, no further changes.*
+
 ### 0.1.9
 
 Library:
