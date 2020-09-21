@@ -260,3 +260,80 @@ def plot_measurements_by_observable(
                                   plotted_noise=plotted_noise)
 
     return ax
+
+
+def save_vis_spec(
+        exp_data: Union[str, pd.DataFrame],
+        exp_conditions: Union[str, pd.DataFrame],
+        vis_spec: Optional[Union[str, pd.DataFrame]] = None,
+        dataset_id_list: Optional[List[IdsList]] = None,
+        sim_cond_id_list: Optional[List[IdsList]] = None,
+        sim_cond_num_list: Optional[List[NumList]] = None,
+        observable_id_list: Optional[List[IdsList]] = None,
+        observable_num_list: Optional[List[NumList]] = None,
+        plotted_noise: Optional[str] = MEAN_AND_SD,
+        output_file_path: str = 'visuSpec.tsv'
+):
+    """
+    Generate and save visualization specification to a file.
+    If vis_spec is provided, the missing columns will be added.
+
+    Parameters
+    ----------
+    exp_data:
+        Measurement DataFrame in the PEtab format or path to the data file.
+    exp_conditions:
+        Condition DataFrame in the PEtab format or path to the condition file.
+    vis_spec:
+        Visualization specification DataFrame in the PEtab format or path to
+        visualization file.
+    dataset_id_list:
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the datasetIds for this plot.
+        Only to be used if no visualization file was available.
+    sim_cond_id_list:
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the simulationConditionIds for this plot.
+        Only to be used if no visualization file was available.
+    sim_cond_num_list:
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the numbers corresponding to the simulationConditionIds for
+        this plot.
+        Only to be used if no visualization file was available.
+    observable_id_list:
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the observableIds for this plot.
+        Only to be used if no visualization file was available.
+    observable_num_list:
+        A list of lists. Each sublist corresponds to a plot, each subplot
+        contains the numbers corresponding to the observableIds for
+        this plot.
+        Only to be used if no visualization file was available.
+    plotted_noise:
+        String indicating how noise should be visualized:
+        ['MeanAndSD' (default), 'MeanAndSEM', 'replicate', 'provided']
+    output_file_path:
+        File path to which  the generated visualization specification is saved.
+    """
+    # import from file in case experimental data is provided in file
+    if isinstance(exp_data, str):
+        exp_data = measurements.get_measurement_df(exp_data)
+
+    if isinstance(exp_conditions, str):
+        exp_conditions = conditions.get_condition_df(exp_conditions)
+
+    # import visualization specification, if file was specified
+    if isinstance(vis_spec, str):
+        vis_spec = core.get_visualization_df(vis_spec)
+
+    _, vis_spec = create_or_update_vis_spec(exp_data,
+                                            exp_conditions,
+                                            vis_spec,
+                                            dataset_id_list,
+                                            sim_cond_id_list,
+                                            sim_cond_num_list,
+                                            observable_id_list,
+                                            observable_num_list,
+                                            plotted_noise)
+
+    vis_spec.to_csv(output_file_path, sep='\t', index=False)

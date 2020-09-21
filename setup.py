@@ -30,7 +30,9 @@ if sys.version_info < (3, 6):
     sys.exit('PEtab requires at least Python version 3.6')
 
 # read version from file
+__version__ = ''
 version_file = os.path.join('petab', 'version.py')
+# sets __version__
 exec(read(version_file))  # pylint: disable=W0122 # nosec
 
 ENTRY_POINTS = {
@@ -42,7 +44,7 @@ ENTRY_POINTS = {
 # project metadata
 # noinspection PyUnresolvedReferences
 setup(name='petab',
-      version=__version__,  # noqa: F821
+      version=__version__,
       description='Parameter estimation tabular data',
       long_description=absolute_links(read('README.md')),
       long_description_content_type="text/markdown",

@@ -1,9 +1,11 @@
 import warnings
+from os import path
 from tempfile import TemporaryDirectory
 import pytest
 from petab.C import *
 from petab.visualize import (plot_data_and_simulation,
-                             plot_measurements_by_observable)
+                             plot_measurements_by_observable,
+                             save_vis_spec)
 import matplotlib.pyplot as plt
 
 
@@ -357,3 +359,23 @@ def test_save_plots_to_file(data_file_Isensee, condition_file_Isensee,
             vis_spec_file_Isensee,
             simulation_file_Isensee,
             subplot_file_path=temp_dir)
+
+
+def test_save_visu_file(data_file_Isensee,
+                        condition_file_Isensee):
+
+    with TemporaryDirectory() as temp_dir:
+        save_vis_spec(data_file_Isensee,
+                      condition_file_Isensee,
+                      output_file_path=path.join(temp_dir, "visuSpec.tsv"))
+
+        datasets = [['JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_ctrl',
+                     'JI09_150302_Drg345_343_CycNuc__4_ABnOH_and_Fsk'],
+                    ['JI09_160201_Drg453-452_CycNuc__ctrl',
+                     'JI09_160201_Drg453-452_CycNuc__Fsk',
+                     'JI09_160201_Drg453-452_CycNuc__Sp8_Br_cAMPS_AM']]
+
+        save_vis_spec(data_file_Isensee,
+                      condition_file_Isensee,
+                      dataset_id_list=datasets,
+                      output_file_path=path.join(temp_dir, "visuSpec1.tsv"))

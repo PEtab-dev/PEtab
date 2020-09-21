@@ -832,6 +832,8 @@ def is_valid_identifier(x: str) -> bool:
     Returns:
         ``True`` if valid, ``False`` otherwise
     """
+    if pd.isna(x):
+        return False
 
     return re.match(r'^[a-zA-Z_]\w*$', x) is not None
 
@@ -846,10 +848,16 @@ def check_ids(ids: Iterable[str], kind: str = '') -> None:
     Raises:
         ValueError - in case of invalid IDs
     """
-    invalids = []
-    for _id in ids:
-        if not is_valid_identifier(_id):
-            invalids.append(_id)
+    invalids = [(index, _id)
+                for index, _id in enumerate(ids)
+                if not is_valid_identifier(_id)]
 
     if invalids:
-        raise ValueError(f"Invalid {kind} ID(s): {invalids}")
+        # The first row is the header row, and Python lists are zero-indexed,
+        # hence need to add 2 for the correct line number.
+        offset = 2
+        error_output = '\n'.join([
+            f'Line {index+offset}: ' +
+            ('Missing ID' if pd.isna(_id) else _id)
+            for index, _id in invalids])
+        raise ValueError(f"Invalid {kind} ID(s):\n{error_output}")

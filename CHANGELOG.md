@@ -2,6 +2,22 @@
 
 ## 0.1 series
 
+### 0.1.9
+
+Library:
+
+* Allow URL as filenames for YAML files and SBML models (Closes #187) (#459)
+* Allow model time in observable formulas (#445)
+* Make float parsing from CSV round-trip (#444)
+* Validator: Error message for missing IDs, with line numbers. (#467)
+* Validator: Detect duplicated observable IDs (#446)
+* Some documentation and CI fixes / updates
+* Visualization: Add option to save visualization specification (#457)
+* Visualization: Column XValue not mandatory anymore (#429)
+* Visualization: Add sorting of indices of dataframes for the correct sorting
+  of x-values (#430)
+* Visualization: Default value for the column x_label in vis_spec (#431)
+
 
 ### 0.1.8
 
