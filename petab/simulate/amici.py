@@ -2,7 +2,7 @@ try:
     import amici
 except ImportError:
     raise ImportError(
-        "Requested simulation with AMICI, but AMICI was not found."
+        "Requested simulation with AMICI, but AMICI was not found. "
         "Install with `pip install amici`. https://github.com/AMICI-dev/AMICI"
     )
 
@@ -16,7 +16,7 @@ class AmiciSimulator(Simulator):
     amici_model:
         Instance of an `amici.amici.ModelPtr` object (TODO confirm).
     """
-    def simulate(self):
+    def _simulate_without_noise(self):
         """
         See Simulator.simulate() docstring.
         """
@@ -36,16 +36,13 @@ class AmiciSimulator(Simulator):
         )
 
         # TODO use `rdatas_to_simulation_df` instead?
-        self.simulation_df = amici.petab_objective.rdatas_to_measurement_df(
+        simulation_df = amici.petab_objective.rdatas_to_measurement_df(
             result['rdatas'],
             self.amici_model,
             self.petab_problem.measurement_df,
         )
 
-        noise = self.simulation_noise()
-        self.simulation_df['measurement'] = noise
-
-        return self.simulation_df
+        return simulation_df
 
     def set_model(self, amici_model: amici.amici.ModelPtr):
         self.amici_model = amici_model

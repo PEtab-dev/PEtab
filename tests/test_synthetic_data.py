@@ -18,5 +18,5 @@ def test_synthetic_data_AMICI():
     petab_yaml_filepath = '../../../petab/conversion_reaction.yaml'
     petab_problem = petab.Problem.from_yaml(petab_yaml_filepath)
     simulator = petab.simulate.AmiciSimulator(petab_problem)
-    measurement_df = simulator.simulate()
+    simulation_df = simulator.simulate(noise=True)
     simulator.clean_working_dir()

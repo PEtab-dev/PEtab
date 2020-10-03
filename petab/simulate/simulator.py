@@ -47,28 +47,39 @@ class Simulator(abc.ABC):
         shutil.rmtree(self.working_dir)
 
     @abc.abstractmethod
-    def simulate(self):
+    def _simulate_without_noise(self):
+        """
+        Returns simulated data as a PEtab measurement dataframe, equivalent to
+        `self.petab_problem.measurement_df`, but with the petab.C.MEASUREMENT
+        column replaced with simulated values.
+        """
+
+    def simulate(self, noise=False):
         """
         Returns simulated data as a list of PEtab measurement dataframes.
         """
+        simulation_df = self._simulate_without_noise()
+        if noise:
+            simulation_df = self._add_noise(simulation_df)
+        return simulation_df
 
-    def simulation_noise(self):
+    def _add_noise(self, simulation_df):
         """
         Returns a noise value for each simulated value.
-        Requires `self.simulation_df` (set with e.g. `self.simulate()`).
         """
-        noises = []
-        for (_, measurement_row), simulation in zip(
+        simulation_df_with_noise = simulation_df.copy()
+        for (_, measurement_row), (index, simulation_row) in zip(
                 self.petab_problem.measurement_df.iterrows(),
-                self.simulation_df[petab.C.MEASUREMENT]):
-            noises.append(sample_noise(
-                self.petab_problem,
-                measurement_row,
-                simulation,
-                self.noise_formulas,
-                self.rng,
-            ))
-        return noises
+                simulation_df.iterrows()):
+            simulation_df_with_noise.loc[index, petab.C.MEASUREMENT] = \
+                sample_noise(
+                    self.petab_problem,
+                    measurement_row,
+                    simulation_row[petab.C.MEASUREMENT],
+                    self.noise_formulas,
+                    self.rng,
+                )
+        return simulation_df_with_noise
 
 def sample_noise(
         petab_problem: petab.Problem,
