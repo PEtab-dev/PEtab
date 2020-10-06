@@ -18,6 +18,7 @@
    :caption: About
 
    Changelog <CHANGELOG.md>
+   how_to_cite
    license
    logo/LICENSE.md
 
