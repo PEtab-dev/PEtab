@@ -144,7 +144,7 @@ def sample_noise(
     )
 
     # TODO check in a nicer way?
-    # TODO unnecessary to check this? would be checked elsewhere with e.g. 
+    # TODO unnecessary to check this? would be checked elsewhere with e.g.
     #      petablint?
     if noise_distribution not in petab.C.NOISE_MODELS:
         raise KeyError('Untested noise distribution.')
