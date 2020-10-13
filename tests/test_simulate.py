@@ -1,8 +1,8 @@
 """Tests for petab/simulate.py."""
 import functools
 import numpy as np
-import os
 import pandas as pd
+import pathlib
 import pytest
 import scipy.stats
 from typing import Callable
@@ -24,20 +24,21 @@ class TestSimulator(petab.simulate.Simulator):
 @pytest.fixture
 def petab_problem() -> petab.Problem:
     """Create a PEtab problem for use in tests."""
-    petab_yaml_path = 'doc/example/example_Fujita/Fujita.yaml'
-    return petab.Problem.from_yaml(petab_yaml_path)
+    petab_yaml_path = pathlib.Path(__file__).parent.absolute() / \
+        '../doc/example/example_Fujita/Fujita.yaml'
+    return petab.Problem.from_yaml(str(petab_yaml_path))
 
 
 def test_remove_working_dir(petab_problem):
     """Test creation and removal of a non-empty temporary working directory."""
     simulator = TestSimulator(petab_problem)
     # The working directory exists
-    assert os.path.isdir(simulator.working_dir)
+    assert pathlib.Path(simulator.working_dir).is_dir()
     synthetic_data_df = simulator.simulate()
     synthetic_data_df.to_csv(f'{simulator.working_dir}/test.csv', sep='\t')
     simulator.remove_working_dir()
     # The (non-empty) working directory is removed
-    assert not os.path.isdir(simulator.working_dir)
+    assert not pathlib.Path(simulator.working_dir).is_dir()
 
     # Test creation and removal of a specified working directory
     working_dir = 'tests/test_simulate_working_dir'
@@ -45,15 +46,15 @@ def test_remove_working_dir(petab_problem):
     # The working directory is as specified
     assert working_dir == str(simulator.working_dir)
     # The working directory exists
-    assert os.path.isdir(simulator.working_dir)
+    assert pathlib.Path(simulator.working_dir).is_dir()
     # A user-specified working directory should not be removed unless
     # `force=True`.
     simulator.remove_working_dir()
     # The user-specified working directory is not removed without `force=True`
-    assert os.path.isdir(simulator.working_dir)
+    assert pathlib.Path(simulator.working_dir).is_dir()
     simulator.remove_working_dir(force=True)
     # The user-specified working directory is removed with `force=True`
-    assert not os.path.isdir(simulator.working_dir)
+    assert not pathlib.Path(simulator.working_dir).is_dir()
 
     # Test creation and removal of a specified non-empty working directory
     simulator = TestSimulator(petab_problem, working_dir=working_dir)
@@ -61,7 +62,7 @@ def test_remove_working_dir(petab_problem):
     synthetic_data_df.to_csv(f'{simulator.working_dir}/test.csv', sep='\t')
     simulator.remove_working_dir(force=True)
     # The non-empty, user-specified directory is removed with `force=True`
-    assert not os.path.isdir(simulator.working_dir)
+    assert not pathlib.Path(simulator.working_dir).is_dir()
 
 
 def test_add_noise(petab_problem):
@@ -82,6 +83,7 @@ def test_add_noise(petab_problem):
 
 
 def _test_add_noise(petab_problem) -> None:
+    """Test the noise generating method."""
     n_samples = 100
     noise_scaling_factor = 0.5
     ks_1samp_pvalue_threshold = 0.05
@@ -125,8 +127,8 @@ def _test_add_noise(petab_problem) -> None:
 
     def row2cdf(row, index) -> Callable:
         """
-        Helper function to get and customize the appropriate cumulative
-        distribution function from `scipy.stats`.
+        Get and customize the appropriate cumulative distribution function from
+        `scipy.stats`.
 
         Arguments:
             row:
@@ -164,4 +166,4 @@ def _test_add_noise(petab_problem) -> None:
         observed_fraction_above_threshold > minimum_fraction_above_threshold)
 
     simulator.remove_working_dir()
-    assert not os.path.isdir(simulator.working_dir)
+    assert not pathlib.Path(simulator.working_dir).is_dir()

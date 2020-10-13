@@ -14,14 +14,30 @@ class Simulator(abc.ABC):
     Base class that specific simulators should inherit.
     Specific simulators should minimally implement the
     `simulate_without_noise` method.
-    TODO link to amici.petab_simulate.PEtabSimulation as example
+    Example (AMICI): https://bit.ly/33SUSG4
+
+    Attributes:
+        noise_formulas:
+            The formulae that will be used to calculate the scale of noise
+            distributions.
+        petab_problem:
+            A PEtab problem, which will be simulated.
+        rng:
+            A NumPy random generator, used to sample from noise distributions.
+        temporary_working_dir:
+            Whether `working_dir` is a temporary directory, which can be
+            deleted without significant consequence.
+        working_dir:
+            All simulator-specific output files will be saved here. This
+            directory and its contents may be modified and deleted, and
+            should be considered ephemeral.
     """
     def __init__(self,
                  petab_problem: petab.Problem,
                  working_dir: Optional[Union[pathlib.Path, str]] = None):
         """
-        Initializes the simulator with sufficient information to perform
-        a simulation. If no working directory is specified, a temporary one is
+        Initialize the simulator with sufficient information to perform a
+        simulation. If no working directory is specified, a temporary one is
         created.
 
         Arguments:
@@ -44,13 +60,13 @@ class Simulator(abc.ABC):
         self.working_dir.mkdir(parents=True, exist_ok=True)
 
         self.noise_formulas = petab.calculate.get_symbolic_noise_formulas(
-                self.petab_problem.observable_df)
+            self.petab_problem.observable_df)
         self.rng = np.random.default_rng()
 
     def remove_working_dir(self, force: bool = False, **kwargs) -> None:
         """
-        Removes simulator-specific output files and their parent folder (see
-        the `__init__` method arguments).
+        Remove the simulator working directory and all files within (see the
+        `__init__` method arguments).
 
         Arguments:
             force:
@@ -70,6 +86,10 @@ class Simulator(abc.ABC):
     @abc.abstractmethod
     def simulate_without_noise(self) -> pd.DataFrame:
         """
+        Simulate a PEtab problem. This is an abstract method that should be
+        implemented in a simulation package. Links to examples of this are in
+        the class docstring.
+
         Returns:
             Simulated data, as a PEtab measurements table, which should be
             equivalent to replacing all values in the `petab.C.MEASUREMENT`
@@ -83,8 +103,7 @@ class Simulator(abc.ABC):
             noise_scaling_factor: float = 1,
             **kwargs
     ) -> pd.DataFrame:
-        """
-        Returns simulated data as a list of PEtab measurement dataframes.
+        """Simulate a PEtab problem, optionally with noise.
 
         Arguments:
             noise: If True, noise is added to simulated data.
@@ -104,8 +123,7 @@ class Simulator(abc.ABC):
             simulation_df: pd.DataFrame,
             noise_scaling_factor: float = 1,
     ) -> pd.DataFrame:
-        """
-        Returns a noise value for each simulated value.
+        """Add noise to simulated data.
 
         Arguments:
             simulation_df:
@@ -139,8 +157,7 @@ def sample_noise(
         rng: Optional[np.random.Generator] = None,
         noise_scaling_factor: float = 1,
 ) -> float:
-    """
-    Returns a sample from a PEtab noise distribution.
+    """Generate a sample from a PEtab noise distribution.
 
     Arguments:
         petab_problem:
@@ -159,6 +176,9 @@ def sample_noise(
             A NumPy random generator.
         noise_scaling_factor:
             A multiplier of the scale of the noise distribution.
+
+    Returns:
+        The sample from the PEtab noise distribution.
     """
     if noise_formulas is None:
         noise_formulas = petab.calculate.get_symbolic_noise_formulas(
