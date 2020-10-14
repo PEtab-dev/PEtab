@@ -2,6 +2,11 @@
 
 ## 0.1 series
 
+### 0.1.11
+
+* Function for generating synthetic data (#472)
+* Minor documentation updates (#470)
+
 ### 0.1.10
 
 *Fixed deployment setup, no further changes.*
