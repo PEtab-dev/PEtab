@@ -202,7 +202,7 @@ def sample_noise(
     )
     # an empty noise distribution column in an observables table can result in
     # `noise_distribution == float('nan')`
-    if np.isnan(noise_distribution):
+    if pd.isna(noise_distribution):
         noise_distribution = petab.C.NORMAL
 
     # below is e.g.: `np.random.normal(loc=simulation, scale=noise_value)`
