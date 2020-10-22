@@ -200,6 +200,10 @@ def sample_noise(
         .loc[measurement_row[petab.C.OBSERVABLE_ID]]
         .get(petab.C.NOISE_DISTRIBUTION, petab.C.NORMAL)
     )
+    # an empty noise distribution column in an observables table can result in
+    # `noise_distribution == float('nan')`
+    if np.isnan(noise_distribution):
+        noise_distribution = petab.C.NORMAL
 
     # below is e.g.: `np.random.normal(loc=simulation, scale=noise_value)`
     return getattr(rng, noise_distribution)(
