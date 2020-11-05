@@ -65,6 +65,28 @@ def test_remove_working_dir(petab_problem):
     assert not pathlib.Path(simulator.working_dir).is_dir()
 
 
+def test_non_negative(petab_problem):
+    """Test non-negative flag of :py:func:`sample_noise`."""
+    negative = -float('inf')
+
+    simulator = TestSimulator(petab_problem)
+    synthetic_data_df = simulator.simulate()
+    synthetic_data_df['measurement'] = negative
+
+    synthetic_data_df_with_noise = simulator.add_noise(
+        synthetic_data_df,
+    )
+    # Negative values are zeroed by default
+    assert (synthetic_data_df_with_noise['measurement'] == 0).all()
+
+    synthetic_data_df_with_noise = simulator.add_noise(
+        synthetic_data_df,
+        non_negative=False,
+    )
+    # Negative values are returned if requested
+    assert (synthetic_data_df_with_noise['measurement'] == negative).all()
+
+
 def test_add_noise(petab_problem):
     """Test the noise generating method."""
 

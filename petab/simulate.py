@@ -122,6 +122,7 @@ class Simulator(abc.ABC):
             self,
             simulation_df: pd.DataFrame,
             noise_scaling_factor: float = 1,
+            **kwargs
     ) -> pd.DataFrame:
         """Add noise to simulated data.
 
@@ -143,6 +144,7 @@ class Simulator(abc.ABC):
                 self.noise_formulas,
                 self.rng,
                 noise_scaling_factor,
+                **kwargs,
             )
             for _, row in simulation_df_with_noise.iterrows()
         ]
@@ -156,6 +158,7 @@ def sample_noise(
         noise_formulas: Optional[Dict[str, sp.Expr]] = None,
         rng: Optional[np.random.Generator] = None,
         noise_scaling_factor: float = 1,
+        non_negative: bool = True,
 ) -> float:
     """Generate a sample from a PEtab noise distribution.
 
@@ -176,6 +179,8 @@ def sample_noise(
             A NumPy random generator.
         noise_scaling_factor:
             A multiplier of the scale of the noise distribution.
+        non_negative:
+            Return zero instead of negative values.
 
     Returns:
         The sample from the PEtab noise distribution.
@@ -206,7 +211,11 @@ def sample_noise(
         noise_distribution = petab.C.NORMAL
 
     # below is e.g.: `np.random.normal(loc=simulation, scale=noise_value)`
-    return getattr(rng, noise_distribution)(
+    simulated_value_with_noise = getattr(rng, noise_distribution)(
         loc=simulated_value,
         scale=noise_value * noise_scaling_factor
     )
+
+    if non_negative and simulated_value_with_noise < 0:
+        return 0
+    return simulated_value_with_noise
