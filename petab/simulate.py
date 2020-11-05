@@ -158,7 +158,7 @@ def sample_noise(
         noise_formulas: Optional[Dict[str, sp.Expr]] = None,
         rng: Optional[np.random.Generator] = None,
         noise_scaling_factor: float = 1,
-        non_negative: bool = True,
+        non_negative: bool = False,
 ) -> float:
     """Generate a sample from a PEtab noise distribution.
 

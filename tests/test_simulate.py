@@ -76,15 +76,15 @@ def test_non_negative(petab_problem):
     synthetic_data_df_with_noise = simulator.add_noise(
         synthetic_data_df,
     )
-    # Negative values are zeroed by default
-    assert (synthetic_data_df_with_noise['measurement'] == 0).all()
+    # Negative values are returned by default
+    assert (synthetic_data_df_with_noise['measurement'] == negative).all()
 
     synthetic_data_df_with_noise = simulator.add_noise(
         synthetic_data_df,
-        non_negative=False,
+        non_negative=True,
     )
-    # Negative values are returned if requested
-    assert (synthetic_data_df_with_noise['measurement'] == negative).all()
+    # Negative values are zeroed if requested
+    assert (synthetic_data_df_with_noise['measurement'] == 0).all()
 
 
 def test_add_noise(petab_problem):
