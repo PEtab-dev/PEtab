@@ -65,26 +65,56 @@ def test_remove_working_dir(petab_problem):
     assert not pathlib.Path(simulator.working_dir).is_dir()
 
 
-def test_non_negative(petab_problem):
-    """Test non-negative flag of :py:func:`sample_noise`."""
-    negative = -float('inf')
+def test_zero_bounded(petab_problem):
+    """Test `zero_bounded` argument of `sample_noise`."""
+    positive = np.spacing(1)
+    negative = -positive
 
     simulator = TestSimulator(petab_problem)
-    synthetic_data_df = simulator.simulate()
-    synthetic_data_df['measurement'] = negative
+
+    # Set approximately half of the measurements to negative values, and the
+    # rest to positive values.
+    n_measurements = len(petab_problem.measurement_df)
+    neg_indices = range(round(n_measurements / 2))
+    pos_indices = range(len(neg_indices), n_measurements)
+    measurements = [
+        negative if index in neg_indices else
+        (positive if index in pos_indices else np.nan)
+        for index in range(n_measurements)
+    ]
+    synthetic_data_df = simulator.simulate().assign(**{
+        petab.C.MEASUREMENT: measurements
+    })
+    # All measurements are non-zero
+    assert (synthetic_data_df['measurement'] != 0).all()
+    # No measurements are NaN
+    assert not (np.isnan(synthetic_data_df['measurement'])).any()
 
     synthetic_data_df_with_noise = simulator.add_noise(
         synthetic_data_df,
     )
-    # Negative values are returned by default
-    assert (synthetic_data_df_with_noise['measurement'] == negative).all()
+    # Both negative and positive values are returned by default.
+    # This test will occasionally fail.
+    assert all([
+        (synthetic_data_df_with_noise['measurement'] <= 0).any(),
+        (synthetic_data_df_with_noise['measurement'] >= 0).any(),
+    ])
 
     synthetic_data_df_with_noise = simulator.add_noise(
         synthetic_data_df,
-        non_negative=True,
+        zero_bounded=True,
     )
-    # Negative values are zeroed if requested
-    assert (synthetic_data_df_with_noise['measurement'] == 0).all()
+    # Values with noise that are different in sign to values without noise
+    # are zeroed.
+    # This test will occasionally fail.
+    assert all([
+        (synthetic_data_df_with_noise['measurement'][neg_indices] <= 0).all(),
+        (synthetic_data_df_with_noise['measurement'][pos_indices] >= 0).all(),
+        (synthetic_data_df_with_noise['measurement'][neg_indices] == 0).any(),
+        (synthetic_data_df_with_noise['measurement'][pos_indices] == 0).any(),
+        (synthetic_data_df_with_noise['measurement'][neg_indices] < 0).any(),
+        (synthetic_data_df_with_noise['measurement'][pos_indices] > 0).any(),
+    ])
 
 
 def test_add_noise(petab_problem):

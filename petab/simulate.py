@@ -158,7 +158,7 @@ def sample_noise(
         noise_formulas: Optional[Dict[str, sp.Expr]] = None,
         rng: Optional[np.random.Generator] = None,
         noise_scaling_factor: float = 1,
-        non_negative: bool = False,
+        zero_bounded: bool = False,
 ) -> float:
     """Generate a sample from a PEtab noise distribution.
 
@@ -179,8 +179,10 @@ def sample_noise(
             A NumPy random generator.
         noise_scaling_factor:
             A multiplier of the scale of the noise distribution.
-        non_negative:
-            Return zero instead of negative values.
+        zero_bounded:
+            Return zero if the sign of the return value and `simulated_value`
+            differ. Can be used to ensure non-negative and non-positive values,
+            if the sign of `simulated_value` should not change.
 
     Returns:
         The sample from the PEtab noise distribution.
@@ -216,6 +218,9 @@ def sample_noise(
         scale=noise_value * noise_scaling_factor
     )
 
-    if non_negative and simulated_value_with_noise < 0:
+    if (
+            zero_bounded and
+            np.sign(simulated_value) != np.sign(simulated_value_with_noise)
+    ):
         return 0
     return simulated_value_with_noise
