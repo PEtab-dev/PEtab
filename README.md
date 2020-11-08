@@ -68,6 +68,9 @@ Where PEtab is supported (in alphabetical order):
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
     ([Example](https://pypesto.readthedocs.io/en/latest/example/petab_import.html))
 
+  - [SBML2Julia](https://github.com/paulflang/SBML2Julia)
+    ([Tutorial](https://sbml2julia.readthedocs.io/en/latest/python_api.html))
+
 If your project or tool is using PEtab, and you would like to have it listed
 here, please [let us know](https://github.com/PEtab-dev/PEtab/issues).
 
