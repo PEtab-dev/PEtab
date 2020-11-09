@@ -55,7 +55,7 @@ def assert_no_leading_trailing_whitespace(
 
 
 def check_condition_df(
-        df: pd.DataFrame, sbml_model: Optional[libsbml.Model]) -> None:
+        df: pd.DataFrame, sbml_model: Optional[libsbml.Model] = None) -> None:
     """Run sanity checks on PEtab condition table
 
     Arguments:
