@@ -162,6 +162,8 @@ def main():
             sys.exit(1)
 
     ret = petab.lint.lint_problem(problem)
+    if not ret:
+        print('PEtab format check completed successfully')
     sys.exit(ret)
 
 
