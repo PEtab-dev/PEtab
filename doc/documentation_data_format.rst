@@ -58,8 +58,6 @@ problem as such.
 **General remarks**
 
 - All model entities, column names and row names are case-sensitive
-- All identifiers must consist only of upper and lower case letters, digits and
-  underscores, and must not start with a digit.
 - Fields in "[]" are optional and may be left empty.
 
 
@@ -104,7 +102,8 @@ Detailed field description
 - ``conditionId`` [STRING, NOT NULL]
 
   Unique identifier for the simulation/experimental condition, to be referenced
-  by the measurement table described below.
+  by the measurement table described below. Must consist only of upper and
+  lower case letters, digits and underscores, and must not start with a digit.
 
 - ``conditionName`` [STRING, OPTIONAL]
 
@@ -297,9 +296,9 @@ Detailed field description
 
 * ``observableId`` [STRING]
 
-  Any identifier which would be a valid identifier in SBML. This is referenced
-  by the ``observableId`` column in the measurement table. Must be different from
-  any existing model entity or parameter introduced elsewhere.
+  Unique identifier for the given observable. Must consist only of upper and
+  lower case letters, digits and underscores, and must not start with a digit.
+  This is referenced by the ``observableId`` column in the measurement table.
 
 * [``observableName``] [STRING, OPTIONAL]
 
