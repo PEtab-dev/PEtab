@@ -32,10 +32,10 @@ machine- and human-readable and -writable format that makes use of existing
 standards.
 
 .. figure:: gfx/petab_scope_and_files.png
-   :alt: A common setup for data-based modeling studies and it is represented in PEtab.
+   :alt: A common setup for data-based modeling studies and its representation in PEtab.
    :scale: 80%
 
-   **Figure 1: A common setup for data-based modeling studies and it is represented in PEtab.**
+   **Figure 1: A common setup for data-based modeling studies and its representation in PEtab.**
 
 Overview
 ---------
