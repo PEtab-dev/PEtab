@@ -15,6 +15,27 @@ systems biology, especially for the case of Ordinary Differential Equation
 (ODE) models.
 
 
+Scope
+-----
+
+The scope of PEtab is the full specification of parameter estimation problems
+in typical systems biology applications. In our experience, a typical setup of
+data-based modeling starts either with (i) the model of a biological system
+that is to be calibrated, or with (ii) experimental data that are to be
+integrated and analyzed using a computational model.
+Measurements are linked to the biological model by an observation and noise
+model. Often, measurements are taken after some perturbations have been
+applied, which are modeled as derivations from a generic model
+(Subfigure A below). Therefore, one goal was to specify such a setup in the
+least redundant way. Furthermore, we wanted to establish an intuitive, modular,
+machine- and human-readable and -writable format that makes use of existing
+standards.
+
+.. image:: gfx/petab_scope_and_files.png
+   :alt: A common setup for data-based modeling studies and it is represented in PEtab.
+   :scale: 80%
+
+
 Overview
 ---------
 
@@ -44,6 +65,9 @@ i.e.
 
 .. image:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
+
+Subfigure B above shows how those files relate to a common setup for
+data-based modeling studies.
 
 The following sections will describe the minimum requirements of those
 components in the core standard, which should provide all information for
