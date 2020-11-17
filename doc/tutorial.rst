@@ -85,6 +85,7 @@ The condition table would look as follows:
 
     =============== ============================ =================
     conditionId     conditionName                Epo_concentration
+    =============== ============================ =================
     epo_stimulation Stimulation with 1.25E-7 Epo 1.25E-7
     =============== ============================ =================
 
@@ -117,6 +118,7 @@ file:
 
     ============ =============================== ================================================================================ =========================== =================
     observableId observableName                  observableFormula                                                                noiseFormula                noiseDistribution
+    ============ =============================== ================================================================================ =========================== =================
     pSTAT5A_rel  Rel. STAT5A phosphorylation [%] 100*(2*pApA + pApB) / (2*pApA + pApB + STAT5A)                                   noiseParameter1_pSTAT5A_rel normal
     pSTAT5B_rel  Rel. STAT5B phosphorylation [%] 100*(2*pBpB + pApB) / (2*pBpB + pApB + STAT5B)                                   noiseParameter1_pSTAT5B_rel normal
     rSTAT5A_rel  Rel. STAT5A abundance [%]       100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB) noiseParameter1_rSTAT5A_rel normal
@@ -158,6 +160,7 @@ PEtab measurement file:
 
     ============ ===================== =========== ==== ===============
     observableId simulationConditionId measurement time noiseParameters
+    ============ ===================== =========== ==== ===============
     pSTAT5A_rel  epo_stimulation       7.9         0    sd_pSTAT5A_rel
     ...          ...                   ...         ...  ...
     pSTAT5A_rel  epo_stimulation       15.4        240  sd_pSTAT5A_rel
@@ -200,6 +203,7 @@ The parameters file for this is given by:
 
     ==================== ============== ========== ========== ============ ========
     parameterId          parameterScale lowerBound upperBound nominalValue estimate
+    ==================== ============== ========== ========== ============ ========
     Epo_degradation_BaF3 log10          1e-5       1e+5                    1
     k_exp_hetero         log10          1e-5       1e+5                    1
     k_exp_homo           log10          1e-5       1e+5                    1
@@ -243,6 +247,7 @@ the measurement data similar to the figure above.
 
     ====== ============ ========== =========== ===============================
     plotId plotTypeData xLabel     yValues     yLabel
+    ====== ============ ========== =========== ===============================
     plot1  MeanAndSD    Time [min] pSTAT5A_rel Rel. STAT5A phosphorylation [%]
     plot2  MeanAndSD    Time [min] pSTAT5B_rel Rel. STAT5B phosphorylation [%]
     plot3  MeanAndSD    Time [min] rSTAT5A_rel Rel. STAT5A abundance [%]
