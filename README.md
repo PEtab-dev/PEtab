@@ -35,6 +35,11 @@ for example:
 Documentation of the PEtab data format and Python library is available at
 [https://petab.readthedocs.io/en/latest/](https://petab.readthedocs.io/en/latest/).
 
+There is also a [tutorial](https://petab.readthedocs.io/en/latest/tutorial.html)
+going through the individual steps for setting up a parameter estimation
+problem in PEtab.
+
+
 ## Examples
 
 A wide range of PEtab examples can be found in the systems biology parameter estimation
