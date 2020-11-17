@@ -294,16 +294,16 @@ format:
     format_version: 1
     parameter_file: parameters.tsv
     problems:
-    - condition_files:
-    - experimental_condition.tsv
-    measurement_files:
-    - measurement_data.tsv
-    observable_files:
-    - observables.tsv
-    sbml_files:
-    - model_Boehm_JProteomeRes2014.xml
-    visualization_files:
-    - visualization_specification.tsv
+      - condition_files:
+        - experimental_conditions.tsv
+        measurement_files:
+        - measurement_data.tsv
+        observable_files:
+        - observables.tsv
+        sbml_files:
+        - model_Boehm_JProteomeRes2014.xml
+        visualization_files:
+        - visualization_specification.tsv
 
 The first line specifies the version this file and the files referenced
 adhere to. The current version number is 1. The second line references
