@@ -28,7 +28,13 @@ illustration purposes we slightly modified the SBML model and shortened
 some parts of the PEtab files. The full PEtab problem introduced in this
 tutorial is available at **TODO**.
 
-|fig_model|
+.. figure:: gfx/tutorial_model.png
+   :width: 4.9846in
+   :height: 5.5634in
+
+   Visualization of the model used as example in this tutorial.
+   The model describes the dynamics of phosphorylation and dimerization of the
+   transcription factors STAT5A and STAT5B.
 
 .. table:: Reactions included in the example model
 
@@ -54,7 +60,11 @@ phosphorylation levels of STAT5A and STAT5B as well as relative STAT5A
 abundance for different timepoints between 0 - 240 minutes after
 stimulation with erythropoietin (Epo):
 
-|fig_data|
+.. figure:: gfx/tutorial_data.png
+   :width: 6.2681in
+   :height: 2.0835in
+
+   Measurements considered for model calibration in our example.
 
 To define a parameter estimation problem in PEtab, we need to map
 measurements to the model states. To this end, we need to 1) specify the
@@ -321,10 +331,3 @@ be found at the PEtab Github page
 .. [#f1]
    TSV files can be created using any standard spreadsheet application,
    or for small files, text editor.
-
-.. |fig_model| image:: gfx/tutorial_model.png
-   :width: 4.9846in
-   :height: 5.5634in
-.. |fig_data| image:: gfx/tutorial_data.png
-   :width: 6.2681in
-   :height: 2.0835in
