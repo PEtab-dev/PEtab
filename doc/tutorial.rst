@@ -36,7 +36,7 @@ tutorial is available at **TODO**.
    The model describes the dynamics of phosphorylation and dimerization of the
    transcription factors STAT5A and STAT5B.
 
-.. table:: Reactions included in the example model
+.. table:: Reactions included in the example model.
 
     == ========================== =============================================
     ID Reaction                   Rate law
@@ -92,7 +92,7 @@ experiments performed with different Epo concentrations later on.
 
 The condition table would look as follows:
 
-.. table:: Conditions table ``experimental_conditions.tsv``
+.. table:: Conditions table ``experimental_conditions.tsv``.
 
     =============== ============================ =================
     conditionId     conditionName                Epo_concentration
@@ -124,7 +124,7 @@ functions. Additionally, a noise model can be introduced to account for
 the measurement errors. In PEtab, this can be encoded in the observable
 file:
 
-.. table:: Observables table ``observables.tsv``
+.. table:: Observables table ``observables.tsv``.
 
     ============ =============================== ================================================================================ =========================== =================
     observableId observableName                  observableFormula                                                                noiseFormula                noiseDistribution
@@ -166,7 +166,7 @@ The experimental data is linked to the conditions via the *conditionId*
 and to the observables via the *observableId*. This is defined in the
 PEtab measurement file:
 
-.. table:: Measurement table ``measurement_data.tsv``
+.. table:: Measurement table ``measurement_data.tsv``.
 
     ============ ===================== =========== ==== ===============
     observableId simulationConditionId measurement time noiseParameters
@@ -209,7 +209,7 @@ two known parameters that are fixed to literature values.
 
 The parameters file for this is given by:
 
-.. table:: Parameter table ``parameters.tsv``
+.. table:: Parameter table ``parameters.tsv``.
 
     ==================== ============== ========== ========== ============ ========
     parameterId          parameterScale lowerBound upperBound nominalValue estimate
@@ -253,7 +253,7 @@ So far, the visualization files are only supported by the PEtab Python
 library. Here, we describe a file that specifies the visualization of
 the measurement data similar to the figure above.
 
-.. table:: Visualization specification table ``visualization_specification.tsv``
+.. table:: Visualization specification table ``visualization_specification.tsv``.
 
     ====== ============ ========== =========== ===============================
     plotId plotTypeData xLabel     yValues     yLabel
@@ -287,7 +287,7 @@ To group the previously mentioned PEtab files, a YAML file can be used,
 defining which files constitute a PEtab problem. While being optional,
 this makes it easier to import a PEtab problem into tools, and allows
 reusing files for different PEtab problems. This file has the following
-format:
+format (``Boehm_JProteomeRes2014.yaml``):
 
 .. code-block:: yaml
 
