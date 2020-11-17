@@ -25,31 +25,31 @@ SBML model provided in the original publication, which is also available
 on Biomodels (https://www.ebi.ac.uk/biomodels/BIOMD0000000591). For
 illustration purposes we slightly modified the SBML model and shortened
 some parts of the PEtab files. The full PEtab problem introduced in this
-tutorial is available at TODO.
+tutorial is available at **TODO**.
+
+|fig_model|
 
 == ========================== ===============================================
 ID Reaction                   Rate law
 == ========================== ===============================================
-R1   2 STAT5A -> pApA         [cyt \* BaF3_Epo \* STAT5A^2 \* k_phos]
-R2   STAT5A + STAT5B -> pApB  [cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos]
-R3 2 STAT5B -> pBpB           [cyt \* BaF3_Epo \* STAT5B^2 \* k_phos]
-R4 pApA -> nucpApA            [cyt \* k_imp_homo \* pApA]
-R5 pApB -> nucpApB            [cyt \* k_imp_hetero \* pApB]
-R6 pBpB -> nucpBpB            [cyt \* k_imp_homo \* pBpB]
-R7 nucpApA -> 2 STAT5A        [nuc \* k_exp_homo \* nucpApA]
-R8 nucpApB -> STAT5A + STAT5B [nuc \* k_exp_hetero \* nucpApB]
-R9 nucpBpB -> 2 STAT5B        [nuc \* k_exp_homo \* nucpBpB]
+R1   2 STAT5A -> pApA         cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
+R2   STAT5A + STAT5B -> pApB  cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
+R3 2 STAT5B -> pBpB           cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
+R4 pApA -> nucpApA            cyt \* k_imp_homo \* pApA
+R5 pApB -> nucpApB            cyt \* k_imp_hetero \* pApB
+R6 pBpB -> nucpBpB            cyt \* k_imp_homo \* pBpB
+R7 nucpApA -> 2 STAT5A        nuc \* k_exp_homo \* nucpApA
+R8 nucpApB -> STAT5A + STAT5B nuc \* k_exp_hetero \* nucpApB
+R9 nucpBpB -> 2 STAT5B        nuc \* k_exp_homo \* nucpBpB
 == ========================== ===============================================
 
 2. Linking model and measurements
 +++++++++++++++++++++++++++++++++
 
-|fig_model|
-
 The model by Boehm et al. (2014) was calibrated on measurements on
 phosphorylation levels of STAT5A and STAT5B as well as relative STAT5A
 abundance for different timepoints between 0 - 240 minutes after
-stimulation with erythropoietin (Epo).
+stimulation with erythropoietin (Epo):
 
 |fig_data|
 
@@ -70,7 +70,7 @@ by providing a condition identifier and listing all condition-specific
 parameters and their respective values.
 
 In the problem considered here, the relevant parameter is
-Epo_concentration which we want to set to a value of 1.25e-7, as the
+``Epo_concentration`` which we want to set to a value of 1.25e-7, as the
 only condition-specific parameter. In our example we include data from
 only one single experiment, so we would not need to specify it here, but
 could set the value in the model or in the parameter table. However,
@@ -79,7 +79,7 @@ experiments performed with different Epo concentrations later on.
 
 The condition table would look as follows:
 
-   experimental_conditions.tsv
+``experimental_conditions.tsv``:
 
 =============== ============================ =================
 conditionId     conditionName                Epo_concentration
@@ -135,7 +135,7 @@ containing any form of STAT5A.
 *noiseFormula* is used to describe the formula for the measurement
 noise. Together with *noiseDistribution*\ it defines the noise model. In
 this example, we assume additive normally distributed measurement noise.
-In this scenario, noiseParameter1_{observableId} is the standard
+In this scenario, ``noiseParameter1_{observableId}`` is the standard
 deviation of the measurement noise. Parameters following this naming
 scheme are expected to be overridden in a measurement-specific manner in
 the *noiseParameters* column of the measurement table (see below).
@@ -271,31 +271,22 @@ this makes it easier to import a PEtab problem into tools, and allows
 reusing files for different PEtab problems. This file has the following
 format:
 
-format_version: 1
 
-parameter_file: parameters.tsv
+.. code-block:: yaml
 
-problems:
-
-- condition_files:
-
-- experimental_condition.tsv
-
-measurement_files:
-
-- measurement_data.tsv
-
-observable_files:
-
-- observables.tsv
-
-sbml_files:
-
-- model_Boehm_JProteomeRes2014.xml
-
-visualization_files:
-
-- visualization_specification.tsv
+    format_version: 1
+    parameter_file: parameters.tsv
+    problems:
+    - condition_files:
+    - experimental_condition.tsv
+    measurement_files:
+    - measurement_data.tsv
+    observable_files:
+    - observables.tsv
+    sbml_files:
+    - model_Boehm_JProteomeRes2014.xml
+    visualization_files:
+    - visualization_specification.tsv
 
 The first line specifies the version this file and the files referenced
 adhere to. The current version number is 1. The second line references
