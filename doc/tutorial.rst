@@ -387,7 +387,7 @@ with a graphical user interface
    :height: 5.5634in
 
    Visualization of model outputs after simulation with random parameters and
-measurements in COPASI.
+   measurements in COPASI.
 
 It is apparent from the figure, that the random parameters yield a poor fit of
 the model with the data. Therefore, it is important to optimize the parameters
