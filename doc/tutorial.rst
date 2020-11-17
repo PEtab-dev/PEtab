@@ -124,15 +124,53 @@ functions. Additionally, a noise model can be introduced to account for
 the measurement errors. In PEtab, this can be encoded in the observable
 file:
 
-.. table:: Observables table ``observables.tsv``.
+.. list-table:: Observables table ``observables.tsv``.
+   :header-rows: 1
 
-    ============ =============================== ================================================================================ =========================== =================
-    observableId observableName                  observableFormula                                                                noiseFormula                noiseDistribution
-    ============ =============================== ================================================================================ =========================== =================
-    pSTAT5A_rel  Rel. STAT5A phosphorylation [%] 100*(2*pApA + pApB) / (2*pApA + pApB + STAT5A)                                   noiseParameter1_pSTAT5A_rel normal
-    pSTAT5B_rel  Rel. STAT5B phosphorylation [%] 100*(2*pBpB + pApB) / (2*pBpB + pApB + STAT5B)                                   noiseParameter1_pSTAT5B_rel normal
-    rSTAT5A_rel  Rel. STAT5A abundance [%]       100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB) noiseParameter1_rSTAT5A_rel normal
-    ============ =============================== ================================================================================ =========================== =================
+   * - observableId
+     - observableName
+     - ...
+   * - pSTAT5A_rel
+     - Rel. STAT5A phosphorylation [%]
+     - ...
+   * - pSTAT5B_rel
+     - Rel. STAT5B phosphorylation [%]
+     - ...
+   * - rSTAT5A_rel
+     - Rel. STAT5A abundance [%]
+     - ...
+
+.. list-table:: Observables table ``observables.tsv`` (continued).
+   :header-rows: 1
+
+   * - ...
+     - observableFormula
+     - ...
+   * - ...
+     - 100*(2*pApA + pApB) / (2*pApA + pApB + STAT5A)
+     - ...
+   * - ...
+     - 100*(2*pBpB + pApB) / (2*pBpB + pApB + STAT5B)
+     - ...
+   * - ...
+     - 100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB)
+     - ...
+
+.. list-table:: Observables table ``observables.tsv`` (continued).
+   :header-rows: 1
+
+   * - ...
+     - noiseFormula
+     - noiseDistribution
+   * - ...
+     - noiseParameter1_pSTAT5A_rel
+     - normal
+   * - ...
+     - noiseParameter1_pSTAT5B_rel
+     - normal
+   * - ...
+     - noiseParameter1_rSTAT5A_rel
+     - normal
 
 * *observableId* specifies a unique identifier to the observables that can
   be used to link them to the measurements (see below).
