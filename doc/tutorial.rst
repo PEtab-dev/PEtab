@@ -314,7 +314,39 @@ those files, e.g. for large numbers of measurements, one could split
 those up into separate files, e.g. by experimental condition or
 observable.
 
-6. Further Information
+6. Model simulation
+++++++++++++++++++++++++++++++++++
+
+To simulate the model and compare it to the experimental data, the nominal parameters in the parameters file need to be filled. As some parameters are a priori unknown, we first consider randomly sampled parameters.
+
+.. table:: Parameter table ``parameters.tsv``.
+
+    ==================== ============== ========== ========== ============ ========
+    parameterId          parameterScale lowerBound upperBound nominalValue estimate
+    ==================== ============== ========== ========== ============ ========
+    Epo_degradation_BaF3 log10          1e-5       1e+5       0.105        1
+    k_exp_hetero         log10          1e-5       1e+5       1.85         1
+    k_exp_homo           log10          1e-5       1e+5       9.83         1
+    k_imp_hetero         log10          1e-5       1e+5       1048.96      1
+    k_imp_homo           log10          1e-5       1e+5       10.136       1
+    k_phos               log10          1e-5       1e+5       10.136       1
+    ratio                lin                                  0.693        0
+    sd_pSTAT5A_rel       log10          1e-5       1e+5       51.7         1
+    sd_pSTAT5B_rel       log10          1e-5       1e+5       0.257        1
+    sd_rSTAT5A_rel       log10          1e-5       1e+5       0.017        1
+    ==================== ============== ========== ========== ============ ========
+
+With this, the model can be simulated using the different tools that support PEtab. As an example, we use COPASI here (see https://github.com/copasi/python-petab-importer for further instructions).
+
+.. figure:: gfx/copasi_simulation.png
+   :width: 4.9846in
+   :height: 5.5634in
+
+   Simulation with random parameters using COPASI.
+
+It is apparent from the figure, that the random parameters yield a poor fit of the model with the data. Therefore, it is important to optimize the parameters to improve the model fit. This can be done using the various parameter estimation tools. Links to detailed descriptions how to use the individual toolboxes are provided at the PEtab Github page (https://github.com/PEtab-dev/PEtab#petab-support-in-systems-biology-tools).
+
+7. Further Information
 ++++++++++++++++++++++
 
 This tutorial only demonstrates a subset of PEtab functionality. For
