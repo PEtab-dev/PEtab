@@ -29,19 +29,21 @@ tutorial is available at **TODO**.
 
 |fig_model|
 
-== ========================== ===============================================
-ID Reaction                   Rate law
-== ========================== ===============================================
-R1   2 STAT5A -> pApA         cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
-R2   STAT5A + STAT5B -> pApB  cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
-R3 2 STAT5B -> pBpB           cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
-R4 pApA -> nucpApA            cyt \* k_imp_homo \* pApA
-R5 pApB -> nucpApB            cyt \* k_imp_hetero \* pApB
-R6 pBpB -> nucpBpB            cyt \* k_imp_homo \* pBpB
-R7 nucpApA -> 2 STAT5A        nuc \* k_exp_homo \* nucpApA
-R8 nucpApB -> STAT5A + STAT5B nuc \* k_exp_hetero \* nucpApB
-R9 nucpBpB -> 2 STAT5B        nuc \* k_exp_homo \* nucpBpB
-== ========================== ===============================================
+.. table:: Reactions included in the example model
+
+    == ========================== ===============================================
+    ID Reaction                   Rate law
+    == ========================== ===============================================
+    R1 2 STAT5A -> pApA           cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
+    R2 STAT5A + STAT5B -> pApB    cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
+    R3 2 STAT5B -> pBpB           cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
+    R4 pApA -> nucpApA            cyt \* k_imp_homo \* pApA
+    R5 pApB -> nucpApB            cyt \* k_imp_hetero \* pApB
+    R6 pBpB -> nucpBpB            cyt \* k_imp_homo \* pBpB
+    R7 nucpApA -> 2 STAT5A        nuc \* k_exp_homo \* nucpApA
+    R8 nucpApB -> STAT5A + STAT5B nuc \* k_exp_hetero \* nucpApB
+    R9 nucpBpB -> 2 STAT5B        nuc \* k_exp_homo \* nucpBpB
+    == ========================== ===============================================
 
 2. Linking model and measurements
 +++++++++++++++++++++++++++++++++
@@ -79,12 +81,12 @@ experiments performed with different Epo concentrations later on.
 
 The condition table would look as follows:
 
-``experimental_conditions.tsv``:
+.. table:: Conditions table ``experimental_conditions.tsv``
 
-=============== ============================ =================
-conditionId     conditionName                Epo_concentration
-epo_stimulation Stimulation with 1.25e-7 Epo 1.25e-7
-=============== ============================ =================
+    =============== ============================ =================
+    conditionId     conditionName                Epo_concentration
+    epo_stimulation Stimulation with 1.25e-7 Epo 1.25e-7
+    =============== ============================ =================
 
 *conditionId* is a unique identifier to define the different conditions
 and link them to the measurements (see measurement file below).
@@ -110,14 +112,15 @@ functions. Additionally, a noise model can be introduced to account for
 the measurement errors. In PEtab, this can be encoded in the observable
 file:
 
-   observables.tsv
 
-============ =============================== ================================================================================ =========================== =================
-observableId observableName                  observableFormula                                                                noiseFormula                noiseDistribution
-pSTAT5A_rel  Rel. STAT5A phosphorylation [%] 100*(2*pApA + pApB) / (2*pApA + pApB + STAT5A)                                   noiseParameter1_pSTAT5A_rel normal
-pSTAT5B_rel  Rel. STAT5B phosphorylation [%] 100*(2*pBpB + pApB) / (2*pBpB + pApB + STAT5B)                                   noiseParameter1_pSTAT5B_rel normal
-rSTAT5A_rel  Rel. STAT5A abundance [%]       100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB) noiseParameter1_rSTAT5A_rel normal
-============ =============================== ================================================================================ =========================== =================
+.. table:: Observables table ``observables.tsv``
+
+    ============ =============================== ================================================================================ =========================== =================
+    observableId observableName                  observableFormula                                                                noiseFormula                noiseDistribution
+    pSTAT5A_rel  Rel. STAT5A phosphorylation [%] 100*(2*pApA + pApB) / (2*pApA + pApB + STAT5A)                                   noiseParameter1_pSTAT5A_rel normal
+    pSTAT5B_rel  Rel. STAT5B phosphorylation [%] 100*(2*pBpB + pApB) / (2*pBpB + pApB + STAT5B)                                   noiseParameter1_pSTAT5B_rel normal
+    rSTAT5A_rel  Rel. STAT5A abundance [%]       100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB) noiseParameter1_rSTAT5A_rel normal
+    ============ =============================== ================================================================================ =========================== =================
 
 *observableId* specifies a unique identifier to the observables that can
 be used to link them to the measurements (see below).
@@ -151,20 +154,20 @@ The experimental data is linked to the conditions via the *conditionId*
 and to the observables via the *observableId*. This is defined in the
 PEtab measurement file:
 
-measurement_data.tsv
+.. table:: Measurement table ``measurement_data.tsv``
 
-============ ===================== =========== ==== ===============
-observableId simulationConditionId measurement time noiseParameters
-pSTAT5A_rel  epo_stimulation       7.9         0    sd_pSTAT5A_rel
-...          ...                   ...         ...  ...
-pSTAT5A_rel  epo_stimulation       15.4        240  sd_pSTAT5A_rel
-pSTAT5B_rel  epo_stimulation       4.6         0    sd_pSTAT5B_rel
-...          ...                   ...         ...  ...
-pSTAT5B_rel  epo_stimulation       10.96       240  sd_pSTAT5B_rel
-rSTAT5A_rel  epo_stimulation       14.7        0    sd_rSTAT5A_rel
-...          ...                   ...         ...  ...
-rSTAT5A_rel  epo_stimulation       32.2        240  sd_rSTAT5A_rel
-============ ===================== =========== ==== ===============
+    ============ ===================== =========== ==== ===============
+    observableId simulationConditionId measurement time noiseParameters
+    pSTAT5A_rel  epo_stimulation       7.9         0    sd_pSTAT5A_rel
+    ...          ...                   ...         ...  ...
+    pSTAT5A_rel  epo_stimulation       15.4        240  sd_pSTAT5A_rel
+    pSTAT5B_rel  epo_stimulation       4.6         0    sd_pSTAT5B_rel
+    ...          ...                   ...         ...  ...
+    pSTAT5B_rel  epo_stimulation       10.96       240  sd_pSTAT5B_rel
+    rSTAT5A_rel  epo_stimulation       14.7        0    sd_rSTAT5A_rel
+    ...          ...                   ...         ...  ...
+    rSTAT5A_rel  epo_stimulation       32.2        240  sd_rSTAT5A_rel
+    ============ ===================== =========== ==== ===============
 
 *observableId* references the observable from the observable file.
 
@@ -193,21 +196,21 @@ two known parameters that are fixed to literature values.
 
 The parameters file for this is given by:
 
-parameters.tsv
+.. table:: Parameter table ``parameters.tsv``
 
-==================== ============== ========== ========== ============ ========
-parameterId          parameterScale lowerBound upperBound nominalValue estimate
-Epo_degradation_BaF3 log10          1e-5       1e+5                    1
-k_exp_hetero         log10          1e-5       1e+5                    1
-k_exp_homo           log10          1e-5       1e+5                    1
-k_imp_hetero         log10          1e-5       1e+5                    1
-k_imp_homo           log10          1e-5       1e+5                    1
-k_phos               log10          1e-5       1e+5                    1
-ratio                lin                                  0.693        0
-sd_pSTAT5A_rel       log10          1e-5       1e+5                    1
-sd_pSTAT5B_rel       log10          1e-5       1e+5                    1
-sd_rSTAT5A_rel       log10          1e-5       1e+5                    1
-==================== ============== ========== ========== ============ ========
+    ==================== ============== ========== ========== ============ ========
+    parameterId          parameterScale lowerBound upperBound nominalValue estimate
+    Epo_degradation_BaF3 log10          1e-5       1e+5                    1
+    k_exp_hetero         log10          1e-5       1e+5                    1
+    k_exp_homo           log10          1e-5       1e+5                    1
+    k_imp_hetero         log10          1e-5       1e+5                    1
+    k_imp_homo           log10          1e-5       1e+5                    1
+    k_phos               log10          1e-5       1e+5                    1
+    ratio                lin                                  0.693        0
+    sd_pSTAT5A_rel       log10          1e-5       1e+5                    1
+    sd_pSTAT5B_rel       log10          1e-5       1e+5                    1
+    sd_rSTAT5A_rel       log10          1e-5       1e+5                    1
+    ==================== ============== ========== ========== ============ ========
 
 *parameterId* references parameters defined in the SBML file.
 Additionally, parameters defined in the measurement table can be used
@@ -236,14 +239,14 @@ So far, the visualization files are only supported by the PEtab Python
 library. Here, we describe a file that specifies the visualization of
 the measurement data similar to the figure above.
 
-visualization_specification.tsv
+.. table:: Visualization specification table ``visualization_specification.tsv``
 
-====== ============ ========== =========== ===============================
-plotId plotTypeData xLabel     yValues     yLabel
-plot1  MeanAndSD    Time [min] pSTAT5A_rel Rel. STAT5A phosphorylation [%]
-plot2  MeanAndSD    Time [min] pSTAT5B_rel Rel. STAT5B phosphorylation [%]
-plot3  MeanAndSD    Time [min] rSTAT5A_rel Rel. STAT5A abundance [%]
-====== ============ ========== =========== ===============================
+    ====== ============ ========== =========== ===============================
+    plotId plotTypeData xLabel     yValues     yLabel
+    plot1  MeanAndSD    Time [min] pSTAT5A_rel Rel. STAT5A phosphorylation [%]
+    plot2  MeanAndSD    Time [min] pSTAT5B_rel Rel. STAT5B phosphorylation [%]
+    plot3  MeanAndSD    Time [min] rSTAT5A_rel Rel. STAT5A abundance [%]
+    ====== ============ ========== =========== ===============================
 
 *plotId* corresponds to a specific plot. All lines which share the same
 plotId are combined into one plot.
