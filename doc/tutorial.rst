@@ -315,11 +315,14 @@ those up into separate files, e.g. by experimental condition or
 observable.
 
 6. Model simulation
-++++++++++++++++++++++++++++++++++
++++++++++++++++++++
 
-To simulate the model and compare it to the experimental data, the nominal parameters in the parameters file need to be filled. As some parameters are a priori unknown, we first consider randomly sampled parameters.
+To simulate the model and compare it to the experimental data, the nominal
+parameters in the parameters file need to be set. As some parameters are
+a priori unknown, we here consider randomly sampled parameters to get a glance
+of model behaviour and fit to the data.
 
-.. table:: Parameter table ``parameters.tsv``.
+.. table:: Parameter table ``parameters.tsv`` with *nominalValue* set to random values.
 
     ==================== ============== ========== ========== ============ ========
     parameterId          parameterScale lowerBound upperBound nominalValue estimate
@@ -336,21 +339,30 @@ To simulate the model and compare it to the experimental data, the nominal param
     sd_rSTAT5A_rel       log10          1e-5       1e+5       0.017        1
     ==================== ============== ========== ========== ============ ========
 
-With this, the model can be simulated using the different tools that support PEtab. As an example, we use COPASI here (see https://github.com/copasi/python-petab-importer for further instructions).
+With this, the model can be simulated using the different tools that support
+PEtab. The easiest tool to get started with is probably COPASI which comes
+with a graphical user interface
+(see https://github.com/copasi/python-petab-importer for further instructions).
 
 .. figure:: gfx/copasi_simulation.png
    :width: 4.9846in
    :height: 5.5634in
 
-   Simulation with random parameters using COPASI.
+   Visualization of model outputs after simulation with random parameters and
+measurements in COPASI.
 
-It is apparent from the figure, that the random parameters yield a poor fit of the model with the data. Therefore, it is important to optimize the parameters to improve the model fit. This can be done using the various parameter estimation tools. Links to detailed descriptions how to use the individual toolboxes are provided at the PEtab Github page (https://github.com/PEtab-dev/PEtab#petab-support-in-systems-biology-tools).
+It is apparent from the figure, that the random parameters yield a poor fit of
+the model with the data. Therefore, it is important to optimize the parameters
+to improve the model fit. This can be done using various parameter
+estimation tools. Links to detailed descriptions how to use the individual
+toolboxes are provided at the `PEtab Github page <https://github.com/PEtab-dev/PEtab#petab-support-in-systems-biology-tools>`_.
 
-7. Further Information
+7. Further information
 ++++++++++++++++++++++
 
 This tutorial only demonstrates a subset of PEtab functionality. For
-full reference, see https://petab.readthedocs.io/en/stable/. After
+full reference, consult the
+`PEtab reference <https://petab.readthedocs.io/en/stable/>`_. After
 finishing the implementation of the PEtab problem, its correctness can
 be verified using the PEtab library (see
 https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_petablint.ipynb
