@@ -1,0 +1,4 @@
+plotId	plotName	plotTypeData	xLabel	yValues	yLabel
+plot1	pSTAT5A_rel	MeanAndSD	Time [min]	pSTAT5A_rel	Rel. STAT5A phosphorylation [%]
+plot2	pSTAT5B_rel	MeanAndSD	Time [min]	pSTAT5B_rel	Rel. STAT5B phosphorylation [%]
+plot3	rSTAT5A_rel	MeanAndSD	Time [min]	rSTAT5A_rel	Rel. STAT5A abundance [%]
