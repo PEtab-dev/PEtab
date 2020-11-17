@@ -4,7 +4,8 @@ PEtab Tutorial
 
 In the following, we demonstrate how to set up a parameter estimation
 problem in PEtab based on a realistic application example. To this end,
-we consider the model and experimental data by Boehm et al. (2014). The
+we consider the model and experimental data by
+`Boehm et al. (2014) <https://pubs.acs.org/doi/abs/10.1021/pr5006923>`_. The
 model describes the dynamics of phosphorylation and dimerization of the
 transcription factors STAT5A and STAT5B. A visualization and the
 corresponding reactions of the model are provided below, although the
@@ -31,9 +32,9 @@ tutorial is available at **TODO**.
 
 .. table:: Reactions included in the example model
 
-    == ========================== ===============================================
+    == ========================== =============================================
     ID Reaction                   Rate law
-    == ========================== ===============================================
+    == ========================== =============================================
     R1 2 STAT5A -> pApA           cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
     R2 STAT5A + STAT5B -> pApB    cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
     R3 2 STAT5B -> pBpB           cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
@@ -43,7 +44,7 @@ tutorial is available at **TODO**.
     R7 nucpApA -> 2 STAT5A        nuc \* k_exp_homo \* nucpApA
     R8 nucpApB -> STAT5A + STAT5B nuc \* k_exp_hetero \* nucpApB
     R9 nucpBpB -> 2 STAT5B        nuc \* k_exp_homo \* nucpBpB
-    == ========================== ===============================================
+    == ========================== =============================================
 
 2. Linking model and measurements
 +++++++++++++++++++++++++++++++++
@@ -72,7 +73,7 @@ by providing a condition identifier and listing all condition-specific
 parameters and their respective values.
 
 In the problem considered here, the relevant parameter is
-``Epo_concentration`` which we want to set to a value of 1.25e-7, as the
+``Epo_concentration`` which we want to set to a value of 1.25E-7, as the
 only condition-specific parameter. In our example we include data from
 only one single experiment, so we would not need to specify it here, but
 could set the value in the model or in the parameter table. However,
@@ -113,7 +114,6 @@ functions. Additionally, a noise model can be introduced to account for
 the measurement errors. In PEtab, this can be encoded in the observable
 file:
 
-
 .. table:: Observables table ``observables.tsv``
 
     ============ =============================== ================================================================================ =========================== =================
@@ -130,10 +130,10 @@ file:
 * *observableName* can be used as a human readable description of the
   observable. Here, this corresponds to the y-label in the figure above.
 
-*observableFormula*\ is a mathematical expression defining how the model
+*observableFormula* is a mathematical expression defining how the model
   output is calculated. The formula can consist of species and parameters
   defined in the SBML file. In our example, we measure e.g. the relative
-  phosphorylation level of STAT5A (pSTAT5A_rel), which is the sum of all
+  phosphorylation level of STAT5A (*pSTAT5A_rel*), which is the sum of all
   species containing phosphorylated STAT5A over the sum of all species
   containing any form of STAT5A.
 
@@ -145,7 +145,7 @@ file:
   scheme are expected to be overridden in a measurement-specific manner in
   the *noiseParameters* column of the measurement table (see below).
 
-* *observableTransformation*\ defines the scale in which model observable
+* *observableTransformation* defines the scale in which model observable
   and measurement data are compared. Here, we assume a linear scale. Other
   transformations, such as log10 can also be used.
 
@@ -172,9 +172,9 @@ PEtab measurement file:
     rSTAT5A_rel  epo_stimulation       32.2        240  sd_rSTAT5A_rel
     ============ ===================== =========== ==== ===============
 
-* *observableId* references the observable from the observable file.
+* *observableId* references the *observableId* from the observable file.
 
-* *simulationConditionId*\ references to the conditionId from the
+* *simulationConditionId* references the *conditionId* from the
   experimental condition file.
 
 * *measurement* defines the values that are measured for the respective
@@ -184,7 +184,7 @@ PEtab measurement file:
   brevity, only the first and last time point of the example are shown
   here (the omitted measurements are indicated by “...” in the example).
 
-* *noiseParameters* relates to the noiseParameters in the observables
+* *noiseParameters* relates to the *noiseParameters* in the observables
   file. In our example, the measurement noise is unknown. Therefore we
   define parameters here which have to be estimated (see parameters sheet
   below). If the noise is known, e.g. from multiple replicates, numeric
@@ -219,7 +219,7 @@ The parameters file for this is given by:
 * *parameterId* references parameters defined in the SBML file.
   Additionally, parameters defined in the measurement table can be used
   here. In this example, the standard deviations for the different
-  observables (sd_{observableId}) are estimated.
+  observables (*sd_{observableId}*) are estimated.
 
 * *parameterScale* is the scale on which parameters are estimated. Often,
   a logarithmic scale improves optimization. Alternatively, a linear scale
@@ -254,12 +254,12 @@ the measurement data similar to the figure above.
     ====== ============ ========== =========== ===============================
 
 * *plotId* corresponds to a specific plot. All lines which share the same
-  plotId are combined into one plot.
+  *plotId* are combined into one plot.
 
 * *plotTypeData* defines the plotting style of the measurement data. Here,
   we use mean and (if available) standard deviations.
 
-* *xLabel*\ and\ *yLabel*\ are the labels of the x- and y-axes for the
+* *xLabel* and *yLabel* are the labels of the x- and y-axes for the
   corresponding plot.
 
 * *yValues* defines what is plotted. In this example the different
@@ -278,7 +278,6 @@ defining which files constitute a PEtab problem. While being optional,
 this makes it easier to import a PEtab problem into tools, and allows
 reusing files for different PEtab problems. This file has the following
 format:
-
 
 .. code-block:: yaml
 
