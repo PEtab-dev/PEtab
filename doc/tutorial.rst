@@ -214,16 +214,16 @@ The parameters file for this is given by:
     ==================== ============== ========== ========== ============ ========
     parameterId          parameterScale lowerBound upperBound nominalValue estimate
     ==================== ============== ========== ========== ============ ========
-    Epo_degradation_BaF3 log10          1e-5       1e+5       \            1
-    k_exp_hetero         log10          1e-5       1e+5       \            1
-    k_exp_homo           log10          1e-5       1e+5       \            1
-    k_imp_hetero         log10          1e-5       1e+5       \            1
-    k_imp_homo           log10          1e-5       1e+5       \            1
-    k_phos               log10          1e-5       1e+5       \            1
+    Epo_degradation_BaF3 log10          1E-5       1E+5       \            1
+    k_exp_hetero         log10          1E-5       1E+5       \            1
+    k_exp_homo           log10          1E-5       1E+5       \            1
+    k_imp_hetero         log10          1E-5       1E+5       \            1
+    k_imp_homo           log10          1E-5       1E+5       \            1
+    k_phos               log10          1E-5       1E+5       \            1
     ratio                lin            \          \          0.693        0
-    sd_pSTAT5A_rel       log10          1e-5       1e+5       \            1
-    sd_pSTAT5B_rel       log10          1e-5       1e+5       \            1
-    sd_rSTAT5A_rel       log10          1e-5       1e+5       \            1
+    sd_pSTAT5A_rel       log10          1E-5       1E+5       \            1
+    sd_pSTAT5B_rel       log10          1E-5       1E+5       \            1
+    sd_rSTAT5A_rel       log10          1E-5       1E+5       \            1
     ==================== ============== ========== ========== ============ ========
 
 * *parameterId* references parameters defined in the SBML file.
@@ -327,16 +327,16 @@ of model behaviour and fit to the data.
     ==================== ============== ========== ========== ============ ========
     parameterId          parameterScale lowerBound upperBound nominalValue estimate
     ==================== ============== ========== ========== ============ ========
-    Epo_degradation_BaF3 log10          1e-5       1e+5       0.105        1
-    k_exp_hetero         log10          1e-5       1e+5       1.85         1
-    k_exp_homo           log10          1e-5       1e+5       9.83         1
-    k_imp_hetero         log10          1e-5       1e+5       1048.96      1
-    k_imp_homo           log10          1e-5       1e+5       10.136       1
-    k_phos               log10          1e-5       1e+5       10.136       1
+    Epo_degradation_BaF3 log10          1E-5       1E+5       0.105        1
+    k_exp_hetero         log10          1E-5       1E+5       1.85         1
+    k_exp_homo           log10          1E-5       1E+5       9.83         1
+    k_imp_hetero         log10          1E-5       1E+5       1048.96      1
+    k_imp_homo           log10          1E-5       1E+5       10.136       1
+    k_phos               log10          1E-5       1E+5       10.136       1
     ratio                lin            \          \          0.693        0
-    sd_pSTAT5A_rel       log10          1e-5       1e+5       51.7         1
-    sd_pSTAT5B_rel       log10          1e-5       1e+5       0.257        1
-    sd_rSTAT5A_rel       log10          1e-5       1e+5       0.017        1
+    sd_pSTAT5A_rel       log10          1E-5       1E+5       51.7         1
+    sd_pSTAT5B_rel       log10          1E-5       1E+5       0.257        1
+    sd_rSTAT5A_rel       log10          1E-5       1E+5       0.017        1
     ==================== ============== ========== ========== ============ ========
 
 With this, the model can be simulated using the different tools that support
