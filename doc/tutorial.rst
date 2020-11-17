@@ -140,7 +140,7 @@ file:
 * *observableName* can be used as a human readable description of the
   observable. Here, this corresponds to the y-label in the figure above.
 
-*observableFormula* is a mathematical expression defining how the model
+* *observableFormula* is a mathematical expression defining how the model
   output is calculated. The formula can consist of species and parameters
   defined in the SBML file. In our example, we measure e.g. the relative
   phosphorylation level of STAT5A (*pSTAT5A_rel*), which is the sum of all
