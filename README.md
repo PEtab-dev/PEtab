@@ -107,10 +107,15 @@ Legend:
 
 ## Using PEtab
 
-If you would like to use PEtab yourself, please have a look at 
-[doc/documentation_data_format.rst](doc/documentation_data_format.rst) or at
-the example models provided in the 
-[benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
+If you would like to use PEtab yourself, please have a look at:
+
+* [a PEtab tutorial](https://petab.readthedocs.io/en/latest/tutorial.html)
+  going through the individual steps of setting up a parameter estimation
+  problem in PEtab, independently of any specific software
+* [the PEtab format reference](https://petab.readthedocs.io/en/stable/documentation_data_format.html)
+* the example models provided in the
+  [benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
+* the tutorials provided with each of the softwares supporting PEtab
 
 To convert your existing parameter estimation problem to the PEtab format, you 
 will have to:
