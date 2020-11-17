@@ -26,7 +26,7 @@ SBML model provided in the original publication, which is also available
 on Biomodels (https://www.ebi.ac.uk/biomodels/BIOMD0000000591). For
 illustration purposes we slightly modified the SBML model and shortened
 some parts of the PEtab files. The full PEtab problem introduced in this
-tutorial is available at **TODO**.
+tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/b50d000a5fb4cf37bf62315686acd2694e29e5fc/doc/tutorial>`_.
 
 .. figure:: gfx/tutorial_model.png
    :width: 4.9846in
