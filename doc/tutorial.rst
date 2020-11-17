@@ -67,7 +67,7 @@ experimental conditions under which a measurement was performed.
 
 The measurements were collected under the same experimental condition,
 which is a stimulation with Epo. This is specified in the experimental
-condition PEtab file, a tab-separated values (TSV) file\ :sup:` [1]_`,
+condition PEtab file, a tab-separated values (TSV) file\ [#f1]_,
 by providing a condition identifier and listing all condition-specific
 parameters and their respective values.
 
@@ -85,16 +85,16 @@ The condition table would look as follows:
 
     =============== ============================ =================
     conditionId     conditionName                Epo_concentration
-    epo_stimulation Stimulation with 1.25e-7 Epo 1.25e-7
+    epo_stimulation Stimulation with 1.25E-7 Epo 1.25E-7
     =============== ============================ =================
 
-*conditionId* is a unique identifier to define the different conditions
-and link them to the measurements (see measurement file below).
-Additional measurements e.g. for different Epo concentrations can be
-defined by adding new rows.
+* *conditionId* is a unique identifier to define the different conditions
+  and link them to the measurements (see measurement file below).
+  Additional measurements e.g. for different Epo concentrations can be
+  defined by adding new rows.
 
-*conditionName* can be used as a human readable description of the
-condition e.g. for plotting.
+* *conditionName* can be used as a human readable description of the
+  condition e.g. for plotting.
 
 The following column headers (here *Epo_concentration*) refer to
 different parameters or species in the model, the values of which are
@@ -122,30 +122,30 @@ file:
     rSTAT5A_rel  Rel. STAT5A abundance [%]       100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB) noiseParameter1_rSTAT5A_rel normal
     ============ =============================== ================================================================================ =========================== =================
 
-*observableId* specifies a unique identifier to the observables that can
-be used to link them to the measurements (see below).
+* *observableId* specifies a unique identifier to the observables that can
+  be used to link them to the measurements (see below).
 
-observableName can be used as a human readable description of the
-observable. Here, this corresponds to the y-label in the figure above.
+* *observableName* can be used as a human readable description of the
+  observable. Here, this corresponds to the y-label in the figure above.
 
 *observableFormula*\ is a mathematical expression defining how the model
-output is calculated. The formula can consist of species and parameters
-defined in the SBML file. In our example, we measure e.g. the relative
-phosphorylation level of STAT5A (pSTAT5A_rel), which is the sum of all
-species containing phosphorylated STAT5A over the sum of all species
-containing any form of STAT5A.
+  output is calculated. The formula can consist of species and parameters
+  defined in the SBML file. In our example, we measure e.g. the relative
+  phosphorylation level of STAT5A (pSTAT5A_rel), which is the sum of all
+  species containing phosphorylated STAT5A over the sum of all species
+  containing any form of STAT5A.
 
-*noiseFormula* is used to describe the formula for the measurement
-noise. Together with *noiseDistribution*\ it defines the noise model. In
-this example, we assume additive normally distributed measurement noise.
-In this scenario, ``noiseParameter1_{observableId}`` is the standard
-deviation of the measurement noise. Parameters following this naming
-scheme are expected to be overridden in a measurement-specific manner in
-the *noiseParameters* column of the measurement table (see below).
+* *noiseFormula* is used to describe the formula for the measurement
+  noise. Together with *noiseDistribution*\ it defines the noise model. In
+  this example, we assume additive normally distributed measurement noise.
+  In this scenario, ``noiseParameter1_{observableId}`` is the standard
+  deviation of the measurement noise. Parameters following this naming
+  scheme are expected to be overridden in a measurement-specific manner in
+  the *noiseParameters* column of the measurement table (see below).
 
-*observableTransformation*\ defines the scale in which model observable
-and measurement data are compared. Here, we assume a linear scale. Other
-transformations, such as log10 can also be used.
+* *observableTransformation*\ defines the scale in which model observable
+  and measurement data are compared. Here, we assume a linear scale. Other
+  transformations, such as log10 can also be used.
 
 2.3 Specifying measurements
 ---------------------------
@@ -169,23 +169,23 @@ PEtab measurement file:
     rSTAT5A_rel  epo_stimulation       32.2        240  sd_rSTAT5A_rel
     ============ ===================== =========== ==== ===============
 
-*observableId* references the observable from the observable file.
+* *observableId* references the observable from the observable file.
 
-*simulationConditionId*\ references to the conditionId from the
-experimental condition file.
+* *simulationConditionId*\ references to the conditionId from the
+  experimental condition file.
 
-*measurement* defines the values that are measured for the respective
-observable and experimental condition.
+* *measurement* defines the values that are measured for the respective
+  observable and experimental condition.
 
-*time* is the time point at which the measurement was performed. For
-brevity, only the first and last time point of the example are shown
-here (the omitted measurements are indicated by “...” in the example).
+* *time* is the time point at which the measurement was performed. For
+  brevity, only the first and last time point of the example are shown
+  here (the omitted measurements are indicated by “...” in the example).
 
-*noiseParameters* relates to the noiseParameters in the observables
-file. In our example, the measurement noise is unknown. Therefore we
-define parameters here which have to be estimated (see parameters sheet
-below). If the noise is known, e.g. from multiple replicates, numeric
-values can be used in this column.
+* *noiseParameters* relates to the noiseParameters in the observables
+  file. In our example, the measurement noise is unknown. Therefore we
+  define parameters here which have to be estimated (see parameters sheet
+  below). If the noise is known, e.g. from multiple replicates, numeric
+  values can be used in this column.
 
 3. Defining parameters
 ++++++++++++++++++++++
@@ -212,23 +212,23 @@ The parameters file for this is given by:
     sd_rSTAT5A_rel       log10          1e-5       1e+5                    1
     ==================== ============== ========== ========== ============ ========
 
-*parameterId* references parameters defined in the SBML file.
-Additionally, parameters defined in the measurement table can be used
-here. In this example, the standard deviations for the different
-observables (sd_{observableId}) are estimated.
+* *parameterId* references parameters defined in the SBML file.
+  Additionally, parameters defined in the measurement table can be used
+  here. In this example, the standard deviations for the different
+  observables (sd_{observableId}) are estimated.
 
-*parameterScale* is the scale on which parameters are estimated. Often,
-a logarithmic scale improves optimization. Alternatively, a linear scale
-can be used, e.g. when parameters can be negative.
+* *parameterScale* is the scale on which parameters are estimated. Often,
+  a logarithmic scale improves optimization. Alternatively, a linear scale
+  can be used, e.g. when parameters can be negative.
 
-*lowerBound* and *upperBound* define the bounds for the parameters used
-during optimization. These are usually biologically plausible ranges.
+* *lowerBound* and *upperBound* define the bounds for the parameters used
+  during optimization. These are usually biologically plausible ranges.
 
-*nominalValue* are known values used for simulation. The entry can be
-left empty, if a value is unknown and subject to optimization.
+* *nominalValue* are known values used for simulation. The entry can be
+  left empty, if a value is unknown and subject to optimization.
 
-*estimate* defines whether the parameter is subject to optimization (1)
-or if it is fixed (0) to the value in the nominalValue column.
+* *estimate* defines whether the parameter is subject to optimization (1)
+  or if it is fixed (0) to the value in the nominalValue column.
 
 4. Visualization file
 +++++++++++++++++++++
@@ -248,17 +248,17 @@ the measurement data similar to the figure above.
     plot3  MeanAndSD    Time [min] rSTAT5A_rel Rel. STAT5A abundance [%]
     ====== ============ ========== =========== ===============================
 
-*plotId* corresponds to a specific plot. All lines which share the same
-plotId are combined into one plot.
+* *plotId* corresponds to a specific plot. All lines which share the same
+  plotId are combined into one plot.
 
-*plotTypeData* defines the plotting style of the measurement data. Here,
-we use mean and (if available) standard deviations.
+* *plotTypeData* defines the plotting style of the measurement data. Here,
+  we use mean and (if available) standard deviations.
 
-*xLabel*\ and\ *yLabel*\ are the labels of the x- and y-axes for the
-corresponding plot.
+* *xLabel*\ and\ *yLabel*\ are the labels of the x- and y-axes for the
+  corresponding plot.
 
-*yValues* defines what is plotted. In this example the different
-observables are plotted individually.
+* *yValues* defines what is plotted. In this example the different
+  observables are plotted individually.
 
 There are various ways of further individualizing the plots, e.g. by
 defining legend entries or data plotted on log-scale (see the
@@ -314,7 +314,7 @@ parameter uncertainties. Links to tutorials for the different tools can
 be found at the PEtab Github page
 (https://github.com/PEtab-dev/PEtab#petab-support-in-systems-biology-tools).
 
-.. [1]
+.. [#f1]
    TSV files can be created using any standard spreadsheet application,
    or for small files, text editor.
 
