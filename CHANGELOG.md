@@ -2,6 +2,15 @@
 
 ## 0.1 series
 
+### 0.1.12
+
+* Documentation update:
+  * Added SBML2Julia to list of tools supporting PEtab
+  * Extended PEtab introduction
+  * Tutorial for creating PEtab files
+* Minor fix: Default argument for optional 'model' parameter in 
+  `petab.lint.check_condition_df`` (#477)
+
 ### 0.1.11
 
 * Function for generating synthetic data (#472)
@@ -9,7 +18,7 @@
 
 ### 0.1.10
 
-*Fixed deployment setup, no further changes.*
+* Fixed deployment setup, no further changes.*
 
 ### 0.1.9
 

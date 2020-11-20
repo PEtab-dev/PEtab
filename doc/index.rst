@@ -6,6 +6,7 @@
    :caption: Data format
 
    Data format <documentation_data_format.rst>
+   tutorial
 
 .. toctree::
    :maxdepth: 3
