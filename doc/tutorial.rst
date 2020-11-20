@@ -79,7 +79,7 @@ experimental conditions under which a measurement was performed.
 2.1 Specifying experimental conditions
 --------------------------------------
 
-The measurements were collected under the same experimental condition,
+All measurements were collected under the same experimental condition,
 which is a stimulation with Epo. This is specified in the experimental
 condition PEtab file, a tab-separated values (TSV) file\ [#f1]_,
 by providing a condition identifier and listing all condition-specific
@@ -90,7 +90,7 @@ In the problem considered here, the relevant parameter is
 only condition-specific parameter. Since in this example we include data from only one single experiment, it would not be necessary to specify the condition parameter here, but instead the value could have been also set in the model or in the parmameter table. However, the benefit of specifying it in the condition table is, that it allows us to easily add measurements from other
 experiments performed with different Epo concentrations later on.
 
-The condition table would look as follows:
+The condition table looks as follows:
 
 .. table:: Conditions table ``experimental_conditions.tsv``.
 
@@ -187,7 +187,7 @@ file:
 
 * *noiseFormula* is used to describe the formula for the measurement
   noise. Together with *noiseDistribution*, it defines the noise model. In
-  this example, we assume additive normally distributed measurement noise.
+  this example, we assume additive, normally distributed measurement noise.
   In this scenario, ``noiseParameter1_{observableId}`` is the standard
   deviation of the measurement noise. Parameters following this naming
   scheme are expected to be overridden in a measurement-specific manner in
