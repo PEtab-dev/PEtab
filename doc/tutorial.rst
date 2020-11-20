@@ -87,10 +87,7 @@ parameters and their respective values.
 
 In the problem considered here, the relevant parameter is
 ``Epo_concentration`` which we want to set to a value of 1.25E-7, as the
-only condition-specific parameter. In our example we include data from
-only one single experiment, so we would not need to specify it here, but
-could set the value in the model or in the parameter table. However,
-having it would allow us to easily add measurements from other
+only condition-specific parameter. Since in this example we include data from only one single experiment, it would not be necessary to specify the condition parameter here, but instead the value could have been also set in the model or in the parmameter table. However, the benefit of specifying it in the condition table is, that it allows us to easily add measurements from other
 experiments performed with different Epo concentrations later on.
 
 The condition table would look as follows:
@@ -189,16 +186,13 @@ file:
   containing any form of STAT5A.
 
 * *noiseFormula* is used to describe the formula for the measurement
-  noise. Together with *noiseDistribution*\ it defines the noise model. In
+  noise. Together with *noiseDistribution*, it defines the noise model. In
   this example, we assume additive normally distributed measurement noise.
   In this scenario, ``noiseParameter1_{observableId}`` is the standard
   deviation of the measurement noise. Parameters following this naming
   scheme are expected to be overridden in a measurement-specific manner in
   the *noiseParameters* column of the measurement table (see below).
 
-* *observableTransformation* defines the scale in which model observable
-  and measurement data are compared. Here, we assume a linear scale. Other
-  transformations, such as log10 can also be used.
 
 2.3 Specifying measurements
 ---------------------------
