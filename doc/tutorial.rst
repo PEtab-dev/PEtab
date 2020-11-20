@@ -44,15 +44,15 @@ tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/b50d000a5
     == ========================== =============================================
     ID Reaction                   Rate law
     == ========================== =============================================
-    R1 2 STAT5A -> pApA           cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
-    R2 STAT5A + STAT5B -> pApB    cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
-    R3 2 STAT5B -> pBpB           cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
-    R4 pApA -> nucpApA            cyt \* k_imp_homo \* pApA
-    R5 pApB -> nucpApB            cyt \* k_imp_hetero \* pApB
-    R6 pBpB -> nucpBpB            cyt \* k_imp_homo \* pBpB
-    R7 nucpApA -> 2 STAT5A        nuc \* k_exp_homo \* nucpApA
-    R8 nucpApB -> STAT5A + STAT5B nuc \* k_exp_hetero \* nucpApB
-    R9 nucpBpB -> 2 STAT5B        nuc \* k_exp_homo \* nucpBpB
+    R1 2 STAT5A → pApA            cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
+    R2 STAT5A + STAT5B → pApB     cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
+    R3 2 STAT5B → pBpB            cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
+    R4 pApA → nucpApA             cyt \* k_imp_homo \* pApA
+    R5 pApB → nucpApB             cyt \* k_imp_hetero \* pApB
+    R6 pBpB → nucpBpB             cyt \* k_imp_homo \* pBpB
+    R7 nucpApA → 2 STAT5A         nuc \* k_exp_homo \* nucpApA
+    R8 nucpApB → STAT5A + STAT5B  nuc \* k_exp_hetero \* nucpApB
+    R9 nucpBpB → 2 STAT5B         nuc \* k_exp_homo \* nucpBpB
     == ========================== =============================================
 
 2. Linking model and measurements
@@ -79,7 +79,7 @@ experimental conditions under which a measurement was performed.
 2.1 Specifying experimental conditions
 --------------------------------------
 
-The measurements were collected under the same experimental condition,
+All measurements were collected under the same experimental condition,
 which is a stimulation with Epo. This is specified in the experimental
 condition PEtab file, a tab-separated values (TSV) file\ [#f1]_,
 by providing a condition identifier and listing all condition-specific
@@ -87,13 +87,14 @@ parameters and their respective values.
 
 In the problem considered here, the relevant parameter is
 ``Epo_concentration`` which we want to set to a value of 1.25E-7, as the
-only condition-specific parameter. In our example we include data from
-only one single experiment, so we would not need to specify it here, but
-could set the value in the model or in the parameter table. However,
-having it would allow us to easily add measurements from other
+only condition-specific parameter. Since in this example we include data from
+only one single experiment, it would not be necessary to specify the condition
+parameter here, but instead the value could have been also set in the model or
+in the parameter table. However, the benefit of specifying it in the condition
+table is, that it allows us to easily add measurements from other
 experiments performed with different Epo concentrations later on.
 
-The condition table would look as follows:
+The condition table looks as follows:
 
 .. table:: Conditions table ``experimental_conditions.tsv``.
 
@@ -189,16 +190,13 @@ file:
   containing any form of STAT5A.
 
 * *noiseFormula* is used to describe the formula for the measurement
-  noise. Together with *noiseDistribution*\ it defines the noise model. In
-  this example, we assume additive normally distributed measurement noise.
+  noise. Together with *noiseDistribution*, it defines the noise model. In
+  this example, we assume additive, normally distributed measurement noise.
   In this scenario, ``noiseParameter1_{observableId}`` is the standard
   deviation of the measurement noise. Parameters following this naming
   scheme are expected to be overridden in a measurement-specific manner in
   the *noiseParameters* column of the measurement table (see below).
 
-* *observableTransformation* defines the scale in which model observable
-  and measurement data are compared. Here, we assume a linear scale. Other
-  transformations, such as log10 can also be used.
 
 2.3 Specifying measurements
 ---------------------------
