@@ -44,15 +44,15 @@ tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/b50d000a5
     == ========================== =============================================
     ID Reaction                   Rate law
     == ========================== =============================================
-    R1 2 STAT5A -> pApA           cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
-    R2 STAT5A + STAT5B -> pApB    cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
-    R3 2 STAT5B -> pBpB           cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
-    R4 pApA -> nucpApA            cyt \* k_imp_homo \* pApA
-    R5 pApB -> nucpApB            cyt \* k_imp_hetero \* pApB
-    R6 pBpB -> nucpBpB            cyt \* k_imp_homo \* pBpB
-    R7 nucpApA -> 2 STAT5A        nuc \* k_exp_homo \* nucpApA
-    R8 nucpApB -> STAT5A + STAT5B nuc \* k_exp_hetero \* nucpApB
-    R9 nucpBpB -> 2 STAT5B        nuc \* k_exp_homo \* nucpBpB
+    R1 2 STAT5A → pApA            cyt \* BaF3_Epo \* STAT5A^2 \* k_phos
+    R2 STAT5A + STAT5B → pApB     cyt \* BaF3_Epo \* STAT5A \* STAT5B \* k_phos
+    R3 2 STAT5B → pBpB            cyt \* BaF3_Epo \* STAT5B^2 \* k_phos
+    R4 pApA → nucpApA             cyt \* k_imp_homo \* pApA
+    R5 pApB → nucpApB             cyt \* k_imp_hetero \* pApB
+    R6 pBpB → nucpBpB             cyt \* k_imp_homo \* pBpB
+    R7 nucpApA → 2 STAT5A         nuc \* k_exp_homo \* nucpApA
+    R8 nucpApB → STAT5A + STAT5B  nuc \* k_exp_hetero \* nucpApB
+    R9 nucpBpB → 2 STAT5B         nuc \* k_exp_homo \* nucpBpB
     == ========================== =============================================
 
 2. Linking model and measurements
