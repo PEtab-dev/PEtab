@@ -87,7 +87,11 @@ parameters and their respective values.
 
 In the problem considered here, the relevant parameter is
 ``Epo_concentration`` which we want to set to a value of 1.25E-7, as the
-only condition-specific parameter. Since in this example we include data from only one single experiment, it would not be necessary to specify the condition parameter here, but instead the value could have been also set in the model or in the parmameter table. However, the benefit of specifying it in the condition table is, that it allows us to easily add measurements from other
+only condition-specific parameter. Since in this example we include data from
+only one single experiment, it would not be necessary to specify the condition
+parameter here, but instead the value could have been also set in the model or
+in the parameter table. However, the benefit of specifying it in the condition
+table is, that it allows us to easily add measurements from other
 experiments performed with different Epo concentrations later on.
 
 The condition table looks as follows:
