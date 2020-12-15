@@ -47,8 +47,8 @@ def sample_from_prior(prior: Tuple[str, list, str, list],
             n_starts,)) + p_params[0])
 
     elif p_type == PARAMETER_SCALE_UNIFORM:
-        sp = (scale(p_params[1]) - scale(p_params[0])) \
-             * np.random.random((n_starts,)) + scale(p_params[0])
+        sp = (p_params[1] - p_params[0]) * np.random.random((n_starts,
+                                                             )) + p_params[0]
 
     elif p_type == NORMAL:
         sp = scale(np.random.normal(loc=p_params[0], scale=p_params[1],

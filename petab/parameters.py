@@ -343,7 +343,8 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
         # if no prior is specified, we assume a non-informative (uniform) one
         if prior_type == 'nan':
             prior_type = PARAMETER_SCALE_UNIFORM
-            prior_pars = (row[LOWER_BOUND], row[UPPER_BOUND])
+            prior_pars = (scale(row[LOWER_BOUND], par_scale),
+                          scale(row[UPPER_BOUND], par_scale))
 
         prior_list.append((prior_type, prior_pars, par_scale, par_bounds))
 
