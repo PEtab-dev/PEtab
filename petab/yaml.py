@@ -123,7 +123,7 @@ def load_yaml(yaml_config: Union[Dict, str]) -> Dict:
     if isinstance(yaml_config, dict):
         return yaml_config
 
-    filepath_or_buffer = get_filepath_or_buffer(
+    filepath_or_buffer = _get_filepath_or_buffer(
         yaml_config, mode='r'
     ).filepath_or_buffer
     if isinstance(filepath_or_buffer, str):
