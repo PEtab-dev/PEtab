@@ -1,6 +1,7 @@
 """Functions for interacting with SBML models"""
 from warnings import warn
 import logging
+from pandas.io.common import _get_filepath_or_buffer, is_url, is_file_like
 import re
 from typing import Dict, Any, List, Union, Tuple
 import libsbml
@@ -417,10 +418,10 @@ def get_sbml_model(
     :return: The SBML document, model and reader
     """
 
-    from pandas.io.common import get_filepath_or_buffer, is_url, is_file_like
-
     if is_file_like(filepath_or_buffer) or is_url(filepath_or_buffer):
-        buffer = get_filepath_or_buffer(filepath_or_buffer, mode='r')[0]
+        buffer = _get_filepath_or_buffer(
+            filepath_or_buffer, mode='r'
+        ).filepath_or_buffer
         if is_url(filepath_or_buffer):
             buffer = ''.join(line.decode('utf-8') for line in buffer)
         else:
