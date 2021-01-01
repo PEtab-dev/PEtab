@@ -419,12 +419,8 @@ def get_sbml_model(
     """
     if is_file_like(filepath_or_buffer) or is_url(filepath_or_buffer):
         handle = get_handle(filepath_or_buffer, mode='r').handle
-        if is_url(filepath_or_buffer):
-            sbml_str = ''.join(line.decode('utf-8') for line in handle)
-        else:
-            sbml_str = ''.join(line for line in handle)
         # URL or already opened file, we will load the model from a string
-        return load_sbml_from_string(sbml_str)
+        return load_sbml_from_string(''.join(handle))
 
     return load_sbml_from_file(filepath_or_buffer)
 
