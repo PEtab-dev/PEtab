@@ -2,6 +2,11 @@
 
 ## 0.1 series
 
+### 0.1.13
+
+* Fix for pandas 1.2.0 -- use `get_handle` instead of `get_filepath_or_buffer`
+* Fix erroneous `petab_test_suite` symlink (all #493)
+
 ### 0.1.12
 
 * Documentation update:
