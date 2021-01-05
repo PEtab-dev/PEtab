@@ -6,7 +6,7 @@ from typing import Any, Dict, Union, Optional, List
 import jsonschema
 import numpy as np
 import yaml
-from pandas.io.common import get_filepath_or_buffer
+from pandas.io.common import get_handle
 
 from .C import *  # noqa: F403
 
@@ -123,13 +123,8 @@ def load_yaml(yaml_config: Union[Dict, str]) -> Dict:
     if isinstance(yaml_config, dict):
         return yaml_config
 
-    filepath_or_buffer = get_filepath_or_buffer(yaml_config, mode='r')[0]
-    if isinstance(filepath_or_buffer, str):
-        # a filename
-        with open(filepath_or_buffer, 'r') as f:
-            return yaml.safe_load(f)
-    # a stream
-    return yaml.safe_load(filepath_or_buffer)
+    handle = get_handle(yaml_config, mode='r').handle
+    return yaml.safe_load(handle)
 
 
 def is_composite_problem(yaml_config: Union[Dict, str]) -> bool:
