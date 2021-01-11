@@ -236,5 +236,5 @@ def sample_noise(
             zero_bounded and
             np.sign(simulated_value) != np.sign(simulated_value_with_noise)
     ):
-        return 0
+        return 0.0
     return simulated_value_with_noise
