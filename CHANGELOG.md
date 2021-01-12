@@ -2,6 +2,14 @@
 
 ## 0.1 series
 
+### 0.1.14
+
+* Fix sampling of priors in `parameterScale` (#492)
+* Clarify documentation of `parameterScale` priors
+* Improvements in `petab.simulate` (#479):
+  * Fix default noise distributions
+  * Add option for non-negative synthetic data
+
 ### 0.1.13
 
 * Fix for pandas 1.2.0 -- use `get_handle` instead of `get_filepath_or_buffer`
