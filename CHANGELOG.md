@@ -6,6 +6,9 @@
 
 * Fix sampling of priors in `parameterScale` (#492)
 * Clarify documentation of `parameterScale` priors
+* Improvements in `petab.simulate` (#479):
+  * Fix default noise distributions
+  * Add option for non-negative synthetic data
 
 ### 0.1.13
 
