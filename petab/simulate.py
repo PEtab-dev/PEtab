@@ -1,3 +1,5 @@
+"""PEtab simulator base class and related functions."""
+
 import abc
 import numpy as np
 import pathlib
@@ -10,8 +12,8 @@ from typing import Dict, Optional, Union
 
 
 class Simulator(abc.ABC):
-    """
-    Base class that specific simulators should inherit.
+    """Base class that specific simulators should inherit.
+
     Specific simulators should minimally implement the
     `simulate_without_noise` method.
     Example (AMICI): https://bit.ly/33SUSG4
@@ -32,10 +34,14 @@ class Simulator(abc.ABC):
             directory and its contents may be modified and deleted, and
             should be considered ephemeral.
     """
-    def __init__(self,
-                 petab_problem: petab.Problem,
-                 working_dir: Optional[Union[pathlib.Path, str]] = None):
-        """
+
+    def __init__(
+        self,
+        petab_problem: petab.Problem,
+        working_dir: Optional[Union[pathlib.Path, str]] = None,
+    ):
+        """Initialize the simulator.
+
         Initialize the simulator with sufficient information to perform a
         simulation. If no working directory is specified, a temporary one is
         created.
@@ -64,14 +70,16 @@ class Simulator(abc.ABC):
         self.rng = np.random.default_rng()
 
     def remove_working_dir(self, force: bool = False, **kwargs) -> None:
-        """
-        Remove the simulator working directory and all files within (see the
-        `__init__` method arguments).
+        """Remove the simulator working directory, and all files within.
+
+        See the `__init__` method arguments.
 
         Arguments:
             force:
                 If True, the working directory is removed regardless of
                 whether it is a temporary directory.
+            **kwargs:
+                Additional keyword arguments are passed to `shutil.rmtree`.
         """
         if force or self.temporary_working_dir:
             shutil.rmtree(self.working_dir, **kwargs)
@@ -85,10 +93,10 @@ class Simulator(abc.ABC):
 
     @abc.abstractmethod
     def simulate_without_noise(self) -> pd.DataFrame:
-        """
-        Simulate a PEtab problem. This is an abstract method that should be
-        implemented in a simulation package. Links to examples of this are in
-        the class docstring.
+        """Simulate the PEtab problem.
+
+        This is an abstract method that should be implemented with a simulation
+        package. Examples of this are referenced in the class docstring.
 
         Returns:
             Simulated data, as a PEtab measurements table, which should be
@@ -96,6 +104,7 @@ class Simulator(abc.ABC):
             column of the measurements table (of the PEtab problem supplied to
             the `__init__` method), with simulated values.
         """
+        raise NotImplementedError
 
     def simulate(
             self,
@@ -109,6 +118,9 @@ class Simulator(abc.ABC):
             noise: If True, noise is added to simulated data.
             noise_scaling_factor:
                 A multiplier of the scale of the noise distribution.
+            **kwargs:
+                Additional keyword arguments are passed to
+                `simulate_without_noise`.
 
         Returns:
             Simulated data, as a PEtab measurements table.
@@ -122,6 +134,7 @@ class Simulator(abc.ABC):
             self,
             simulation_df: pd.DataFrame,
             noise_scaling_factor: float = 1,
+            **kwargs
     ) -> pd.DataFrame:
         """Add noise to simulated data.
 
@@ -130,6 +143,8 @@ class Simulator(abc.ABC):
                 A PEtab measurements table that contains simulated data.
             noise_scaling_factor:
                 A multiplier of the scale of the noise distribution.
+            **kwargs:
+                Additional keyword arguments are passed to `sample_noise`.
 
         Returns:
             Simulated data with noise, as a PEtab measurements table.
@@ -143,6 +158,7 @@ class Simulator(abc.ABC):
                 self.noise_formulas,
                 self.rng,
                 noise_scaling_factor,
+                **kwargs,
             )
             for _, row in simulation_df_with_noise.iterrows()
         ]
@@ -156,6 +172,7 @@ def sample_noise(
         noise_formulas: Optional[Dict[str, sp.Expr]] = None,
         rng: Optional[np.random.Generator] = None,
         noise_scaling_factor: float = 1,
+        zero_bounded: bool = False,
 ) -> float:
     """Generate a sample from a PEtab noise distribution.
 
@@ -176,6 +193,10 @@ def sample_noise(
             A NumPy random generator.
         noise_scaling_factor:
             A multiplier of the scale of the noise distribution.
+        zero_bounded:
+            Return zero if the sign of the return value and `simulated_value`
+            differ. Can be used to ensure non-negative and non-positive values,
+            if the sign of `simulated_value` should not change.
 
     Returns:
         The sample from the PEtab noise distribution.
@@ -200,9 +221,20 @@ def sample_noise(
         .loc[measurement_row[petab.C.OBSERVABLE_ID]]
         .get(petab.C.NOISE_DISTRIBUTION, petab.C.NORMAL)
     )
+    # an empty noise distribution column in an observables table can result in
+    # `noise_distribution == float('nan')`
+    if pd.isna(noise_distribution):
+        noise_distribution = petab.C.NORMAL
 
     # below is e.g.: `np.random.normal(loc=simulation, scale=noise_value)`
-    return getattr(rng, noise_distribution)(
+    simulated_value_with_noise = getattr(rng, noise_distribution)(
         loc=simulated_value,
         scale=noise_value * noise_scaling_factor
     )
+
+    if (
+            zero_bounded and
+            np.sign(simulated_value) != np.sign(simulated_value_with_noise)
+    ):
+        return 0.0
+    return simulated_value_with_noise
