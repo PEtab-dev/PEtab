@@ -2,19 +2,21 @@
 PEtab Tutorial
 ==============
 
+.. _Boehm et al. (2014): https://dx.doi.org/10.1021/pr5006923
+
+
 Overview
 ++++++++
 
 In the following, we demonstrate how to set up a parameter estimation
 problem in PEtab based on a realistic application example. To this end,
 we consider the model and experimental data by
-`Boehm et al. (2014) <https://pubs.acs.org/doi/abs/10.1021/pr5006923>`_. The
+`Boehm et al. (2014)`_. The
 model describes the dynamics of phosphorylation and dimerization of the
 transcription factors STAT5A and STAT5B. A visualization and the
 corresponding reactions of the model are provided below, although the
 details of the model are not relevant for the purpose of this tutorial.
-For more details, we refer to the original publication (Boehm et al.,
-2014).
+For more details, we refer to the original publication.
 
 A PEtab problem consists of 1) an SBML model of a biological system, 2)
 condition, observable and measurement definitions, and 3) the
@@ -58,7 +60,7 @@ tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/b50d000a5
 2. Linking model and measurements
 +++++++++++++++++++++++++++++++++
 
-The model by Boehm et al. (2014) was calibrated on measurements on
+The model by `Boehm et al. (2014)`_ was calibrated on measurements on
 phosphorylation levels of STAT5A and STAT5B as well as relative STAT5A
 abundance for different timepoints between 0 - 240 minutes after
 stimulation with erythropoietin (Epo):
@@ -242,7 +244,7 @@ PEtab measurement file:
 3. Defining parameters
 ++++++++++++++++++++++
 
-The model by Boehm et al. (2014) contains nine unknown parameters that
+The model by `Boehm et al. (2014)`_ contains nine unknown parameters that
 need to be estimated from the experimental data. Additionally, it has
 two known parameters that are fixed to literature values.
 
@@ -414,3 +416,12 @@ be found at the PEtab Github page
 .. [#f1]
    TSV files can be created using any standard spreadsheet application,
    or for small files, text editor.
+
+
+References
+++++++++++
+
+* Martin E. Boehm, Lorenz Adlung, Marcel Schilling, Susanne Roth,
+  Ursula Klingmüller, and Wolf D. Lehmann.
+  *Journal of Proteome Research* **2014** 13 (12), 5685-5694.
+  DOI: `10.1021/pr5006923 <https://dx.doi.org/10.1021/pr5006923>`_.
