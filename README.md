@@ -146,7 +146,7 @@ it is running
 
     pip3 install petab
     
-It will require Python>=3.6 to run.
+It will require Python>=3.7.1 to run.
 
 Development versions of the PEtab library can be installed using
 
