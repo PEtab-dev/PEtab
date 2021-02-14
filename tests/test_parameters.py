@@ -174,6 +174,7 @@ def test_normalize_parameter_df():
 
 
 def test_scale_unscale():
+    """Test the parameter scaling functions."""
     par = 2.5
     # scale
     assert petab.scale(par, LIN) == par
