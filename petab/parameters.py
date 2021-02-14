@@ -352,7 +352,7 @@ def get_priors_from_df(parameter_df: pd.DataFrame,
 
 
 def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
-    """Scale parameter according to scale_str
+    """Scale parameter according to `scale_str`.
 
     Arguments:
         parameter:
@@ -375,7 +375,7 @@ def scale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
 
 
 def unscale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
-    """Unscale parameter according to scale_str
+    """Unscale parameter according to `scale_str`.
 
     Arguments:
         parameter:
@@ -401,7 +401,7 @@ def map_scale(
     parameters: Iterable[numbers.Number],
     scale_strs: Union[Iterable[str], str]
 ) -> Iterable[numbers.Number]:
-    """Scale the parameters, i.e. as scale(), but for Iterables.
+    """Scale the parameters, i.e. as `scale()`, but for Iterables.
 
     Arguments:
         parameters:
@@ -416,6 +416,28 @@ def map_scale(
     if isinstance(scale_strs, str):
         scale_strs = [scale_strs] * len(parameters)
     return map(lambda x: scale(x[0], x[1]), zip(parameters, scale_strs))
+
+
+def map_unscale(
+    parameters: Iterable[numbers.Number],
+    scale_strs: Union[Iterable[str], str]
+) -> Iterable[numbers.Number]:
+    """Unscale the parameters, i.e. as `unscale()`, but for Iterables.
+
+    Arguments:
+        parameters:
+            Parameters to be unscaled.
+        scale_strs:
+            Scales that the parameters are currently on.
+            Broadcast if a single string.
+
+    Returns:
+        parameters:
+            The unscaled parameters.
+    """
+    if isinstance(scale_strs, str):
+        scale_strs = [scale_strs] * len(parameters)
+    return map(lambda x: unscale(x[0], x[1]), zip(parameters, scale_strs))
 
 
 def normalize_parameter_df(parameter_df: pd.DataFrame) -> pd.DataFrame:

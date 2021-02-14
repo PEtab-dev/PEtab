@@ -1,8 +1,9 @@
 """Tests for petab/parameters.py"""
 import tempfile
 import pytest
-
+import numpy as np
 import pandas as pd
+
 import petab
 from petab.C import *
 
@@ -170,3 +171,26 @@ def test_normalize_parameter_df():
 
     # check is valid petab
     petab.check_parameter_df(actual)
+
+
+def test_scale_unscale():
+    par = 2.5
+    # scale
+    assert petab.scale(par, LIN) == par
+    assert petab.scale(par, LOG) == np.log(par)
+    assert petab.scale(par, LOG10) == np.log10(par)
+    # unscale
+    assert petab.unscale(par, LIN) == par
+    assert petab.unscale(par, LOG) == np.exp(par)
+    assert petab.unscale(par, LOG10) == 10**par
+
+    # map scale
+    assert list(petab.map_scale([par]*3, [LIN, LOG, LOG10])) == \
+        [par, np.log(par), np.log10(par)]
+    # map unscale
+    assert list(petab.map_unscale([par]*3, [LIN, LOG, LOG10])) == \
+        [par, np.exp(par), 10**par]
+
+    # map broadcast
+    assert list(petab.map_scale([par, 2*par], LOG)) == \
+        [np.log(par), np.log(2*par)]
