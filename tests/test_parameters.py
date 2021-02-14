@@ -193,4 +193,6 @@ def test_scale_unscale():
 
     # map broadcast
     assert list(petab.map_scale([par, 2*par], LOG)) == \
-        [np.log(par), np.log(2*par)]
+        list(np.log([par, 2*par]))
+    assert list(petab.map_unscale([par, 2*par], LOG)) == \
+        list(np.exp([par, 2*par]))
