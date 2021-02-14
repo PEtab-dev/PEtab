@@ -397,9 +397,24 @@ def unscale(parameter: numbers.Number, scale_str: 'str') -> numbers.Number:
     raise ValueError("Invalid parameter scaling: " + scale_str)
 
 
-def map_scale(parameters: Iterable[numbers.Number],
-              scale_strs: Iterable[str]) -> Iterable[numbers.Number]:
-    """As scale(), but for Iterables"""
+def map_scale(
+    parameters: Iterable[numbers.Number],
+    scale_strs: Union[Iterable[str], str]
+) -> Iterable[numbers.Number]:
+    """Scale the parameters, i.e. as scale(), but for Iterables.
+
+    Arguments:
+        parameters:
+            Parameters to be scaled.
+        scale_strs:
+            Scales to apply. Broadcast if a single string.
+
+    Returns:
+        parameters:
+            The scaled parameters.
+    """
+    if isinstance(scale_strs, str):
+        scale_strs = [scale_strs] * len(parameters)
     return map(lambda x: scale(x[0], x[1]), zip(parameters, scale_strs))
 
 
