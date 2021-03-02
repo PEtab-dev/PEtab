@@ -148,7 +148,7 @@ for the longer period). In case of an equal number of votes among any of the
 top 5 candidates, there would have been run-off elections between those candidates
 with equal numbers of votes. The editors-elect were given 3 working days to
 accept the election.
-
+If an editor decides to hand over his editorial role before his election period expires, editors elected for a shorter time period can decide to take over and expand their time as an editor for the remaining time.
 PEtab format development process
 ++++++++++++++++++++++++++++++++
 
