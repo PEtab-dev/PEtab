@@ -136,17 +136,17 @@ Whenever an Editor position becomes vacant:
 Special procedure for the first election:
 -----------------------------------------
 
-The first election will be held among the authors of the original PEtab
-publication. Nominees are not required to be among the authors. The election
-is to be managed by two persons who are not among the candidates and are
+The first election was be held among the authors of the original PEtab
+publication. Nominees were not required to be among the authors. The election
+was managed by two persons who were not among the candidates and were
 coming from two different labs. To avoid a simultaneous replacement of all
-of the editors elected during the first election, the first election will be
-subject to the following special rules: 2 persons will be elected for 3
+of the editors elected during the first election, the first election was
+subject to the following special rules: 2 persons were elected for 3
 years, 2 persons for 2 years and one person for 1 year. The persons with
-more votes will be elected for a longer period (assuming that they accept
+more votes were elected for a longer period (if they accepted
 for the longer period). In case of an equal number of votes among any of the
-top 5 candidates, there will be run-off elections between those candidates
-with equal numbers of votes. The editors-elect are given 3 working days to
+top 5 candidates, there would have been run-off elections between those candidates
+with equal numbers of votes. The editors-elect were given 3 working days to
 accept the election.
 
 PEtab format development process
