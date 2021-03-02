@@ -57,8 +57,12 @@ The PEtab forum ...
 PEtab editors
 -------------
 
-PEtab is meant to be a community effort. Decisions should therefore be made as far as possible by a broad community interested in the use and development of PEtab. Nevertheless, such a project cannot run fully autonomously, but requires a core team of editors to take care of certain management tasks.
-The PEtab editorial board is a team of 5 representatives nominated and elected by the PEtab forum.
+PEtab is meant to be a community effort. Decisions should therefore be made
+as far as possible by a broad community interested in the use and
+development of PEtab. Nevertheless, such a project cannot run fully
+autonomously, but requires a core team of editors to take care of certain
+management tasks. The PEtab editorial board is a team of 5 representatives
+nominated and elected by the PEtab forum.
 
 The duties / privileges of the editors include the following:
 
@@ -87,8 +91,9 @@ Additionally, the `mailing list <https://groups.google.com/g/petab-discuss>`_
 is used for the announcement of new releases, polls, and the likes and can be
 used for discussions that seem unfit for GitHub. An archive of the mailing list
 shall be publicly accessible.
-The PEtab Editors can be contacted through `https://groups.google.com/g/petab-editors <https://groups.google.com/g/petab-editors>`_, which is
-only readable by the current Editors.
+The PEtab Editors can be contacted through
+`https://groups.google.com/g/petab-editors <https://groups.google.com/g/petab-editors>`_,
+which is only readable by the current Editors.
 Regular, ideally non-virtual, PEtab hackathons are planned to happen at least
 annually, e.g., in combination with
 `COMBINE events <https://co.mbine.org/events/>`_.
@@ -133,8 +138,8 @@ Whenever an Editor position becomes vacant:
   PEtab mailing list. The editors shall furthermore announce the number of
   votes each nominee, elected or not, has received.
 
-Special procedure for the first election:
------------------------------------------
+Special procedure for the first election (February, 2021):
+----------------------------------------------------------
 
 The first election was be held among the authors of the original PEtab
 publication. Nominees were not required to be among the authors. The election
@@ -145,10 +150,13 @@ subject to the following special rules: 2 persons were elected for 3
 years, 2 persons for 2 years and one person for 1 year. The persons with
 more votes were elected for a longer period (if they accepted
 for the longer period). In case of an equal number of votes among any of the
-top 5 candidates, there would have been run-off elections between those candidates
-with equal numbers of votes. The editors-elect were given 3 working days to
-accept the election.
-If an editor decides to hand over his editorial role before his election period expires, editors elected for a shorter time period can decide to take over and expand their time as an editor for the remaining time.
+top 5 candidates, there would have been run-off elections between those
+candidates with equal numbers of votes. The editors-elect were given 3 working
+days to accept the election.
+If an editor would decide to hand over his editorial role before the end of
+their term, an editor elected for a shorter term period could decide to take
+over and extend their term to the end of the leaving editor's original term.
+
 PEtab format development process
 ++++++++++++++++++++++++++++++++
 
