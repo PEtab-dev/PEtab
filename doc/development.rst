@@ -141,7 +141,7 @@ Whenever an Editor position becomes vacant:
 Special procedure for the first election (February, 2021):
 ----------------------------------------------------------
 
-The first election was be held among the authors of the original PEtab
+The first election was held among the authors of the original PEtab
 publication. Nominees were not required to be among the authors. The election
 was managed by two persons who were not among the candidates and were
 coming from two different labs. To avoid a simultaneous replacement of all
