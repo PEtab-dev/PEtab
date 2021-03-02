@@ -158,7 +158,7 @@ the PEtab format. Although we value backwards-compatibility, we don’t want to
 exclude breaking changes if justified by the benefits.
 
 Anybody is welcomed to propose changes or additions to PEtab. Any proposals
-shall be made using GitHub issues. Benefits, problems and potential
+shall be made using GitHub issues. Benefits, problems, and potential
 alternatives shall be discussed in the respective thread.
 
 A proposal is considered accepted for inclusion in the next version of PEtab
@@ -181,7 +181,7 @@ The PEtab editors jointly decide whether these requirements are met.
 Upon a new release, the PEtab editors ensure that
 
 * a new release is created in the GitHub repository
-* the new version of the specifications are deposited at Zenodo
+* the new version of the specifications is deposited at Zenodo
 * the new release is announced on the PEtab mailing list
 
 Versioning of the PEtab format
