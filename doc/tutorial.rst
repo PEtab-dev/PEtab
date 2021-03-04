@@ -246,7 +246,7 @@ PEtab measurement file:
 
 The model by `Boehm et al. (2014)`_ contains nine unknown parameters that
 need to be estimated from the experimental data. Additionally, it has
-two known parameters that are fixed to literature values.
+one known parameter that is fixed to a literature value.
 
 The parameters file for this is given by:
 
