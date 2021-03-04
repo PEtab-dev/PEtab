@@ -13,7 +13,7 @@ def plot_lowlevel(plot_spec: pd.Series,
                   ax: 'matplotlib.pyplot.Axes',
                   conditions: pd.Series,
                   ms: pd.DataFrame,
-                  plot_sim: bool) -> 'matplotlib.pyplot.Axes':
+                  plot_sim: int) -> 'matplotlib.pyplot.Axes':
     """
     Plotting routine / preparations: set properties of figure and plot
     the data with given specifications (lineplot with errorbars, or barplot)
@@ -111,13 +111,19 @@ def plot_lowlevel(plot_spec: pd.Series,
             # sorts according to ascending order of conditions
             scond, smean, snoise = \
                 zip(*sorted(zip(conditions, ms['mean'], ms[noise_col])))
-            p = ax.errorbar(
-                scond, smean, snoise,
-                linestyle='-.', marker='.', label=label_base
-            )
+            if plot_sim==0 or plot_sim==1:
+                p = ax.errorbar(
+                    scond, smean, snoise,
+                    linestyle='-.', marker='.', label=label_base
+                )
+            else:
+                p = ax.errorbar(
+                    scond, smean, snoise,
+                    linestyle='-', marker='o', label=label_base
+                )
         # construct simulation plot
         colors = p[0].get_color()
-        if plot_sim:
+        if plot_sim==1:
             xs, ys = zip(*sorted(zip(conditions, ms['sim'])))
             ax.plot(
                 xs, ys, linestyle='-', marker='o',

@@ -107,10 +107,20 @@ def plot_data_and_simulation(
                                               observable_num_list,
                                               exp_conditions,
                                               sim=True)
+    if exp_data is not None:
+        if sim_data is None:
+            plot_sim = 0
+        else:
+            plot_sim = 1
+        # import from file in case experimental data is provided in file
+        if isinstance(exp_data, str):
+            exp_data = measurements.get_measurement_df(exp_data)
+    else:
+        plot_sim = 2
+        exp_data = sim_data.rename(columns={'simulation': 'measurement'})
+        sim_data = None
 
-    # import from file in case experimental data is provided in file
-    if isinstance(exp_data, str):
-        exp_data = measurements.get_measurement_df(exp_data)
+
     # check columns, and add non-mandatory default columns
     exp_data, dataset_id_list, legend_dict = \
         check_ex_exp_columns(exp_data,
@@ -162,7 +172,7 @@ def plot_data_and_simulation(
         for _, plot_spec in vis_spec[ind_plot].iterrows():
             # handle plot of current dataset
             handle_dataset_plot(plot_spec, ax, exp_data,
-                                exp_conditions, sim_data)
+                                exp_conditions, sim_data, plot_sim)
 
         if BAR_PLOT in vis_spec.loc[ind_plot, PLOT_TYPE_SIMULATION]:
 

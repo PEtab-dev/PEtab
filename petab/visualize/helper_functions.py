@@ -719,9 +719,16 @@ def handle_dataset_plot(plot_spec: pd.Series,
                         ax: plt.Axes,
                         exp_data: pd.DataFrame,
                         exp_conditions: pd.DataFrame,
-                        sim_data: pd.DataFrame):
+                        sim_data: pd.DataFrame,
+                        plot_sim: int):
     """
     Handle dataset plot
+
+    Parameters:
+    -----------
+    plot_sim:
+        0 if there is no simulation, 1 if there is sim_data and
+        2 if there is no exp_data but sim_data.
     """
     # get datasetID and independent variable of first entry of plot1
     dataset_id = plot_spec[DATASET_ID]
@@ -755,9 +762,6 @@ def handle_dataset_plot(plot_spec: pd.Series,
     # retrieve measurements from dataframes
     measurement_to_plot = get_data_to_plot(plot_spec, exp_data, sim_data,
                                            uni_condition_id, col_name_unique)
-
-    # check, whether simulation should be plotted
-    plot_sim = sim_data is not None
 
     # plot data
     nan_set = all([np.isnan(val) for val in measurement_to_plot['mean']])
