@@ -111,7 +111,7 @@ def plot_lowlevel(plot_spec: pd.Series,
             # sorts according to ascending order of conditions
             scond, smean, snoise = \
                 zip(*sorted(zip(conditions, ms['mean'], ms[noise_col])))
-            if plot_sim==0 or plot_sim==1:
+            if plot_sim == 0 or plot_sim == 1:
                 p = ax.errorbar(
                     scond, smean, snoise,
                     linestyle='-.', marker='.', label=label_base
@@ -123,7 +123,7 @@ def plot_lowlevel(plot_spec: pd.Series,
                 )
         # construct simulation plot
         colors = p[0].get_color()
-        if plot_sim==1:
+        if plot_sim == 1:
             xs, ys = zip(*sorted(zip(conditions, ms['sim'])))
             ax.plot(
                 xs, ys, linestyle='-', marker='o',

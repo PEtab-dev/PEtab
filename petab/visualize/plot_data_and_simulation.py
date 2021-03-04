@@ -120,7 +120,6 @@ def plot_data_and_simulation(
         exp_data = sim_data.rename(columns={'simulation': 'measurement'})
         sim_data = None
 
-
     # check columns, and add non-mandatory default columns
     exp_data, dataset_id_list, legend_dict = \
         check_ex_exp_columns(exp_data,
