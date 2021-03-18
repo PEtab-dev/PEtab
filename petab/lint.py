@@ -744,7 +744,7 @@ def lint_problem(problem: 'petab.Problem') -> bool:
         logger.warning('Not all files of the PEtab problem definition could '
                        'be checked.')
     else:
-        logger.info('OK')
+        logger.info('PEtab format check completed successfully.')
 
     return errors_occurred
 
