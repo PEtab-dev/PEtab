@@ -2,6 +2,28 @@
 
 ## 0.1 series
 
+### 0.1.14
+
+* Fix sampling of priors in `parameterScale` (#492)
+* Clarify documentation of `parameterScale` priors
+* Improvements in `petab.simulate` (#479):
+  * Fix default noise distributions
+  * Add option for non-negative synthetic data
+
+### 0.1.13
+
+* Fix for pandas 1.2.0 -- use `get_handle` instead of `get_filepath_or_buffer`
+* Fix erroneous `petab_test_suite` symlink (all #493)
+
+### 0.1.12
+
+* Documentation update:
+  * Added SBML2Julia to list of tools supporting PEtab
+  * Extended PEtab introduction
+  * Tutorial for creating PEtab files
+* Minor fix: Default argument for optional 'model' parameter in 
+  `petab.lint.check_condition_df`` (#477)
+
 ### 0.1.11
 
 * Function for generating synthetic data (#472)
@@ -9,7 +31,7 @@
 
 ### 0.1.10
 
-*Fixed deployment setup, no further changes.*
+* Fixed deployment setup, no further changes.*
 
 ### 0.1.9
 

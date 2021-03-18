@@ -26,8 +26,8 @@ def absolute_links(txt):
 
 
 # Python version check. We need >= 3.6 due to e.g. f-strings
-if sys.version_info < (3, 6):
-    sys.exit('PEtab requires at least Python version 3.6')
+if sys.version_info < (3, 7, 1):
+    sys.exit('PEtab requires at least Python version 3.7.1')
 
 # read version from file
 __version__ = ''
@@ -53,7 +53,7 @@ setup(name='petab',
       url='https://github.com/PEtab-dev/PEtab',
       packages=find_packages(exclude=['doc*', 'test*']),
       install_requires=['numpy>=1.15.1',
-                        'pandas>=1.0.1',
+                        'pandas>=1.2.0',
                         'matplotlib>=2.2.3',
                         'python-libsbml>=5.17.0',
                         'sympy',
@@ -64,7 +64,7 @@ setup(name='petab',
                         ],
       include_package_data=True,
       tests_require=['flake8', 'pytest', 'python-libcombine'],
-      python_requires='>=3.6',
+      python_requires='>=3.7.1',
       entry_points=ENTRY_POINTS,
       extras_require={'reports': ['Jinja2'],
                       'combine': ['python-libcombine>=0.2.6']},

@@ -65,15 +65,67 @@ def test_remove_working_dir(petab_problem):
     assert not pathlib.Path(simulator.working_dir).is_dir()
 
 
+def test_zero_bounded(petab_problem):
+    """Test `zero_bounded` argument of `sample_noise`."""
+    positive = np.spacing(1)
+    negative = -positive
+
+    simulator = TestSimulator(petab_problem)
+    # Set the random seed to ensure predictable tests.
+    simulator.rng = np.random.default_rng(seed=0)
+
+    # Set approximately half of the measurements to negative values, and the
+    # rest to positive values.
+    n_measurements = len(petab_problem.measurement_df)
+    neg_indices = range(round(n_measurements / 2))
+    pos_indices = range(len(neg_indices), n_measurements)
+    measurements = [
+        negative if index in neg_indices else
+        (positive if index in pos_indices else np.nan)
+        for index in range(n_measurements)
+    ]
+    synthetic_data_df = simulator.simulate().assign(**{
+        petab.C.MEASUREMENT: measurements
+    })
+    # All measurements are non-zero
+    assert (synthetic_data_df['measurement'] != 0).all()
+    # No measurements are NaN
+    assert not (np.isnan(synthetic_data_df['measurement'])).any()
+
+    synthetic_data_df_with_noise = simulator.add_noise(
+        synthetic_data_df,
+    )
+    # Both negative and positive values are returned by default.
+    assert all([
+        (synthetic_data_df_with_noise['measurement'] <= 0).any(),
+        (synthetic_data_df_with_noise['measurement'] >= 0).any(),
+    ])
+
+    synthetic_data_df_with_noise = simulator.add_noise(
+        synthetic_data_df,
+        zero_bounded=True,
+    )
+    # Values with noise that are different in sign to values without noise are
+    # zeroed.
+    assert all([
+        (synthetic_data_df_with_noise['measurement'][neg_indices] <= 0).all(),
+        (synthetic_data_df_with_noise['measurement'][pos_indices] >= 0).all(),
+        (synthetic_data_df_with_noise['measurement'][neg_indices] == 0).any(),
+        (synthetic_data_df_with_noise['measurement'][pos_indices] == 0).any(),
+        (synthetic_data_df_with_noise['measurement'][neg_indices] < 0).any(),
+        (synthetic_data_df_with_noise['measurement'][pos_indices] > 0).any(),
+    ])
+
+
 def test_add_noise(petab_problem):
     """Test the noise generating method."""
 
     tested_noise_distributions = {'normal', 'laplace'}
     assert set(petab.C.NOISE_MODELS) == tested_noise_distributions, (
         'The noise generation methods have only been tested for '
-        f'{tested_noise_distributions}. Please edit this test '
-        'to include this distribution in its tested distributions. The '
-        'appropriate SciPy distribution will need to be added to '
+        f'{tested_noise_distributions}. Please edit this test to include this '
+        'distribution in its tested distributions. The appropriate SciPy '
+        'distribution will need to be added to '
         '`petab_numpy2scipy_distribution` in `_test_add_noise`.'
     )
 
@@ -94,6 +146,8 @@ def _test_add_noise(petab_problem) -> None:
     }
 
     simulator = TestSimulator(petab_problem)
+    # Set the random seed to ensure predictable tests.
+    simulator.rng = np.random.default_rng(seed=0)
     synthetic_data_df = simulator.simulate()
 
     # Generate samples of noisy data
@@ -144,26 +198,30 @@ def _test_add_noise(petab_problem) -> None:
             getattr(
                 scipy.stats,
                 petab_numpy2scipy_distribution[
-                    expected_noise_distributions[index]]
-            ).cdf, loc=row[MEASUREMENT], scale=expected_noise_values[index])
+                    expected_noise_distributions[index]
+                ]
+            ).cdf,
+            loc=row[MEASUREMENT],
+            scale=expected_noise_values[index]
+        )
 
     # Test whether the distribution of the samples is equal to the expected
     # distribution, for each measurement.
     results = []
     for index, row in synthetic_data_df.iterrows():
-        r = scipy.stats.ks_1samp(
+        results.append(scipy.stats.ks_1samp(
             samples[:, index],
             row2cdf(row, index)
-        )
-        results.append(r)
+        ))
     observed_fraction_above_threshold = (
-        sum(r.pvalue > ks_1samp_pvalue_threshold for r in results) /
-        len(results)
+        sum(r.pvalue > ks_1samp_pvalue_threshold for r in results)
+        / len(results)
     )
     # Sufficient distributions of measurement samples are sufficiently similar
     # to the expected distribution
     assert (
-        observed_fraction_above_threshold > minimum_fraction_above_threshold)
+        observed_fraction_above_threshold > minimum_fraction_above_threshold
+    )
 
     simulator.remove_working_dir()
     assert not pathlib.Path(simulator.working_dir).is_dir()

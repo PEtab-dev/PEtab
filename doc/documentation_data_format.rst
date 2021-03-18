@@ -537,6 +537,9 @@ Detailed field description
 
   Prior parameters used for sampling of initial points for optimization,
   separated by a semicolon. Defaults to ``lowerBound;upperBound``.
+  The parameters are expected to be in linear scale except for the
+  ``parameterScale`` priors, where the prior parameters are expected to be
+  in parameter scale.
 
   So far, only numeric values will be supported, no parameter names.
   Parameters for the different prior types are:
