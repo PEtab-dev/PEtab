@@ -9,12 +9,6 @@
    tutorial
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Python package
-
-   modules
-
-.. toctree::
    :maxdepth: 2
    :caption: About
 
@@ -24,12 +18,6 @@
    license
    editorial_board
    logo/LICENSE.md
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Examples
-
-   example
 
 
 Indices and tables
