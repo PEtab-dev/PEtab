@@ -40,7 +40,6 @@ extensions = [
     'recommonmark',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
-    'nbsphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
