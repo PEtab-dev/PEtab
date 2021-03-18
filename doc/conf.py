@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'PEtab'
-copyright = '2019, Daniel Weindl, Yannik Schälte, Dantong Wang, Carolin Loos, Jan Hasenauer, Paul Stapor, Elba Raimúndez Álvarez, Erika Dudkin, Charles Tapley Hoyt, Fabian Fröhlich'
-author = 'Daniel Weindl, Yannik Schälte, Dantong Wang, Carolin Loos, Jan Hasenauer, Paul Stapor, Elba Raimúndez Álvarez, Erika Dudkin, Charles Tapley Hoyt, Fabian Fröhlich'
+copyright = '2018-2021, the PEtab developers'
+author = 'PEtab developers'
 
 # The full version, including alpha/beta/rc tags
 release = 'latest'
@@ -87,7 +87,7 @@ html_static_path = ['_static']
 
 html_context = {
     "display_github": True,
-    "github_user": "ICB-DCM",
+    "github_user": "petab-dev",
     "github_repo": "petab",
     "github_version": "develop",
     "conf_py_path": "/doc",
