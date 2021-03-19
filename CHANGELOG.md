@@ -1,5 +1,19 @@
 # PEtab changelog
 
+## 2021-03-19
+
+**NOTE:** The original PEtab format + petab package repository has been split
+up (PEtab-dev/PEtab#476). This repository now only contains the PEtab
+specifications and general information on PEtab. The Python package is now
+available at https://github.com/PEtab-dev/libpetab-python/.
+
+* Removed python-package-related files (#518)
+* Doc: Add editorial board (#511)
+* Doc: Update tutorial references (#497)
+* Doc: Add description of PEtab development process (#507)
+* Update tutorial.rst (#512)
+* Update how-to-cite (Closes #432) (#509)
+
 ## 0.1 series
 
 ### 0.1.14
