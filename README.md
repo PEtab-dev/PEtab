@@ -1,15 +1,10 @@
-![CI tests](https://github.com/PEtab-dev/PEtab/workflows/CI%20tests/badge.svg)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd7dd5cee68e449983be5c43f230c7f3)](https://www.codacy.com/gh/PEtab-dev/PEtab?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PEtab-dev/PEtab&amp;utm_campaign=Badge_Grade)
-[![codecov](https://codecov.io/gh/PEtab-dev/PEtab/branch/master/graph/badge.svg)](https://codecov.io/gh/PEtab-dev/PEtab)
-[![PyPI version](https://badge.fury.io/py/petab.svg)](https://badge.fury.io/py/petab)
-
 # PEtab -- a data format for specifying parameter estimation problems in systems biology
 
 ![Logo](doc/logo/PEtab.png)
 
-*PEtab* is a data format for specifying parameter estimation problems in systems biology.
-This repository provides extensive documentation and a Python library for easy
-access and validation of *PEtab* files.
+*PEtab* is a data format for specifying parameter estimation problems in
+systems biology. This repository contains the PEtab specifications and
+additional documentation.
 
 ## About PEtab
 
@@ -32,7 +27,7 @@ for example:
 
 ## Documentation
 
-Documentation of the PEtab data format and Python library is available at
+Documentation of the PEtab data format is available at
 [https://petab.readthedocs.io/en/latest/](https://petab.readthedocs.io/en/latest/).
 
 ## Examples
@@ -131,50 +126,17 @@ will have to:
 1. Create a parameter table.
 
 If you are using Python, some handy functions of the
-[PEtab library](https://petab.readthedocs.io/en/latest/modules.html) can help
-you with that. This include also a PEtab validator called `petablint` which
+[PEtab library](https://github.com/PEtab-dev/libpetab-python/) can help
+you with that. This includes also a PEtab validator called `petablint` which
 you can use to check if your files adhere to the PEtab standard. If you have 
 further questions regarding PEtab, feel free to post an 
-[issue](https://github.com/PEtab-dev/PEtab/issues) at our github repository.
+[issue](https://github.com/PEtab-dev/PEtab/issues) at our GitHub repository.
 
 ## PEtab Python library
 
 PEtab comes with a Python package for creating, checking, visualizing and
-working with PEtab files. This library is available on
-[pypi](https://pypi.org/project/petab/) and the easiest way to install
-it is running
-
-    pip3 install petab
-    
-It will require Python>=3.7.1 to run.
-
-Development versions of the PEtab library can be installed using
-
-    pip3 install https://github.com/PEtab-dev/PEtab/archive/develop.zip
-
-(replace `develop` by the branch or commit you would like to install).
-
-When setting up a new parameter estimation problem, the most useful tools will
-be:
-
-  - The **PEtab validator**, which is now automatically installed using Python
-    entrypoints to be available as a shell command from anywhere called
-    `petablint`
-
-  - `petab.create_parameter_df` to create the parameter table, once you
-    have set up the model, condition table, observable table and measurement
-    table
-
-  - `petab.create_combine_archive` to create a
-    [COMBINE Archive](https://combinearchive.org/index/) from PEtab files
-
-### Library examples
-
-Examples for PEtab Python library usage:
-
-* [Validation](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_petablint.ipynb)
-* [Visualization](https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_visualization.ipynb)
-
+working with PEtab files. This package is available at 
+https://github.com/PEtab-dev/libpetab-python/.
 
 ## Getting help
 
