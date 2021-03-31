@@ -76,11 +76,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="163.07391"
-     inkscape:cy="349.84849"
+     inkscape:zoom="2.8284272"
+     inkscape:cx="278.80053"
+     inkscape:cy="388.82208"
      inkscape:document-units="mm"
-     inkscape:current-layer="g2301"
+     inkscape:current-layer="g17790"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="974"
@@ -101,7 +101,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1144,15 +1144,15 @@
                    x="103.64831"
                    y="148.53644"
                    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                   id="tspan2187">Observable1        s ⋅ x1           normal             1.0</tspan><tspan
+                   id="tspan2187">Observable1       s · x1           normal             1.0</tspan><tspan
                    sodipodi:role="line"
                    x="103.64831"
-                   y="155.0844"
+                   y="154.71005"
                    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
                    id="tspan2081">Observable2       c + x2          laplace             3.0</tspan><tspan
                    sodipodi:role="line"
                    x="103.64831"
-                   y="161.25801"
+                   y="160.88367"
                    style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
                    id="tspan2083">...</tspan></text>
               <text
