@@ -140,12 +140,12 @@ https://github.com/PEtab-dev/libpetab-python/.
 
 ## PEtab R library
 
-There is also an R package for PEtab in development, that currently supports:
+There is also an R package for PEtab in development, which currently supports:
 consistent manipulation of experimental conditions, measurements, and
 observables; and visualizing measurements. It also provides an interface to the
 PEtab Python library, and an interface to dMod that supports: conversion of
-dMod models to SBML; and simulation and visualization of results.
-https://github.com/dlill/petab
+dMod models to SBML; and simulation and visualization of results. The package
+is available at https://github.com/dlill/petab/.
 
 ## Getting help
 
