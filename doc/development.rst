@@ -223,15 +223,14 @@ Developers are free to develop any PEtab extension. To become an official
 PEtab extension, it needs to go through the following process.
 
 1. The developers write a proposal describing the motivation and specification
-of the extension, following the template provided at XXXXXXX.
-1. The proposal submitted as an issue in the https://github.com/PEtab-dev/PEtab
+of the extension, following the respective issue template provided in this
 repository.
+1. The proposal submitted as an issue in this repository.
 1. The technical specification and documentation of the extension is submitted
-as pull request in https://github.com/PEtab-dev/PEtab that references the issue
-in the https://github.com/PEtab-dev/PEtab repository.
+as pull request in this repository that references the respective issue.
 1. The developers submit a pull request that adds test cases to validate support
 for the extension https://github.com/PEtab-dev/petab_test_suite that references
-the issue in the https://github.com/PEtab-dev/PEtab repository.
+the issue in this repository.
 
 The PEtab editors jointly decide whether an extension meets the requirements
 described here. In case of a positive evaluation, they announce a poll for the
