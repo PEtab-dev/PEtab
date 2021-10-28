@@ -37,7 +37,7 @@ subprocess.run(['python', 'md2rst.py'])
 extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
-    'recommonmark',
+    'm2r2',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
 ]
