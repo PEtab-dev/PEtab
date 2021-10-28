@@ -37,7 +37,7 @@ subprocess.run(['python', 'md2rst.py'])
 extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
-    'recommonmark',
+    'm2r2',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
 ]
@@ -78,7 +78,7 @@ source_suffix = {
 #
 html_theme = 'sphinx_rtd_theme'
 def setup(app):
-    app.add_stylesheet('custom.css')
+    app.add_css_file('custom.css')
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
