@@ -76,7 +76,7 @@ different tools, based on passed test cases of the
 [PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
 
 
-| ID | Test                                                           | AMICI<br>`>=0.10.20` | Copasi | D2D | dMod | MEIGO | parPE<br>`develop`  | pyABC<br>`>=0.10.1` | pyPESTO<br>`>=0.0.11` | SBML2Julia |
+| ID | Test                                                           | AMICI<br>`>=0.11.19` | Copasi | D2D | dMod | MEIGO | parPE<br>`develop`  | pyABC<br>`>=0.10.1` | pyPESTO<br>`>=0.0.11` | SBML2Julia |
 |----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|-----------------------|-------|------------------------|------------|
 | 1  | Basic simulation                                               | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 2  | Multiple simulation conditions                                 | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
@@ -84,7 +84,7 @@ different tools, based on passed test cases of the
 | 4  | Parametric observable parameter overrides in measurement table | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 5  | Parametric overrides in condition table                        | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 6  | Time-point specific overrides in the measurement table         | ---                  | ---    | +++ | +++  | +++   | ---                   | ---   | ---                    | +++        |
-| 7  | Observable transformations to log10 scale                      | +-+                  | +--    | +++ | ++-  | +++   | --+                   | +-+   | +-+                    | +++        |
+| 7  | Observable transformations to log10 scale                      | +++                  | +--    | +++ | ++-  | +++   | --+                   | +++   | +++                    | +++        |
 | 8  | Replicate measurements                                         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 9  | Pre-equilibration                                              | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
@@ -93,7 +93,7 @@ different tools, based on passed test cases of the
 | 13 | Parametric initial concentrations in condition table           | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 14 | Numeric noise parameter overrides in measurement table         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
 | 15 | Parametric noise parameter overrides in measurement table      | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 16 | Observable transformations to log scale                        | +-+                  | +--    | +++ | ++-  | +++   | --+                   | +-+   | +-+                    | +++        |
+| 16 | Observable transformations to log scale                        | +++                  | +--    | +++ | ++-  | +++   | --+                   | +++   | +++                    | +++        |
 
 Legend:
 * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-).
@@ -139,6 +139,15 @@ further questions regarding PEtab, feel free to post an
 PEtab comes with a Python package for creating, checking, visualizing and
 working with PEtab files. This package is available at 
 https://github.com/PEtab-dev/libpetab-python/.
+
+## PEtab R library
+
+There is also an R package for PEtab in development, which currently supports:
+consistent manipulation of experimental conditions, measurements, and
+observables; and visualizing measurements. It also provides an interface to the
+PEtab Python library, and an interface to dMod that supports: conversion of
+dMod models to SBML; and simulation and visualization of results. The package
+is available at https://github.com/dlill/petab/.
 
 ## Getting help
 

@@ -1,4 +1,4 @@
-import m2r
+import m2r2
 import re
 
 
@@ -25,7 +25,7 @@ def absolute_links(txt):
 
 def md2rst(source: str, target: str):
     txt = absolute_links(read(source))
-    txt = m2r.convert(txt)
+    txt = m2r2.convert(txt, anonymous_references=True)
     with open(target, 'w') as f:
         f.write(txt)
 
