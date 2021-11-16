@@ -211,7 +211,7 @@ Detailed field description
 
 - ``observableId`` [STRING, NOT NULL, REFERENCES(observables.observableID)]
 
-  Observable ID as defined in the observables table described below.
+  Observable ID as defined in the observable table described below.
 
 - ``preequilibrationConditionId`` [STRING OR NULL, REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
@@ -276,8 +276,8 @@ Detailed field description
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
 
-Observables table
------------------
+Observable table
+----------------
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
