@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Name of the Extension**
-Please make sure that the extension is named matches the regular expressin `^[a-zA-Z_]\w*$`.
+Please make sure that the extension name matches the regular expression `^[a-zA-Z_]\w*$`.
 
 **Which problem would you like to address?**
 A clear and concise description of which use case you want to address and, if applicable, why the current specifications do not fulfill your requirements.
@@ -22,5 +22,5 @@ A clear and concise description in what way the proposed changes introduce featu
 **List the extension library that implements validation checks**
 A link to the website or github repository that accompanies the proposed extension.
 
-**List two toolboxes that support the proposed standard **
+**List two toolboxes that support the proposed standard**
 A link to the website or github repository that contains the software that implements support for the standard.

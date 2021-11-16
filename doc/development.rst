@@ -214,7 +214,7 @@ tasks, i.e., they should not make trivial changes to PEtab core.
 * PEtab extensions must be named according to ^[a-zA-Z_]\w*$
 * PEtab extensions must be versioned using semantic versioning.
 * PEtab extensions required for interpretation of a problem specification must
-be specified in the in the PEtab-YAML files
+be specified in the PEtab-YAML files
 * There are at least two tools that support the proposed extension
 * The authors provide a library that implements validation checks for the
 proposed format.
