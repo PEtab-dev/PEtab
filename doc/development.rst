@@ -197,8 +197,8 @@ PEtab Extensions
 
 An elaborate, monolithic format would make it difficult to understand and
 implement support for PEtab, leading to a steep learning curve and discouraging
-support in new toolboxes. To address this issue the PEtab format is modular and
-also permits modifications through extensions that complement the core standard.
+support in new toolboxes. To address this issue, the PEtab format is modular and
+permits modifications through extensions that complement the core standard.
 This modular specification evens the learning curve and provides toolbox
 developers with more guidance on which features to implement to maximize
 support for real world applications. Moreover, such modular extensions
@@ -215,7 +215,7 @@ tasks, i.e., they should not make trivial changes to PEtab core.
 * PEtab extensions must be versioned using semantic versioning.
 * PEtab extensions required for interpretation of a problem specification must
 be specified in the in the PEtab-YAML files
-* There are at least two tools that support the proposed extension
+* There are at least one tool that supports the proposed extension
 * The authors provide a library that implements validation checks for the
 proposed format.
 
@@ -229,8 +229,9 @@ repository.
 1. The technical specification and documentation of the extension is submitted
 as pull request in this repository that references the respective issue.
 1. The developers submit a pull request that adds test cases to validate support
-for the extension https://github.com/PEtab-dev/petab_test_suite that references
-the issue in this repository.
+for the extension in the https://github.com/PEtab-dev/petab_test_suite
+repository. The external pull request must also reference the issue containing
+the proposal.
 
 The PEtab editors jointly decide whether an extension meets the requirements
 described here. In case of a positive evaluation, they announce a poll for the
@@ -243,7 +244,6 @@ It is encouraged that extensions are informally discussed with the community
 before initiating the process of becoming an official extension. Such
 discussions can be conducted through the communication channels mentioned
 above.
-
 
 Versioning of the PEtab format
 ------------------------------
