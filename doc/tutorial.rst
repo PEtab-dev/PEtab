@@ -120,7 +120,7 @@ overridden by these condition-specific values. Here, we define the Epo
 concentration, but additional columns could be used to e.g. set
 different initial concentrations of STAT5A/B. In addition to numeric
 values, also parameter identifiers can be used here to introduce
-condition specific optimization parameters.
+condition specific estimateable parameters.
 
 2.2 Specifying the observation model
 ------------------------------------
@@ -273,17 +273,17 @@ The parameters file for this is given by:
   observables (*sd_{observableId}*) are estimated.
 
 * *parameterScale* is the scale on which parameters are estimated. Often,
-  a logarithmic scale improves optimization. Alternatively, a linear scale
+  a logarithmic scale improves estimation. Alternatively, a linear scale
   can be used, e.g. when parameters can be negative.
 
 * *lowerBound* and *upperBound* define the bounds for the parameters used
-  during optimization. These are usually biologically plausible ranges.
+  during estimation. These are usually biologically plausible ranges.
 
 * *nominalValue* are known values used for simulation. The entry can be
-  left empty, if a value is unknown and subject to optimization.
+  left empty, if a value is unknown and requires estimation.
 
-* *estimate* defines whether the parameter is subject to optimization (1)
-  or if it is fixed (0) to the value in the nominalValue column.
+* *estimate* defines whether the parameter will be estimated (1)
+  or be fixed (0) to the value in the nominalValue column.
 
 4. Visualization file
 +++++++++++++++++++++
