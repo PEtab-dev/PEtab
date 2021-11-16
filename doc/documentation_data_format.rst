@@ -55,7 +55,7 @@ and
 
 - An observable file specifying the observation model [TSV]
 
-- A parameter file specifying optimization parameters and related information
+- A parameter file specifying estimateable parameters and related information
   [TSV]
 
 - (optional) A simulation file, which has the same format as the measurement
@@ -79,7 +79,7 @@ defining the parameter estimation problem.
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, while those columns may provide extra
 information for example for plotting, downstream analysis, or for more
-efficient parameter estimation, they should not affect the optimization
+efficient parameter estimation, they should not affect the estimation
 problem as such.
 
 **General remarks**
@@ -248,7 +248,7 @@ Detailed field description
 
   Different lines for the same ``observableId`` may specify different
   parameters. This may be used to account for condition-specific or
-  batch-specific parameters. This will translate into an extended optimization
+  batch-specific parameters. This will translate into an extended estimation
   parameter vector.
 
   All placeholders defined in the observation model must be overwritten here.
@@ -494,13 +494,13 @@ Detailed field description
 
 - ``lowerBound`` [NUMERIC]
 
-  Lower bound of the parameter used for optimization.
+  Lower bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
   Must be provided in linear space, independent of ``parameterScale``.
 
 - ``upperBound`` [NUMERIC]
 
-  Upper bound of the parameter used for optimization.
+  Upper bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
   Must be provided in linear space, independent of ``parameterScale``.
 
@@ -518,7 +518,7 @@ Detailed field description
 
 - ``initializationPriorType`` [STRING, OPTIONAL]
 
-  Prior types used for sampling of initial points for optimization. Sampled
+  Prior types used for sampling of initial points for estimation. Sampled
   points are clipped to lie inside the parameter boundaries specified by
   ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
 
@@ -536,7 +536,7 @@ Detailed field description
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for sampling of initial points for optimization,
+  Prior parameters used for sampling of initial points for estimation,
   separated by a semicolon. Defaults to ``lowerBound;upperBound``.
   The parameters are expected to be in linear scale except for the
   ``parameterScale`` priors, where the prior parameters are expected to be
@@ -556,12 +556,12 @@ Detailed field description
 
 - ``objectivePriorType`` [STRING, OPTIONAL]
 
-  Prior types used for the objective function during optimization or sampling.
+  Prior types used for the objective function during estimation.
   For possible values, see ``initializationPriorType``.
 
 - ``objectivePriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for the objective function during optimization.
+  Prior parameters used for the objective function during estimation.
   For more detailed documentation, see ``initializationPriorParameters``.
 
 
