@@ -130,7 +130,7 @@ functions. Additionally, a noise model can be introduced to account for
 the measurement errors. In PEtab, this can be encoded in the observable
 file:
 
-.. list-table:: Observables table ``observables.tsv``.
+.. list-table:: Observable table ``observables.tsv``.
    :header-rows: 1
 
    * - observableId
@@ -146,7 +146,7 @@ file:
      - Rel. STAT5A abundance [%]
      - ...
 
-.. list-table:: Observables table ``observables.tsv`` (continued).
+.. list-table:: Observable table ``observables.tsv`` (continued).
    :header-rows: 1
 
    * - ...
@@ -162,7 +162,7 @@ file:
      - 100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB)
      - ...
 
-.. list-table:: Observables table ``observables.tsv`` (continued).
+.. list-table:: Observable table ``observables.tsv`` (continued).
    :header-rows: 1
 
    * - ...
@@ -235,8 +235,8 @@ PEtab measurement file:
   brevity, only the first and last time point of the example are shown
   here (the omitted measurements are indicated by “...” in the example).
 
-* *noiseParameters* relates to the *noiseParameters* in the observables
-  file. In our example, the measurement noise is unknown. Therefore we
+* *noiseParameters* relates to the *noiseParameters* in the observable table.
+  In our example, the measurement noise is unknown. Therefore we
   define parameters here which have to be estimated (see parameters sheet
   below). If the noise is known, e.g. from multiple replicates, numeric
   values can be used in this column.
