@@ -225,9 +225,9 @@ PEtab extension, it needs to go through the following process.
 1. The developers write a proposal describing the motivation and specification
 of the extension, following the respective issue template provided in this
 repository.
-1. The proposal submitted as an issue in this repository.
+1. The proposal is submitted as an issue in this repository.
 1. The technical specification and documentation of the extension is submitted
-as pull request in this repository that references the respective issue.
+as a pull request in this repository that references the respective issue.
 1. The developers submit a pull request that adds test cases to validate support
 for the extension in the https://github.com/PEtab-dev/petab_test_suite
 repository. The external pull request must also reference the issue containing

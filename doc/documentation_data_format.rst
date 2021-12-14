@@ -58,7 +58,7 @@ and
 - A parameter file specifying optimization parameters and related information
   [TSV]
 
-- A grouping file that list all of the files and provides additional information
+- A grouping file that lists all of the files and provides additional information
   including employed extensions [YAML]
 
 - (optional) A simulation file, which has the same format as the measurement
