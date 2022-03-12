@@ -58,6 +58,9 @@ and
 - A parameter file specifying optimization parameters and related information
   [TSV]
 
+- A grouping file that lists all of the files and provides additional information
+  including employed extensions [YAML]
+
 - (optional) A simulation file, which has the same format as the measurement
   file, but contains model simulations [TSV]
 
@@ -697,7 +700,7 @@ To link the SBML model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 
 This file also allows specifying a PEtab version (as the format is not unlikely
-to change in the future).
+to change in the future) and employed PEtab extensions.
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).

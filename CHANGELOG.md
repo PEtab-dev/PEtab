@@ -14,6 +14,13 @@ available at https://github.com/PEtab-dev/libpetab-python/.
 * Update tutorial.rst (#512)
 * Update how-to-cite (Closes #432) (#509)
 
+## 0.2 series
+
+ ### 0.2.0
+
+* Specify how PEtab functionality can be expanded through extensions.
+* YAML files are now required for the specification of PEtab problems
+
 ## 0.1 series
 
 ### 0.1.14
