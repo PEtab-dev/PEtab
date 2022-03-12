@@ -238,7 +238,8 @@ described here. In case of a positive evaluation, they announce a poll for the
 acceptance as official extension to the PEtab forum. All members of the PEtab
 community are eligible to vote. If at least 50% of the votes are in favor,
 the extension is accepted and the respective pull requests with specifications,
-documentation and test cases are merged.
+documentation and test cases are merged. There is no quorum number of votes
+for acceptance.
 
 It is encouraged that extensions are informally discussed with the community
 before initiating the process of becoming an official extension. Such
