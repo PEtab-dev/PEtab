@@ -216,8 +216,8 @@ tasks, i.e., they should not make trivial changes to PEtab core.
 * PEtab extensions required for interpretation of a problem specification must
 be specified in the PEtab-YAML files
 * There is at least one tool that supports the proposed extension
-* The authors provide a library that implements validation checks for the
-proposed format.
+* The authors provide a library that provides tests cases and implements
+validation checks for the proposed format.
 
 Developers are free to develop any PEtab extension. To become an official
 PEtab extension, it needs to go through the following process.
@@ -228,10 +228,6 @@ repository.
 1. The proposal is submitted as an issue in this repository.
 1. The technical specification and documentation of the extension is submitted
 as a pull request in this repository that references the respective issue.
-1. The developers submit a pull request that adds test cases to validate support
-for the extension in the https://github.com/PEtab-dev/petab_test_suite
-repository. The external pull request must also reference the issue containing
-the proposal.
 
 The PEtab editors jointly decide whether an extension meets the requirements
 described here. In case of a positive evaluation, they announce a poll for the
