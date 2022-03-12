@@ -16,7 +16,7 @@ available at https://github.com/PEtab-dev/libpetab-python/.
 
 ## 0.2 series
 
- ### 0.2.0
+### 0.2.0
 
 * Specify how PEtab functionality can be expanded through extensions.
 * YAML files are now required for the specification of PEtab problems
