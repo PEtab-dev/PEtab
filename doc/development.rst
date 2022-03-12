@@ -216,7 +216,7 @@ tasks, i.e., they should not make trivial changes to PEtab core.
 * PEtab extensions required for interpretation of a problem specification must
 be specified in the PEtab-YAML files
 * There is at least one tool that supports the proposed extension
-* The authors provide a library that provides tests cases and implements
+* The authors provide a library that provides test cases and implements
 validation checks for the proposed format.
 
 Developers are free to develop any PEtab extension. To become an official
