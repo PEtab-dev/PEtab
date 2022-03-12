@@ -23,5 +23,5 @@ A clear and concise description in what way the proposed changes introduce featu
 **List the extension library that implements validation checks**
 A link to the website or github repository that accompanies the proposed extension.
 
-**List two toolboxes that support the proposed standard**
+**List the toolboxes that support the proposed standard**
 A link to the website or github repository that contains the software that implements support for the standard.
