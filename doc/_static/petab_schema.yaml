@@ -89,7 +89,7 @@ properties:
     description: |
       PEtab extensions being used.
     patternProperties:
-      "^[a-zA-Z_-]\\w*$":
+      "^[a-zA-Z][\\-\\w]*$":
 
         type: object
         description: |

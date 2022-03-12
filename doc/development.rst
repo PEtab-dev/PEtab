@@ -211,7 +211,7 @@ Requirements for new extensions:
 can ease or refine format restrictions imposed by PEtab core.
 * PEtab extensions should extend PEtab core with new orthogonal features or
 tasks, i.e., they should not make trivial changes to PEtab core.
-* PEtab extensions must be named according to ^[a-zA-Z_-]\w*$
+* PEtab extensions must be named according to ^[a-zA-Z][\w\-]*$
 * PEtab extensions must be versioned using semantic versioning.
 * PEtab extensions required for interpretation of a problem specification must
 be specified in the PEtab-YAML files
