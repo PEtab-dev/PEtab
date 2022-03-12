@@ -682,8 +682,11 @@ Detailed field description
 Extensions
 ~~~~~~~~~~
 
-Additional columns, such as ``Color``, etc. may be specified.
-
+Additional columns, such as ``Color``, etc. may be specified. Extensions
+that define operations on multiple PEtab problems need to employ a single
+PEtab problem as entrypoint to the analysis. This PEtab file may leave all
+fields specifying files empty and reference the other PEtab problems in the
+extension specific fields.
 
 Examples
 ~~~~~~~~
