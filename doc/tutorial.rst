@@ -20,8 +20,8 @@ For more details, we refer to the original publication.
 
 A PEtab problem consists of 1) an SBML model of a biological system, 2)
 condition, observable and measurement definitions, and 3) the
-specification of the parameters. We will show how to generate the
-respective files in the following.
+specification of the parameters and 4) a configuration file that lists all of
+these files. We will show how to generate the respective files in the following.
 
 1. The model
 ++++++++++++
@@ -324,11 +324,10 @@ https://petab.readthedocs.io/en/latest/documentation_data_format.html#visualizat
 5. YAML file
 ++++++++++++
 
-To group the previously mentioned PEtab files, a YAML file can be used,
-defining which files constitute a PEtab problem. While being optional,
-this makes it easier to import a PEtab problem into tools, and allows
-reusing files for different PEtab problems. This file has the following
-format (``Boehm_JProteomeRes2014.yaml``):
+To group the previously mentioned PEtab files, a YAML file must be used,
+defining which files constitute a PEtab problem. This makes it easier to import
+a PEtab problem into tools, and allows reusing files for different PEtab
+problems. This file has the following format (``Boehm_JProteomeRes2014.yaml``):
 
 .. code-block:: yaml
 

@@ -58,6 +58,9 @@ and
 - A parameter file specifying estimateable parameters and related information
   [TSV]
 
+- A grouping file that lists all of the files and provides additional information
+  including employed extensions [YAML]
+
 - (optional) A simulation file, which has the same format as the measurement
   file, but contains model simulations [TSV]
 
@@ -679,8 +682,11 @@ Detailed field description
 Extensions
 ~~~~~~~~~~
 
-Additional columns, such as ``Color``, etc. may be specified.
-
+Additional columns, such as ``Color``, etc. may be specified. Extensions
+that define operations on multiple PEtab problems need to employ a single
+PEtab YAML file as entrypoint to the analysis. This PEtab file may leave all
+fields specifying files empty and reference the other PEtab problems in the
+extension specific fields.
 
 Examples
 ~~~~~~~~
@@ -697,7 +703,7 @@ To link the SBML model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 
 This file also allows specifying a PEtab version (as the format is not unlikely
-to change in the future).
+to change in the future) and employed PEtab extensions.
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
