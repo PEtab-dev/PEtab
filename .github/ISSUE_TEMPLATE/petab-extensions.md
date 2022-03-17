@@ -9,7 +9,7 @@ assignees: ''
 ---
 
 **Name of the Extension**
-Please make sure that the extension name matches the regular expression `^[a-zA-Z_]\w*$`.
+Please make sure that the extension name matches the regular expression `^[a-zA-Z_][\w-]*$`.
 
 **Which problem would you like to address?**
 A clear and concise description of which use case you want to address and, if applicable, why the current specifications do not fulfill your requirements.
