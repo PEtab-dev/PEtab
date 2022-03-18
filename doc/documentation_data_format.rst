@@ -2,7 +2,7 @@ PEtab data format specification
 ===============================
 
 
-Format version: 1
+Format version: 2.0.0
 
 This document explains the PEtab data format.
 
@@ -41,12 +41,11 @@ Overview
 ---------
 
 The PEtab data format specifies a parameter estimation problem using a number
-of text-based files (`Systems Biology Markup Language (SBML) <http://sbml.org>`_
-and
+of text-based files (
 `Tab-Separated Values (TSV) <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_)
 (Figure 2), i.e.
 
-- An SBML model [SBML]
+- An model
 
 - A measurement file to fit the model to [TSV]
 
@@ -66,6 +65,9 @@ and
 
 - (optional) A visualization file, which contains specifications how the data
   and/or simulations should be plotted by the visualization routines [TSV]
+
+- (optional) A mapping file, which allows mapping PEtab entity IDs to entity
+  IDs in the model, which might not have valid PEtab IDs themselves [TSV]
 
 .. figure:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
@@ -91,11 +93,11 @@ problem as such.
 - Fields in "[]" are optional and may be left empty.
 
 
-SBML model definition
----------------------
+Model definition
+----------------
 
-The model must be specified as valid SBML. There are no further restrictions.
-
+PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
+in the PEtab problem description (YAML) via its file name or a URL.
 
 Condition table
 ---------------
@@ -107,7 +109,7 @@ different experimental conditions).
 This is specified as a tab-separated value file in the following way:
 
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId  | [conditionName]  | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
+| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId1${n}                    |
 +==============+==================+====================================+=====+=======================================+
 | STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
@@ -140,12 +142,13 @@ Detailed field description
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- ``${parameterOrSpeciesOrCompartmentId1}``
+- ``${modelEntityId}``
 
-  Further columns may be global parameter IDs, IDs of species or compartments
-  as defined in the SBML model. Only one column is allowed per ID.
+  Further columns may be the IDs of model entities that have globally unique
+  IDs, such as parameters, species or compartments defined in the model.
+  Only one column is allowed per ID.
   Values for these condition parameters may be provided either as numeric
-  values, or as IDs defined in the SBML model, the parameter table or both.
+  values, or as IDs defined in the model, the parameter table or both.
 
   - ``${parameterId}``
 
@@ -154,17 +157,22 @@ Detailed field description
   - ``${speciesId}``
 
     If a species ID is provided, it is interpreted as the initial
-    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True` 
-    for the respective species, as concentration otherwise) and will override the 
+    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True`
+    for the respective species, as concentration otherwise) and will override the
     initial condition given in the SBML model or given by a preequilibration
     condition. If ``NaN`` is provided for a condition, the result of the
-    preequilibration (or initial condition from the SBML model, if
+    preequilibration (or initial condition from the model, if
     no preequilibration is defined) is used.
 
   - ``${compartmentId}``
 
     If a compartment ID is provided, it is interpreted as the initial
     compartment size.
+
+  - For all other entities, values are statically replaced at all time points.
+    For entities that assign values to other entities, such as SBML
+    `AssignmentRule`s, the value of the target of that rule is statically
+    replaced at all time points.
 
 
 Measurement table
@@ -693,6 +701,50 @@ Detailed field description
   legend and which defaults to the value in ``datasetId``.
 
 
+Mapping table
+-------------
+
+Mapping PEtab entity IDs to entity IDs in the model. This optional file may be
+used to reference model entities in PEtab files where the ID in the model would
+not be a valid identifier in PEtab (e.g., due to containing blanks, dots, or
+other special characters).
+
+The tsv file has two mandatory columns, ``petabEntityId`` and
+``modelEntityId``. Additional columns are allowed.
+
++---------------+---------------+
+| petabEntityId | modelEntityId |
++===============+===============+
+| STRING        | STRING        |
++---------------+---------------+
+| e.g.          | ...           |
++---------------+---------------+
+| reaction1_k1  | reaction1.k1  |
++---------------+---------------+
+
+
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``petabEntityId`` [STRING, NOT NULL]
+
+  A valid PEtab identifier that is not defined in any other part of the PEtab
+  problem. This identifier may be referenced in condition, measurement,
+  parameter and observable tables, but cannot be referenced in the model
+  itself.
+
+- ``modelEntityId`` [STRING, NOT NULL]
+
+  A globally unique identifier defined in the model.
+
+  For example, in SBML, local parameters may be referenced as
+  ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
+  contain a ``.`` character. Similarly, this table may be used to reference
+  specific species in a BGNL model which may contain many unsupported
+  characters such as ``,``, ``(`` or ``.``. However, please note that IDs must
+  exactly match the species names in the BNGL generated network file and no
+  pattern matching will be performed.
+
 Extensions
 ~~~~~~~~~~
 
@@ -731,7 +783,7 @@ Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Parameter estimation problems can comprise multiple models. For now, PEtab
-allows to specify multiple SBML models with corresponding condition and
+allows to specify multiple models with corresponding condition and
 measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
