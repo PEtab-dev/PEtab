@@ -148,7 +148,8 @@ Detailed field description
   IDs, such as parameters, species or compartments defined in the model.
   Only one column is allowed per ID.
   Values for these condition entities may be provided either as numeric
-  values, or as IDs defined in the model, the parameter table or both.
+  values, or as IDs defined in the model, the mapping table or the parameter
+  table.
 
   - ``${parameterId}``
 
