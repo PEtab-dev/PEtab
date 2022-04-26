@@ -717,8 +717,6 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 +===============+===============+
 | STRING        | STRING        |
 +---------------+---------------+
-| e.g.          | ...           |
-+---------------+---------------+
 | reaction1_k1  | reaction1.k1  |
 +---------------+---------------+
 
