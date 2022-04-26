@@ -38,7 +38,7 @@ properties:
         files and optional visualization files.
       properties:
 
-        models:
+        model_files:
           type: object
           description: One or multiple models
 
@@ -94,7 +94,7 @@ properties:
             description: Optional PEtab mapping file name or URL.
 
       required:
-        - models
+        - model_files
         - observable_files
         - measurement_files
         - condition_files
