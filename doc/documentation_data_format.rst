@@ -145,35 +145,37 @@ Detailed field description
 - ``${modelEntityId}``
 
   Further columns may be the IDs of model entities that have globally unique
-  IDs, such as parameters, species or compartments defined in the model.
-  Only one column is allowed per ID.
-  Values for these condition entities may be provided either as numeric
-  values, or as IDs defined in the model, the mapping table or the parameter
-  table.
+  IDs, such as parameters, species or compartments defined in the model to set
+  condition-specific values. Only one column is allowed per ID.
+  Values for these entities may be provided either as numeric values, or as IDs
+  of globally unique entity IDs as defined in the model, the mapping table or
+  the parameter table.
 
-  - ``${parameterId}``
+  The value in the condition table either replaces the initial value or the
+  value at all timepoints based on whether the model entity has a rate law
+  assigned or not:
 
-    The values will override any parameter values specified in the model.
+  * For model entities that have constant algebraic assignments
+    (but not necessarily constant values), i.e, that do not have a rate of
+    change with respect to time assigned and that are not subject to event
+    assignments, the algebraic assignment is replaced statically at all
+    timepoints. Examples for such model entities are the targets of SBML
+    `AssignmentRules`.
 
-  - ``${speciesId}``
+  * For all other entities, e.g., those that are assigned by SBML `RateRules`,
+    only the initial value can be assigned in the condition table. If an
+    assignment of the rate of change with respect to time or event assignment
+    is desired, the values of model entities that are used to define rate of
+    change or event assignments must be assigned in the condition table.
+    If no such model entities exist, assignment is not possible.
 
-    If a species ID is provided, it is interpreted as the initial
-    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True`
-    for the respective species, as concentration otherwise) and will override the
-    initial condition given in the SBML model or given by a preequilibration
-    condition. If ``NaN`` is provided for a condition, the result of the
-    preequilibration (or initial condition from the model, if
-    no preequilibration is defined) is used.
-
-  - ``${compartmentId}``
-
-    If a compartment ID is provided, it is interpreted as the initial
-    compartment size.
-
-  - For all other entities, values are statically replaced at all time points.
-    For entities that assign values to other entities, such as SBML
-    `AssignmentRule`s, the value of the target of that rule is statically
-    replaced at all time points.
+  Any non-``NaN`` value will override the original values of the model, or if
+  preequilibration was used, they will override the value obtained from
+  preequilibration. A ``NaN`` value indicates that the original value of the
+  model is to be used (when used in the preequilibration condition, or in the
+  simulation condition if no preequilibration is used) or that the result of
+  preequilibration is to be used (when used in the simulation condition after
+  preequilibration).
 
 
 Measurement table
