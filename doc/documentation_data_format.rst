@@ -495,13 +495,13 @@ Detailed field description
   Scale of the parameter to be used during parameter estimation.
 
   ``lin``
-    Use the objective value, ``lowerBound``, ``upperBound``, and
+    Use the parameter value, ``lowerBound``, ``upperBound``, and
     ``nominalValue`` without transformation.
   ``log``
-    Take the natural logarithm of the objective value, ``lowerBound``,
+    Take the natural logarithm of the parameter value, ``lowerBound``,
     ``upperBound``, and ``nominalValue`` during parameter estimation.
   ``log10``
-    Take the logarithm to base 10 of the objective value, ``lowerBound``,
+    Take the logarithm to base 10 of the parameter value, ``lowerBound``,
     ``upperBound``, and ``nominalValue`` during parameter estimation.
 
 - ``lowerBound`` [NUMERIC]
