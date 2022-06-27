@@ -494,23 +494,33 @@ Detailed field description
 
   Scale of the parameter to be used during parameter estimation.
 
+  ``lin``
+    Use the objective value, ``lowerBound``, ``upperBound``, and
+    ``nominalValue`` without transformation.
+  ``log``
+    Take the natural logarithm of the objective value, ``lowerBound``,
+    ``upperBound``, and ``nominalValue`` during parameter estimation.
+  ``log10``
+    Take the logarithm to base 10 of the objective value, ``lowerBound``,
+    ``upperBound``, and ``nominalValue`` during parameter estimation.
+
 - ``lowerBound`` [NUMERIC]
 
   Lower bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  Must be provided in linear space, independent of ``parameterScale``.
+  The provided value will be transformed according to ``parameterScale``.
 
 - ``upperBound`` [NUMERIC]
 
   Upper bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  Must be provided in linear space, independent of ``parameterScale``.
+  The provided value will be transformed according to ``parameterScale``.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  Must be provided in linear space, independent of ``parameterScale``.
+  The provided value will be transformed according to ``parameterScale``.
   Optional, unless ``estimate==0``.
 
 - ``estimate`` [BOOL 0|1]
