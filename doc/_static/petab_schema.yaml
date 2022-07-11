@@ -43,19 +43,21 @@ properties:
           description: One or multiple models
 
           # the model ID
-          patternProperties: ^[a-zA-Z_]\w*$
-            type: object
-            properties:
-              location:
-                type: string
-                description: Model file name or URL
-              language:
-                type: string
-                description: |
-                  Model language, e.g., 'sbml', 'cellml', 'bngl', 'pysb'
-            required:
-              - location
-              - language
+          patternProperties:
+            "^[a-zA-Z_]\\w*$":
+              type: object
+              properties:
+                location:
+                  type: string
+                  description: Model file name or URL
+                language:
+                  type: string
+                  description: |
+                    Model language, e.g., 'sbml', 'cellml', 'bngl', 'pysb'
+              required:
+                - location
+                - language
+          additionalProperties: false
 
         measurement_files:
           type: array
