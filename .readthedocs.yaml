@@ -1,0 +1,14 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+version: 2
+
+sphinx:
+   configuration: doc/conf.py
+   fail_on_warning: true
+
+
+python:
+   version: "3.11"
+   install:
+   - requirements: ".rtd_pip_reqs.txt"

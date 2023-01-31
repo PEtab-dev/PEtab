@@ -1,5 +1,5 @@
 # Direct dependencies:
-# sphinx
+# Sphinx
 # sphinx-markdown-tables
 # sphinx-rtd-theme
 # sphinxcontrib-napoleon
