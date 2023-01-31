@@ -30,6 +30,17 @@ for example:
 Documentation of the PEtab data format is available at
 [https://petab.readthedocs.io/en/latest/](https://petab.readthedocs.io/en/latest/).
 
+
+## Contributing to PEtab
+
+To participate in PEtab editor elections, discussions on new PEtab
+developments, or PEtab-related events, please join our
+[petab-discuss mailing list](https://groups.google.com/g/petab-discuss/).
+
+Any contributions and feedback to PEtab are very welcome, see our
+[contribution guide](CONTRIBUTING.md).
+
+
 ## Examples
 
 A wide range of PEtab examples can be found in the systems biology parameter estimation
@@ -151,8 +162,3 @@ is available at https://github.com/dlill/petab/.
 
 If you have any question or problems with PEtab, feel free to post them at
 our GitHub [issue tracker](https://github.com/PEtab-dev/PEtab/issues/).
-
-## Contributing to PEtab
-
-Contributions and feedback to PEtab are very welcome, see our
-[contribution guide](CONTRIBUTING.md).
