@@ -11,29 +11,41 @@ The current board members are:
 
 .. |DW| image:: https://avatars.githubusercontent.com/u/18048784?s=128
 
-.. |FB| image:: https://avatars.githubusercontent.com/u/949059?s=128
-
-.. |FF| image:: https://avatars.githubusercontent.com/u/14923969?s=128
-
 .. |SB| image:: https://avatars.githubusercontent.com/u/62339465?s=128
 
-+--------------------+-------------------------+--------------------------+------------------------+------------------------+
-| |JH|               | |DW|                    | |FB|                     | |FF|                   | |SB|                   |
-|                    |                         |                          |                        |                        |
-| **Jan Hasenauer**  | **Daniel Weindl**       | **Frank Bergmann**       | **Fabian Fröhlich**    | **Severin Bang**       |
-|                    |                         |                          |                        |                        |
-| University of Bonn | Helmholtz Centre Munich | University of Heidelberg | Harvard Medical School | University of Freiburg |
-|                    |                         |                          |                        |                        |
-| 2021-2024          | 2021-2024               | 2021-2023                | 2021-2023              | 2022-2025              |
-+--------------------+-------------------------+--------------------------+------------------------+------------------------+
+.. |MK| image:: https://avatars.githubusercontent.com/u/900538?s=128
+
+.. |DP| image:: https://avatars.githubusercontent.com/u/59329744?s=128
+
++--------------------+-------------------------+------------------------+----------------------------+------------------------+
+| |JH|               | |DW|                    | |SB|                   | |MK|                       | |DP|                   |
+|                    |                         |                        |                            |                        |
+| **Jan Hasenauer**  | **Daniel Weindl**       | **Severin Bang**       | **Matthias König**         | **Dilan Pathirana**    |
+|                    |                         |                        |                            |                        |
+| University of Bonn | Helmholtz Centre Munich | University of Freiburg | Humboldt-University Berlin | University of Bonn     |
+|                    |                         |                        |                            |                        |
+| 2021-2024          | 2021-2024               | 2022-2025              | 2023-2026                  | 2023-20263             |
++--------------------+-------------------------+------------------------+----------------------------+------------------------+
 
 Former PEtab editors
 --------------------
 
+.. |FB| image:: https://avatars.githubusercontent.com/u/949059?s=128
+
+.. |FF| image:: https://avatars.githubusercontent.com/u/14923969?s=128
+
 .. |SK| image:: https://avatars.githubusercontent.com/u/18700932?s=128
 
-+------+-------------------------------+
-| |SK| | **Svenja Kemmer (2021-2022)** |
-|      |                               |
-|      | University of Freiburg        |
-+------+-------------------------------+
++------+---------------------------------+
+| |FB| | **Frank Bergmann (2021-2023)**  |
+|      |                                 |
+|      | University of Heidelberg        |
++------+---------------------------------+
+| |FF| | **Fabian Fröhlich (2021-2023)** |
+|      |                                 |
+|      | Harvard Medical School          |
++------+---------------------------------+
+| |SK| | **Svenja Kemmer (2021-2022)**   |
+|      |                                 |
+|      | University of Freiburg          |
++------+---------------------------------+
