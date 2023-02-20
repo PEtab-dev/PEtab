@@ -151,10 +151,11 @@ Detailed field description
   - ``${speciesId}``
 
     If a species ID is provided, it is interpreted as the initial
-    concentration/amount of that species and will override the initial
-    concentration/amount given in the SBML model or given by a preequilibration
+    condition of that species (as amount if hasOnlySubstanceUnits set to `True` 
+    for the respective species, as concentration otherwise) and will override the 
+    initial condition given in the SBML model or given by a preequilibration
     condition. If ``NaN`` is provided for a condition, the result of the
-    preequilibration (or initial concentration/amount from the SBML model, if
+    preequilibration (or initial condition from the SBML model, if
     no preequilibration is defined) is used.
 
   - ``${compartmentId}``
