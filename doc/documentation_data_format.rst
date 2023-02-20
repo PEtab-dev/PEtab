@@ -151,7 +151,7 @@ Detailed field description
   - ``${speciesId}``
 
     If a species ID is provided, it is interpreted as the initial
-    condition of that species (as amount if hasOnlySubstanceUnits set to `True` 
+    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True` 
     for the respective species, as concentration otherwise) and will override the 
     initial condition given in the SBML model or given by a preequilibration
     condition. If ``NaN`` is provided for a condition, the result of the
