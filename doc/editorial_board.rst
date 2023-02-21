@@ -24,7 +24,7 @@ The current board members are:
 |                    |                         |                        |                            |                        |
 | University of Bonn | Helmholtz Centre Munich | University of Freiburg | Humboldt-University Berlin | University of Bonn     |
 |                    |                         |                        |                            |                        |
-| 2021-2024          | 2021-2024               | 2022-2025              | 2023-2026                  | 2023-20263             |
+| 2021-2024          | 2021-2024               | 2022-2025              | 2023-2026                  | 2023-2026              |
 +--------------------+-------------------------+------------------------+----------------------------+------------------------+
 
 Former PEtab editors
