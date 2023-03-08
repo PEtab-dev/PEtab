@@ -91,9 +91,13 @@ properties:
             type: string
             description: PEtab visualization file name or URL.
 
-        mapping_file:
+        mapping_files:
+          type: array
+          description: List of PEtab mapping files.
+
+          items:
             type: string
-            description: Optional PEtab mapping file name or URL.
+            description: PEtab mapping file name or URL.
 
       required:
         - model_files
