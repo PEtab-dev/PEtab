@@ -508,7 +508,7 @@ Detailed field description
 
   Lower bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  The provided value will be transformed according to ``parameterScale``.
+  The provided value should be untransformed, as it will be transformed according to ``parameterScale`` during parameter estimation.
 
 - ``upperBound`` [NUMERIC]
 
