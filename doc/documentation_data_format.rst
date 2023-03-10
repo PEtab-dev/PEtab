@@ -508,19 +508,22 @@ Detailed field description
 
   Lower bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed according to ``parameterScale`` during parameter estimation.
+  The provided value should be untransformed, as it will be transformed
+  according to ``parameterScale`` during parameter estimation.
 
 - ``upperBound`` [NUMERIC]
 
   Upper bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  The provided value will be transformed according to ``parameterScale``.
+  The provided value should be untransformed, as it will be transformed
+  according to ``parameterScale`` during parameter estimation.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  The provided value will be transformed according to ``parameterScale``.
+  The provided value should be untransformed, as it will be transformed
+  according to ``parameterScale`` during parameter estimation.
   Optional, unless ``estimate==0``.
 
 - ``estimate`` [BOOL 0|1]
