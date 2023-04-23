@@ -69,6 +69,8 @@ Where PEtab is supported (in alphabetical order):
 
   - [parPE](https://github.com/ICB-DCM/parPE/)
 
+  - [PEtab.jl](https://github.com/sebapersson/PEtab.jl)
+
   - [pyABC](https://github.com/ICB-DCM/pyABC/) ([Example](https://pyabc.readthedocs.io/en/latest/examples/petab.html))
 
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
