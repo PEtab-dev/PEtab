@@ -208,26 +208,26 @@ estimation tasks such as visualization.
 Requirements for new extensions:
 
 * Specifications in PEtab extensions take precedence over PEtab core, i.e., they
-can ease or refine format restrictions imposed by PEtab core.
+  can ease or refine format restrictions imposed by PEtab core.
 * PEtab extensions should extend PEtab core with new orthogonal features or
-tasks, i.e., they should not make trivial changes to PEtab core.
+  tasks, i.e., they should not make trivial changes to PEtab core.
 * PEtab extensions must be named according to ^[a-zA-Z][\w\-]*$
 * PEtab extensions must be versioned using semantic versioning.
 * PEtab extensions required for interpretation of a problem specification must
-be specified in the PEtab-YAML files
+  be specified in the PEtab-YAML files
 * There is at least one tool that supports the proposed extension
 * The authors provide a library that provides test cases and implements
-validation checks for the proposed format.
+  validation checks for the proposed format.
 
 Developers are free to develop any PEtab extension. To become an official
 PEtab extension, it needs to go through the following process.
 
-1. The developers write a proposal describing the motivation and specification
-of the extension, following the respective issue template provided in this
-repository.
-1. The proposal is submitted as an issue in this repository.
-1. The technical specification and documentation of the extension is submitted
-as a pull request in this repository that references the respective issue.
+#. The developers write a proposal describing the motivation and specification
+   of the extension, following the respective issue template provided in this
+   repository.
+#. The proposal is submitted as an issue in this repository.
+#. The technical specification and documentation of the extension is submitted
+   as a pull request in this repository that references the respective issue.
 
 The PEtab editors jointly decide whether an extension meets the requirements
 described here. In case of a positive evaluation, they announce a poll for the
