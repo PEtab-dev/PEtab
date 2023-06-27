@@ -340,7 +340,9 @@ Detailed field description
   Observation function as plain text formula expression.
   May contain any symbol defined in the SBML model (including model time ``time``)
   or parameter table. In the simplest case just an SBML species ID
-  or an ``AssignmentRule`` target.
+  or an ``AssignmentRule`` target. Additionally, any observable ID
+  introduced in the observable table may be referenced, but circular definitions
+  must be avoided.
 
   May introduce new parameters of the form ``observableParameter${n}_${observableId}``,
   which are overridden by ``observableParameters`` in the measurement table
@@ -362,7 +364,11 @@ Detailed field description
   observable.
 
   Alternatively, some formula expression can be provided to specify
-  more complex noise models. A noise model which accounts for relative and
+  more complex noise models. The formula may reference any uniquely identifiable
+  model entity with PEtab-compatible identifier or any observable ID
+  specified in the observable table.
+
+  A noise model which accounts for relative and
   absolute contributions could, e.g., be defined as::
 
     noiseParameter1_observable_pErk + noiseParameter2_observable_pErk*pErk
