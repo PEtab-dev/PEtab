@@ -443,6 +443,7 @@ and *must not* include:
   above)
 - Parameters included as column names in the *condition table*
 - Parameters that are AssignmentRule targets in the SBML model
+- SBML *local* parameters
 
 it *may* include:
 
