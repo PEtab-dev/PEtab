@@ -55,8 +55,11 @@ and
 
 - An observable file specifying the observation model [TSV]
 
-- A parameter file specifying optimization parameters and related information
+- A parameter file specifying estimateable parameters and related information
   [TSV]
+
+- A grouping file that lists all of the files and provides additional information
+  including employed extensions [YAML]
 
 - (optional) A simulation file, which has the same format as the measurement
   file, but contains model simulations [TSV]
@@ -79,7 +82,7 @@ defining the parameter estimation problem.
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, while those columns may provide extra
 information for example for plotting, downstream analysis, or for more
-efficient parameter estimation, they should not affect the optimization
+efficient parameter estimation, they should not affect the estimation
 problem as such.
 
 **General remarks**
@@ -212,7 +215,7 @@ Detailed field description
 
 - ``observableId`` [STRING, NOT NULL, REFERENCES(observables.observableID)]
 
-  Observable ID as defined in the observables table described below.
+  Observable ID as defined in the observable table described below.
 
 - ``preequilibrationConditionId`` [STRING OR NULL, REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
@@ -248,7 +251,7 @@ Detailed field description
 
   Different lines for the same ``observableId`` may specify different
   parameters. This may be used to account for condition-specific or
-  batch-specific parameters. This will translate into an extended optimization
+  batch-specific parameters. This will translate into an extended estimation
   parameter vector.
 
   All placeholders defined in the observation model must be overwritten here.
@@ -277,8 +280,8 @@ Detailed field description
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
 
-Observables table
------------------
+Observable table
+----------------
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
@@ -493,23 +496,36 @@ Detailed field description
 
   Scale of the parameter to be used during parameter estimation.
 
+  ``lin``
+    Use the parameter value, ``lowerBound``, ``upperBound``, and
+    ``nominalValue`` without transformation.
+  ``log``
+    Take the natural logarithm of the parameter value, ``lowerBound``,
+    ``upperBound``, and ``nominalValue`` during parameter estimation.
+  ``log10``
+    Take the logarithm to base 10 of the parameter value, ``lowerBound``,
+    ``upperBound``, and ``nominalValue`` during parameter estimation.
+
 - ``lowerBound`` [NUMERIC]
 
-  Lower bound of the parameter used for optimization.
+  Lower bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  Must be provided in linear space, independent of ``parameterScale``.
+  The provided value should be untransformed, as it will be transformed
+  according to ``parameterScale`` during parameter estimation.
 
 - ``upperBound`` [NUMERIC]
 
-  Upper bound of the parameter used for optimization.
+  Upper bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  Must be provided in linear space, independent of ``parameterScale``.
+  The provided value should be untransformed, as it will be transformed
+  according to ``parameterScale`` during parameter estimation.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  Must be provided in linear space, independent of ``parameterScale``.
+  The provided value should be untransformed, as it will be transformed
+  according to ``parameterScale`` during parameter estimation.
   Optional, unless ``estimate==0``.
 
 - ``estimate`` [BOOL 0|1]
@@ -519,7 +535,7 @@ Detailed field description
 
 - ``initializationPriorType`` [STRING, OPTIONAL]
 
-  Prior types used for sampling of initial points for optimization. Sampled
+  Prior types used for sampling of initial points for estimation. Sampled
   points are clipped to lie inside the parameter boundaries specified by
   ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
 
@@ -537,7 +553,7 @@ Detailed field description
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for sampling of initial points for optimization,
+  Prior parameters used for sampling of initial points for estimation,
   separated by a semicolon. Defaults to ``lowerBound;upperBound``.
   The parameters are expected to be in linear scale except for the
   ``parameterScale`` priors, where the prior parameters are expected to be
@@ -557,12 +573,12 @@ Detailed field description
 
 - ``objectivePriorType`` [STRING, OPTIONAL]
 
-  Prior types used for the objective function during optimization or sampling.
+  Prior types used for the objective function during estimation.
   For possible values, see ``initializationPriorType``.
 
 - ``objectivePriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for the objective function during optimization.
+  Prior parameters used for the objective function during estimation.
   For more detailed documentation, see ``initializationPriorParameters``.
 
 
@@ -681,8 +697,11 @@ Detailed field description
 Extensions
 ~~~~~~~~~~
 
-Additional columns, such as ``Color``, etc. may be specified.
-
+Additional columns, such as ``Color``, etc. may be specified. Extensions
+that define operations on multiple PEtab problems need to employ a single
+PEtab YAML file as entrypoint to the analysis. This PEtab file may leave all
+fields specifying files empty and reference the other PEtab problems in the
+extension specific fields.
 
 Examples
 ~~~~~~~~
@@ -699,7 +718,7 @@ To link the SBML model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 
 This file also allows specifying a PEtab version (as the format is not unlikely
-to change in the future).
+to change in the future) and employed PEtab extensions.
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).

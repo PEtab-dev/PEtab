@@ -140,6 +140,8 @@ will have to:
 
 1. Create a parameter table.
 
+1. Create a yaml file that lists the model and all of the tables above.
+
 If you are using Python, some handy functions of the
 [PEtab library](https://github.com/PEtab-dev/libpetab-python/) can help
 you with that. This includes also a PEtab validator called `petablint` which
