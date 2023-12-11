@@ -1,0 +1,208 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: PEtab—Interoperable specification of parameter estimation problems in systems biology
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+      -
+        family-names: "Schmiester"
+        given-names: "Leonard"
+        orcid: "https://orcid.org/0000-0001-7946-3232"
+      -
+        family-names: "Schälte"
+        given-names: "Yannik"
+        orcid: "https://orcid.org/0000-0003-1293-820X"
+      -
+        family-names: "Bergmann"
+        given-names: "Frank"
+      -
+        family-names: "Camba"
+        given-names: "Tacio"
+      -
+        family-names: "Dudkin"
+        given-names: "Erika"
+      -
+        family-names: "Egert"
+        given-names: "Janine"
+      -
+        family-names: "Fröhlich"
+        given-names: "Fabian"
+        orcid: "https://orcid.org/0000-0002-5360-4292"
+      -
+        family-names: "Fuhrmann"
+        given-names: "Lara"
+      -
+        family-names: "Hauber"
+        given-names: "Adrian"
+      -
+        family-names: "Kemmer"
+        given-names: "Svenja"
+      -
+        family-names: "Lakrisenko"
+        given-names: "Polina"
+      -
+        family-names: "Loos"
+        given-names: "Carolin"
+      -
+        family-names: "Merkt"
+        given-names: "Simon"
+      -
+        family-names: "Müller"
+        given-names: "Wolfgang"
+      -
+        family-names: "Pathirana"
+        given-names: "Dilan"
+      -
+        family-names: "Raimúndez"
+        given-names: "Elba"
+      -
+        family-names: "Refisch"
+        given-names: "Lukas"
+      -
+        family-names: "Rosenblatt"
+        given-names: "Marcus"
+      -
+        family-names: "Stapor"
+        given-names: "Paul"
+      -
+        family-names: "Städter"
+        given-names: "Philipp"
+      -
+        family-names: "Wang"
+        given-names: "Dantong"
+      -
+        family-names: "Wieland"
+        given-names: "Franz-Georg"
+      -
+        family-names: "Banga"
+        given-names: "Julio"
+      -
+        family-names: "Timmer"
+        given-names: "Jens"
+      -
+        family-names: "Villaverde"
+        given-names: "Alejandro"
+      -
+        family-names: "Sahle"
+        given-names: "Sven"
+      -
+        family-names: "Kreutz"
+        given-names: "Clemens"
+      -
+        family-names: "Hasenauer"
+        given-names: "Jan"
+        orcid: "https://orcid.org/0000-0002-4935-3312"
+      -
+        family-names: "Weindl"
+        given-names: "Daniel"
+        orcid: "https://orcid.org/0000-0001-9963-6057"
+
+repository-code: 'https://github.com/PEtab-dev/PEtab'
+preferred-citation:
+   type: article
+   title: "PEtab—Interoperable specification of parameter estimation problems in systems biology"
+   doi: 10.1371/journal.pcbi.1008646
+   journal: "PLOS Computational Biology"
+   year: 2021
+   month: 1
+   start: 1
+   end: 10
+   volume: 17
+   number: 1
+   authors:
+      -
+        family-names: "Schmiester"
+        given-names: "Leonard"
+        orcid: "https://orcid.org/0000-0001-7946-3232"
+      -
+        family-names: "Schälte"
+        given-names: "Yannik"
+        orcid: "https://orcid.org/0000-0003-1293-820X"
+      -
+        family-names: "Bergmann"
+        given-names: "Frank"
+      -
+        family-names: "Camba"
+        given-names: "Tacio"
+      -
+        family-names: "Dudkin"
+        given-names: "Erika"
+      -
+        family-names: "Egert"
+        given-names: "Janine"
+      -
+        family-names: "Fröhlich"
+        given-names: "Fabian"
+        orcid: "https://orcid.org/0000-0002-5360-4292"
+      -
+        family-names: "Fuhrmann"
+        given-names: "Lara"
+      -
+        family-names: "Hauber"
+        given-names: "Adrian"
+      -
+        family-names: "Kemmer"
+        given-names: "Svenja"
+      -
+        family-names: "Lakrisenko"
+        given-names: "Polina"
+      -
+        family-names: "Loos"
+        given-names: "Carolin"
+      -
+        family-names: "Merkt"
+        given-names: "Simon"
+      -
+        family-names: "Müller"
+        given-names: "Wolfgang"
+      -
+        family-names: "Pathirana"
+        given-names: "Dilan"
+      -
+        family-names: "Raimúndez"
+        given-names: "Elba"
+      -
+        family-names: "Refisch"
+        given-names: "Lukas"
+      -
+        family-names: "Rosenblatt"
+        given-names: "Marcus"
+      -
+        family-names: "Stapor"
+        given-names: "Paul"
+      -
+        family-names: "Städter"
+        given-names: "Philipp"
+      -
+        family-names: "Wang"
+        given-names: "Dantong"
+      -
+        family-names: "Wieland"
+        given-names: "Franz-Georg"
+      -
+        family-names: "Banga"
+        given-names: "Julio"
+      -
+        family-names: "Timmer"
+        given-names: "Jens"
+      -
+        family-names: "Villaverde"
+        given-names: "Alejandro"
+      -
+        family-names: "Sahle"
+        given-names: "Sven"
+      -
+        family-names: "Kreutz"
+        given-names: "Clemens"
+      -
+        family-names: "Hasenauer"
+        given-names: "Jan"
+        orcid: "https://orcid.org/0000-0002-4935-3312"
+      -
+        family-names: "Weindl"
+        given-names: "Daniel"
+        orcid: "https://orcid.org/0000-0001-9963-6057"
