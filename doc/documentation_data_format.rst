@@ -375,6 +375,11 @@ Detailed field description
   (see above). Any parameters named ``noiseParameter${1..n}_${observableId}``
   *must* be overwritten in the measurement table.
 
+  Noise formulae can also contain observable parameter overrides, which take
+  their values from the measurements table (see the description for
+  ``observableFormula`` in this table). An example use case is a proportional
+  noise model.
+
 - ``noiseDistribution`` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed noise distribution for the given measurement. Only normally or
