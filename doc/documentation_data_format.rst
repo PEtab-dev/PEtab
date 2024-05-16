@@ -378,6 +378,11 @@ Detailed field description
   (see above). Any parameters named ``noiseParameter${1..n}_${observableId}``
   *must* be overwritten in the measurement table.
 
+  Noise formulae can also contain observable parameter overrides, which are
+  described under ``observableFormula`` in this table. An example is when an
+  observable formula contains an override, and a proportional noise model is
+  used, which means the observable formula also appears in the noise formula.
+
 - ``noiseDistribution`` [STRING: 'normal' or 'laplace', OPTIONAL]
 
   Assumed noise distribution for the given measurement. Only normally or
@@ -446,6 +451,7 @@ and *must not* include:
   above)
 - Parameters included as column names in the *condition table*
 - Parameters that are AssignmentRule targets in the SBML model
+- SBML *local* parameters
 
 it *may* include:
 

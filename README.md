@@ -69,6 +69,10 @@ Where PEtab is supported (in alphabetical order):
 
   - [parPE](https://github.com/ICB-DCM/parPE/)
 
+  - [PEtab.jl](https://github.com/sebapersson/PEtab.jl) ([HOWTO](https://sebapersson.github.io/PEtab.jl/stable/))
+
+  - [PumasQSP.jl](https://help.juliahub.com/pumasqsp/stable/) ([HOWTO](https://help.juliahub.com/pumasqsp/stable/tutorials/petabimport/))
+
   - [pyABC](https://github.com/ICB-DCM/pyABC/) ([Example](https://pyabc.readthedocs.io/en/latest/examples/petab.html))
 
   - [pyPESTO](https://github.com/ICB-DCM/pyPESTO/)
@@ -87,24 +91,24 @@ different tools, based on passed test cases of the
 [PEtab test suite](https://github.com/PEtab-dev/petab_test_suite):
 
 
-| ID | Test                                                           | AMICI<br>`>=0.11.19` | Copasi | D2D | dMod | MEIGO | parPE<br>`develop`  | pyABC<br>`>=0.10.1` | pyPESTO<br>`>=0.0.11` | SBML2Julia |
-|----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|-----------------------|-------|------------------------|------------|
-| 1  | Basic simulation                                               | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 2  | Multiple simulation conditions                                 | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 3  | Numeric observable parameter overrides in measurement table    | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 4  | Parametric observable parameter overrides in measurement table | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 5  | Parametric overrides in condition table                        | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 6  | Time-point specific overrides in the measurement table         | ---                  | ---    | +++ | +++  | +++   | ---                   | ---   | ---                    | +++        |
-| 7  | Observable transformations to log10 scale                      | +++                  | +--    | +++ | ++-  | +++   | --+                   | +++   | +++                    | +++        |
-| 8  | Replicate measurements                                         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 9  | Pre-equilibration                                              | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 11 | Numeric initial concentration in condition table               | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 12 | Numeric initial compartment sizes in condition table           | ---                  | +--    | +++ | +++  | +++   | ---                   | ---   | ---                    | +++        |
-| 13 | Parametric initial concentrations in condition table           | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 14 | Numeric noise parameter overrides in measurement table         | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 15 | Parametric noise parameter overrides in measurement table      | +++                  | +--    | +++ | +++  | +++   | --+                   | +++   | +++                    | +++        |
-| 16 | Observable transformations to log scale                        | +++                  | +--    | +++ | ++-  | +++   | --+                   | +++   | +++                    | +++        |
+| ID | Test                                                           | AMICI<br>`>=0.11.19` | Copasi | D2D | dMod | MEIGO | parPE<br>`develop` | PEtab.jl <br>`>=1.1.0` | PumasQSP | pyABC<br>`>=0.10.1` | pyPESTO<br>`>=0.0.11` | SBML2Julia |
+|----|----------------------------------------------------------------|----------------------|--------|-----|------|-------|--------------------|------------------------|----------|---------------------|-----------------------|------------|
+| 1  | Basic simulation                                               | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | +++      | +++                 | +++                   | +++        |
+| 2  | Multiple simulation conditions                                 | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | +++      | +++                 | +++                   | +++        |
+| 3  | Numeric observable parameter overrides in measurement table    | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
+| 4  | Parametric observable parameter overrides in measurement table | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | +++      | +++                 | +++                   | +++        |
+| 5  | Parametric overrides in condition table                        | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | +++      | +++                 | +++                   | +++        |
+| 6  | Time-point specific overrides in the measurement table         | ---                  | ---    | +++ | +++  | +++   | ---                | +++                    | ---      | ---                 | ---                   | +++        |
+| 7  | Observable transformations to log10 scale                      | +++                  | +++    | +++ | ++-  | +++   | --+                | +++                    | +-+      | +++                 | +++                   | +++        |
+| 8  | Replicate measurements                                         | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | +++      | +++                 | +++                   | +++        |
+| 9  | Pre-equilibration                                              | +++                  | ---    | +++ | +++  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
+| 10 | Partial pre-equilibration                                      | +++                  | ---    | +++ | +++  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
+| 11 | Numeric initial concentration in condition table               | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | +++      | +++                 | +++                   | +++        |
+| 12 | Numeric initial compartment sizes in condition table           | ---                  | +++    | +++ | +++  | +++   | ---                | +++                    | ---      | ---                 | ---                   | +++        |
+| 13 | Parametric initial concentrations in condition table           | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
+| 14 | Numeric noise parameter overrides in measurement table         | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
+| 15 | Parametric noise parameter overrides in measurement table      | +++                  | +++    | +++ | +++  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
+| 16 | Observable transformations to log scale                        | +++                  | +++    | +++ | ++-  | +++   | --+                | +++                    | ---      | +++                 | +++                   | +++        |
 
 Legend:
 * First character indicates whether computing simulated data is supported and simulations are correct (+) or not (-).
@@ -118,7 +122,7 @@ If you would like to use PEtab yourself, please have a look at:
 * [a PEtab tutorial](https://petab.readthedocs.io/en/latest/tutorial.html)
   going through the individual steps of setting up a parameter estimation
   problem in PEtab, independently of any specific software
-* [the PEtab format reference](https://petab.readthedocs.io/en/stable/documentation_data_format.html)
+* [the PEtab format reference](https://petab.readthedocs.io/en/latest/documentation_data_format.html)
 * the example models provided in the
   [benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 * the tutorials provided with each of the softwares supporting PEtab
