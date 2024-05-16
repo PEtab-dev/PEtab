@@ -762,27 +762,19 @@ Operators
 
 The supported operators are:
 
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| Operator  | Precedence | Interpretation                                                           | Associativity | Arguments                  | Evaluates to    |
-+===========+============+==========================================================================+===============+============================+=================+
-| f()       | 1          | function arguments                                                       | left-to-right | any                        | input-dependent |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| ()        | 1          | parentheses for grouping, acts like identity                             |               | any single expression      | argument        |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| ^         | 2          | exponentiation (shorthand for pow)                                       | right-to-left | float, float               | float           |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| \+ \-     | 3          | unary plus/minus                                                         | right-to-left | float                      | float           |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| !         | 3          | not                                                                      |               | bool                       | bool            |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| \* /      | 4          | multiplication division                                                  | left-to-right | float, float               | float           |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| \+ \-     | 5          | binary plus/minus, addition/subtraction                                  | left-to-right | float, float               | float           |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-| < <= > >= | 6          | less than, less than or equal to, greater than, greater than or equal to | left-to-right | float, float               | bool            |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
-|  == !=    | 6          | is equal to, is not equal to                                             | left-to-right | float, float or bool, bool | bool            |
-+-----------+------------+--------------------------------------------------------------------------+---------------+----------------------------+-----------------+
+.. csv-table:: Supported operators
+   :header: "Operator", "Precedence", "Interpretation", "Associativity", "Arguments", "Evaluates to"
+   :widths: 10, 10, 50, 15, 20, 15
+
+   "``f()``", "1", "function arguments", "left-to-right", "any", "input-dependent"
+   "``()``", "1", "parentheses for grouping, acts like identity", "", "any single expression", "argument"
+   "``^``", "2", "exponentiation (shorthand for pow)", "right-to-left", "float, float", "float"
+   "``+`` ``-``", "3", "unary plus/minus", "right-to-left", "float", "float"
+   "``!``", "3", "not", "", "bool", "bool"
+   "``*`` ``/``", "4", "multiplication division", "left-to-right", "float, float", "float"
+   "``+`` ``-``", "5", "binary plus/minus, addition/subtraction", "left-to-right", "float, float", "float"
+   "``<`` ``<=`` ``>`` ``>=``", "6", "less than, less than or equal to, greater than, greater than or equal to", "left-to-right", "float, float", "bool"
+   "``==`` ``!=``", "6", "is equal to, is not equal to", "left-to-right", "float, float or bool, bool", "bool"
 
 Literals
 ~~~~~~~~
@@ -810,11 +802,11 @@ The following functions are supported:
    :header: "Function", "Argument types", "Comment", "Arguments", "Evaluates to"
 
    "``pow(a, b)``", "float, float", "power function `b`-th power of `a`", "any", "input-dependent"
-    "``exp(x)``", "float", "exponential function pow(e, x) (`e` itself not a supported symbol, but exp(1) can be used instead) ", "any single expression", "argument"
-    "``sqrt(x)``", "float", "square root of x; pow(x, 0.5)", "float, float", "float"
+    "``exp(x)``", "float", "exponential function pow(e, x) (`e` itself not a supported symbol, but ``exp(1)`` can be used instead) ", "any single expression", "argument"
+    "``sqrt(x)``", "float", "square root of x; ``pow(x, 0.5)``", "float, float", "float"
     "``log(a, b)``, ``log(x)``, ``ln(x)``, ``log2(x)``, ``log10(x)``", "float[, float]", "logarithm of ``a`` with base ``b``; ``log(x, e)``; ``log(x, e)``; ``log(x, 2)``; ``log(x, 10)`` (``log(0)`` is defined as ``-inf``) NOTE: ``log`` without explicit base is ``ln``, not ``log10``", "float", "float"
     "``sin``, ``cos``, ``tan``, ``cot``, ``sec``, ``csc``,  ``arcsin``, ``arccos``, ``arctan``, ``arccot``, ``arcsec``, ``arccsc``, ``sinh``, ``cosh``, ``tanh``, ``coth``, ``sech``, ``csch``, ``arcsinh``, ``arccosh``, ``arctanh``, ``arccoth``, ``arcsech``, ``arccsch``,", "float", "(inverse) trigonometric functions, (inverse) hyperbolic functions", "bool", "bool"
-    "piecewise(condition, true_output, false_output)", "bool, float, float bool, bool, bool", "condition is a bool, true_output is the function value if condition is true, false_output is the function value if condition is false", "float, float", "float"
+    "``piecewise(condition, true_output, false_output)``", "bool, float, float bool, bool, bool", "``condition`` is a bool, ``true_output`` is the function value if ``condition`` is ``true``, ``false_output`` is the function value if condition is ``false``", "float, float", "float"
     "``abs(x)``", "float", "absolute value; ``piecewise(x>=0, x, -x)``", "float, float", "float"
     "``sign(x)``", "float", "sign of ``x``; ``piecewise(x>=0, 1, -1)``", "float, float", "bool"
     "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a<=b, a, b)``, ``piecewise(a>=b, a, b)``", "float, float or bool, bool", "bool"
