@@ -782,6 +782,9 @@ The supported operators are:
    "``<`` ``<=`` ``>`` ``>=``", "6", "less than, less than or equal to, greater than, greater than or equal to", "left-to-right", "float, float", "bool"
    "``==`` ``!=``", "6", "is equal to, is not equal to", "left-to-right", "float, float or bool, bool", "bool"
 
+Note that operator precedence might not be as expected from other programming
+languages. Use parentheses to enforce the desired order of operations.
+
 Literals
 ~~~~~~~~
 
@@ -819,3 +822,26 @@ The following functions are supported:
     "``abs(x)``", "float", "absolute value; ``piecewise(x>=0, x, -x)``", "float"
     "``sign(x)``", "float", "sign of ``x``; ``piecewise(x>=0, 1, -1)``", "float"
     "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a<=b, a, b)``, ``piecewise(a>=b, a, b)``", "float"
+
+
+Identifiers
+-----------
+
+* All identifiers in PEtab must consist only of upper and lower case letters,
+  digits and underscores, and must not start with a digit.
+
+* Identifiers are case-sensitive.
+
+* Identifiers must not be a reserved keyword (see below).
+
+* Identifiers must be globally unique within the PEtab Problem.
+
+Reserved keywords
+~~~~~~~~~~~~~~~~~
+
+* ``true``, ``false``: Boolean literals
+* ``inf``: Infinity
+* ``nan``: reserved
+* ``time``: Model time
+* all math functions listed above
+
