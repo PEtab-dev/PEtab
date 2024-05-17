@@ -805,14 +805,17 @@ Functions
 The following functions are supported:
 
 .. csv-table:: Supported functions
-   :header: "Function", "Argument types", "Comment", "Arguments", "Evaluates to"
+   :header: "Function", "Argument types", "Comment", "Evaluates to"
 
-   "``pow(a, b)``", "float, float", "power function `b`-th power of `a`", "any", "input-dependent"
-    "``exp(x)``", "float", "exponential function pow(e, x) (`e` itself not a supported symbol, but ``exp(1)`` can be used instead) ", "any single expression", "argument"
-    "``sqrt(x)``", "float", "square root of x; ``pow(x, 0.5)``", "float, float", "float"
-    "``log(a, b)``, ``log(x)``, ``ln(x)``, ``log2(x)``, ``log10(x)``", "float[, float]", "logarithm of ``a`` with base ``b``; ``log(x, e)``; ``log(x, e)``; ``log(x, 2)``; ``log(x, 10)`` (``log(0)`` is defined as ``-inf``) NOTE: ``log`` without explicit base is ``ln``, not ``log10``", "float", "float"
-    "``sin``, ``cos``, ``tan``, ``cot``, ``sec``, ``csc``,  ``arcsin``, ``arccos``, ``arctan``, ``arccot``, ``arcsec``, ``arccsc``, ``sinh``, ``cosh``, ``tanh``, ``coth``, ``sech``, ``csch``, ``arcsinh``, ``arccosh``, ``arctanh``, ``arccoth``, ``arcsech``, ``arccsch``,", "float", "(inverse) trigonometric functions, (inverse) hyperbolic functions", "bool", "bool"
-    "``piecewise(condition, true_output, false_output)``", "bool, float, float bool, bool, bool", "``condition`` is a bool, ``true_output`` is the function value if ``condition`` is ``true``, ``false_output`` is the function value if condition is ``false``", "float, float", "float"
-    "``abs(x)``", "float", "absolute value; ``piecewise(x>=0, x, -x)``", "float, float", "float"
-    "``sign(x)``", "float", "sign of ``x``; ``piecewise(x>=0, 1, -1)``", "float, float", "bool"
-    "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a<=b, a, b)``, ``piecewise(a>=b, a, b)``", "float, float or bool, bool", "bool"
+   "``pow(a, b)``", "float, float", "power function `b`-th power of `a`", "float"
+    "``exp(x)``", "float", "exponential function pow(e, x) (`e` itself not a supported symbol, but ``exp(1)`` can be used instead) ", "float"
+    "``sqrt(x)``", "float", "square root of x; ``pow(x, 0.5)``", "float"
+    "``log(a, b)``, ``log(x)``, ``ln(x)``, ``log2(x)``, ``log10(x)``", "float[, float]", "logarithm of ``a`` with base ``b``; ``log(x, e)``; ``log(x, e)``; ``log(x, 2)``; ``log(x, 10)`` (``log(0)`` is defined as ``-inf``) NOTE: ``log`` without explicit base is ``ln``, not ``log10``", "float"
+    "``sin``, ``cos``, ``tan``, ``cot``, ``sec``, ``csc``", "float", "trigonometric functions", "float"
+    "``arcsin``, ``arccos``, ``arctan``, ``arccot``, ``arcsec``, ``arccsc``", "float", "inverse trigonometric functions", "float"
+    "``sinh``, ``cosh``, ``tanh``, ``coth``, ``sech``, ``csch``", "float", "hyperbolic functions", "float"
+    "``arcsinh``, ``arccosh``, ``arctanh``, ``arccoth``, ``arcsech``, ``arccsch``,", "float", "inverse hyperbolic functions", "float"
+    "``piecewise(condition, true_output, false_output)``", "(bool, float, float) or (bool, bool, bool)", "``condition`` is a bool, ``true_output`` is the function value if ``condition`` is ``true``, ``false_output`` is the function value if condition is ``false``", "float"
+    "``abs(x)``", "float", "absolute value; ``piecewise(x>=0, x, -x)``", "float"
+    "``sign(x)``", "float", "sign of ``x``; ``piecewise(x>=0, 1, -1)``", "float"
+    "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a<=b, a, b)``, ``piecewise(a>=b, a, b)``", "float"
