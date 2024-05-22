@@ -90,7 +90,6 @@ properties:
         - sbml_files
         - observable_files
         - measurement_files
-        - condition_files
 
   extensions:
     type: object
