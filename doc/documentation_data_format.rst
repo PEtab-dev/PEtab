@@ -180,13 +180,13 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-+--------------+-------------------------------+-----------------------+-------------+--------------+
-| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time         |
-+==============+===============================+=======================+=============+==============+
-| observableId | [conditionId]                 | conditionId           | NUMERIC     | NUMERIC\|inf |
-+--------------+-------------------------------+-----------------------+-------------+--------------+
-| ...          | ...                           | ...                   | ...         | ...          |
-+--------------+-------------------------------+-----------------------+-------------+--------------+
++--------------+--------------+-------------+--------------+
+| observableId | timecourseId | measurement | time         |
++==============+==============+=============+==============+
+| observableId | timecourseId | NUMERIC     | NUMERIC\|inf |
++--------------+--------------+-------------+--------------+
+| ...          | ...          | ...         | ...          |
++--------------+--------------+-------------+--------------+
 
 *(wrapped for readability)*
 
@@ -221,16 +221,6 @@ Detailed field description
 
   Observable ID as defined in the observable table described below.
 
-- ``preequilibrationConditionId`` [STRING OR NULL, REFERENCES(conditionsTable.conditionID), OPTIONAL]
-
-  The ``conditionId`` to be used for preequilibration. E.g. for drug
-  treatments, the model would be preequilibrated with the no-drug condition.
-  Empty for no preequilibration.
-
-- ``simulationConditionId`` [STRING, NOT NULL, REFERENCES(conditionsTable.conditionID)]
-
-  ``conditionId`` as provided in the condition table, specifying the condition-specific parameters used for simulation.
-
 - ``measurement`` [NUMERIC, NOT NULL]
 
   The measured value in the same units/scale as the model output.
@@ -238,6 +228,12 @@ Detailed field description
 - ``time`` [NUMERIC OR STRING, NOT NULL]
 
   Time point of the measurement in the time unit specified in the SBML model, numeric value or ``inf`` (lower-case) for steady-state measurements.
+
+- ``timecourseId`` [STRING, NOT NULL, REFERENCES(timecoursesTable.timecourseID)]
+
+  Timecourse ID as defined in the time courses table described below. This column may 
+  have ``NA`` values, which are interpreted as *use the model as is*. 
+  This avoids the need for “dummy” conditions and timecourses.
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
