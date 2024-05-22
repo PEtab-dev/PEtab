@@ -35,7 +35,7 @@ properties:
       type: object
       description: |
         A set of PEtab model, condition, observable and measurement
-        files and optional visualization files.
+        files and optional visualization and time courses files.
       properties:
 
         sbml_files:
@@ -77,6 +77,14 @@ properties:
           items:
             type: string
             description: PEtab visualization file name or URL.
+
+        timecourse_files:
+          type: array
+          description: List of PEtab time courses files
+
+          items: 
+            type: string
+            description: PEtab time courses file name or URL.
 
       required:
         - sbml_files
