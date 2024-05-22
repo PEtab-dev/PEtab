@@ -828,7 +828,7 @@ The time courses table with two mandatory columns ``timecourseId`` and
 
   A semicolon-separated list of different phases of the experiment along with 
   their starting time. A value in the ``timecourse`` column takes the format
-   ``[TIMEPOINT:CONDITION_ID;...]``.
+  ``[TIMEPOINT:CONDITION_ID;...]``.
 
   ``TIMEPOINT`` can be:
 
@@ -853,7 +853,7 @@ The time courses table with two mandatory columns ``timecourseId`` and
    Note: The time interval in which a condition is applied includes the
    respective starting timepoint, but excludes the starting timepoint of
    the following condition. This means that for a timecourse
-   ``[time_A:condition_A; time_B:condition_B]``, ``condition_A ``is active
+   ``[time_A:condition_A; time_B:condition_B]``, ``condition_A`` is active
    during the interval ``[time_A, time_B)``. This implies that any event
    assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
    applied and for any measurements at ``time_B``, the observables will be
