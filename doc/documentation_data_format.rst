@@ -67,6 +67,10 @@ and
 - (optional) A visualization file, which contains specifications how the data
   and/or simulations should be plotted by the visualization routines [TSV]
 
+- (optional) A timecourses file, which describes a sequence of different 
+  experimental conditions that are applied to the model [TSV]
+
+
 .. figure:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
 
@@ -741,3 +745,69 @@ allows to specify multiple SBML models with corresponding condition and
 measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
+
+
+Timecourses table
+-----------------
+
+The optional time courses tabke describes a sequence of different experimental 
+conditions (here: discrete changes) that are applied to the model.
+
+This is specified as a tab-separated value file in the following way:
+
++--------------------+-------------------------------------------------+
+| timecourseId       | timecourse                                      |
++====================+=================================================+
+| STRING             | STRING                                          |
++--------------------+-------------------------------------------------+
+| timecourse_1       | 0:condition_1;10:condition_2;250:condition_3    |
++--------------------+-------------------------------------------------+
+| patient_3          | -inf:condition_1;0:condition_2                  |
++--------------------+-------------------------------------------------+
+| i                  | -20:                                            |
+| ntervention_effect | no_lockdown;20:mild_lockdown;40:severe_lockdown |
++--------------------+-------------------------------------------------+
+
+
+The time courses table with two mandatory columns ``timecourseId`` and
+``timecourse``:
+
+-  ``timecourseId`` [STRING, NOT NULL]
+
+  Identifier of the timecourse. The usual PEtab identifier requirements apply.
+
+-  ``timecourse``: [STRING, NOT NULL]
+
+  A semicolon-separated list of different phases of the experiment along with 
+  their starting time. A value in the ``timecourse`` column takes the format
+   ``[TIMEPOINT:CONDITION_ID;...]``.
+
+  ``TIMEPOINT`` can be:
+
+   -  ``-inf``: Marking the following condition as pre-equilibration
+      condition. (Despite ``-inf``, the pre-equilibration-starts at ``t=0`` and
+      simulation time is reset to ``TIMEPOINT`` of the following condition
+      afterwards).
+
+   -  ``float``: The timepoint at which to switch to the following
+      condition. The start time of the first non-preequilibration
+      condition is ``t_0``. If ``t_0`` is non-zero, then simulators are expected
+      to simulate from this non-zero time, not zero.
+
+   -  ``float0:float1``: indicates repetition of a period from ``time=float0``,
+      every ``float1`` time units, until the next period
+
+``CONDITION_ID``:
+
+   References condition IDs from the conditions table that specify which
+   changes to apply at ``TIMEPOINT``
+
+   Note: The time interval in which a condition is applied includes the
+   respective starting timepoint, but excludes the starting timepoint of
+   the following condition. This means that for a timecourse
+   ``[time_A:condition_A; time_B:condition_B]``, ``condition_A ``is active
+   during the interval ``[time_A, time_B)``. This implies that any event
+   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
+   applied and for any measurements at ``time_B``, the observables will be
+   evaluated *after* ``condition_B`` was applied.
+
