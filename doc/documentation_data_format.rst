@@ -50,7 +50,7 @@ and
 
 - A measurement file to fit the model to [TSV]
 
-- A condition file specifying model inputs and condition-specific parameters
+- (optional) A condition file specifying model inputs and condition-specific parameters
   [TSV]
 
 - An observable file specifying the observation model [TSV]
@@ -169,6 +169,56 @@ Detailed field description
 
     If a compartment ID is provided, it is interpreted as the initial
     compartment size.
+
+  - `expressions`
+
+    Expressions containing more than a single parameter ID or numberical
+    value are allowed. Any model entity Id in the condition table will be interpreted as
+    the value of that model entity at the last time point before
+    changing to the condition represented by the current row (similar
+    to an SBML event with ``useValuesFromTriggerTime=True``). The first
+    condition of any timecourse may only refer to parameter IDs that
+    are listed in the parameter table, but not to any other model
+    entity (This is because there is no “last timepoint” before
+    changing to this first condition.) For example 
+
+    -  given a timecourse ``0:condition1;10:condition2`` and two constant
+       model parameters ``par1``, ``par2`` and the two conditions:
+      
+      - ``condition1``: {``par1=0.1``, ``par2=0.2``}
+      - ``condition2``: {``par1=par2``, ``par2=par1``}
+
+      This is okay, since no circular dependencies exist: ``par1 = 0.2``, ``par2=0.1``
+
+    - given a ``timecourse 0:condition1`` and two model parameters
+      ``par1``, ``par2`` with only a single condition:
+
+      - ``condition1``: {``par1=par2``, ``par2=par1``}
+
+      This is not allowed, in the first condition of the timecourse ``par1``, ``par2``
+      cannot be used in the right-hand side of the assignment
+
+    - Given a condition: ``condition1``: {``par1=par3``, ``par2=2*par3``}
+
+      This is allowed.
+
+    Condition changes should be implemented to respect the dependency
+    graph between model components:
+
+    - When a condition changes quantity ``A`` and ``B``, and ``B`` is dependent on
+      ``A``, the change in quantity A should be applied first such that the
+      new value for ``B`` is consistent with what is specified in the
+      condition.
+
+    - For example, concentrations are generally dependent on volume
+      i.e. when a model compartment volume changes, the concentrations
+      of all species in that compartment change too, because mass is
+      usually conserved. In this case, if a condition change involves a
+      change in both a compartment volume and a species concentration,
+      then the compartment change should be applied first. Otherwise,
+      the species concentration after the condition is applied, will not
+      match the concentration specified by the user, because it would be
+      modified by the volume change.
 
 
 Measurement table
@@ -764,6 +814,8 @@ This is specified as a tab-separated value file in the following way:
 | ntervention_effect | no_lockdown;20:mild_lockdown;40:severe_lockdown |
 +--------------------+-------------------------------------------------+
 
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The time courses table with two mandatory columns ``timecourseId`` and
 ``timecourse``:
