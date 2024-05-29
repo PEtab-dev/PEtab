@@ -802,7 +802,7 @@ Booleans
 
 Boolean literals are ``true`` and ``false``. There is no automatic conversion
 between bool and float types. E.g., ``par * (par > 2)`` is not supported and
-should instead be implemented like ``piecewise(par > 2, par, 0)``.
+should instead be implemented like ``piecewise(par, par > 2, 0)``.
 
 Functions
 ~~~~~~~~~
@@ -820,10 +820,10 @@ The following functions are supported:
     "``arcsin``, ``arccos``, ``arctan``, ``arccot``, ``arcsec``, ``arccsc``", "float", "inverse trigonometric functions", "float"
     "``sinh``, ``cosh``, ``tanh``, ``coth``, ``sech``, ``csch``", "float", "hyperbolic functions", "float"
     "``arcsinh``, ``arccosh``, ``arctanh``, ``arccoth``, ``arcsech``, ``arccsch``,", "float", "inverse hyperbolic functions", "float"
-    "``piecewise(condition, true_output, false_output)``", "(bool, float, float) or (bool, bool, bool)", "``condition`` is a bool, ``true_output`` is the function value if ``condition`` is ``true``, ``false_output`` is the function value if condition is ``false``", "float"
-    "``abs(x)``", "float", "absolute value; ``piecewise(x>=0, x, -x)``", "float"
-    "``sign(x)``", "float", "sign of ``x``; ``piecewise(x>=0, 1, -1)``", "float"
-    "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a<=b, a, b)``, ``piecewise(a>=b, a, b)``", "float"
+    "``piecewise(true_value_1, condition_1, [true_value_2, condition_2, ] [...] [true_value_n, condition_n,] false_value)``", "``true_value*`` and ``false_value`` are either all float or all bool, ``condition*`` are all bool", "The function value is ``true_value_1`` if ``condition_1`` is true, else ``true_value_2`` if ``condition_2`` is true, else ..., else ``true_value_n`` if ``condition_n`` is true, else ``false_value``.", "float"
+    "``abs(x)``", "float", "absolute value; ``piecewise(x, x>=0, -x)``", "float"
+    "``sign(x)``", "float", "sign of ``x``; ``piecewise(1, x>=0, -1)``", "float"
+    "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a, a<=b, b)``, ``piecewise(a, a>=b, b)``", "float"
 
 Model time
 ~~~~~~~~~~
