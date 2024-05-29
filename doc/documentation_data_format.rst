@@ -157,7 +157,7 @@ Detailed field description
     condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True`
     for the respective species, as concentration otherwise) and will override the
     initial condition given in the SBML model or given by a preequilibration
-    condition. If ``NaN`` is provided for a condition, the result of the
+    condition. If no value is provided for a condition, the result of the
     preequilibration (or initial condition from the SBML model, if
     no preequilibration is defined) is used.
 
@@ -259,7 +259,7 @@ Detailed field description
 
 - ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
-  The measurement standard deviation or ``NaN`` if the corresponding sigma is a
+  The measurement standard deviation or empty if the corresponding sigma is a
   model parameter.
 
   Numeric values or parameter names are allowed. Same rules apply as for
@@ -838,13 +838,16 @@ Identifiers
 * Identifiers must not be a reserved keyword (see below).
 
 * Identifiers must be globally unique within the PEtab Problem.
+  Function names may be used as identifiers for other model entities, as they
+  can be distinguished by the context.
 
 Reserved keywords
 ~~~~~~~~~~~~~~~~~
 
+The following keywords are reserved and must not be used as identifiers:
+
 * ``true``, ``false``: Boolean literals
 * ``inf``: Infinity
-* ``nan``: reserved
 * ``time``: Model time
-* all math functions listed above
+* ``nan``: reserved
 
