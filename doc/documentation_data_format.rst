@@ -828,7 +828,9 @@ The following functions are supported:
 Model time
 ~~~~~~~~~~
 
-The model time is represented by the symbol ``time``.
+The model time is represented by the symbol ``time``. ``time`` always
+represents the current absolute simulation time (i.e., if the simulation starts
+at :math:`t_0 \neq 0`, then ``time`` is *not* the time since :math:`t_0`).
 
 Identifiers
 -----------
