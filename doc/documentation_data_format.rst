@@ -781,9 +781,8 @@ The supported operators are:
    "``+`` ``-``", "5", "binary plus/minus, addition/subtraction", "left-to-right", "float, float", "float"
    "``<`` ``<=`` ``>`` ``>=``", "6", "less than, less than or equal to, greater than, greater than or equal to", "left-to-right", "float, float", "bool"
    "``==`` ``!=``", "6", "is equal to, is not equal to", "left-to-right", "float, float or bool, bool", "bool"
-   "``&&``", "7", "logical and", "left-to-right", "bool, bool", "bool"
-   "``||``", "8", "logical or", "left-to-right", "bool, bool", "bool"
-   "``,``", "9", "comma  as function argument separator", "left-to-right", "any", ""
+   "``&&``, ``||``", "7", "logical and, logical or", "left-to-right", "bool, bool", "bool"
+   "``,``", "8", "comma  as function argument separator", "left-to-right", "any", ""
 
 Note that operator precedence might not be as expected from other programming
 languages. Use parentheses to enforce the desired order of operations.
