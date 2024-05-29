@@ -825,6 +825,10 @@ The following functions are supported:
     "``sign(x)``", "float", "sign of ``x``; ``piecewise(x>=0, 1, -1)``", "float"
     "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a<=b, a, b)``, ``piecewise(a>=b, a, b)``", "float"
 
+Model time
+~~~~~~~~~~
+
+The model time is represented by the symbol ``time``.
 
 Identifiers
 -----------
