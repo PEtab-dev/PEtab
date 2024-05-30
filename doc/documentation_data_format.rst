@@ -747,21 +747,17 @@ Math expressions syntax
 -----------------------
 
 This section describes the syntax of math expressions used in PEtab files, such
-as, e.g., the observable formulas.
+as the observable formulas.
 
 General
 ~~~~~~~
 
 * Whitespace is ignored in math expressions.
-* All parameter IDs from the parameter table, as well as all IDs of model
-  entities that are globally unique and match the PEtab identifier format
-  may be used in math expressions unless
-  stated otherwise.
-* Operators have to be specified. Implicit multiplication is not supported,
-  i.e., ``a b`` instead of ``a * b`` is not allowed.
-* It is not allowed to refer to any functions defined in the model.
-* Special symbols (such as :math:`e`, :math:`\pi`) are not supported, neither is NaN
-  (not-a-number)
+* The supported identifiers are: parameter IDs from the parameter table; model IDs that are globally unique; observable IDs; PEtab placeholder IDs; PEtab entity IDs in the mapping table; and `time`. Identifiers are not supported if they do not match the PEtab identifier format. PEtab expressions may have further context-specific restrictions on supported identifiers. 
+* Operators must be specified; there are no implicit operators. For example, ``a b`` is invalid, unlike ``a * b``.
+* The functions defined in PEtab are tabulated below. Other functions, including those defined in the model, remain undefined in PEtab expressions.
+* Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and neither is NaN
+  (not-a-number).
 
 Operators
 ~~~~~~~~~
@@ -784,7 +780,7 @@ The supported operators are:
    "``&&``, ``||``", "7", "logical and, logical or", "left-to-right", "bool, bool", "bool"
    "``,``", "8", "comma  as function argument separator", "left-to-right", "any", ""
 
-Note that operator precedence might not be as expected from other programming
+Note that operator precedence might be unexpected, compared to other programming
 languages. Use parentheses to enforce the desired order of operations.
 
 Literals
@@ -801,8 +797,8 @@ Booleans
 ++++++++
 
 Boolean literals are ``true`` and ``false``. There is no automatic conversion
-between bool and float types. E.g., ``par * (par > 2)`` is not supported and
-should instead be implemented like ``piecewise(par, par > 2, 0)``.
+between bool and float types. For example, ``par * (par > 2)`` is not supported, but can
+be implemented with ``piecewise(par, par > 2, 0)``.
 
 Functions
 ~~~~~~~~~
@@ -828,21 +824,20 @@ The following functions are supported:
 Model time
 ~~~~~~~~~~
 
-The model time is represented by the symbol ``time``. ``time`` always
-represents the current absolute simulation time (i.e., if the simulation starts
-at :math:`t_0 \neq 0`, then ``time`` is *not* the time since :math:`t_0`).
+The model time is represented by the symbol ``time``, which is the current simulated time, not the current duration of simulated time; if the simulation starts
+at :math:`t_0 \neq 0`, then ``time`` is *not* the time since :math:`t_0`.
 
 Identifiers
 -----------
 
-* All identifiers in PEtab must consist only of upper and lower case letters,
-  digits and underscores, and must not start with a digit.
+* All identifiers in PEtab may only contain upper and lower case letters,
+  digits and underscores, and must not start with a digit. In PCRE2 regex, they must match `[a-zA-Z_][a-zA-Z_\d]*`.
 
 * Identifiers are case-sensitive.
 
 * Identifiers must not be a reserved keyword (see below).
 
-* Identifiers must be globally unique within the PEtab Problem.
+* Identifiers must be globally unique within the PEtab problem.
   Function names may be used as identifiers for other model entities, as they
   can be distinguished by the context.
 
