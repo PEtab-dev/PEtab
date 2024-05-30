@@ -896,21 +896,111 @@ Functions
 
 The following functions are supported:
 
-.. csv-table:: Supported functions
-   :header: "Function", "Argument types", "Comment", "Evaluates to"
+..
+   START TABLE functions
+.. list-table::
 
-   "``pow(a, b)``", "float, float", "power function `b`-th power of `a`", "float"
-    "``exp(x)``", "float", "exponential function pow(e, x) (`e` itself not a supported symbol, but ``exp(1)`` can be used instead) ", "float"
-    "``sqrt(x)``", "float", "square root of x; ``pow(x, 0.5)``", "float"
-    "``log(a, b)``, ``log(x)``, ``ln(x)``, ``log2(x)``, ``log10(x)``", "float[, float]", "logarithm of ``a`` with base ``b``; ``log(x, e)``; ``log(x, e)``; ``log(x, 2)``; ``log(x, 10)`` (``log(0)`` is defined as ``-inf``) NOTE: ``log`` without explicit base is ``ln``, not ``log10``", "float"
-    "``sin``, ``cos``, ``tan``, ``cot``, ``sec``, ``csc``", "float", "trigonometric functions", "float"
-    "``arcsin``, ``arccos``, ``arctan``, ``arccot``, ``arcsec``, ``arccsc``", "float", "inverse trigonometric functions", "float"
-    "``sinh``, ``cosh``, ``tanh``, ``coth``, ``sech``, ``csch``", "float", "hyperbolic functions", "float"
-    "``arcsinh``, ``arccosh``, ``arctanh``, ``arccoth``, ``arcsech``, ``arccsch``,", "float", "inverse hyperbolic functions", "float"
-    "``piecewise(true_value_1, condition_1, [true_value_2, condition_2, ] [...] [true_value_n, condition_n,] false_value)``", "``true_value*`` and ``false_value`` are either all float or all bool, ``condition*`` are all bool", "The function value is ``true_value_1`` if ``condition_1`` is true, else ``true_value_2`` if ``condition_2`` is true, else ..., else ``true_value_n`` if ``condition_n`` is true, else ``false_value``.", "float"
-    "``abs(x)``", "float", "absolute value; ``piecewise(x, x>=0, -x)``", "float"
-    "``sign(x)``", "float", "sign of ``x``; ``piecewise(1, x>=0, -1)``", "float"
-    "``min(a, b)``, ``max(a, b)``", "float, float", "minimum / maximum of {a,b}; ``piecewise(a, a<=b, b)``, ``piecewise(a, a>=b, b)``", "float"
+ * - | **Function**
+   - | **Argument types**
+   - | **Comment**
+   - | **Evaluates to**
+ * - ``pow(a, b)``
+   - float, float
+   - power function `b`-th power of `a`
+   - float
+ * - ``exp(x)``
+   - float
+   - | exponential function pow(e, x)
+     | (`e` itself not a supported symbol,
+     | but ``exp(1)`` can be used instead)
+   - float
+ * - ``sqrt(x)``
+   - float
+   - | square root of x
+     | ``pow(x, 0.5)``
+   - float
+ * - | ``log(a, b)``
+     | ``log(x)``
+     | ``ln(x)``
+     | ``log2(x)``
+     | ``log10(x)``
+   - float[, float]
+   - | logarithm of ``a`` with base ``b``
+     | ``log(x, e)``
+     | ``log(x, e)``
+     | ``log(x, 2)``
+     | ``log(x, 10)``
+     | (``log(0)`` is defined as ``-inf``)
+     | NOTE: ``log`` without explicit base is ``ln``, not ``log10``
+   - float
+ * - | ``sin``
+     | ``cos``
+     | ``tan``
+     | ``cot``
+     | ``sec``
+     | ``csc``
+   - float
+   - trigonometric functions
+   - float
+ * - | ``arcsin``
+     | ``arccos``
+     | ``arctan``
+     | ``arccot``
+     | ``arcsec``
+     | ``arccsc``
+   - float
+   - inverse trigonometric functions
+   - float
+ * - | ``sinh``
+     | ``cosh``
+     | ``tanh``
+     | ``coth``
+     | ``sech``
+     | ``csch``
+   - float
+   - hyperbolic functions
+   - float
+ * - | ``arcsinh``
+     | ``arccosh``
+     | ``arctanh``
+     | ``arccoth``
+     | ``arcsech``
+     | ``arccsch``,
+   - float
+   - inverse hyperbolic functions
+   - float
+ * - | ``piecewise(``
+     |     ``true_value_1, condition_1,``
+     |     ``[true_value_2, condition_2, ]``
+     |     ``[...]``
+     |     ``[true_value_n, condition_n,]``
+     |     ``false_value``
+     | ``)``
+   - | ``*value*``: all float or all bool
+     | ``condition*``: all bool
+   - | The function value is the ``true_value*`` for the first ``true`` ``condition``
+     |  or ``false_value`` if all conditions are ``false``.
+   - float
+ * - ``abs(x)``
+   - float
+   - | absolute value
+     | ``piecewise(x, x>=0, -x)``
+   - float
+ * - ``sign(x)``
+   - float
+   - | sign of ``x``
+     | ``piecewise(1, x>=0, -1)``
+   - float
+ * - | ``min(a, b)``
+     | ``max(a, b)``
+   - float, float
+   - | minimum / maximum of {a,b}
+     | ``piecewise(a, a<=b, b)``
+     | ``piecewise(a, a>=b, b)``
+   - float
+
+..
+   END TABLE functions
 
 Model time
 ~~~~~~~~~~
