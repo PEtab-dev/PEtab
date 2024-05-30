@@ -913,6 +913,8 @@ The following functions are supported:
 ..
    START TABLE functions
 .. list-table::
+   :widths: 15 10 10 5
+   :header-rows: 1
 
  * - | **Function**
    - | **Argument types**
@@ -945,7 +947,8 @@ The following functions are supported:
      | ``log(x, 2)``
      | ``log(x, 10)``
      | (``log(0)`` is defined as ``-inf``)
-     | NOTE: ``log`` without explicit base is ``ln``, not ``log10``
+     | (NOTE: ``log`` without explicit
+     | base is ``ln``, not ``log10``)
    - float
  * - | ``sin``
      | ``cos``
@@ -992,8 +995,11 @@ The following functions are supported:
      | ``)``
    - | ``*value*``: all float or all bool
      | ``condition*``: all bool
-   - | The function value is the ``true_value*`` for the first ``true`` ``condition``
-     |  or ``false_value`` if all conditions are ``false``.
+   - | The function value is
+     | the ``true_value*`` for the
+     | first ``true`` ``condition*``
+     | or ``false_value`` if all
+     | conditions are ``false``.
    - float
  * - ``abs(x)``
    - float
