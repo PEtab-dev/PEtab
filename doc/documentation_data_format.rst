@@ -914,7 +914,7 @@ The following functions are supported:
    START TABLE functions
 .. list-table:: functions
    :header-rows: 1
-   :widths: 15 10 10 5
+   :widths: 20 10 10 5
 
    * - | Function
      - | Comment
