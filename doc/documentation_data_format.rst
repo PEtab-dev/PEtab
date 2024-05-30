@@ -926,8 +926,10 @@ Identifiers
 * Identifiers must not be a reserved keyword (see below).
 
 * Identifiers must be globally unique within the PEtab problem.
-  Function names may be used as identifiers for other model entities, as they
-  can be distinguished by the context.
+  PEtab math function names must not be used as identifiers for other model
+  entities. Names of predefined function from the modeling framework are
+  allowed to be used for other model entities if supported by the framework,
+  but this is strongly discouraged.
 
 Reserved keywords
 ~~~~~~~~~~~~~~~~~
