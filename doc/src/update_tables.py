@@ -6,16 +6,16 @@ tables = {
     "functions": {
         "target": "../documentation_data_format.rst",
         "options": {
-            "widths": "15 10 10 5",
             "header-rows": "1",
+            "widths": "15 10 10 5",
         },
     },
 }
 
 
-def df_to_list_table(df, options):
+def df_to_list_table(df, options, name):
     columns = df.columns
-    table = ".. list-table::\n"
+    table = f".. list-table:: {name}\n"
     for option_id, option_value in options.items():
         table += f"   :{option_id}: {option_value}\n"
     table += "\n"
@@ -23,10 +23,10 @@ def df_to_list_table(df, options):
     first = True
     for column in columns:
         if first:
-            table += " * "
+            table += "   * "
             first = False
         else:
-            table += "   "
+            table += "     "
         table += f"- | {column}\n"
 
     for _, row in df.iterrows():
@@ -34,10 +34,10 @@ def df_to_list_table(df, options):
         for column in columns:
             cell = row[column]
             if first:
-                table += " * "
+                table += "   * "
                 first = False
             else:
-                table += "   "
+                table += "     "
             table += "- "
             if MULTILINE_DELIMITER in cell:
                 first_line = True
@@ -46,7 +46,7 @@ def df_to_list_table(df, options):
                         table += "| "
                         first_line = False
                     else:
-                        table += "     | "
+                        table += "        | "
                     table += line
                     table += "\n"
             else:
@@ -76,7 +76,7 @@ for table_id, table_data in tables.items():
     target_file = table_data["target"]
     options = table_data["options"]
     df = pd.read_csv(table_id+".tsv", sep="\t")
-    table = df_to_list_table(df, options=options)
+    table = df_to_list_table(df, options=options, name=table_id)
     replace_text(
         filename=target_file,
         text=table,
