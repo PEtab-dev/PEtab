@@ -937,8 +937,9 @@ Reserved keywords
 The following keywords, `case-insensitive`, are reserved and must not be used
 as identifiers:
 
-* ``true``, ``false``: Boolean literals
-* ``inf``: Infinity
-* ``time``: Model time
-* ``nan``: reserved
+* ``true``, ``false``: Boolean literals, used in PEtab expressions.
+* ``inf``: Infinity, used in PEtab expressions and post-equilibration
+  measurements
+* ``time``: Model time, used in PEtab expressions.
+* ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
 
