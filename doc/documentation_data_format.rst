@@ -926,96 +926,96 @@ The following functions are supported:
      - float
    * - ``exp(x)``
      - | exponential function pow(e, x)
-        | (`e` itself not a supported symbol,
-        | but ``exp(1)`` can be used instead)
+       | (`e` itself not a supported symbol,
+       | but ``exp(1)`` can be used instead)
      - float
      - float
    * - ``sqrt(x)``
      - | square root of ``x``
-        | ``pow(x, 0.5)``
+       | ``pow(x, 0.5)``
      - float
      - float
    * - | ``log(a, b)``
-        | ``log(x)``
-        | ``ln(x)``
-        | ``log2(x)``
-        | ``log10(x)``
+       | ``log(x)``
+       | ``ln(x)``
+       | ``log2(x)``
+       | ``log10(x)``
      - | logarithm of ``a`` with base ``b``
-        | ``log(x, e)``
-        | ``log(x, e)``
-        | ``log(x, 2)``
-        | ``log(x, 10)``
-        | (``log(0)`` is defined as ``-inf``)
-        | (NOTE: ``log`` without explicit
-        | base is ``ln``, not ``log10``)
+       | ``log(x, e)``
+       | ``log(x, e)``
+       | ``log(x, 2)``
+       | ``log(x, 10)``
+       | (``log(0)`` is defined as ``-inf``)
+       | (NOTE: ``log`` without explicit
+       | base is ``ln``, not ``log10``)
      - float[, float]
      - float
    * - | ``sin``
-        | ``cos``
-        | ``tan``
-        | ``cot``
-        | ``sec``
-        | ``csc``
+       | ``cos``
+       | ``tan``
+       | ``cot``
+       | ``sec``
+       | ``csc``
      - trigonometric functions
      - float
      - float
    * - | ``arcsin``
-        | ``arccos``
-        | ``arctan``
-        | ``arccot``
-        | ``arcsec``
-        | ``arccsc``
+       | ``arccos``
+       | ``arctan``
+       | ``arccot``
+       | ``arcsec``
+       | ``arccsc``
      - inverse trigonometric functions
      - float
      - float
    * - | ``sinh``
-        | ``cosh``
-        | ``tanh``
-        | ``coth``
-        | ``sech``
-        | ``csch``
+       | ``cosh``
+       | ``tanh``
+       | ``coth``
+       | ``sech``
+       | ``csch``
      - hyperbolic functions
      - float
      - float
    * - | ``arcsinh``
-        | ``arccosh``
-        | ``arctanh``
-        | ``arccoth``
-        | ``arcsech``
-        | ``arccsch``
+       | ``arccosh``
+       | ``arctanh``
+       | ``arccoth``
+       | ``arcsech``
+       | ``arccsch``
      - inverse hyperbolic functions
      - float
      - float
    * - | ``piecewise(``
-        |     ``true_value_1, condition_1,``
-        |     ``[true_value_2, condition_2, ]``
-        |     ``[...]``
-        |     ``[true_value_n, condition_n,]``
-        |     ``false_value``
-        | ``)``
+       |     ``true_value_1, condition_1,``
+       |     ``[true_value_2, condition_2, ]``
+       |     ``[...]``
+       |     ``[true_value_n, condition_n,]``
+       |     ``false_value``
+       | ``)``
      - | The function value is
-        | the ``true_value*`` for the
-        | first ``true`` ``condition*``
-        | or ``false_value`` if all
-        | conditions are ``false``.
+       | the ``true_value*`` for the
+       | first ``true`` ``condition*``
+       | or ``false_value`` if all
+       | conditions are ``false``.
      - | ``*value*``: all float or all bool
-        | ``condition*``: all bool
+       | ``condition*``: all bool
      - float
    * - ``abs(x)``
      - | absolute value
-        | ``piecewise(x, x>=0, -x)``
+       | ``piecewise(x, x>=0, -x)``
      - float
      - float
    * - ``sign(x)``
      - | sign of ``x``
-        | ``piecewise(1, x>=0, -1)``
+       | ``piecewise(1, x>=0, -1)``
      - float
      - float
    * - | ``min(a, b)``
-        | ``max(a, b)``
+       | ``max(a, b)``
      - | minimum / maximum of {``a``,``b``}
-        | ``piecewise(a, a<=b, b)``
-        | ``piecewise(a, a>=b, b)``
+       | ``piecewise(a, a<=b, b)``
+       | ``piecewise(a, a>=b, b)``
      - float, float
      - float
 

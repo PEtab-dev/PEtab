@@ -46,7 +46,7 @@ def df_to_list_table(df, options, name):
                         table += "| "
                         first_line = False
                     else:
-                        table += "        | "
+                        table += "       | "
                     table += line
                     table += "\n"
             else:
