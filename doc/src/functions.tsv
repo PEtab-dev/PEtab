@@ -1,7 +1,7 @@
 Function	Comment	Argument types	Evaluates to
 ``pow(a, b)``	power function `b`-th power of `a`	float, float	float
 ``exp(x)``	exponential function pow(e, x);(`e` itself not a supported symbol,;but ``exp(1)`` can be used instead)	float	float
-``sqrt(x)``	square root of x;``pow(x, 0.5)``	float	float
+``sqrt(x)``	square root of ``x``;``pow(x, 0.5)``	float	float
 ``log(a, b)``;``log(x)``;``ln(x)``;``log2(x)``;``log10(x)``	logarithm of ``a`` with base ``b``;``log(x, e)``;``log(x, e)``;``log(x, 2)``;``log(x, 10)``;(``log(0)`` is defined as ``-inf``);(NOTE: ``log`` without explicit;base is ``ln``, not ``log10``)	float[, float]	float
 ``sin``;``cos``;``tan``;``cot``;``sec``;``csc``	trigonometric functions	float	float
 ``arcsin``;``arccos``;``arctan``;``arccot``;``arcsec``;``arccsc``	inverse trigonometric functions	float	float
