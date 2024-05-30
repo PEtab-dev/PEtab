@@ -911,7 +911,7 @@ Functions
 The following functions are supported:
 
 ..
-   START TABLE functions
+   START TABLE functions (GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)
 .. list-table:: functions
    :header-rows: 1
    :widths: 20 10 10 5

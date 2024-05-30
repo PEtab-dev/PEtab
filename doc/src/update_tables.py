@@ -72,6 +72,9 @@ def replace_text(filename, text, start, end):
         f.write(full_text)
 
 
+DISCLAIMER = "(GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)"
+
+
 for table_id, table_data in tables.items():
     target_file = table_data["target"]
     options = table_data["options"]
@@ -80,6 +83,6 @@ for table_id, table_data in tables.items():
     replace_text(
         filename=target_file,
         text=table,
-        start=f"\n..\n   START TABLE {table_id}\n",
+        start=f"\n..\n   START TABLE {table_id} {DISCLAIMER}\n",
         end=f"\n..\n   END TABLE {table_id}\n",
     )
