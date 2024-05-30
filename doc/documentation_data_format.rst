@@ -988,7 +988,7 @@ The following functions are supported:
      - float
    * - | ``piecewise(``
        |     ``true_value_1, condition_1,``
-       |     ``[true_value_2, condition_2, ]``
+       |     ``[true_value_2, condition_2,]``
        |     ``[...]``
        |     ``[true_value_n, condition_n,]``
        |     ``false_value``
@@ -1013,7 +1013,7 @@ The following functions are supported:
      - float
    * - | ``min(a, b)``
        | ``max(a, b)``
-     - | minimum / maximum of {``a``,``b``}
+     - | minimum / maximum of {``a``, ``b``}
        | ``piecewise(a, a<=b, b)``
        | ``piecewise(a, a>=b, b)``
      - float, float
