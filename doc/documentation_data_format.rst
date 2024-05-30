@@ -914,7 +914,6 @@ The following functions are supported:
    START TABLE functions (GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)
 .. list-table:: functions
    :header-rows: 1
-   :widths: 20 10 10 5
 
    * - | Function
      - | Comment
@@ -987,10 +986,13 @@ The following functions are supported:
      - float
      - float
    * - | ``piecewise(``
-       |     ``true_value_1, condition_1,``
-       |     ``[true_value_2, condition_2,]``
+       |     ``true_value_1,``
+       |       ``condition_1,``
+       |     ``[true_value_2,``
+       |       ``condition_2,]``
        |     ``[...]``
-       |     ``[true_value_n, condition_n,]``
+       |     ``[true_value_n,``
+       |       ``condition_n,]``
        |     ``false_value``
        | ``)``
      - | The function value is

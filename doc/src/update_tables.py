@@ -7,7 +7,7 @@ tables = {
         "target": "../documentation_data_format.rst",
         "options": {
             "header-rows": "1",
-            "widths": "20 10 10 5",
+            # "widths": "20 10 10 5",
         },
     },
 }
