@@ -931,7 +931,7 @@ The following functions are supported:
    - float
    - float
  * - ``sqrt(x)``
-   - | square root of x
+   - | square root of ``x``
      | ``pow(x, 0.5)``
    - float
    - float
@@ -982,7 +982,7 @@ The following functions are supported:
      | ``arctanh``
      | ``arccoth``
      | ``arcsech``
-     | ``arccsch``,
+     | ``arccsch``
    - inverse hyperbolic functions
    - float
    - float
@@ -1013,7 +1013,7 @@ The following functions are supported:
    - float
  * - | ``min(a, b)``
      | ``max(a, b)``
-   - | minimum / maximum of {a,b}
+   - | minimum / maximum of {``a``,``b``}
      | ``piecewise(a, a<=b, b)``
      | ``piecewise(a, a>=b, b)``
    - float, float
