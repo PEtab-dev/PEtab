@@ -753,18 +753,32 @@ General
 ~~~~~~~
 
 * Whitespace is ignored in math expressions.
-* The supported identifiers are: parameter IDs from the parameter table; model IDs that are globally unique; observable IDs; PEtab placeholder IDs; PEtab entity IDs in the mapping table; and `time`. Identifiers are not supported if they do not match the PEtab identifier format. PEtab expressions may have further context-specific restrictions on supported identifiers.
-* Operators must be specified; there are no implicit operators. For example, ``a b`` is invalid, unlike ``a * b``.
-* The functions defined in PEtab are tabulated below. Other functions, including those defined in the model, remain undefined in PEtab expressions.
-* Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and neither is NaN
-  (not-a-number).
+* The supported identifiers are:
+
+  * parameter IDs from the parameter table
+  * model IDs that are globally unique
+  * observable IDs
+  * PEtab placeholder IDs
+  * PEtab entity IDs in the mapping table
+  * ``time`` for the model time
+
+ Identifiers are not supported if they do not match the PEtab identifier
+ format. PEtab expressions may have further context-specific restrictions on
+ supported identifiers.
+
+* Operators must be specified; there are no implicit operators.
+  For example, ``a b`` is invalid, unlike ``a * b``.
+* The functions defined in PEtab are tabulated below. Other functions,
+  including those defined in the model, remain undefined in PEtab expressions.
+* Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and
+  neither is NaN (not-a-number).
 
 Operators
 ~~~~~~~~~
 
 The supported operators are:
 
-.. list-table:: Supported operators
+.. list-table:: Supported operators in PEtab math expressions.
    :header-rows: 1
 
    * - Operator
@@ -773,9 +787,9 @@ The supported operators are:
      - Associativity
      - Arguments
      - Evaluates to
-   * - ``f()``
+   * - ``f(arg1[, arg2, ...])``
      - 1
-     - function arguments
+     - call to function `f` with arguments `arg1`, `arg2`, ...
      - left-to-right
      - any
      - input-dependent
@@ -1015,7 +1029,7 @@ Identifiers
 
 * All identifiers in PEtab may only contain upper and lower case letters,
   digits and underscores, and must not start with a digit. In PCRE2 regex, they
-  must match `[a-zA-Z_][a-zA-Z_\d]*`.
+  must match ``[a-zA-Z_][a-zA-Z_\d]*``.
 
 * Identifiers are case-sensitive.
 
