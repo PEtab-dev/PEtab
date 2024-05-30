@@ -917,30 +917,29 @@ The following functions are supported:
    :header-rows: 1
 
  * - | Function
-   - | Argument types
    - | Comment
+   - | Argument types
    - | Evaluates to
  * - ``pow(a, b)``
-   - float, float
    - power function `b`-th power of `a`
+   - float, float
    - float
  * - ``exp(x)``
-   - float
    - | exponential function pow(e, x)
      | (`e` itself not a supported symbol,
      | but ``exp(1)`` can be used instead)
    - float
- * - ``sqrt(x)``
    - float
+ * - ``sqrt(x)``
    - | square root of x
      | ``pow(x, 0.5)``
+   - float
    - float
  * - | ``log(a, b)``
      | ``log(x)``
      | ``ln(x)``
      | ``log2(x)``
      | ``log10(x)``
-   - float[, float]
    - | logarithm of ``a`` with base ``b``
      | ``log(x, e)``
      | ``log(x, e)``
@@ -949,6 +948,7 @@ The following functions are supported:
      | (``log(0)`` is defined as ``-inf``)
      | (NOTE: ``log`` without explicit
      | base is ``ln``, not ``log10``)
+   - float[, float]
    - float
  * - | ``sin``
      | ``cos``
@@ -956,8 +956,8 @@ The following functions are supported:
      | ``cot``
      | ``sec``
      | ``csc``
-   - float
    - trigonometric functions
+   - float
    - float
  * - | ``arcsin``
      | ``arccos``
@@ -965,8 +965,8 @@ The following functions are supported:
      | ``arccot``
      | ``arcsec``
      | ``arccsc``
-   - float
    - inverse trigonometric functions
+   - float
    - float
  * - | ``sinh``
      | ``cosh``
@@ -974,8 +974,8 @@ The following functions are supported:
      | ``coth``
      | ``sech``
      | ``csch``
-   - float
    - hyperbolic functions
+   - float
    - float
  * - | ``arcsinh``
      | ``arccosh``
@@ -983,8 +983,8 @@ The following functions are supported:
      | ``arccoth``
      | ``arcsech``
      | ``arccsch``,
-   - float
    - inverse hyperbolic functions
+   - float
    - float
  * - | ``piecewise(``
      |     ``true_value_1, condition_1,``
@@ -993,30 +993,30 @@ The following functions are supported:
      |     ``[true_value_n, condition_n,]``
      |     ``false_value``
      | ``)``
-   - | ``*value*``: all float or all bool
-     | ``condition*``: all bool
    - | The function value is
      | the ``true_value*`` for the
      | first ``true`` ``condition*``
      | or ``false_value`` if all
      | conditions are ``false``.
+   - | ``*value*``: all float or all bool
+     | ``condition*``: all bool
    - float
  * - ``abs(x)``
-   - float
    - | absolute value
      | ``piecewise(x, x>=0, -x)``
    - float
- * - ``sign(x)``
    - float
+ * - ``sign(x)``
    - | sign of ``x``
      | ``piecewise(1, x>=0, -1)``
    - float
+   - float
  * - | ``min(a, b)``
      | ``max(a, b)``
-   - float, float
    - | minimum / maximum of {a,b}
      | ``piecewise(a, a<=b, b)``
      | ``piecewise(a, a>=b, b)``
+   - float, float
    - float
 
 ..
