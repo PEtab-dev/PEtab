@@ -3,13 +3,22 @@ import pandas as pd
 
 MULTILINE_DELIMITER = ";"
 tables = {
-    "functions": "../documentation_data_format.rst",
+    "functions": {
+        "target": "../documentation_data_format.rst",
+        "options": {
+            "widths": "15 10 10 5",
+            "header-rows": "1",
+        },
+    },
 }
 
 
-def df_to_list_table(df):
+def df_to_list_table(df, options):
     columns = df.columns
-    table = ".. list-table::\n\n"
+    table = ".. list-table::\n"
+    for option_id, option_value in options.items():
+        table += f"   :{option_id}: {option_value}\n"
+    table += "\n"
 
     first = True
     for column in columns:
@@ -18,7 +27,7 @@ def df_to_list_table(df):
             first = False
         else:
             table += "   "
-        table += f"- | **{column}**\n"
+        table += f"- | {column}\n"
 
     for _, row in df.iterrows():
         first = True
@@ -63,9 +72,11 @@ def replace_text(filename, text, start, end):
         f.write(full_text)
 
 
-for table_id, target_file in tables.items():
+for table_id, table_data in tables.items():
+    target_file = table_data["target"]
+    options = table_data["options"]
     df = pd.read_csv(table_id+".tsv", sep="\t")
-    table = df_to_list_table(df)
+    table = df_to_list_table(df, options=options)
     replace_text(
         filename=target_file,
         text=table,

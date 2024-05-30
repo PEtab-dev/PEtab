@@ -916,10 +916,10 @@ The following functions are supported:
    :widths: 15 10 10 5
    :header-rows: 1
 
- * - | **Function**
-   - | **Argument types**
-   - | **Comment**
-   - | **Evaluates to**
+ * - | Function
+   - | Argument types
+   - | Comment
+   - | Evaluates to
  * - ``pow(a, b)``
    - float, float
    - power function `b`-th power of `a`
