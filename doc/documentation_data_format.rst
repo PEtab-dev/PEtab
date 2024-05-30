@@ -844,7 +844,8 @@ Identifiers
 Reserved keywords
 ~~~~~~~~~~~~~~~~~
 
-The following keywords are reserved and must not be used as identifiers:
+The following keywords, `case-insensitive`, are reserved and must not be used
+as identifiers:
 
 * ``true``, ``false``: Boolean literals
 * ``inf``: Infinity
