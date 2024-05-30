@@ -911,8 +911,8 @@ Functions
 The following functions are supported:
 
 ..
-   START TABLE functions (GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)
-.. list-table:: functions
+   START TABLE Supported functions (GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)
+.. list-table:: Supported functions
    :header-rows: 1
 
    * - | Function
@@ -1022,7 +1022,7 @@ The following functions are supported:
      - float
 
 ..
-   END TABLE functions
+   END TABLE Supported functions
 
 Model time
 ~~~~~~~~~~

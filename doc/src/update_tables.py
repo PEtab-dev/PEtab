@@ -3,7 +3,7 @@ import pandas as pd
 
 MULTILINE_DELIMITER = ";"
 tables = {
-    "functions": {
+    "Supported functions": {
         "target": "../documentation_data_format.rst",
         "options": {
             "header-rows": "1",
