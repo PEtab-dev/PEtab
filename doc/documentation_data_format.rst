@@ -877,16 +877,19 @@ Literals
 Numbers
 +++++++
 
-There is no distinction between integer and floating point numbers. Numbers
-can be specified in decimal notation, e.g. ``1.0``, ``-1.0``, ``1.0e-3``,
-``1.0e3``.
+All numbers, including integers, are treated as floating point numbers of
+undefined precision. Only decimal notation is supported. Scientific notation
+is supported, with the exponent indicated by ``e`` or ``E``. The decimal
+separator is indicated by ``.``.
+Examples of valid numbers are: ``1``, ``1.0``, ``-1.0``, ``1.0e-3``, ``1.0e3``,
+``1e+3``. The general syntax in PCRE2 regex is ``\d*(\.\d+)?([eE][-+]?\d+)?``.
 
 Booleans
 ++++++++
 
 Boolean literals are ``true`` and ``false``. There is no automatic conversion
-between bool and float types. For example, ``par * (par > 2)`` is not supported, but can
-be implemented with ``piecewise(par, par > 2, 0)``.
+between bool and float types. For example, ``par * (par > 2)`` is not
+supported, but can be implemented with ``piecewise(par, par > 2, 0)``.
 
 Functions
 ~~~~~~~~~
@@ -912,14 +915,17 @@ The following functions are supported:
 Model time
 ~~~~~~~~~~
 
-The model time is represented by the symbol ``time``, which is the current simulated time, not the current duration of simulated time; if the simulation starts
-at :math:`t_0 \neq 0`, then ``time`` is *not* the time since :math:`t_0`.
+The model time is represented by the symbol ``time``, which is the current
+simulated time, not the current duration of simulated time; if the simulation
+starts at :math:`t_0 \neq 0`, then ``time`` is *not* the time since
+:math:`t_0`.
 
 Identifiers
 -----------
 
 * All identifiers in PEtab may only contain upper and lower case letters,
-  digits and underscores, and must not start with a digit. In PCRE2 regex, they must match `[a-zA-Z_][a-zA-Z_\d]*`.
+  digits and underscores, and must not start with a digit. In PCRE2 regex, they
+  must match `[a-zA-Z_][a-zA-Z_\d]*`.
 
 * Identifiers are case-sensitive.
 
