@@ -753,7 +753,7 @@ General
 ~~~~~~~
 
 * Whitespace is ignored in math expressions.
-* The supported identifiers are: parameter IDs from the parameter table; model IDs that are globally unique; observable IDs; PEtab placeholder IDs; PEtab entity IDs in the mapping table; and `time`. Identifiers are not supported if they do not match the PEtab identifier format. PEtab expressions may have further context-specific restrictions on supported identifiers. 
+* The supported identifiers are: parameter IDs from the parameter table; model IDs that are globally unique; observable IDs; PEtab placeholder IDs; PEtab entity IDs in the mapping table; and `time`. Identifiers are not supported if they do not match the PEtab identifier format. PEtab expressions may have further context-specific restrictions on supported identifiers.
 * Operators must be specified; there are no implicit operators. For example, ``a b`` is invalid, unlike ``a * b``.
 * The functions defined in PEtab are tabulated below. Other functions, including those defined in the model, remain undefined in PEtab expressions.
 * Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and neither is NaN
@@ -764,21 +764,109 @@ Operators
 
 The supported operators are:
 
-.. csv-table:: Supported operators
-   :header: "Operator", "Precedence", "Interpretation", "Associativity", "Arguments", "Evaluates to"
-   :widths: 10, 10, 50, 15, 20, 15
+.. list-table:: Supported operators
+   :header-rows: 1
 
-   "``f()``", "1", "function arguments", "left-to-right", "any", "input-dependent"
-   "``()``", "1", "parentheses for grouping, acts like identity", "", "any single expression", "argument"
-   "``^``", "2", "exponentiation (shorthand for pow)", "right-to-left", "float, float", "float"
-   "``+`` ``-``", "3", "unary plus/minus", "right-to-left", "float", "float"
-   "``!``", "3", "not", "", "bool", "bool"
-   "``*`` ``/``", "4", "multiplication division", "left-to-right", "float, float", "float"
-   "``+`` ``-``", "5", "binary plus/minus, addition/subtraction", "left-to-right", "float, float", "float"
-   "``<`` ``<=`` ``>`` ``>=``", "6", "less than, less than or equal to, greater than, greater than or equal to", "left-to-right", "float, float", "bool"
-   "``==`` ``!=``", "6", "is equal to, is not equal to", "left-to-right", "float, float or bool, bool", "bool"
-   "``&&``, ``||``", "7", "logical and, logical or", "left-to-right", "bool, bool", "bool"
-   "``,``", "8", "comma  as function argument separator", "left-to-right", "any", ""
+   * - Operator
+     - Precedence
+     - Interpretation
+     - Associativity
+     - Arguments
+     - Evaluates to
+   * - ``f()``
+     - 1
+     - function arguments
+     - left-to-right
+     - any
+     - input-dependent
+   * - | ``()``
+       |
+     - | 1
+       |
+     - | parentheses for grouping
+       | acts like identity
+     - |
+       |
+     - | any single expression
+       |
+     - | argument
+       |
+   * - | ``^``
+       |
+     - | 2
+       |
+     - | exponentiation
+       | (shorthand for pow)
+     - | right-to-left
+       |
+     - | float, float
+       |
+     - | float
+       |
+   * - | ``+``
+       | ``-``
+     - | 3
+     - | unary plus
+       | unary minus
+     - | right-to-left
+     - | float
+     - | float
+   * - ``!``
+     - 3
+     - not
+     -
+     - bool
+     - bool
+   * - | ``*``
+       | ``/``
+     - | 4
+     - | multiplication
+       | division
+     - | left-to-right
+     - | float, float
+     - | float
+   * - | ``+``
+       | ``-``
+     - | 5
+     - | binary plus, addition
+       | binary minus, subtraction
+     - | left-to-right
+     - | float, float
+     - | float
+   * - | ``<``
+       | ``<=``
+       | ``>``
+       | ``>=``
+     - | 6
+     - | less than
+       | less than or equal to
+       | greater than
+       | greater than or equal to
+     - | left-to-right
+     - | float, float
+     - | bool
+   * - | ``==``
+       | ``!=``
+     - | 6
+     - | is equal to
+       | is not equal to
+     - | left-to-right
+     - | (float, float) or (bool, bool)
+     - | bool
+   * - | ``&&``
+       | ``||``
+     - | 7
+     - | logical `and`
+       | logical `or`
+     - | left-to-right
+     - | bool, bool
+     - | bool
+   * - ``,``
+     - 8
+     - function argument separator
+     - left-to-right
+     - any
+     -
 
 Note that operator precedence might be unexpected, compared to other programming
 languages. Use parentheses to enforce the desired order of operations.
