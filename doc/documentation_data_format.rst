@@ -749,32 +749,67 @@ Math expressions syntax
 This section describes the syntax of math expressions used in PEtab files, such
 as the observable formulas.
 
-General
+Supported symbols, literals, and operations are described in the following. Whitespace is ignored in math expressions.
+
+
+Symbols
 ~~~~~~~
 
-* Whitespace is ignored in math expressions.
 * The supported identifiers are:
 
   * parameter IDs from the parameter table
-  * model IDs that are globally unique
-  * observable IDs
-  * PEtab placeholder IDs
+  * model entity IDs that are globally unique and have a clear interpretation
+    in the math expression context
+  * observable IDs from the observable table
+  * PEtab placeholder IDs in the observable and noise formulas
   * PEtab entity IDs in the mapping table
   * ``time`` for the model time
+  * PEtab function names listed below
 
  Identifiers are not supported if they do not match the PEtab identifier
  format. PEtab expressions may have further context-specific restrictions on
  supported identifiers.
 
-* Operators must be specified; there are no implicit operators.
-  For example, ``a b`` is invalid, unlike ``a * b``.
 * The functions defined in PEtab are tabulated below. Other functions,
   including those defined in the model, remain undefined in PEtab expressions.
+
 * Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and
   neither is NaN (not-a-number).
 
+Model time
+++++++++++
+
+The model time is represented by the symbol ``time``, which is the current
+simulated time, not the current duration of simulated time; if the simulation
+starts at :math:`t_0 \neq 0`, then ``time`` is *not* the time since
+:math:`t_0`.
+
+
+Literals
+~~~~~~~~
+
+Numbers
++++++++
+
+All numbers, including integers, are treated as floating point numbers of
+undefined precision. Only decimal notation is supported. Scientific notation
+is supported, with the exponent indicated by ``e`` or ``E``. The decimal
+separator is indicated by ``.``.
+Examples of valid numbers are: ``1``, ``1.0``, ``-1.0``, ``1.0e-3``, ``1.0e3``,
+``1e+3``. The general syntax in PCRE2 regex is ``\d*(\.\d+)?([eE][-+]?\d+)?``.
+``inf`` and ``-inf`` are supported as positive and negative infinity.
+
+Booleans
+++++++++
+
+Boolean literals are ``true`` and ``false``.
+
+
+Operations
+~~~~~~~~~~
+
 Operators
-~~~~~~~~~
++++++++++
 
 The supported operators are:
 
@@ -885,28 +920,11 @@ The supported operators are:
 Note that operator precedence might be unexpected, compared to other programming
 languages. Use parentheses to enforce the desired order of operations.
 
-Literals
-~~~~~~~~
-
-Numbers
-+++++++
-
-All numbers, including integers, are treated as floating point numbers of
-undefined precision. Only decimal notation is supported. Scientific notation
-is supported, with the exponent indicated by ``e`` or ``E``. The decimal
-separator is indicated by ``.``.
-Examples of valid numbers are: ``1``, ``1.0``, ``-1.0``, ``1.0e-3``, ``1.0e3``,
-``1e+3``. The general syntax in PCRE2 regex is ``\d*(\.\d+)?([eE][-+]?\d+)?``.
-
-Booleans
-++++++++
-
-Boolean literals are ``true`` and ``false``. There is no automatic conversion
-between bool and float types. For example, ``par * (par > 2)`` is not
-supported, but can be implemented with ``piecewise(par, par > 2, 0)``.
+Operators must be specified; there are no implicit operators.
+For example, ``a b`` is invalid, unlike ``a * b``.
 
 Functions
-~~~~~~~~~
++++++++++
 
 The following functions are supported:
 
@@ -1024,13 +1042,26 @@ The following functions are supported:
 ..
    END TABLE Supported functions
 
-Model time
-~~~~~~~~~~
 
-The model time is represented by the symbol ``time``, which is the current
-simulated time, not the current duration of simulated time; if the simulation
-starts at :math:`t_0 \neq 0`, then ``time`` is *not* the time since
-:math:`t_0`.
+Boolean <-> float conversion
+++++++++++++++++++++++++++++
+
+Boolean and float values are implicitly convertible. The following rules apply:
+
+bool -> float: ``true`` is converted to ``1.0``, ``false`` is converted to
+``0.0``.
+
+float -> bool: ``0.0`` is converted to ``false``, all other values are
+converted to ``true``.
+
+Operands and function arguments are implicitly converted as needed. If there is
+no signature compatible with the given types, Boolean
+values are promoted to float. If there is still no compatible signature,
+float values are demoted to boolean values. For example, in ``1 + true``,
+``true`` is promoted to ``1.0`` and the expression is interpreted as
+``1.0 + 1.0``, whereas in ``1 && true``, ``1`` is demoted to ``true`` and the
+expression is interpreted as ``true && true``.
+
 
 Identifiers
 -----------
