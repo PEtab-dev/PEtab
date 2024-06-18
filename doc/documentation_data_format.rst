@@ -792,7 +792,8 @@ Numbers
 +++++++
 
 All numbers, including integers, are treated as floating point numbers of
-undefined precision. Only decimal notation is supported. Scientific notation
+undefined precision (although no less than double precision should be used.
+Only decimal notation is supported. Scientific notation
 is supported, with the exponent indicated by ``e`` or ``E``. The decimal
 separator is indicated by ``.``.
 Examples of valid numbers are: ``1``, ``1.0``, ``-1.0``, ``1.0e-3``, ``1.0e3``,
@@ -1059,8 +1060,8 @@ no signature compatible with the given types, Boolean
 values are promoted to float. If there is still no compatible signature,
 float values are demoted to boolean values. For example, in ``1 + true``,
 ``true`` is promoted to ``1.0`` and the expression is interpreted as
-``1.0 + 1.0``, whereas in ``1 && true``, ``1`` is demoted to ``true`` and the
-expression is interpreted as ``true && true``.
+``1.0 + 1.0 = 2.0``, whereas in ``1 && true``, ``1`` is demoted to ``true`` and
+the expression is interpreted as ``true && true = true``.
 
 
 Identifiers
