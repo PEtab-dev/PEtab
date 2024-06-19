@@ -1,10 +1,15 @@
-import pandas as pd
+#!/usr/bin/env python3
 
+import pandas as pd
+from pathlib import Path
+
+doc_dir = Path(__file__).parent.parent
+table_dir = Path(__file__).parent
 
 MULTILINE_DELIMITER = ";"
 tables = {
     "Supported functions": {
-        "target": "../documentation_data_format.rst",
+        "target": doc_dir / "documentation_data_format.rst",
         "options": {
             "header-rows": "1",
             # "widths": "20 10 10 5",
@@ -78,7 +83,7 @@ DISCLAIMER = "(GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)"
 for table_id, table_data in tables.items():
     target_file = table_data["target"]
     options = table_data["options"]
-    df = pd.read_csv(table_id+".tsv", sep="\t")
+    df = pd.read_csv(table_dir/ f"{table_id}.tsv", sep="\t")
     table = df_to_list_table(df, options=options, name=table_id)
     replace_text(
         filename=target_file,
