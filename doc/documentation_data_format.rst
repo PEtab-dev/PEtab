@@ -1012,12 +1012,12 @@ The following functions are supported:
        |     ``[...]``
        |     ``[true_value_n,``
        |       ``condition_n,]``
-       |     ``false_value``
+       |     ``otherwise``
        | ``)``
      - | The function value is
        | the ``true_value*`` for the
        | first ``true`` ``condition*``
-       | or ``false_value`` if all
+       | or ``otherwise`` if all
        | conditions are ``false``.
      - | ``*value*``: all float or all bool
        | ``condition*``: all bool
