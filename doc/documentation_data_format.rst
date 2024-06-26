@@ -154,10 +154,10 @@ Detailed field description
   - ``${speciesId}``
 
     If a species ID is provided, it is interpreted as the initial
-    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True` 
-    for the respective species, as concentration otherwise) and will override the 
+    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True`
+    for the respective species, as concentration otherwise) and will override the
     initial condition given in the SBML model or given by a preequilibration
-    condition. If ``NaN`` is provided for a condition, the result of the
+    condition. If no value is provided for a condition, the result of the
     preequilibration (or initial condition from the SBML model, if
     no preequilibration is defined) is used.
 
@@ -259,7 +259,7 @@ Detailed field description
 
 - ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
-  The measurement standard deviation or ``NaN`` if the corresponding sigma is a
+  The measurement standard deviation or empty if the corresponding sigma is a
   model parameter.
 
   Numeric values or parameter names are allowed. Same rules apply as for
@@ -741,3 +741,356 @@ allows to specify multiple SBML models with corresponding condition and
 measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
+
+
+Math expressions syntax
+-----------------------
+
+This section describes the syntax of math expressions used in PEtab files, such
+as the observable formulas.
+
+Supported symbols, literals, and operations are described in the following. Whitespace is ignored in math expressions.
+
+
+Symbols
+~~~~~~~
+
+* The supported identifiers are:
+
+  * parameter IDs from the parameter table
+  * model entity IDs that are globally unique and have a clear interpretation
+    in the math expression context
+  * observable IDs from the observable table
+  * PEtab placeholder IDs in the observable and noise formulas
+  * PEtab entity IDs in the mapping table
+  * ``time`` for the model time
+  * PEtab function names listed below
+
+ Identifiers are not supported if they do not match the PEtab identifier
+ format. PEtab expressions may have further context-specific restrictions on
+ supported identifiers.
+
+* The functions defined in PEtab are tabulated below. Other functions,
+  including those defined in the model, remain undefined in PEtab expressions.
+
+* Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and
+  neither is NaN (not-a-number).
+
+Model time
+++++++++++
+
+The model time is represented by the symbol ``time``, which is the current
+simulated time, not the current duration of simulated time; if the simulation
+starts at :math:`t_0 \neq 0`, then ``time`` is *not* the time since
+:math:`t_0`.
+
+
+Literals
+~~~~~~~~
+
+Numbers
++++++++
+
+All numbers, including integers, are treated as floating point numbers of
+undefined precision (although no less than double precision should be used.
+Only decimal notation is supported. Scientific notation
+is supported, with the exponent indicated by ``e`` or ``E``. The decimal
+separator is indicated by ``.``.
+Examples of valid numbers are: ``1``, ``1.0``, ``-1.0``, ``1.0e-3``, ``1.0e3``,
+``1e+3``. The general syntax in PCRE2 regex is ``\d*(\.\d+)?([eE][-+]?\d+)?``.
+``inf`` and ``-inf`` are supported as positive and negative infinity.
+
+Booleans
+++++++++
+
+Boolean literals are ``true`` and ``false``.
+
+
+Operations
+~~~~~~~~~~
+
+Operators
++++++++++
+
+The supported operators are:
+
+.. list-table:: Supported operators in PEtab math expressions.
+   :header-rows: 1
+
+   * - Operator
+     - Precedence
+     - Interpretation
+     - Associativity
+     - Arguments
+     - Evaluates to
+   * - ``f(arg1[, arg2, ...])``
+     - 1
+     - call to function `f` with arguments `arg1`, `arg2`, ...
+     - left-to-right
+     - any
+     - input-dependent
+   * - | ``()``
+       |
+     - | 1
+       |
+     - | parentheses for grouping
+       | acts like identity
+     - |
+       |
+     - | any single expression
+       |
+     - | argument
+       |
+   * - | ``^``
+       |
+     - | 2
+       |
+     - | exponentiation
+       | (shorthand for pow)
+     - | right-to-left
+       |
+     - | float, float
+       |
+     - | float
+       |
+   * - | ``+``
+       | ``-``
+     - | 3
+     - | unary plus
+       | unary minus
+     - | right-to-left
+     - | float
+     - | float
+   * - ``!``
+     - 3
+     - not
+     -
+     - bool
+     - bool
+   * - | ``*``
+       | ``/``
+     - | 4
+     - | multiplication
+       | division
+     - | left-to-right
+     - | float, float
+     - | float
+   * - | ``+``
+       | ``-``
+     - | 5
+     - | binary plus, addition
+       | binary minus, subtraction
+     - | left-to-right
+     - | float, float
+     - | float
+   * - | ``<``
+       | ``<=``
+       | ``>``
+       | ``>=``
+     - | 6
+     - | less than
+       | less than or equal to
+       | greater than
+       | greater than or equal to
+     - | left-to-right
+     - | float, float
+     - | bool
+   * - | ``==``
+       | ``!=``
+     - | 6
+     - | is equal to
+       | is not equal to
+     - | left-to-right
+     - | (float, float) or (bool, bool)
+     - | bool
+   * - | ``&&``
+       | ``||``
+     - | 7
+     - | logical `and`
+       | logical `or`
+     - | left-to-right
+     - | bool, bool
+     - | bool
+   * - ``,``
+     - 8
+     - function argument separator
+     - left-to-right
+     - any
+     -
+
+Note that operator precedence might be unexpected, compared to other programming
+languages. Use parentheses to enforce the desired order of operations.
+
+Operators must be specified; there are no implicit operators.
+For example, ``a b`` is invalid, unlike ``a * b``.
+
+Functions
++++++++++
+
+The following functions are supported:
+
+..
+   START TABLE Supported functions (GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)
+.. list-table:: Supported functions
+   :header-rows: 1
+
+   * - | Function
+     - | Comment
+     - | Argument types
+     - | Evaluates to
+   * - ``pow(a, b)``
+     - power function `b`-th power of `a`
+     - float, float
+     - float
+   * - ``exp(x)``
+     - | exponential function pow(e, x)
+       | (`e` itself not a supported symbol,
+       | but ``exp(1)`` can be used instead)
+     - float
+     - float
+   * - ``sqrt(x)``
+     - | square root of ``x``
+       | ``pow(x, 0.5)``
+     - float
+     - float
+   * - | ``log(a, b)``
+       | ``log(x)``
+       | ``ln(x)``
+       | ``log2(x)``
+       | ``log10(x)``
+     - | logarithm of ``a`` with base ``b``
+       | ``log(x, e)``
+       | ``log(x, e)``
+       | ``log(x, 2)``
+       | ``log(x, 10)``
+       | (``log(0)`` is defined as ``-inf``)
+       | (NOTE: ``log`` without explicit
+       | base is ``ln``, not ``log10``)
+     - float[, float]
+     - float
+   * - | ``sin``
+       | ``cos``
+       | ``tan``
+       | ``cot``
+       | ``sec``
+       | ``csc``
+     - trigonometric functions
+     - float
+     - float
+   * - | ``arcsin``
+       | ``arccos``
+       | ``arctan``
+       | ``arccot``
+       | ``arcsec``
+       | ``arccsc``
+     - inverse trigonometric functions
+     - float
+     - float
+   * - | ``sinh``
+       | ``cosh``
+       | ``tanh``
+       | ``coth``
+       | ``sech``
+       | ``csch``
+     - hyperbolic functions
+     - float
+     - float
+   * - | ``arcsinh``
+       | ``arccosh``
+       | ``arctanh``
+       | ``arccoth``
+       | ``arcsech``
+       | ``arccsch``
+     - inverse hyperbolic functions
+     - float
+     - float
+   * - | ``piecewise(``
+       |     ``true_value_1,``
+       |       ``condition_1,``
+       |     ``[true_value_2,``
+       |       ``condition_2,]``
+       |     ``[...]``
+       |     ``[true_value_n,``
+       |       ``condition_n,]``
+       |     ``otherwise``
+       | ``)``
+     - | The function value is
+       | the ``true_value*`` for the
+       | first ``true`` ``condition*``
+       | or ``otherwise`` if all
+       | conditions are ``false``.
+     - | ``*value*``: all float or all bool
+       | ``condition*``: all bool
+     - float
+   * - ``abs(x)``
+     - | absolute value
+       | ``piecewise(x, x>=0, -x)``
+     - float
+     - float
+   * - ``sign(x)``
+     - | sign of ``x``
+       | ``piecewise(1, x > 0, -1, x < 0, 0)``
+     - float
+     - float
+   * - | ``min(a, b)``
+       | ``max(a, b)``
+     - | minimum / maximum of {``a``, ``b``}
+       | ``piecewise(a, a<=b, b)``
+       | ``piecewise(a, a>=b, b)``
+     - float, float
+     - float
+
+..
+   END TABLE Supported functions
+
+
+Boolean <-> float conversion
+++++++++++++++++++++++++++++
+
+Boolean and float values are implicitly convertible. The following rules apply:
+
+bool -> float: ``true`` is converted to ``1.0``, ``false`` is converted to
+``0.0``.
+
+float -> bool: ``0.0`` is converted to ``false``, all other values are
+converted to ``true``.
+
+Operands and function arguments are implicitly converted as needed. If there is
+no signature compatible with the given types, Boolean
+values are promoted to float. If there is still no compatible signature,
+float values are demoted to boolean values. For example, in ``1 + true``,
+``true`` is promoted to ``1.0`` and the expression is interpreted as
+``1.0 + 1.0 = 2.0``, whereas in ``1 && true``, ``1`` is demoted to ``true`` and
+the expression is interpreted as ``true && true = true``.
+
+
+Identifiers
+-----------
+
+* All identifiers in PEtab may only contain upper and lower case letters,
+  digits and underscores, and must not start with a digit. In PCRE2 regex, they
+  must match ``[a-zA-Z_][a-zA-Z_\d]*``.
+
+* Identifiers are case-sensitive.
+
+* Identifiers must not be a reserved keyword (see below).
+
+* Identifiers must be globally unique within the PEtab problem.
+  PEtab math function names must not be used as identifiers for other model
+  entities. PEtab does not put any further restrictions on the use of
+  identifiers within the model, which means modelers could potentially
+  use model-format--specific (e.g. SBML) function names as identifiers.
+  However, this is strongly discouraged.
+
+Reserved keywords
+~~~~~~~~~~~~~~~~~
+
+The following keywords, `case-insensitive`, are reserved and must not be used
+as identifiers:
+
+* ``true``, ``false``: Boolean literals, used in PEtab expressions.
+* ``inf``: Infinity, used in PEtab expressions and post-equilibration
+  measurements
+* ``time``: Model time, used in PEtab expressions.
+* ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
+
