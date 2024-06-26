@@ -371,7 +371,7 @@ Detailed field description
   A noise model which accounts for relative and
   absolute contributions could, e.g., be defined as::
 
-    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk*pErk
+    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk * observable_pErk
 
   with ``noiseParameter1_observable_pErk`` denoting the absolute and
   ``noiseParameter2_observable_pErk`` the relative contribution for the
