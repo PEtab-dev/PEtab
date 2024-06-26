@@ -20,8 +20,8 @@ For more details, we refer to the original publication.
 
 A PEtab problem consists of 1) an SBML model of a biological system, 2)
 condition, observable and measurement definitions, and 3) the
-specification of the parameters. We will show how to generate the
-respective files in the following.
+specification of the parameters and 4) a configuration file that lists all of
+these files. We will show how to generate the respective files in the following.
 
 1. The model
 ++++++++++++
@@ -120,7 +120,7 @@ overridden by these condition-specific values. Here, we define the Epo
 concentration, but additional columns could be used to e.g. set
 different initial concentrations of STAT5A/B. In addition to numeric
 values, also parameter identifiers can be used here to introduce
-condition specific optimization parameters.
+condition specific estimateable parameters.
 
 2.2 Specifying the observation model
 ------------------------------------
@@ -130,7 +130,7 @@ functions. Additionally, a noise model can be introduced to account for
 the measurement errors. In PEtab, this can be encoded in the observable
 file:
 
-.. list-table:: Observables table ``observables.tsv``.
+.. list-table:: Observable table ``observables.tsv``.
    :header-rows: 1
 
    * - observableId
@@ -146,7 +146,7 @@ file:
      - Rel. STAT5A abundance [%]
      - ...
 
-.. list-table:: Observables table ``observables.tsv`` (continued).
+.. list-table:: Observable table ``observables.tsv`` (continued).
    :header-rows: 1
 
    * - ...
@@ -162,7 +162,7 @@ file:
      - 100*(STAT5A + pApB + 2*pApA) / (2 \* pApB + 2\* pApA + STAT5A + STAT5B + 2*pBpB)
      - ...
 
-.. list-table:: Observables table ``observables.tsv`` (continued).
+.. list-table:: Observable table ``observables.tsv`` (continued).
    :header-rows: 1
 
    * - ...
@@ -235,8 +235,8 @@ PEtab measurement file:
   brevity, only the first and last time point of the example are shown
   here (the omitted measurements are indicated by “...” in the example).
 
-* *noiseParameters* relates to the *noiseParameters* in the observables
-  file. In our example, the measurement noise is unknown. Therefore we
+* *noiseParameters* relates to the *noiseParameters* in the observable table.
+  In our example, the measurement noise is unknown. Therefore we
   define parameters here which have to be estimated (see parameters sheet
   below). If the noise is known, e.g. from multiple replicates, numeric
   values can be used in this column.
@@ -273,17 +273,17 @@ The parameters file for this is given by:
   observables (*sd_{observableId}*) are estimated.
 
 * *parameterScale* is the scale on which parameters are estimated. Often,
-  a logarithmic scale improves optimization. Alternatively, a linear scale
+  a logarithmic scale improves estimation. Alternatively, a linear scale
   can be used, e.g. when parameters can be negative.
 
 * *lowerBound* and *upperBound* define the bounds for the parameters used
-  during optimization. These are usually biologically plausible ranges.
+  during estimation. These are usually biologically plausible ranges.
 
 * *nominalValue* are known values used for simulation. The entry can be
-  left empty, if a value is unknown and subject to optimization.
+  left empty, if a value is unknown and requires estimation.
 
-* *estimate* defines whether the parameter is subject to optimization (1)
-  or if it is fixed (0) to the value in the nominalValue column.
+* *estimate* defines whether the parameter will be estimated (1)
+  or be fixed (0) to the value in the nominalValue column.
 
 4. Visualization file
 +++++++++++++++++++++
@@ -324,11 +324,10 @@ https://petab.readthedocs.io/en/latest/documentation_data_format.html#visualizat
 5. YAML file
 ++++++++++++
 
-To group the previously mentioned PEtab files, a YAML file can be used,
-defining which files constitute a PEtab problem. While being optional,
-this makes it easier to import a PEtab problem into tools, and allows
-reusing files for different PEtab problems. This file has the following
-format (``Boehm_JProteomeRes2014.yaml``):
+To group the previously mentioned PEtab files, a YAML file must be used,
+defining which files constitute a PEtab problem. This makes it easier to import
+a PEtab problem into tools, and allows reusing files for different PEtab
+problems. This file has the following format (``Boehm_JProteomeRes2014.yaml``):
 
 .. code-block:: yaml
 
