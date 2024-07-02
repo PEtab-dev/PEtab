@@ -109,7 +109,7 @@ different experimental conditions).
 This is specified as a tab-separated value file in the following way:
 
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId${n}                    |
+| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId${n}                     |
 +==============+==================+====================================+=====+=======================================+
 | STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
