@@ -751,7 +751,7 @@ Detailed field description
 
 - ``modelEntityId`` [STRING, NOT NULL]
 
-  A globally unique identifier defined in the model.
+  A globally unique identifier defined in the model, *that is not a valid PEtab ID*.
 
   For example, in SBML, local parameters may be referenced as
   ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
