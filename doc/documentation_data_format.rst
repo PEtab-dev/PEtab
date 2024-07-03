@@ -751,7 +751,8 @@ Detailed field description
 
 - ``modelEntityId`` [STRING, NOT NULL]
 
-  A globally unique identifier defined in the model, *that is not a valid PEtab ID*.
+  A globally unique identifier defined in the model,
+  *that is not a valid PEtab ID* (see :ref:`identifiers`).
 
   For example, in SBML, local parameters may be referenced as
   ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
@@ -1125,6 +1126,8 @@ float values are demoted to boolean values. For example, in ``1 + true``,
 ``1.0 + 1.0 = 2.0``, whereas in ``1 && true``, ``1`` is demoted to ``true`` and
 the expression is interpreted as ``true && true = true``.
 
+
+.. _identifiers:
 
 Identifiers
 -----------
