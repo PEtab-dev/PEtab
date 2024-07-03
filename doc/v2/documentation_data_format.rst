@@ -93,6 +93,17 @@ problem as such.
 - Fields in "[]" are optional and may be left empty.
 
 
+Changes from PEtab 1.0.0
+------------------------
+
+PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
+
+* Support for non-SBML models
+* Clarification and specification of various previously underspecified aspects
+  (math expressions, overriding values in the condition table, etc.)
+* Support for extensions
+* Observable IDs are now allowed to be used in observable/noise formulas
+
 Model definition
 ----------------
 
