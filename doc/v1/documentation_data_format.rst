@@ -2,7 +2,7 @@ PEtab data format specification
 ===============================
 
 
-Format version: 2.0.0
+Format version: 1
 
 This document explains the PEtab data format.
 
@@ -31,7 +31,7 @@ least redundant way. Furthermore, we wanted to establish an intuitive, modular,
 machine- and human-readable and -writable format that makes use of existing
 standards.
 
-.. figure:: gfx/petab_scope_and_files.png
+.. figure:: ../gfx/petab_scope_and_files.png
    :alt: A common setup for data-based modeling studies and its representation in PEtab.
    :scale: 80%
 
@@ -41,11 +41,12 @@ Overview
 ---------
 
 The PEtab data format specifies a parameter estimation problem using a number
-of text-based files (
+of text-based files (`Systems Biology Markup Language (SBML) <http://sbml.org>`_
+and
 `Tab-Separated Values (TSV) <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_)
 (Figure 2), i.e.
 
-- A model
+- An SBML model [SBML]
 
 - A measurement file to fit the model to [TSV]
 
@@ -54,11 +55,8 @@ of text-based files (
 
 - An observable file specifying the observation model [TSV]
 
-- A parameter file specifying estimateable parameters and related information
+- A parameter file specifying optimization parameters and related information
   [TSV]
-
-- A grouping file that lists all of the files and provides additional information
-  including employed extensions [YAML]
 
 - (optional) A simulation file, which has the same format as the measurement
   file, but contains model simulations [TSV]
@@ -66,10 +64,7 @@ of text-based files (
 - (optional) A visualization file, which contains specifications how the data
   and/or simulations should be plotted by the visualization routines [TSV]
 
-- (optional) A mapping file, which allows mapping PEtab entity IDs to entity
-  IDs in the model, which might not have valid PEtab IDs themselves [TSV]
-
-.. figure:: gfx/petab_files.png
+.. figure:: ../gfx/petab_files.png
    :alt: Files constituting a PEtab problem
 
    **Figure 2: Files constituting a PEtab problem.**
@@ -84,7 +79,7 @@ defining the parameter estimation problem.
 Extensions of this format (e.g. additional columns in the measurement table)
 are possible and intended. However, while those columns may provide extra
 information for example for plotting, downstream analysis, or for more
-efficient parameter estimation, they should not affect the estimation
+efficient parameter estimation, they should not affect the optimization
 problem as such.
 
 **General remarks**
@@ -93,11 +88,11 @@ problem as such.
 - Fields in "[]" are optional and may be left empty.
 
 
-Model definition
-----------------
+SBML model definition
+---------------------
 
-PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
-in the PEtab problem description (YAML) via its file name or a URL.
+The model must be specified as valid SBML. There are no further restrictions.
+
 
 Condition table
 ---------------
@@ -109,7 +104,7 @@ different experimental conditions).
 This is specified as a tab-separated value file in the following way:
 
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId${n}                     |
+| conditionId  | [conditionName]  | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
 +==============+==================+====================================+=====+=======================================+
 | STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
@@ -142,44 +137,32 @@ Detailed field description
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- ``${modelEntityId}``
+- ``${parameterOrSpeciesOrCompartmentId1}``
 
-  Further columns may be the IDs of model entities that have globally unique
-  IDs, such as parameters, species or compartments defined in the model to set
-  condition-specific values. Only one column is allowed per ID.
-  Values for these entities may be provided either as numeric values, or as IDs
-  of globally unique entity IDs as defined in the model, the mapping table or
-  the parameter table.
+  Further columns may be global parameter IDs, IDs of species or compartments
+  as defined in the SBML model. Only one column is allowed per ID.
+  Values for these condition parameters may be provided either as numeric
+  values, or as IDs defined in the SBML model, the parameter table or both.
 
-  Any non-``NaN`` value will override the original values of the model, or if
-  preequilibration was used, they will override the value obtained from
-  preequilibration. A ``NaN`` value indicates that the original value of the
-  model is to be used (when used in the preequilibration condition, or in the
-  simulation condition if no preequilibration is used) or that the result of
-  preequilibration is to be used (when used in the simulation condition after
-  preequilibration).
+  - ``${parameterId}``
 
-  The value in the condition table either replaces the initial value or the
-  value at all timepoints based on whether the model entity has a rate law
-  assigned or not:
+    The values will override any parameter values specified in the model.
 
-  * For model entities that have constant algebraic assignments
-    (but not necessarily constant values), i.e, that do not have a rate of
-    change with respect to time assigned and that are not subject to event
-    assignments, the algebraic assignment is replaced statically at all
-    timepoints. Examples for such model entities are the targets of SBML
-    `AssignmentRules`.
+  - ``${speciesId}``
 
-  * For all other entities, e.g., those that are assigned by SBML `RateRules`,
-    only the initial value can be assigned in the condition table. If an
-    assignment of the rate of change with respect to time or event assignment
-    is desired, the values of model entities that are used to define rate of
-    change or event assignments must be assigned in the condition table.
-    If no such model entities exist, assignment is not possible.
+    If a species ID is provided, it is interpreted as the initial
+    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True`
+    for the respective species, as concentration otherwise) and will override the
+    initial condition given in the SBML model or given by a preequilibration
+    condition. If ``NaN`` is provided for a condition, the result of the
+    preequilibration (or initial condition from the SBML model, if
+    no preequilibration is defined) is used.
 
-  If the model has a concept of species and a species ID is provided, its
-  value is interpreted as amount or concentration in the same way as anywhere
-  else in the model.
+  - ``${compartmentId}``
+
+    If a compartment ID is provided, it is interpreted as the initial
+    compartment size.
+
 
 Measurement table
 -----------------
@@ -229,7 +212,7 @@ Detailed field description
 
 - ``observableId`` [STRING, NOT NULL, REFERENCES(observables.observableID)]
 
-  Observable ID as defined in the observable table described below.
+  Observable ID as defined in the observables table described below.
 
 - ``preequilibrationConditionId`` [STRING OR NULL, REFERENCES(conditionsTable.conditionID), OPTIONAL]
 
@@ -265,7 +248,7 @@ Detailed field description
 
   Different lines for the same ``observableId`` may specify different
   parameters. This may be used to account for condition-specific or
-  batch-specific parameters. This will translate into an extended estimation
+  batch-specific parameters. This will translate into an extended optimization
   parameter vector.
 
   All placeholders defined in the observation model must be overwritten here.
@@ -273,7 +256,7 @@ Detailed field description
 
 - ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
-  The measurement standard deviation or empty if the corresponding sigma is a
+  The measurement standard deviation or ``NaN`` if the corresponding sigma is a
   model parameter.
 
   Numeric values or parameter names are allowed. Same rules apply as for
@@ -294,8 +277,8 @@ Detailed field description
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
 
-Observable table
-----------------
+Observables table
+-----------------
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
@@ -354,9 +337,7 @@ Detailed field description
   Observation function as plain text formula expression.
   May contain any symbol defined in the SBML model (including model time ``time``)
   or parameter table. In the simplest case just an SBML species ID
-  or an ``AssignmentRule`` target. Additionally, any observable ID
-  introduced in the observable table may be referenced, but circular definitions
-  must be avoided.
+  or an ``AssignmentRule`` target.
 
   May introduce new parameters of the form ``observableParameter${n}_${observableId}``,
   which are overridden by ``observableParameters`` in the measurement table
@@ -378,14 +359,10 @@ Detailed field description
   observable.
 
   Alternatively, some formula expression can be provided to specify
-  more complex noise models. The formula may reference any uniquely identifiable
-  model entity with PEtab-compatible identifier or any observable ID
-  specified in the observable table.
-
-  A noise model which accounts for relative and
+  more complex noise models. A noise model which accounts for relative and
   absolute contributions could, e.g., be defined as::
 
-    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk * observable_pErk
+    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk*pErk
 
   with ``noiseParameter1_observable_pErk`` denoting the absolute and
   ``noiseParameter2_observable_pErk`` the relative contribution for the
@@ -521,36 +498,23 @@ Detailed field description
 
   Scale of the parameter to be used during parameter estimation.
 
-  ``lin``
-    Use the parameter value, ``lowerBound``, ``upperBound``, and
-    ``nominalValue`` without transformation.
-  ``log``
-    Take the natural logarithm of the parameter value, ``lowerBound``,
-    ``upperBound``, and ``nominalValue`` during parameter estimation.
-  ``log10``
-    Take the logarithm to base 10 of the parameter value, ``lowerBound``,
-    ``upperBound``, and ``nominalValue`` during parameter estimation.
-
 - ``lowerBound`` [NUMERIC]
 
-  Lower bound of the parameter used for estimation.
+  Lower bound of the parameter used for optimization.
   Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
+  Must be provided in linear space, independent of ``parameterScale``.
 
 - ``upperBound`` [NUMERIC]
 
-  Upper bound of the parameter used for estimation.
+  Upper bound of the parameter used for optimization.
   Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
+  Must be provided in linear space, independent of ``parameterScale``.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
+  Must be provided in linear space, independent of ``parameterScale``.
   Optional, unless ``estimate==0``.
 
 - ``estimate`` [BOOL 0|1]
@@ -560,7 +524,7 @@ Detailed field description
 
 - ``initializationPriorType`` [STRING, OPTIONAL]
 
-  Prior types used for sampling of initial points for estimation. Sampled
+  Prior types used for sampling of initial points for optimization. Sampled
   points are clipped to lie inside the parameter boundaries specified by
   ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
 
@@ -578,7 +542,7 @@ Detailed field description
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for sampling of initial points for estimation,
+  Prior parameters used for sampling of initial points for optimization,
   separated by a semicolon. Defaults to ``lowerBound;upperBound``.
   The parameters are expected to be in linear scale except for the
   ``parameterScale`` priors, where the prior parameters are expected to be
@@ -598,12 +562,12 @@ Detailed field description
 
 - ``objectivePriorType`` [STRING, OPTIONAL]
 
-  Prior types used for the objective function during estimation.
+  Prior types used for the objective function during optimization or sampling.
   For possible values, see ``initializationPriorType``.
 
 - ``objectivePriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for the objective function during estimation.
+  Prior parameters used for the objective function during optimization.
   For more detailed documentation, see ``initializationPriorParameters``.
 
 
@@ -719,57 +683,11 @@ Detailed field description
   legend and which defaults to the value in ``datasetId``.
 
 
-Mapping table
--------------
-
-Mapping PEtab entity IDs to entity IDs in the model. This optional file may be
-used to reference model entities in PEtab files where the ID in the model would
-not be a valid identifier in PEtab (e.g., due to inclusion of blanks, dots, or
-other special characters).
-
-The TSV file has two mandatory columns, ``petabEntityId`` and
-``modelEntityId``. Additional columns are allowed.
-
-+---------------+---------------+
-| petabEntityId | modelEntityId |
-+===============+===============+
-| STRING        | STRING        |
-+---------------+---------------+
-| reaction1_k1  | reaction1.k1  |
-+---------------+---------------+
-
-
-Detailed field description
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- ``petabEntityId`` [STRING, NOT NULL]
-
-  A valid PEtab identifier that is not defined in any other part of the PEtab
-  problem. This identifier may be referenced in condition, measurement,
-  parameter and observable tables, but cannot be referenced in the model
-  itself.
-
-- ``modelEntityId`` [STRING, NOT NULL]
-
-  A globally unique identifier defined in the model,
-  *that is not a valid PEtab ID* (see :ref:`identifiers`).
-
-  For example, in SBML, local parameters may be referenced as
-  ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
-  contain a ``.`` character. Similarly, this table may be used to reference
-  specific species in a BNGL model that may contain many unsupported
-  characters such as ``,``, ``(`` or ``.``. However, please note that IDs must
-  exactly match the species names in the BNGL-generated network file, and no
-  pattern matching will be performed.
-
 Extensions
 ~~~~~~~~~~
 
-Additional columns, such as ``Color``, etc. may be specified. Extensions
-that define operations on multiple PEtab problems need to employ a single
-PEtab YAML file as entrypoint to the analysis. This PEtab file may leave all
-fields specifying files empty and reference the other PEtab problems in the
-extension specific fields.
+Additional columns, such as ``Color``, etc. may be specified.
+
 
 Examples
 ~~~~~~~~
@@ -786,7 +704,7 @@ To link the SBML model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 
 This file also allows specifying a PEtab version (as the format is not unlikely
-to change in the future) and employed PEtab extensions.
+to change in the future).
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
@@ -800,362 +718,7 @@ Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Parameter estimation problems can comprise multiple models. For now, PEtab
-allows one to specify multiple models with corresponding condition and
+allows to specify multiple SBML models with corresponding condition and
 measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
-
-
-Math expressions syntax
------------------------
-
-This section describes the syntax of math expressions used in PEtab files, such
-as the observable formulas.
-
-Supported symbols, literals, and operations are described in the following. Whitespace is ignored in math expressions.
-
-
-Symbols
-~~~~~~~
-
-* The supported identifiers are:
-
-  * parameter IDs from the parameter table
-  * model entity IDs that are globally unique and have a clear interpretation
-    in the math expression context
-  * observable IDs from the observable table
-  * PEtab placeholder IDs in the observable and noise formulas
-  * PEtab entity IDs in the mapping table
-  * ``time`` for the model time
-  * PEtab function names listed below
-
- Identifiers are not supported if they do not match the PEtab identifier
- format. PEtab expressions may have further context-specific restrictions on
- supported identifiers.
-
-* The functions defined in PEtab are tabulated below. Other functions,
-  including those defined in the model, remain undefined in PEtab expressions.
-
-* Special symbols (such as :math:`e` and :math:`\pi`) are not supported, and
-  neither is NaN (not-a-number).
-
-Model time
-++++++++++
-
-The model time is represented by the symbol ``time``, which is the current
-simulated time, not the current duration of simulated time; if the simulation
-starts at :math:`t_0 \neq 0`, then ``time`` is *not* the time since
-:math:`t_0`.
-
-
-Literals
-~~~~~~~~
-
-Numbers
-+++++++
-
-All numbers, including integers, are treated as floating point numbers of
-undefined precision (although no less than double precision should be used.
-Only decimal notation is supported. Scientific notation
-is supported, with the exponent indicated by ``e`` or ``E``. The decimal
-separator is indicated by ``.``.
-Examples of valid numbers are: ``1``, ``1.0``, ``-1.0``, ``1.0e-3``, ``1.0e3``,
-``1e+3``. The general syntax in PCRE2 regex is ``\d*(\.\d+)?([eE][-+]?\d+)?``.
-``inf`` and ``-inf`` are supported as positive and negative infinity.
-
-Booleans
-++++++++
-
-Boolean literals are ``true`` and ``false``.
-
-
-Operations
-~~~~~~~~~~
-
-Operators
-+++++++++
-
-The supported operators are:
-
-.. list-table:: Supported operators in PEtab math expressions.
-   :header-rows: 1
-
-   * - Operator
-     - Precedence
-     - Interpretation
-     - Associativity
-     - Arguments
-     - Evaluates to
-   * - ``f(arg1[, arg2, ...])``
-     - 1
-     - call to function `f` with arguments `arg1`, `arg2`, ...
-     - left-to-right
-     - any
-     - input-dependent
-   * - | ``()``
-       |
-     - | 1
-       |
-     - | parentheses for grouping
-       | acts like identity
-     - |
-       |
-     - | any single expression
-       |
-     - | argument
-       |
-   * - | ``^``
-       |
-     - | 2
-       |
-     - | exponentiation
-       | (shorthand for pow)
-     - | right-to-left
-       |
-     - | float, float
-       |
-     - | float
-       |
-   * - | ``+``
-       | ``-``
-     - | 3
-     - | unary plus
-       | unary minus
-     - | right-to-left
-     - | float
-     - | float
-   * - ``!``
-     - 3
-     - not
-     -
-     - bool
-     - bool
-   * - | ``*``
-       | ``/``
-     - | 4
-     - | multiplication
-       | division
-     - | left-to-right
-     - | float, float
-     - | float
-   * - | ``+``
-       | ``-``
-     - | 5
-     - | binary plus, addition
-       | binary minus, subtraction
-     - | left-to-right
-     - | float, float
-     - | float
-   * - | ``<``
-       | ``<=``
-       | ``>``
-       | ``>=``
-     - | 6
-     - | less than
-       | less than or equal to
-       | greater than
-       | greater than or equal to
-     - | left-to-right
-     - | float, float
-     - | bool
-   * - | ``==``
-       | ``!=``
-     - | 6
-     - | is equal to
-       | is not equal to
-     - | left-to-right
-     - | (float, float) or (bool, bool)
-     - | bool
-   * - | ``&&``
-       | ``||``
-     - | 7
-     - | logical `and`
-       | logical `or`
-     - | left-to-right
-     - | bool, bool
-     - | bool
-   * - ``,``
-     - 8
-     - function argument separator
-     - left-to-right
-     - any
-     -
-
-Note that operator precedence might be unexpected, compared to other programming
-languages. Use parentheses to enforce the desired order of operations.
-
-Operators must be specified; there are no implicit operators.
-For example, ``a b`` is invalid, unlike ``a * b``.
-
-Functions
-+++++++++
-
-The following functions are supported:
-
-..
-   START TABLE Supported functions (GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)
-.. list-table:: Supported functions
-   :header-rows: 1
-
-   * - | Function
-     - | Comment
-     - | Argument types
-     - | Evaluates to
-   * - ``pow(a, b)``
-     - power function `b`-th power of `a`
-     - float, float
-     - float
-   * - ``exp(x)``
-     - | exponential function pow(e, x)
-       | (`e` itself not a supported symbol,
-       | but ``exp(1)`` can be used instead)
-     - float
-     - float
-   * - ``sqrt(x)``
-     - | square root of ``x``
-       | ``pow(x, 0.5)``
-     - float
-     - float
-   * - | ``log(a, b)``
-       | ``log(x)``
-       | ``ln(x)``
-       | ``log2(x)``
-       | ``log10(x)``
-     - | logarithm of ``a`` with base ``b``
-       | ``log(x, e)``
-       | ``log(x, e)``
-       | ``log(x, 2)``
-       | ``log(x, 10)``
-       | (``log(0)`` is defined as ``-inf``)
-       | (NOTE: ``log`` without explicit
-       | base is ``ln``, not ``log10``)
-     - float[, float]
-     - float
-   * - | ``sin``
-       | ``cos``
-       | ``tan``
-       | ``cot``
-       | ``sec``
-       | ``csc``
-     - trigonometric functions
-     - float
-     - float
-   * - | ``arcsin``
-       | ``arccos``
-       | ``arctan``
-       | ``arccot``
-       | ``arcsec``
-       | ``arccsc``
-     - inverse trigonometric functions
-     - float
-     - float
-   * - | ``sinh``
-       | ``cosh``
-       | ``tanh``
-       | ``coth``
-       | ``sech``
-       | ``csch``
-     - hyperbolic functions
-     - float
-     - float
-   * - | ``arcsinh``
-       | ``arccosh``
-       | ``arctanh``
-       | ``arccoth``
-       | ``arcsech``
-       | ``arccsch``
-     - inverse hyperbolic functions
-     - float
-     - float
-   * - | ``piecewise(``
-       |     ``true_value_1,``
-       |       ``condition_1,``
-       |     ``[true_value_2,``
-       |       ``condition_2,]``
-       |     ``[...]``
-       |     ``[true_value_n,``
-       |       ``condition_n,]``
-       |     ``otherwise``
-       | ``)``
-     - | The function value is
-       | the ``true_value*`` for the
-       | first ``true`` ``condition*``
-       | or ``otherwise`` if all
-       | conditions are ``false``.
-     - | ``*value*``: all float or all bool
-       | ``condition*``: all bool
-     - float
-   * - ``abs(x)``
-     - | absolute value
-       | ``piecewise(x, x>=0, -x)``
-     - float
-     - float
-   * - ``sign(x)``
-     - | sign of ``x``
-       | ``piecewise(1, x > 0, -1, x < 0, 0)``
-     - float
-     - float
-   * - | ``min(a, b)``
-       | ``max(a, b)``
-     - | minimum / maximum of {``a``, ``b``}
-       | ``piecewise(a, a<=b, b)``
-       | ``piecewise(a, a>=b, b)``
-     - float, float
-     - float
-
-..
-   END TABLE Supported functions
-
-
-Boolean <-> float conversion
-++++++++++++++++++++++++++++
-
-Boolean and float values are implicitly convertible. The following rules apply:
-
-bool -> float: ``true`` is converted to ``1.0``, ``false`` is converted to
-``0.0``.
-
-float -> bool: ``0.0`` is converted to ``false``, all other values are
-converted to ``true``.
-
-Operands and function arguments are implicitly converted as needed. If there is
-no signature compatible with the given types, Boolean
-values are promoted to float. If there is still no compatible signature,
-float values are demoted to boolean values. For example, in ``1 + true``,
-``true`` is promoted to ``1.0`` and the expression is interpreted as
-``1.0 + 1.0 = 2.0``, whereas in ``1 && true``, ``1`` is demoted to ``true`` and
-the expression is interpreted as ``true && true = true``.
-
-
-.. _identifiers:
-
-Identifiers
------------
-
-* All identifiers in PEtab may only contain upper and lower case letters,
-  digits and underscores, and must not start with a digit. In PCRE2 regex, they
-  must match ``[a-zA-Z_][a-zA-Z_\d]*``.
-
-* Identifiers are case-sensitive.
-
-* Identifiers must not be a reserved keyword (see below).
-
-* Identifiers must be globally unique within the PEtab problem.
-  PEtab math function names must not be used as identifiers for other model
-  entities. PEtab does not put any further restrictions on the use of
-  identifiers within the model, which means modelers could potentially
-  use model-format--specific (e.g. SBML) function names as identifiers.
-  However, this is strongly discouraged.
-
-Reserved keywords
-~~~~~~~~~~~~~~~~~
-
-The following keywords, `case-insensitive`, are reserved and must not be used
-as identifiers:
-
-* ``true``, ``false``: Boolean literals, used in PEtab expressions.
-* ``inf``: Infinity, used in PEtab expressions and post-equilibration
-  measurements
-* ``time``: Model time, used in PEtab expressions.
-* ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
-

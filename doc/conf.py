@@ -40,6 +40,7 @@ extensions = [
     'm2r2',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
+    'sphinx_reredirects',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -69,6 +70,11 @@ source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'restructuredtext',
     '.md': 'markdown',
+}
+
+# Redirects for moved files
+redirects = {
+    "documentation_data_format": "v1/documentation_data_format.html",
 }
 
 # -- Options for HTML output -------------------------------------------------
