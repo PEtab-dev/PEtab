@@ -38,13 +38,26 @@ properties:
         files and optional visualization files.
       properties:
 
-        sbml_files:
-          type: array
-          description: List of PEtab SBML files.
+        model_files:
+          type: object
+          description: One or multiple models
 
-          items:
-            type: string
-            description: PEtab SBML file name or URL.
+          # the model ID
+          patternProperties:
+            "^[a-zA-Z_]\\w*$":
+              type: object
+              properties:
+                location:
+                  type: string
+                  description: Model file name or URL
+                language:
+                  type: string
+                  description: |
+                    Model language, e.g., 'sbml', 'cellml', 'bngl', 'pysb'
+              required:
+                - location
+                - language
+          additionalProperties: false
 
         measurement_files:
           type: array
@@ -78,8 +91,16 @@ properties:
             type: string
             description: PEtab visualization file name or URL.
 
+        mapping_files:
+          type: array
+          description: List of PEtab mapping files.
+
+          items:
+            type: string
+            description: PEtab mapping file name or URL.
+
       required:
-        - sbml_files
+        - model_files
         - observable_files
         - measurement_files
         - condition_files
