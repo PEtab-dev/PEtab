@@ -1,3 +1,7 @@
+.. warning::
+
+    This document is a draft and subject to change.
+
 PEtab data format specification
 ===============================
 
@@ -31,7 +35,7 @@ least redundant way. Furthermore, we wanted to establish an intuitive, modular,
 machine- and human-readable and -writable format that makes use of existing
 standards.
 
-.. figure:: ../gfx/petab_scope_and_files.png
+.. figure:: ../v1/gfx/petab_scope_and_files.png
    :alt: A common setup for data-based modeling studies and its representation in PEtab.
    :scale: 80%
 
@@ -69,7 +73,7 @@ of text-based files (
 - (optional) A mapping file, which allows mapping PEtab entity IDs to entity
   IDs in the model, which might not have valid PEtab IDs themselves [TSV]
 
-.. figure:: ../gfx/petab_files.png
+.. figure:: ../v1/gfx/petab_files.png
    :alt: Files constituting a PEtab problem
 
    **Figure 2: Files constituting a PEtab problem.**
@@ -793,11 +797,10 @@ model.
 YAML file for grouping files
 ----------------------------
 
-To link the SBML model, measurement table, condition table, etc. in an
+To link the model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 
-This file also allows specifying a PEtab version (as the format is not unlikely
-to change in the future) and employed PEtab extensions.
+This file also allows specifying a PEtab version and employed PEtab extensions.
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
@@ -998,6 +1001,8 @@ languages. Use parentheses to enforce the desired order of operations.
 Operators must be specified; there are no implicit operators.
 For example, ``a b`` is invalid, unlike ``a * b``.
 
+.. _math_functions:
+
 Functions
 +++++++++
 
@@ -1152,8 +1157,7 @@ Identifiers
 * Identifiers must not be a reserved keyword (see below).
 
 * Identifiers must be globally unique within the PEtab problem.
-  PEtab math function names must not be used as identifiers for other model
-  entities. PEtab does not put any further restrictions on the use of
+  PEtab does not put any further restrictions on the use of
   identifiers within the model, which means modelers could potentially
   use model-format--specific (e.g. SBML) function names as identifiers.
   However, this is strongly discouraged.
@@ -1169,4 +1173,4 @@ as identifiers:
   measurements
 * ``time``: Model time, used in PEtab expressions.
 * ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
-
+* PEtab math function names (:ref:`math_functions`)

@@ -123,7 +123,7 @@ properties:
             type: bool
             description: |
               Indicates whether the extension is required for the
-              mathematical interpretation of problem.
+              mathematical interpretation of the problem.
         required:
           - version
           - required

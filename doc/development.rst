@@ -211,14 +211,16 @@ Requirements for new extensions:
   can ease or refine format restrictions imposed by PEtab core.
 * PEtab extensions should extend PEtab core with new orthogonal features or
   tasks, i.e., they should not make trivial changes to PEtab core.
-* PEtab extensions must be named according to ^[a-zA-Z][\w\-]*$
+* PEtab extensions must be named according to ``^[a-zA-Z][a-zA-Z0-9_\-]*$``.
 * PEtab extensions must be versioned using semantic versioning.
-* PEtab extensions required for interpretation of a problem specification must
-  be specified in the PEtab-YAML files
-* There is at least one tool that supports the proposed extension
+* If a PEtab extension changes the mathematical interpretation of a problem,
+    it must appear in the PEtab YAML file.
+* There is at least one tool that supports the proposed extension.
 * The authors provide a library that provides test cases and implements
   validation checks for the proposed format.
 
+It is encouraged that (potential) extensions are informally discussed with the
+community as early as possible.
 Developers are free to develop any PEtab extension. To become an official
 PEtab extension, it needs to go through the following process.
 
