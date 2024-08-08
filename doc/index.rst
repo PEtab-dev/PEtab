@@ -5,7 +5,8 @@
    :maxdepth: 3
    :caption: Data format
 
-   Data format <documentation_data_format.rst>
+   PEtab v1 specs <v1/documentation_data_format.rst>
+   PEtab v2 draft <v2/documentation_data_format.rst>
    tutorial
 
 .. toctree::

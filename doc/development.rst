@@ -192,6 +192,58 @@ Upon a new release, the PEtab editors ensure that
 * the new version of the specifications is deposited at Zenodo
 * the new release is announced on the PEtab mailing list
 
+PEtab Extensions
+----------------
+
+An elaborate, monolithic format would make it difficult to understand and
+implement support for PEtab, leading to a steep learning curve and discouraging
+support in new toolboxes. To address this issue, the PEtab format is modular and
+permits modifications through extensions that complement the core standard.
+This modular specification evens the learning curve and provides toolbox
+developers with more guidance on which features to implement to maximize
+support for real world applications. Moreover, such modular extensions
+facilitate and promote the use of specialized tools for specific, non-parameter
+estimation tasks such as visualization.
+
+Requirements for new extensions:
+
+* Specifications in PEtab extensions take precedence over PEtab core, i.e., they
+  can ease or refine format restrictions imposed by PEtab core.
+* PEtab extensions should extend PEtab core with new orthogonal features or
+  tasks, i.e., they should not make trivial changes to PEtab core.
+* PEtab extensions must be named according to ``^[a-zA-Z][a-zA-Z0-9_\-]*$``.
+* PEtab extensions must be versioned using semantic versioning.
+* If a PEtab extension changes the mathematical interpretation of a problem,
+    it must appear in the PEtab YAML file.
+* There is at least one tool that supports the proposed extension.
+* The authors provide a library that provides test cases and implements
+  validation checks for the proposed format.
+
+It is encouraged that (potential) extensions are informally discussed with the
+community as early as possible.
+Developers are free to develop any PEtab extension. To become an official
+PEtab extension, it needs to go through the following process.
+
+#. The developers write a proposal describing the motivation and specification
+   of the extension, following the respective issue template provided in this
+   repository.
+#. The proposal is submitted as an issue in this repository.
+#. The technical specification and documentation of the extension is submitted
+   as a pull request in this repository that references the respective issue.
+
+The PEtab editors jointly decide whether an extension meets the requirements
+described here. In case of a positive evaluation, they announce a poll for the
+acceptance as official extension to the PEtab forum. All members of the PEtab
+community are eligible to vote. If at least 50% of the votes are in favor,
+the extension is accepted and the respective pull requests with specifications,
+documentation and test cases are merged. There is no quorum number of votes
+for acceptance.
+
+It is encouraged that extensions are informally discussed with the community
+before initiating the process of becoming an official extension. Such
+discussions can be conducted through the communication channels mentioned
+above.
+
 Versioning of the PEtab format
 ------------------------------
 

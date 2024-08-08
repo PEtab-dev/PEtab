@@ -23,7 +23,7 @@ for example:
 
   - Specifying multiple simulation conditions with potentially shared parameters
 
-![PEtab files](doc/gfx/petab_files.png)
+![PEtab files](doc/v1/gfx/petab_files.png)
 
 ## Documentation
 
@@ -139,6 +139,8 @@ will have to:
 1. Create a table of measurements.
 
 1. Create a parameter table.
+
+1. Create a YAML file that lists the model and all of the tables above.
 
 If you are using Python, some handy functions of the
 [PEtab library](https://github.com/PEtab-dev/libpetab-python/) can help
