@@ -805,9 +805,12 @@ This file also allows specifying a PEtab version and employed PEtab extensions.
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
 
-The format is described in the schema
-`../petab/petab_schema.yaml <_static/petab_schema.yaml>`_, which allows for
-easy validation.
+The format is described in the
+`jsonschema <../_static/petab_schema_v2.yaml>`_, which allows for
+easy validation:
+
+.. literalinclude:: _static/petab_schema_v2.yaml
+   :language: yaml
 
 
 Parameter estimation problems combining multiple models
