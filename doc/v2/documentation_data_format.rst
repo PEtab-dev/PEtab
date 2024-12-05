@@ -5,7 +5,6 @@
 PEtab data format specification
 ===============================
 
-
 Format version: 2.0.0
 
 This document explains the PEtab data format.
@@ -35,7 +34,7 @@ least redundant way. Furthermore, we wanted to establish an intuitive, modular,
 machine- and human-readable and -writable format that makes use of existing
 standards.
 
-.. figure:: ../v1/gfx/petab_scope_and_files.png
+.. figure:: gfx/petab_scope_and_files.png
    :alt: A common setup for data-based modeling studies and its representation in PEtab.
    :scale: 80%
 
@@ -47,14 +46,17 @@ Overview
 The PEtab data format specifies a parameter estimation problem using a number
 of text-based files (
 `Tab-Separated Values (TSV) <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_)
-(Figure 2), i.e.
+(Figure 2), i.e.:
 
 - A model
 
 - A measurement file to fit the model to [TSV]
 
-- A condition file specifying model inputs and condition-specific parameters
+- (optional) A condition file specifying model inputs and condition-specific parameters
   [TSV]
+
+- (optional) An experiments file, which describes a sequence of different
+  experimental conditions that are applied to the model [TSV]
 
 - An observable file specifying the observation model [TSV]
 
@@ -73,7 +75,8 @@ of text-based files (
 - (optional) A mapping file, which allows mapping PEtab entity IDs to entity
   IDs in the model, which might not have valid PEtab IDs themselves [TSV]
 
-.. figure:: ../v1/gfx/petab_files.png
+
+.. figure:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
 
    **Figure 2: Files constituting a PEtab problem.**
@@ -95,6 +98,18 @@ problem as such.
 
 - All model entities, column names and row names are case-sensitive
 - Fields in "[]" are optional and may be left empty.
+- The following data types are used in descriptions below:
+
+  - ``STRING``: Any string
+  - ``NUMERIC``: Any number excluding ``NaN`` / ``inf`` / ``-inf``
+  - ``MATH_EXPRESSION``: A mathematical expression according to the
+    `PEtab math expression syntax <math_expressions>`_.
+  - ``PETAB_ID``: A string that is a valid PEtab ID
+  - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
+    to an entity that has some associated numeric value and is not estimated,
+    e.g., a model parameter, parameter table parameter, or a species in the
+    model.
+
 
 
 Changes from PEtab 1.0.0
@@ -102,11 +117,20 @@ Changes from PEtab 1.0.0
 
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
-* Support for non-SBML models
+* Support for non-SBML models (:ref:`model`)
+* Changed condition table format (wide -> long) (:ref:`conditions_table`)
+* ``simulationConditionId`` and ``preequilibrationConditionId`` in the
+  :ref:`measurements_table` are replaced by ``experimentId`` and a more
+  flexible way for defining experiments / time courses
+  (:ref:`experiments_table`)
+* Support for math expressions in the condition table (:ref:`conditions_table`)
 * Clarification and specification of various previously underspecified aspects
-  (math expressions, overriding values in the condition table, etc.)
+  (:ref:`math_expressions`, overriding values in the condition table, etc.)
 * Support for extensions
 * Observable IDs are now allowed to be used in observable/noise formulas
+  (:ref:`observables_table`)
+
+.. _model:
 
 Model definition
 ----------------
@@ -114,29 +138,39 @@ Model definition
 PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
 in the PEtab problem description (YAML) via its file name or a URL.
 
-Condition table
----------------
+.. _conditions_table:
 
-The condition table specifies parameters, or initial values of species and
-compartments for specific simulation conditions (generally corresponding to
-different experimental conditions).
+Conditions table
+----------------
+
+The conditions table specifies parameters, or initial values of species and
+compartments for specific simulation conditions. Different conditions can be
+combined to form time courses or experiment through the
+:ref:`experiments_table`.
 
 This is specified as a tab-separated value file in the following way:
 
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId${n}                     |
-+==============+==================+====================================+=====+=======================================+
-| STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| e.g.         |                  |                                    |     |                                       |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId1 | [conditionName1] | 0.42                               | ... | parameterId                           |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId2 | ...              | ...                                | ... | ...                                   |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| ...          | ...              | ...                                | ... | ..                                    |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
+**TODO: conditionName?**
 
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId  | [conditionName]  | targetId         | valueType | targetValue        |
++==============+==================+==================+===========+====================+
+| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING    | MATH_EXPRESSION    |
++--------------+------------------+------------------+-----------+--------------------+
+| e.g.         |                  |                  |           |                    |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId1   | constant  | 0.42               |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId2   |           | 0.42               |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId2 | ...              | modelEntityId1   |           | modelEntityId1 + 3 |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId2 | ...              | someSpecies      | initial   | 8                  |
++--------------+------------------+------------------+-----------+--------------------+
+| ...          | ...              | ...              |           | ...                |
++--------------+------------------+------------------+-----------+--------------------+
+
+Each line specifies a change for one specific property of specific entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
 
@@ -146,17 +180,52 @@ Additional columns are *not* allowed.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``conditionId`` [STRING, NOT NULL]
+- ``conditionId`` [PETAB_ID, REQUIRED]
 
   Unique identifier for the simulation/experimental condition, to be referenced
-  by the measurement table described below. Must consist only of upper and
-  lower case letters, digits and underscores, and must not start with a digit.
+  by the :ref:`experiments_table`.
 
 - ``conditionName`` [STRING, OPTIONAL]
 
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
+- ``targetId`` [NON_ESTIMATED_ENTITY_ID, REQUIRED]
+
+  The ID of the an entity that is to be changed when applying this condition.
+  This may an entity defined in the model, the parameter table, or the mapping
+  table. The entity must be uniquely identifiable. Different restrictions
+  apply depending on the ``valueType`` and type of the model.
+
+- ``valueType`` [STRING, REQUIRED]
+
+  How the target value is to be interpreted. Allowed values are:
+
+  - ``constant``: The target is fixed to the current value of ``targetValue``.
+    The entity must be static in time while the condition is active,
+    e.g., a model parameter.
+
+  - ``initial``: The target is initialized to the value of ``targetValue``.
+    The entity must be dynamic and defined in terms of time-derivative
+    information, e.g., a model species involved in some reaction or specified
+    by an ordinary differential equation.
+
+  - ``rate``/``assignment``/``relativeRate``/``relativeAssignment``:
+
+    **TODO**
+
+    These are currently not supported, until a tool implements them. However, they are reserved to mean changes equivalent to setting a new SBML rateRule or assignmentRule for the entity. relative indicates relative changes to pre-existing rates or assignments. edit: These can only be applied to entities (inputId) that are already governed by these kinds of dynamics. i.e. rate can only apply to entities that already have a rate rule in the original model. assignment/relativeAssignment can only apply to entities that already have an assignment rule in the original model. relativeRate can only apply to entities that already have either a rate rule or reactions.
+
+- ``targetValue`` [MATH_EXPRESSION, REQUIRED]
+
+  The value that will be used to change the target. If a PEtab math expression
+  involves time-dependent entities, then they represent their values at the
+  simulation time when the condition is activated (or active, for time-varying
+  value types like rate), as defined in the :ref:`experiments_table`.
+
+  **TODO**: clarify order of evaluation
+
+**TODO**
 - ``${modelEntityId}``
 
   Further columns may be the IDs of model entities that have globally unique
@@ -195,6 +264,57 @@ Detailed field description
   If the model has a concept of species and a species ID is provided, its
   value is interpreted as amount or concentration in the same way as anywhere
   else in the model.
+  - `expressions`
+
+    Expressions containing more than a single parameter ID or numerical
+    value are allowed. Any model entity Id in the condition table will be interpreted as
+    the value of that model entity at the last time point before
+    changing to the condition represented by the current row (similar
+    to an SBML event with ``useValuesFromTriggerTime=True``). The first
+    condition of any timecourse may only refer to parameter IDs that
+    are listed in the parameter table, but not to any other model
+    entity (This is because there is no “last timepoint” before
+    changing to this first condition.) For example
+
+    -  given a timecourse ``0:condition1;10:condition2`` and two constant
+       model parameters ``par1``, ``par2`` and the two conditions:
+
+      - ``condition1``: {``par1=0.1``, ``par2=0.2``}
+      - ``condition2``: {``par1=par2``, ``par2=par1``}
+
+      This is okay, since no circular dependencies exist: ``par1 = 0.2``, ``par2=0.1``
+
+    - given a ``timecourse 0:condition1`` and two model parameters
+      ``par1``, ``par2`` with only a single condition:
+
+      - ``condition1``: {``par1=par2``, ``par2=par1``}
+
+      This is not allowed, in the first condition of the timecourse ``par1``, ``par2``
+      cannot be used in the right-hand side of the assignment
+
+    - Given a condition: ``condition1``: {``par1=par3``, ``par2=2*par3``}
+
+      This is allowed.
+
+    Condition changes should be implemented to respect the dependency
+    graph between model components:
+
+    - When a condition changes quantity ``A`` and ``B``, and ``B`` is dependent on
+      ``A``, the change in quantity A should be applied first such that the
+      new value for ``B`` is consistent with what is specified in the
+      condition.
+
+    - For example, concentrations are generally dependent on volume
+      i.e. when a model compartment volume changes, the concentrations
+      of all species in that compartment change too, because mass is
+      usually conserved. In this case, if a condition change involves a
+      change in both a compartment volume and a species concentration,
+      then the compartment change should be applied first. Otherwise,
+      the species concentration after the condition is applied, will not
+      match the concentration specified by the user, because it would be
+      modified by the volume change.
+
+.. _measurements_table:
 
 Measurement table
 -----------------
@@ -205,13 +325,13 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-+--------------+-------------------------------+-----------------------+-------------+--------------+
-| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time         |
-+==============+===============================+=======================+=============+==============+
-| observableId | [conditionId]                 | conditionId           | NUMERIC     | NUMERIC\|inf |
-+--------------+-------------------------------+-----------------------+-------------+--------------+
-| ...          | ...                           | ...                   | ...         | ...          |
-+--------------+-------------------------------+-----------------------+-------------+--------------+
++--------------+--------------+-------------+--------------+
+| observableId | experimentId | measurement | time         |
++==============+==============+=============+==============+
+| observableId | experimentID | NUMERIC     | NUMERIC\|inf |
++--------------+--------------+-------------+--------------+
+| ...          | ...          | ...         | ...          |
++--------------+--------------+-------------+--------------+
 
 *(wrapped for readability)*
 
@@ -242,27 +362,25 @@ replicates and plot error bars.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``observableId`` [STRING, NOT NULL, REFERENCES(observables.observableID)]
+- ``observableId`` [STRING, REQUIRED, REFERENCES(observables.observableID)]
 
   Observable ID as defined in the observable table described below.
 
-- ``preequilibrationConditionId`` [STRING OR NULL, REFERENCES(conditionsTable.conditionID), OPTIONAL]
+- ``experimentId`` [STRING, REQUIRED, REFERENCES(experimentsTable.experimentID)]
 
-  The ``conditionId`` to be used for preequilibration. E.g. for drug
-  treatments, the model would be preequilibrated with the no-drug condition.
-  Empty for no preequilibration.
+  Experiment ID as defined in the experiments table described below. This column may
+  have ``NA`` values, which are interpreted as *use the model as is*.
+  This avoids the need for "dummy" conditions and experiments if only a single
+  condition is required.
 
-- ``simulationConditionId`` [STRING, NOT NULL, REFERENCES(conditionsTable.conditionID)]
-
-  ``conditionId`` as provided in the condition table, specifying the condition-specific parameters used for simulation.
-
-- ``measurement`` [NUMERIC, NOT NULL]
+- ``measurement`` [NUMERIC, REQUIRED]
 
   The measured value in the same units/scale as the model output.
 
-- ``time`` [NUMERIC OR STRING, NOT NULL]
+- ``time`` [NUMERIC OR STRING, REQUIRED]
 
-  Time point of the measurement in the time unit specified in the SBML model, numeric value or ``inf`` (lower-case) for steady-state measurements.
+  Time point of the measurement in the time unit specified in the SBML model,
+  numeric value or ``inf`` (lower-case) for steady-state measurements.
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
@@ -309,8 +427,77 @@ Detailed field description
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
 
-Observable table
-----------------
+.. _experiments_table:
+
+Experiments table
+-----------------
+
+The optional experiments table describes a sequence of different experimental
+conditions (here: discrete changes) that are applied to the model.
+
+This is specified as a tab-separated value file in the following way:
+
++---------------------+-------------------+-----------------+
+| experimentId        | time              | conditionId     |
++=====================+===================+=================+
+| PETAB_ID            | NUMERIC or '-inf' | CONDITION_ID    |
++---------------------+-------------------+-----------------+
+| timecourse_1        |                 0 | condition_1     |
++---------------------+-------------------+-----------------+
+| timecourse_1        |                10 | condition_2     |
++---------------------+-------------------+-----------------+
+| timecourse_1        |               250 | condition_3     |
++---------------------+-------------------+-----------------+
+| patient_3           |              -inf | condition_1     |
++---------------------+-------------------+-----------------+
+| patient_3           |                 0 | condition_2     |
++---------------------+-------------------+-----------------+
+| intervention_effect |               -20 | no_lockdown     |
++---------------------+-------------------+-----------------+
+| intervention_effect |                20 | mild_lockdown   |
++---------------------+-------------------+-----------------+
+| intervention_effect |                40 | severe_lockdown |
++---------------------+-------------------+-----------------+
+
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The time courses table with three mandatory columns ``experimentId``,
+``time``, and ``conditionId``:
+
+- ``experimentId`` [STRING, REQUIRED]
+
+  Identifier of the experiment. The usual PEtab identifier requirements apply.
+  This is referenced by the ``experimentId`` column in the measurement table.
+
+- ``time``: [NUMERIC or  ``-inf``, REQUIRED]
+
+  The time when the condition will become active, in the time unit specified
+  in the model. ``-inf`` indicates pre-equilibration (e.g., for drug
+  treatments, the model would be pre-equilibrated with the no-drug condition).
+
+- ``CONDITION_ID``: Reference to a condition ID in the condition table that
+  is to be applied at the given `time`.
+
+  Note: The time interval in which a condition is applied includes the
+  respective starting timepoint, but excludes the starting timepoint of
+  the following condition. This means that for an experiment
+  ``[time_A:condition_A; time_B:condition_B]``, ``condition_A`` is active
+  during the interval ``[time_A, time_B)``. This implies that any event
+  assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
+  applied and for any measurements at ``time_B``, the observables will be
+  evaluated *after* ``condition_B`` was applied.
+
+Multiple conditions can be applied at the same time point by specifying
+multiple lines with the same ``experimentId`` and ``time`` but different
+``conditionId``. The order of the conditions is arbitrary **????**.
+
+**TODO** how to deal with conflicts?
+
+.. _observables_table:
+
+Observables table
+-----------------
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
@@ -468,6 +655,7 @@ The distributions above are for a single data point. For a collection :math:`D=\
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
 
+.. _parameters_table:
 
 Parameter table
 ---------------
@@ -519,7 +707,7 @@ Additional columns may be added.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``parameterId`` [STRING, NOT NULL]
+- ``parameterId`` [STRING, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
   the ID of a parameter specified in the SBML model, a parameter introduced
@@ -621,6 +809,7 @@ Detailed field description
   Prior parameters used for the objective function during estimation.
   For more detailed documentation, see ``initializationPriorParameters``.
 
+.. _visualization_table:
 
 Visualization table
 -------------------
@@ -665,7 +854,7 @@ order:
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``plotId`` [STRING, NOT NULL]
+- ``plotId`` [STRING, REQUIRED]
 
   An ID which corresponds to a specific plot. All datasets with the same
   plotId will be plotted into the same axes object.
@@ -685,7 +874,7 @@ Detailed field description
   ``provided`` (if numeric values for the noise level are provided in the
   measurement table). Default is ``MeanAndSD``.
 
-- ``datasetId`` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId), OPTIONAL]
+- ``datasetId`` [STRING, REQUIRED, REFERENCES(measurementTable.datasetId), OPTIONAL]
 
   The datasets which should be grouped into one plot.
 
@@ -733,6 +922,7 @@ Detailed field description
   The name that should be displayed for the corresponding dataset in the
   legend and which defaults to the value in ``datasetId``.
 
+.. _mapping_table:
 
 Mapping table
 -------------
@@ -757,14 +947,14 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``petabEntityId`` [STRING, NOT NULL]
+- ``petabEntityId`` [STRING, REQUIRED]
 
   A valid PEtab identifier that is not defined in any other part of the PEtab
   problem. This identifier may be referenced in condition, measurement,
   parameter and observable tables, but cannot be referenced in the model
   itself.
 
-- ``modelEntityId`` [STRING, NOT NULL]
+- ``modelEntityId`` [STRING, REQUIRED]
 
   A globally unique identifier defined in the model,
   *that is not a valid PEtab ID* (see :ref:`identifiers`).
@@ -793,6 +983,7 @@ Examples of the visualization table can be found in the
 `Benchmark model collection <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/>`_, for example in the `Chen_MSB2009 <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009>`_
 model.
 
+.. _problem_yaml:
 
 YAML file for grouping files
 ----------------------------
@@ -822,6 +1013,8 @@ measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
 
+
+.. _math_expressions:
 
 Math expressions syntax
 -----------------------
