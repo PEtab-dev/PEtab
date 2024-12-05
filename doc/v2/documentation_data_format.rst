@@ -5,7 +5,6 @@
 PEtab data format specification
 ===============================
 
-
 Format version: 2.0.0
 
 This document explains the PEtab data format.
@@ -106,16 +105,20 @@ Changes from PEtab 1.0.0
 
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
-* Support for non-SBML models
-* Changed condition table format (wide -> long)
-* ``simulationConditionId`` and ``preequilibrationConditionId`` are replaced
-  by ``experimentId`` and a more flexible way for defining experiments /
-  time courses
-* Support for math expressions in the condition table
+* Support for non-SBML models (:ref:`model`)
+* Changed condition table format (wide -> long) (:ref:`conditions_table`)
+* ``simulationConditionId`` and ``preequilibrationConditionId`` in the
+  :ref:`measurements_table` are replaced by ``experimentId`` and a more
+  flexible way for defining experiments / time courses
+  (:ref:`experiments_table`)
+* Support for math expressions in the condition table (:ref:`conditions_table`)
 * Clarification and specification of various previously underspecified aspects
-  (math expressions, overriding values in the condition table, etc.)
+  (:ref:`math_expressions`, overriding values in the condition table, etc.)
 * Support for extensions
 * Observable IDs are now allowed to be used in observable/noise formulas
+  (:ref:`observables_table`)
+
+.. _model:
 
 Model definition
 ----------------
@@ -123,28 +126,37 @@ Model definition
 PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
 in the PEtab problem description (YAML) via its file name or a URL.
 
-Condition table
----------------
+.. _conditions_table:
 
-The condition table specifies parameters, or initial values of species and
-compartments for specific simulation conditions (generally corresponding to
-different experimental conditions).
+Conditions table
+----------------
+
+The conditions table specifies parameters, or initial values of species and
+compartments for specific simulation conditions. Different conditions can be
+combined to form time courses or experiment through the
+:ref:`experiments_table`.
 
 This is specified as a tab-separated value file in the following way:
 
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId${n}                     |
-+==============+==================+====================================+=====+=======================================+
-| STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| e.g.         |                  |                                    |     |                                       |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId1 | [conditionName1] | 0.42                               | ... | parameterId                           |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId2 | ...              | ...                                | ... | ...                                   |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
-| ...          | ...              | ...                                | ... | ..                                    |
-+--------------+------------------+------------------------------------+-----+---------------------------------------+
+**TODO: conditionName?**
+
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId  | [conditionName]  | targetId         | valueType | targetValue        |
++==============+==================+==================+===========+====================+
+| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING    | MATH_EXPRESSION    |
++--------------+------------------+------------------+-----------+--------------------+
+| e.g.         |                  |                  |           |                    |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId1   | constant  | 0.42               |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId2   |           | 0.42               |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId2 | ...              | modelEntityId1   |           | modelEntityId1 + 3 |
++--------------+------------------+------------------+-----------+--------------------+
+| conditionId2 | ...              | someSpecies      | initial   | 8                  |
++--------------+------------------+------------------+-----------+--------------------+
+| ...          | ...              | ...              |           | ...                |
++--------------+------------------+------------------+-----------+--------------------+
 
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
@@ -155,17 +167,17 @@ Additional columns are *not* allowed.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``conditionId`` [STRING, NOT NULL]
+- ``conditionId`` [PETAB_ID, NOT NULL]
 
   Unique identifier for the simulation/experimental condition, to be referenced
-  by the measurement table described below. Must consist only of upper and
-  lower case letters, digits and underscores, and must not start with a digit.
+  by the :ref:`experiments_table`.
 
 - ``conditionName`` [STRING, OPTIONAL]
 
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
+**TODO**
 - ``${modelEntityId}``
 
   Further columns may be the IDs of model entities that have globally unique
@@ -254,6 +266,7 @@ Detailed field description
       match the concentration specified by the user, because it would be
       modified by the volume change.
 
+.. _measurements_table:
 
 Measurement table
 -----------------
@@ -365,6 +378,8 @@ Detailed field description
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
 
+.. _experiments_table:
+
 Experiments table
 -----------------
 
@@ -424,8 +439,10 @@ The time courses table with three mandatory columns ``experimentId``,
   applied and for any measurements at ``time_B``, the observables will be
   evaluated *after* ``condition_B`` was applied.
 
-Observable table
-----------------
+.. _observables_table:
+
+Observables table
+-----------------
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
@@ -583,6 +600,7 @@ The distributions above are for a single data point. For a collection :math:`D=\
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
 
+.. _parameters_table:
 
 Parameter table
 ---------------
@@ -736,6 +754,7 @@ Detailed field description
   Prior parameters used for the objective function during estimation.
   For more detailed documentation, see ``initializationPriorParameters``.
 
+.. _visualization_table:
 
 Visualization table
 -------------------
@@ -848,6 +867,7 @@ Detailed field description
   The name that should be displayed for the corresponding dataset in the
   legend and which defaults to the value in ``datasetId``.
 
+.. _mapping_table:
 
 Mapping table
 -------------
@@ -908,6 +928,7 @@ Examples of the visualization table can be found in the
 `Benchmark model collection <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/>`_, for example in the `Chen_MSB2009 <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009>`_
 model.
 
+.. _problem_yaml:
 
 YAML file for grouping files
 ----------------------------
@@ -938,6 +959,7 @@ namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
 
 
+.. _math_expressions:
 
 Math expressions syntax
 -----------------------
