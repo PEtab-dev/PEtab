@@ -6,13 +6,8 @@ description: PEtab parameter estimation problem config file schema
 properties:
 
   format_version:
-    anyof:
-      - type: string
-        #  (corresponding to PEP 440).
-        pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
-      - type: integer
-
-    description: Version of the PEtab format
+    type: integer
+    description: Version of the PEtab format (e.g. 1).
 
   parameter_file:
     oneOf:
@@ -22,6 +17,7 @@ properties:
       File name (absolute or relative) or URL to PEtab parameter table
       containing parameters of all models listed in `problems`. A single
       table may be split into multiple files and described as an array here.
+
   problems:
     type: array
     description: |
@@ -35,7 +31,7 @@ properties:
       type: object
       description: |
         A set of PEtab model, condition, observable and measurement
-        files and optional visualization and time courses files.
+        files and optional visualization files.
       properties:
 
         sbml_files:
@@ -78,44 +74,11 @@ properties:
             type: string
             description: PEtab visualization file name or URL.
 
-        timecourse_files:
-          type: array
-          description: List of PEtab time courses files
-
-          items: 
-            type: string
-            description: PEtab time courses file name or URL.
-
       required:
         - sbml_files
         - observable_files
         - measurement_files
-
-  extensions:
-    type: object
-    description: |
-      PEtab extensions being used.
-    patternProperties:
-      "^[a-zA-Z][\\-\\w]*$":
-
-        type: object
-        description: |
-          Information on a specific extension
-        properties:
-          version:
-            type: string
-            pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
-          required:
-            type: bool
-            description: |
-              Indicates whether the extension is required for the
-              mathematical interpretation of problem.
-        required:
-          - version
-          - required
-      additionalProperties: true
-
-    additionalProperties: false
+        - condition_files
 
 required:
   - format_version
