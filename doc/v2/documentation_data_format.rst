@@ -98,6 +98,18 @@ problem as such.
 
 - All model entities, column names and row names are case-sensitive
 - Fields in "[]" are optional and may be left empty.
+- The following data types are used in descriptions below:
+
+  - ``STRING``: Any string
+  - ``NUMERIC``: Any number excluding ``NaN`` / ``inf`` / ``-inf``
+  - ``MATH_EXPRESSION``: A mathematical expression according to the
+    `PEtab math expression syntax <math_expressions>`_.
+  - ``PETAB_ID``: A string that is a valid PEtab ID
+  - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
+    to an entity that has some associated numeric value and is not estimated,
+    e.g., a model parameter, parameter table parameter, or a species in the
+    model.
+
 
 
 Changes from PEtab 1.0.0
@@ -140,23 +152,23 @@ This is specified as a tab-separated value file in the following way:
 
 **TODO: conditionName?**
 
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId  | [conditionName]  | targetId         | valueType | targetValue        |
-+==============+==================+==================+===========+====================+
-| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING    | MATH_EXPRESSION    |
-+--------------+------------------+------------------+-----------+--------------------+
-| e.g.         |                  |                  |           |                    |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId1   | constant  | 0.42               |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId2   |           | 0.42               |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId2 | ...              | modelEntityId1   |           | modelEntityId1 + 3 |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId2 | ...              | someSpecies      | initial   | 8                  |
-+--------------+------------------+------------------+-----------+--------------------+
-| ...          | ...              | ...              |           | ...                |
-+--------------+------------------+------------------+-----------+--------------------+
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId  | [conditionName]  | targetId         | operationType   | targetValue        |
++==============+==================+==================+=================+====================+
+| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING          | MATH_EXPRESSION    |
++--------------+------------------+------------------+-----------------+--------------------+
+| e.g.         |                  |                  |                 |                    |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId1   | setCurrentValue | 0.42               |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId2   |                 | 0.42               |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId2 | ...              | modelEntityId1   |                 | modelEntityId1 + 3 |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId2 | ...              | someSpecies      | setCurrentValue | 8                  |
++--------------+------------------+------------------+-----------------+--------------------+
+| ...          | ...              | ...              |                 | ...                |
++--------------+------------------+------------------+-----------------+--------------------+
 
 Each line specifies a change for one specific property of specific entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
@@ -183,22 +195,34 @@ Detailed field description
   The ID of the an entity that is to be changed when applying this condition.
   This may an entity defined in the model, the parameter table, or the mapping
   table. The entity must be uniquely identifiable. Different restrictions
-  apply depending on the ``valueType`` and type of the model.
+  apply depending on the ``operationType`` and type of the model.
 
-- ``valueType`` [STRING, REQUIRED]
+- ``operationType`` [STRING, REQUIRED]
 
   How the target value is to be interpreted. Allowed values are:
 
-  - ``constant``: The target is fixed to the current value of ``targetValue``.
-    The entity must be static in time while the condition is active,
-    e.g., a model parameter.
+  - ``setCurrentValue``: The current value of the target is initialized to the
+    value of ``targetValue`` when the respective condition is applied.
+    The entity may be static or dynamic, but must not be defined in terms of
+    an algebraic assignment.
 
-  - ``initial``: The target is initialized to the value of ``targetValue``.
+  - ``setRate``: The time-derivative of the target is set to ``targetValue``
+    (symbolically, not evaluated the time the condition is applied).
+    The entity must be dynamic and defined in terms of
+    time-derivative information, e.g., a non-constant model species involved in
+    some reaction or specified by an ordinary differential equation.
+
+  - ``setAssignment``: The target is set to the value of ``targetValue``, where
+    the value is evaluated at the time the condition is applied.
+    The entity must be defined in terms of an algebraic assignment.
+
+  - ``addToRate``: The target's rate is increased by ``targetValue``.
     The entity must be dynamic and defined in terms of time-derivative
-    information, e.g., a model species involved in some reaction or specified
-    by an ordinary differential equation.
+    information.
 
-  - ``rate``/``assignment``/``relativeRate``/``relativeAssignment``:
+  - ``addToAssignment``: The expression assigned to the target is increased by
+    ``targetValue``.
+    The entity must be defined in terms of an algebraic assignment.
 
     **TODO**
 
