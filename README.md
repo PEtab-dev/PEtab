@@ -10,7 +10,7 @@ additional documentation.
 
 PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values 
 (TSV) files. It is meant as a standardized way to provide information for 
-parameter estimation, which is out of the current scope of SBML. This includes
+parameter estimation, which is out of the current scope of SBML. This includes,
 for example:
 
   - Specifying and linking measurements to models
@@ -21,9 +21,9 @@ for example:
 
   - Specifying parameter bounds for optimization
 
-  - Specifying multiple simulation condition with potentially shared parameters
+  - Specifying multiple simulation conditions with potentially shared parameters
 
-![PEtab files](doc/gfx/petab_files.png)
+![PEtab files](doc/v1/gfx/petab_files.png)
 
 ## Documentation
 
@@ -140,7 +140,7 @@ will have to:
 
 1. Create a parameter table.
 
-1. Create a yaml file that lists the model and all of the tables above.
+1. Create a YAML file that lists the model and all of the tables above.
 
 If you are using Python, some handy functions of the
 [PEtab library](https://github.com/PEtab-dev/libpetab-python/) can help
@@ -166,5 +166,5 @@ is available at https://github.com/dlill/petab/.
 
 ## Getting help
 
-If you have any question or problems with PEtab, feel free to post them at
+If you have any questions or problems with PEtab, feel free to post them at
 our GitHub [issue tracker](https://github.com/PEtab-dev/PEtab/issues/).

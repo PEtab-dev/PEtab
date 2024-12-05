@@ -9,7 +9,7 @@ assignees: ''
 ---
 
 **Name of the Extension**
-Please make sure that the extension name matches the regular expression `^[a-zA-Z_][\w-]*$`.
+Please make sure that the extension name matches the regular expression `^[a-zA-Z_][A-Za-z0-9_-]*$`.
 
 **Which problem would you like to address?**
 A clear and concise description of which use case you want to address and, if applicable, why the current specifications do not fulfill your requirements.
@@ -21,7 +21,7 @@ A clear and concise description of the changes you want to propose. Please descr
 A clear and concise description in what way the proposed changes introduce features that are orthogonal to the PEtab core specification.
 
 **List the extension library that implements validation checks**
-A link to the website or github repository that accompanies the proposed extension.
+A link to the website or GitHub repository that accompanies the proposed extension.
 
 **List the toolboxes that support the proposed standard**
-A link to the website or github repository that contains the software that implements support for the standard.
+A link to the website or GitHub repository that contains the software that implements support for the standard.

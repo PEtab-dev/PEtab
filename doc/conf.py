@@ -40,6 +40,7 @@ extensions = [
     'm2r2',
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
+    'sphinx_reredirects',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -71,6 +72,11 @@ source_suffix = {
     '.md': 'markdown',
 }
 
+# Redirects for moved files
+redirects = {
+    "documentation_data_format": "v1/documentation_data_format.html",
+}
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -82,7 +88,7 @@ def setup(app):
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static', 'v1/_static', 'v2/_static']
 
 html_context = {
     "display_github": True,

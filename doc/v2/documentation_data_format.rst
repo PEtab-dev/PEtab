@@ -1,8 +1,12 @@
+.. warning::
+
+    This document is a draft and subject to change.
+
 PEtab data format specification
 ===============================
 
 
-Format version: 1
+Format version: 2.0.0
 
 This document explains the PEtab data format.
 
@@ -31,7 +35,7 @@ least redundant way. Furthermore, we wanted to establish an intuitive, modular,
 machine- and human-readable and -writable format that makes use of existing
 standards.
 
-.. figure:: gfx/petab_scope_and_files.png
+.. figure:: ../v1/gfx/petab_scope_and_files.png
    :alt: A common setup for data-based modeling studies and its representation in PEtab.
    :scale: 80%
 
@@ -41,16 +45,15 @@ Overview
 ---------
 
 The PEtab data format specifies a parameter estimation problem using a number
-of text-based files (`Systems Biology Markup Language (SBML) <http://sbml.org>`_
-and
+of text-based files (
 `Tab-Separated Values (TSV) <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_)
 (Figure 2), i.e.
 
-- An SBML model [SBML]
+- A model
 
 - A measurement file to fit the model to [TSV]
 
-- (optional) A condition file specifying model inputs and condition-specific parameters
+- A condition file specifying model inputs and condition-specific parameters
   [TSV]
 
 - An observable file specifying the observation model [TSV]
@@ -67,11 +70,10 @@ and
 - (optional) A visualization file, which contains specifications how the data
   and/or simulations should be plotted by the visualization routines [TSV]
 
-- (optional) A timecourses file, which describes a sequence of different 
-  experimental conditions that are applied to the model [TSV]
+- (optional) A mapping file, which allows mapping PEtab entity IDs to entity
+  IDs in the model, which might not have valid PEtab IDs themselves [TSV]
 
-
-.. figure:: gfx/petab_files.png
+.. figure:: ../v1/gfx/petab_files.png
    :alt: Files constituting a PEtab problem
 
    **Figure 2: Files constituting a PEtab problem.**
@@ -95,11 +97,22 @@ problem as such.
 - Fields in "[]" are optional and may be left empty.
 
 
-SBML model definition
----------------------
+Changes from PEtab 1.0.0
+------------------------
 
-The model must be specified as valid SBML. There are no further restrictions.
+PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
+* Support for non-SBML models
+* Clarification and specification of various previously underspecified aspects
+  (math expressions, overriding values in the condition table, etc.)
+* Support for extensions
+* Observable IDs are now allowed to be used in observable/noise formulas
+
+Model definition
+----------------
+
+PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
+in the PEtab problem description (YAML) via its file name or a URL.
 
 Condition table
 ---------------
@@ -111,7 +124,7 @@ different experimental conditions).
 This is specified as a tab-separated value file in the following way:
 
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
-| conditionId  | [conditionName]  | parameterOrSpeciesOrCompartmentId1 | ... | parameterOrSpeciesOrCompartmentId${n} |
+| conditionId  | [conditionName]  | modelEntityId1                     | ... | modelEntityId${n}                     |
 +==============+==================+====================================+=====+=======================================+
 | STRING       | [STRING]         | NUMERIC\|STRING                    | ... | NUMERIC\|STRING                       |
 +--------------+------------------+------------------------------------+-----+---------------------------------------+
@@ -144,82 +157,44 @@ Detailed field description
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- ``${parameterOrSpeciesOrCompartmentId1}``
+- ``${modelEntityId}``
 
-  Further columns may be global parameter IDs, IDs of species or compartments
-  as defined in the SBML model. Only one column is allowed per ID.
-  Values for these condition parameters may be provided either as numeric
-  values, or as IDs defined in the SBML model, the parameter table or both.
+  Further columns may be the IDs of model entities that have globally unique
+  IDs, such as parameters, species or compartments defined in the model to set
+  condition-specific values. Only one column is allowed per ID.
+  Values for these entities may be provided either as numeric values, or as IDs
+  of globally unique entity IDs as defined in the model, the mapping table or
+  the parameter table.
 
-  - ``${parameterId}``
+  Any non-``NaN`` value will override the original values of the model, or if
+  preequilibration was used, they will override the value obtained from
+  preequilibration. A ``NaN`` value indicates that the original value of the
+  model is to be used (when used in the preequilibration condition, or in the
+  simulation condition if no preequilibration is used) or that the result of
+  preequilibration is to be used (when used in the simulation condition after
+  preequilibration).
 
-    The values will override any parameter values specified in the model.
+  The value in the condition table either replaces the initial value or the
+  value at all timepoints based on whether the model entity has a rate law
+  assigned or not:
 
-  - ``${speciesId}``
+  * For model entities that have constant algebraic assignments
+    (but not necessarily constant values), i.e, that do not have a rate of
+    change with respect to time assigned and that are not subject to event
+    assignments, the algebraic assignment is replaced statically at all
+    timepoints. Examples for such model entities are the targets of SBML
+    `AssignmentRules`.
 
-    If a species ID is provided, it is interpreted as the initial
-    condition of that species (as amount if `hasOnlySubstanceUnits` is set to `True`
-    for the respective species, as concentration otherwise) and will override the
-    initial condition given in the SBML model or given by a preequilibration
-    condition. If no value is provided for a condition, the result of the
-    preequilibration (or initial condition from the SBML model, if
-    no preequilibration is defined) is used.
+  * For all other entities, e.g., those that are assigned by SBML `RateRules`,
+    only the initial value can be assigned in the condition table. If an
+    assignment of the rate of change with respect to time or event assignment
+    is desired, the values of model entities that are used to define rate of
+    change or event assignments must be assigned in the condition table.
+    If no such model entities exist, assignment is not possible.
 
-  - ``${compartmentId}``
-
-    If a compartment ID is provided, it is interpreted as the initial
-    compartment size.
-
-  - `expressions`
-
-    Expressions containing more than a single parameter ID or numberical
-    value are allowed. Any model entity Id in the condition table will be interpreted as
-    the value of that model entity at the last time point before
-    changing to the condition represented by the current row (similar
-    to an SBML event with ``useValuesFromTriggerTime=True``). The first
-    condition of any timecourse may only refer to parameter IDs that
-    are listed in the parameter table, but not to any other model
-    entity (This is because there is no “last timepoint” before
-    changing to this first condition.) For example 
-
-    -  given a timecourse ``0:condition1;10:condition2`` and two constant
-       model parameters ``par1``, ``par2`` and the two conditions:
-      
-      - ``condition1``: {``par1=0.1``, ``par2=0.2``}
-      - ``condition2``: {``par1=par2``, ``par2=par1``}
-
-      This is okay, since no circular dependencies exist: ``par1 = 0.2``, ``par2=0.1``
-
-    - given a ``timecourse 0:condition1`` and two model parameters
-      ``par1``, ``par2`` with only a single condition:
-
-      - ``condition1``: {``par1=par2``, ``par2=par1``}
-
-      This is not allowed, in the first condition of the timecourse ``par1``, ``par2``
-      cannot be used in the right-hand side of the assignment
-
-    - Given a condition: ``condition1``: {``par1=par3``, ``par2=2*par3``}
-
-      This is allowed.
-
-    Condition changes should be implemented to respect the dependency
-    graph between model components:
-
-    - When a condition changes quantity ``A`` and ``B``, and ``B`` is dependent on
-      ``A``, the change in quantity A should be applied first such that the
-      new value for ``B`` is consistent with what is specified in the
-      condition.
-
-    - For example, concentrations are generally dependent on volume
-      i.e. when a model compartment volume changes, the concentrations
-      of all species in that compartment change too, because mass is
-      usually conserved. In this case, if a condition change involves a
-      change in both a compartment volume and a species concentration,
-      then the compartment change should be applied first. Otherwise,
-      the species concentration after the condition is applied, will not
-      match the concentration specified by the user, because it would be
-      modified by the volume change.
-
+  If the model has a concept of species and a species ID is provided, its
+  value is interpreted as amount or concentration in the same way as anywhere
+  else in the model.
 
 Measurement table
 -----------------
@@ -230,13 +205,13 @@ model training or validation.
 Expected to have the following named columns in any (but preferably this)
 order:
 
-+--------------+--------------+-------------+--------------+
-| observableId | timecourseId | measurement | time         |
-+==============+==============+=============+==============+
-| observableId | timecourseId | NUMERIC     | NUMERIC\|inf |
-+--------------+--------------+-------------+--------------+
-| ...          | ...          | ...         | ...          |
-+--------------+--------------+-------------+--------------+
++--------------+-------------------------------+-----------------------+-------------+--------------+
+| observableId | [preequilibrationConditionId] | simulationConditionId | measurement | time         |
++==============+===============================+=======================+=============+==============+
+| observableId | [conditionId]                 | conditionId           | NUMERIC     | NUMERIC\|inf |
++--------------+-------------------------------+-----------------------+-------------+--------------+
+| ...          | ...                           | ...                   | ...         | ...          |
++--------------+-------------------------------+-----------------------+-------------+--------------+
 
 *(wrapped for readability)*
 
@@ -271,6 +246,16 @@ Detailed field description
 
   Observable ID as defined in the observable table described below.
 
+- ``preequilibrationConditionId`` [STRING OR NULL, REFERENCES(conditionsTable.conditionID), OPTIONAL]
+
+  The ``conditionId`` to be used for preequilibration. E.g. for drug
+  treatments, the model would be preequilibrated with the no-drug condition.
+  Empty for no preequilibration.
+
+- ``simulationConditionId`` [STRING, NOT NULL, REFERENCES(conditionsTable.conditionID)]
+
+  ``conditionId`` as provided in the condition table, specifying the condition-specific parameters used for simulation.
+
 - ``measurement`` [NUMERIC, NOT NULL]
 
   The measured value in the same units/scale as the model output.
@@ -278,12 +263,6 @@ Detailed field description
 - ``time`` [NUMERIC OR STRING, NOT NULL]
 
   Time point of the measurement in the time unit specified in the SBML model, numeric value or ``inf`` (lower-case) for steady-state measurements.
-
-- ``timecourseId`` [STRING, NOT NULL, REFERENCES(timecoursesTable.timecourseID)]
-
-  Timecourse ID as defined in the time courses table described below. This column may 
-  have ``NA`` values, which are interpreted as *use the model as is*. 
-  This avoids the need for “dummy” conditions and timecourses.
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
@@ -390,7 +369,9 @@ Detailed field description
   Observation function as plain text formula expression.
   May contain any symbol defined in the SBML model (including model time ``time``)
   or parameter table. In the simplest case just an SBML species ID
-  or an ``AssignmentRule`` target.
+  or an ``AssignmentRule`` target. Additionally, any observable ID
+  introduced in the observable table may be referenced, but circular definitions
+  must be avoided.
 
   May introduce new parameters of the form ``observableParameter${n}_${observableId}``,
   which are overridden by ``observableParameters`` in the measurement table
@@ -412,10 +393,14 @@ Detailed field description
   observable.
 
   Alternatively, some formula expression can be provided to specify
-  more complex noise models. A noise model which accounts for relative and
+  more complex noise models. The formula may reference any uniquely identifiable
+  model entity with PEtab-compatible identifier or any observable ID
+  specified in the observable table.
+
+  A noise model which accounts for relative and
   absolute contributions could, e.g., be defined as::
 
-    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk*pErk
+    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk * observable_pErk
 
   with ``noiseParameter1_observable_pErk`` denoting the absolute and
   ``noiseParameter2_observable_pErk`` the relative contribution for the
@@ -749,6 +734,49 @@ Detailed field description
   legend and which defaults to the value in ``datasetId``.
 
 
+Mapping table
+-------------
+
+Mapping PEtab entity IDs to entity IDs in the model. This optional file may be
+used to reference model entities in PEtab files where the ID in the model would
+not be a valid identifier in PEtab (e.g., due to inclusion of blanks, dots, or
+other special characters).
+
+The TSV file has two mandatory columns, ``petabEntityId`` and
+``modelEntityId``. Additional columns are allowed.
+
++---------------+---------------+
+| petabEntityId | modelEntityId |
++===============+===============+
+| STRING        | STRING        |
++---------------+---------------+
+| reaction1_k1  | reaction1.k1  |
++---------------+---------------+
+
+
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``petabEntityId`` [STRING, NOT NULL]
+
+  A valid PEtab identifier that is not defined in any other part of the PEtab
+  problem. This identifier may be referenced in condition, measurement,
+  parameter and observable tables, but cannot be referenced in the model
+  itself.
+
+- ``modelEntityId`` [STRING, NOT NULL]
+
+  A globally unique identifier defined in the model,
+  *that is not a valid PEtab ID* (see :ref:`identifiers`).
+
+  For example, in SBML, local parameters may be referenced as
+  ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
+  contain a ``.`` character. Similarly, this table may be used to reference
+  specific species in a BNGL model that may contain many unsupported
+  characters such as ``,``, ``(`` or ``.``. However, please note that IDs must
+  exactly match the species names in the BNGL-generated network file, and no
+  pattern matching will be performed.
+
 Extensions
 ~~~~~~~~~~
 
@@ -769,95 +797,30 @@ model.
 YAML file for grouping files
 ----------------------------
 
-To link the SBML model, measurement table, condition table, etc. in an
+To link the model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 
-This file also allows specifying a PEtab version (as the format is not unlikely
-to change in the future) and employed PEtab extensions.
+This file also allows specifying a PEtab version and employed PEtab extensions.
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
 
-The format is described in the schema
-`../petab/petab_schema.yaml <_static/petab_schema.yaml>`_, which allows for
-easy validation.
+The format is described in the
+`jsonschema <../_static/petab_schema_v2.yaml>`_, which allows for
+easy validation:
+
+.. literalinclude:: _static/petab_schema_v2.yaml
+   :language: yaml
 
 
 Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Parameter estimation problems can comprise multiple models. For now, PEtab
-allows to specify multiple SBML models with corresponding condition and
+allows one to specify multiple models with corresponding condition and
 measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
-
-
-Timecourses table
------------------
-
-The optional time courses tabke describes a sequence of different experimental 
-conditions (here: discrete changes) that are applied to the model.
-
-This is specified as a tab-separated value file in the following way:
-
-+--------------------+-------------------------------------------------+
-| timecourseId       | timecourse                                      |
-+====================+=================================================+
-| STRING             | STRING                                          |
-+--------------------+-------------------------------------------------+
-| timecourse_1       | 0:condition_1;10:condition_2;250:condition_3    |
-+--------------------+-------------------------------------------------+
-| patient_3          | -inf:condition_1;0:condition_2                  |
-+--------------------+-------------------------------------------------+
-| i                  | -20:                                            |
-| ntervention_effect | no_lockdown;20:mild_lockdown;40:severe_lockdown |
-+--------------------+-------------------------------------------------+
-
-Detailed field description
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The time courses table with two mandatory columns ``timecourseId`` and
-``timecourse``:
-
--  ``timecourseId`` [STRING, NOT NULL]
-
-  Identifier of the timecourse. The usual PEtab identifier requirements apply.
-
--  ``timecourse``: [STRING, NOT NULL]
-
-  A semicolon-separated list of different phases of the experiment along with 
-  their starting time. A value in the ``timecourse`` column takes the format
-  ``[TIMEPOINT:CONDITION_ID;...]``.
-
-  ``TIMEPOINT`` can be:
-
-   -  ``-inf``: Marking the following condition as pre-equilibration
-      condition. (Despite ``-inf``, the pre-equilibration-starts at ``t=0`` and
-      simulation time is reset to ``TIMEPOINT`` of the following condition
-      afterwards).
-
-   -  ``float``: The timepoint at which to switch to the following
-      condition. The start time of the first non-preequilibration
-      condition is ``t_0``. If ``t_0`` is non-zero, then simulators are expected
-      to simulate from this non-zero time, not zero.
-
-   -  ``float0:float1``: indicates repetition of a period from ``time=float0``,
-      every ``float1`` time units, until the next period
-
-``CONDITION_ID``:
-
-   References condition IDs from the conditions table that specify which
-   changes to apply at ``TIMEPOINT``
-
-   Note: The time interval in which a condition is applied includes the
-   respective starting timepoint, but excludes the starting timepoint of
-   the following condition. This means that for a timecourse
-   ``[time_A:condition_A; time_B:condition_B]``, ``condition_A`` is active
-   during the interval ``[time_A, time_B)``. This implies that any event
-   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
-   applied and for any measurements at ``time_B``, the observables will be
-   evaluated *after* ``condition_B`` was applied.
 
 
 Math expressions syntax
@@ -1041,6 +1004,8 @@ languages. Use parentheses to enforce the desired order of operations.
 Operators must be specified; there are no implicit operators.
 For example, ``a b`` is invalid, unlike ``a * b``.
 
+.. _math_functions:
+
 Functions
 +++++++++
 
@@ -1181,6 +1146,8 @@ float values are demoted to boolean values. For example, in ``1 + true``,
 the expression is interpreted as ``true && true = true``.
 
 
+.. _identifiers:
+
 Identifiers
 -----------
 
@@ -1193,8 +1160,7 @@ Identifiers
 * Identifiers must not be a reserved keyword (see below).
 
 * Identifiers must be globally unique within the PEtab problem.
-  PEtab math function names must not be used as identifiers for other model
-  entities. PEtab does not put any further restrictions on the use of
+  PEtab does not put any further restrictions on the use of
   identifiers within the model, which means modelers could potentially
   use model-format--specific (e.g. SBML) function names as identifiers.
   However, this is strongly discouraged.
@@ -1210,3 +1176,4 @@ as identifiers:
   measurements
 * ``time``: Model time, used in PEtab expressions.
 * ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
+* PEtab math function names (:ref:`math_functions`)

@@ -33,7 +33,7 @@ illustration purposes we slightly modified the SBML model and shortened
 some parts of the PEtab files. The full PEtab problem introduced in this
 tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/b50d000a5fb4cf37bf62315686acd2694e29e5fc/doc/tutorial>`_.
 
-.. figure:: gfx/tutorial_model.png
+.. figure:: tutorial/gfx/tutorial_model.png
    :width: 4.9846in
    :height: 5.5634in
 
@@ -65,7 +65,7 @@ phosphorylation levels of STAT5A and STAT5B as well as relative STAT5A
 abundance for different timepoints between 0 - 240 minutes after
 stimulation with erythropoietin (Epo):
 
-.. figure:: gfx/tutorial_data.png
+.. figure:: tutorial/gfx/tutorial_data.png
    :width: 6.2681in
    :height: 2.0835in
 
@@ -120,7 +120,7 @@ overridden by these condition-specific values. Here, we define the Epo
 concentration, but additional columns could be used to e.g. set
 different initial concentrations of STAT5A/B. In addition to numeric
 values, also parameter identifiers can be used here to introduce
-condition specific estimateable parameters.
+condition specific estimatable parameters.
 
 2.2 Specifying the observation model
 ------------------------------------
@@ -384,7 +384,7 @@ PEtab. The easiest tool to get started with is probably COPASI which comes
 with a graphical user interface
 (see https://github.com/copasi/python-petab-importer for further instructions).
 
-.. figure:: gfx/copasi_simulation.png
+.. figure:: tutorial/gfx/copasi_simulation.png
    :width: 4.9846in
    :height: 5.5634in
 
