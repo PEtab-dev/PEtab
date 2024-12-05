@@ -98,6 +98,18 @@ problem as such.
 
 - All model entities, column names and row names are case-sensitive
 - Fields in "[]" are optional and may be left empty.
+- The following data types are used in descriptions below:
+
+  - ``STRING``: Any string
+  - ``NUMERIC``: Any number excluding ``NaN`` / ``inf`` / ``-inf``
+  - ``MATH_EXPRESSION``: A mathematical expression according to the
+    `PEtab math expression syntax <math_expressions>`_.
+  - ``PETAB_ID``: A string that is a valid PEtab ID
+  - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
+    to an entity that has some associated numeric value and is not estimated,
+    e.g., a model parameter, parameter table parameter, or a species in the
+    model.
+
 
 
 Changes from PEtab 1.0.0
