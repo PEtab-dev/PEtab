@@ -98,6 +98,18 @@ problem as such.
 
 - All model entities, column names and row names are case-sensitive
 - Fields in "[]" are optional and may be left empty.
+- The following data types are used in descriptions below:
+
+  - ``STRING``: Any string
+  - ``NUMERIC``: Any number excluding ``NaN`` / ``inf`` / ``-inf``
+  - ``MATH_EXPRESSION``: A mathematical expression according to the
+    `PEtab math expression syntax <math_expressions>`_.
+  - ``PETAB_ID``: A string that is a valid PEtab ID
+  - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
+    to an entity that has some associated numeric value and is not estimated,
+    e.g., a model parameter, parameter table parameter, or a species in the
+    model.
+
 
 
 Changes from PEtab 1.0.0
@@ -131,38 +143,38 @@ in the PEtab problem description (YAML) via its file name or a URL.
 Conditions table
 ----------------
 
-The conditions table specifies parameters, or initial values of species and
-compartments for specific simulation conditions. Different conditions can be
-combined to form time courses or experiment through the
-:ref:`experiments_table`.
+The conditions table specifies changes to parameters, initial values of species
+and compartments for specific simulation conditions. Different conditions can
+be combined to form time courses or experiment through the
+:ref:`experiments_table`. Any changes applied to the model will remain in
+effect until they are changed by a subsequent condition.
+
 
 This is specified as a tab-separated value file in the following way:
 
-**TODO: conditionName?**
+**TODO: keep conditionName or not?**
 
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId  | [conditionName]  | targetId         | valueType | targetValue        |
-+==============+==================+==================+===========+====================+
-| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING    | MATH_EXPRESSION    |
-+--------------+------------------+------------------+-----------+--------------------+
-| e.g.         |                  |                  |           |                    |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId1   | constant  | 0.42               |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId2   |           | 0.42               |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId2 | ...              | modelEntityId1   |           | modelEntityId1 + 3 |
-+--------------+------------------+------------------+-----------+--------------------+
-| conditionId2 | ...              | someSpecies      | initial   | 8                  |
-+--------------+------------------+------------------+-----------+--------------------+
-| ...          | ...              | ...              |           | ...                |
-+--------------+------------------+------------------+-----------+--------------------+
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId  | [conditionName]  | targetId         | operationType   | targetValue        |
++==============+==================+==================+=================+====================+
+| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING          | MATH_EXPRESSION    |
++--------------+------------------+------------------+-----------------+--------------------+
+| e.g.         |                  |                  |                 |                    |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId1   | setCurrentValue | 0.42               |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId2   |                 | 0.42               |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId2 | ...              | modelEntityId1   |                 | modelEntityId1 + 3 |
++--------------+------------------+------------------+-----------------+--------------------+
+| conditionId2 | ...              | someSpecies      | setCurrentValue | 8                  |
++--------------+------------------+------------------+-----------------+--------------------+
+| ...          | ...              | ...              |                 | ...                |
++--------------+------------------+------------------+-----------------+--------------------+
 
-Each line specifies a change for one specific property of specific entity.
+Each line specifies a change of one specific property of a specific entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
-
-Additional columns are *not* allowed.
 
 
 Detailed field description
@@ -173,96 +185,88 @@ Detailed field description
   Unique identifier for the simulation/experimental condition, to be referenced
   by the :ref:`experiments_table`.
 
-- ``conditionName`` [STRING, OPTIONAL]
+- ``conditionName`` [STRING, OPTIONAL] **TODO: remove**
 
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- ``targetId`` [NON_ESTIMATED_ENTITY_ID, REQUIRED]
+- ``targetId`` [NON_ESTIMATED_ENTITY_ID, required except for ``operationType=noChange``]
 
   The ID of the an entity that is to be changed when applying this condition.
-  This may an entity defined in the model, the parameter table, or the mapping
-  table. The entity must be uniquely identifiable. Different restrictions
-  apply depending on the ``valueType`` and type of the model.
+  This may an entity defined in the model, or an alias from the mapping
+  table. The entity must be uniquely identifiable. Parameters from the
+  :ref:`parameters_table` are not allowed here.
+  Different restrictions apply depending on the ``operationType`` and the
+  type of the model.
 
-- ``valueType`` [STRING, REQUIRED]
+  We distinguish between three types of entities:
+
+  * Entities that are defined in terms of a time-derivative, e.g., the targets
+    of SBML rate rules or non-constant species participating in reactions.
+    Referred to as `differential targets` below.
+
+  * Entities that are defined in terms of an algebraic assignment, i.e., they
+    are not subject to time-derivative information, but are not generally
+    constant, e.g., the targets of SBML assignment rules.
+    Referred to as `algebraic targets` below.
+
+  * Entities are that are defined in terms of a constant value but may be
+    subject to event assignments, e.g., parameters of an SBML model that are
+    not targets of rate rules or assignment rules.
+    Referred to as `constant targets` below.
+
+
+- ``operationType`` [STRING, REQUIRED]
 
   How the target value is to be interpreted. Allowed values are:
 
-  - ``constant``: The target is fixed to the current value of ``targetValue``.
-    The entity must be static in time while the condition is active,
-    e.g., a model parameter.
+  - ``setCurrentValue``: The current value of the target is initialized to the
+    value of ``targetValue`` when the respective condition is applied.
+    Any symbols in ``targetValue`` are interpreted as their value at the time
+    just before this change is applied (similar
+    to an SBML event with ``useValuesFromTriggerTime=True``; in case of the
+    first period of a timecourse, they will be interpreted as their initial
+    values as defined in the model).
+    The target must be a constant target or a differential target.
 
-  - ``initial``: The target is initialized to the value of ``targetValue``.
-    The entity must be dynamic and defined in terms of time-derivative
-    information, e.g., a model species involved in some reaction or specified
-    by an ordinary differential equation.
+  - ``setRate``: The time-derivative of the target is set to ``targetValue``
+    (symbolically; the expression is not evaluated at the time the condition is
+    applied).
+    The target must be a differential target.
 
-  - ``rate``/``assignment``/``relativeRate``/``relativeAssignment``:
+  - ``addToRate``: The target's rate is increased by ``targetValue``
+    (symbolically).
+    The target must be a differential target.
 
-    **TODO**
+  - ``setAssignment``: The target is set to the value of ``targetValue``
+    (symbolically).
+    The target must be an algebraic target.
 
-    These are currently not supported, until a tool implements them. However, they are reserved to mean changes equivalent to setting a new SBML rateRule or assignmentRule for the entity. relative indicates relative changes to pre-existing rates or assignments. edit: These can only be applied to entities (inputId) that are already governed by these kinds of dynamics. i.e. rate can only apply to entities that already have a rate rule in the original model. assignment/relativeAssignment can only apply to entities that already have an assignment rule in the original model. relativeRate can only apply to entities that already have either a rate rule or reactions.
+  - ``addToAssignment``: The expression assigned to the target is increased by
+    ``targetValue`` (symbolically).
+    The target must be an algebraic target.
+
+  - ``noChange``: This value is used to indicate that no change is associated
+    with this condition. This is useful in cases where an explicit condition
+    ID is required, but no change is to be applied. (E.g., if pre-equilibration
+    is to be performed using the default values of the model, followed by a
+    different condition.)
+    ``targetId`` and ``targetValue`` have to be empty in this case.
+    For any conditionId with ``operationType=noChange``, there must not be any
+    other row  with the same ``conditionId`` in the conditions table.
 
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
-  The value that will be used to change the target. If a PEtab math expression
-  involves time-dependent entities, then they represent their values at the
-  simulation time when the condition is activated (or active, for time-varying
-  value types like rate), as defined in the :ref:`experiments_table`.
-
-  **TODO**: clarify order of evaluation
-
-**TODO**
-- ``${modelEntityId}``
-
-  Further columns may be the IDs of model entities that have globally unique
-  IDs, such as parameters, species or compartments defined in the model to set
-  condition-specific values. Only one column is allowed per ID.
-  Values for these entities may be provided either as numeric values, or as IDs
-  of globally unique entity IDs as defined in the model, the mapping table or
-  the parameter table.
-
-  Any non-``NaN`` value will override the original values of the model, or if
-  preequilibration was used, they will override the value obtained from
-  preequilibration. A ``NaN`` value indicates that the original value of the
-  model is to be used (when used in the preequilibration condition, or in the
-  simulation condition if no preequilibration is used) or that the result of
-  preequilibration is to be used (when used in the simulation condition after
-  preequilibration).
-
-  The value in the condition table either replaces the initial value or the
-  value at all timepoints based on whether the model entity has a rate law
-  assigned or not:
-
-  * For model entities that have constant algebraic assignments
-    (but not necessarily constant values), i.e, that do not have a rate of
-    change with respect to time assigned and that are not subject to event
-    assignments, the algebraic assignment is replaced statically at all
-    timepoints. Examples for such model entities are the targets of SBML
-    `AssignmentRules`.
-
-  * For all other entities, e.g., those that are assigned by SBML `RateRules`,
-    only the initial value can be assigned in the condition table. If an
-    assignment of the rate of change with respect to time or event assignment
-    is desired, the values of model entities that are used to define rate of
-    change or event assignments must be assigned in the condition table.
-    If no such model entities exist, assignment is not possible.
-
+  The value or expression that will be used to change the target. The
+  interpretation of the value depends on the ``operationType`` as described
+  above.
   If the model has a concept of species and a species ID is provided, its
   value is interpreted as amount or concentration in the same way as anywhere
   else in the model.
-  - `expressions`
 
-    Expressions containing more than a single parameter ID or numerical
-    value are allowed. Any model entity Id in the condition table will be interpreted as
-    the value of that model entity at the last time point before
-    changing to the condition represented by the current row (similar
-    to an SBML event with ``useValuesFromTriggerTime=True``). The first
-    condition of any timecourse may only refer to parameter IDs that
-    are listed in the parameter table, but not to any other model
-    entity (This is because there is no “last timepoint” before
-    changing to this first condition.) For example
+**TODO**: clarify order of evaluation
+
+**Examples:** **TODO**
 
     -  given a timecourse ``0:condition1;10:condition2`` and two constant
        model parameters ``par1``, ``par2`` and the two conditions:
