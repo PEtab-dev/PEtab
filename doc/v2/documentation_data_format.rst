@@ -47,7 +47,7 @@ Overview
 The PEtab data format specifies a parameter estimation problem using a number
 of text-based files (
 `Tab-Separated Values (TSV) <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_)
-(Figure 2), i.e.
+(Figure 2), i.e.:
 
 - A model
 
@@ -56,7 +56,7 @@ of text-based files (
 - (optional) A condition file specifying model inputs and condition-specific parameters
   [TSV]
 
-- (optional) A timecourses file, which describes a sequence of different
+- (optional) An experiments file, which describes a sequence of different
   experimental conditions that are applied to the model [TSV]
 
 - An observable file specifying the observation model [TSV]
@@ -309,7 +309,8 @@ Detailed field description
 
   Experiment ID as defined in the experiments table described below. This column may
   have ``NA`` values, which are interpreted as *use the model as is*.
-  This avoids the need for "dummy" conditions and experiments.
+  This avoids the need for "dummy" conditions and experiments if only a single
+  condition is required.
 
 - ``measurement`` [NUMERIC, NOT NULL]
 
@@ -363,6 +364,65 @@ Detailed field description
   The replicateId can be used to discern replicates with the same
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
+
+Experiments table
+-----------------
+
+The optional experiments table describes a sequence of different experimental
+conditions (here: discrete changes) that are applied to the model.
+
+This is specified as a tab-separated value file in the following way:
+
++---------------------+-------------------+-----------------+
+| experimentId        | time              | conditionId     |
++=====================+===================+=================+
+| PETAB_ID            | NUMERIC or '-inf' | CONDITION_ID    |
++---------------------+-------------------+-----------------+
+| timecourse_1        |                 0 | condition_1     |
++---------------------+-------------------+-----------------+
+| timecourse_1        |                10 | condition_2     |
++---------------------+-------------------+-----------------+
+| timecourse_1        |               250 | condition_3     |
++---------------------+-------------------+-----------------+
+| patient_3           |              -inf | condition_1     |
++---------------------+-------------------+-----------------+
+| patient_3           |                 0 | condition_2     |
++---------------------+-------------------+-----------------+
+| intervention_effect |               -20 | no_lockdown     |
++---------------------+-------------------+-----------------+
+| intervention_effect |                20 | mild_lockdown   |
++---------------------+-------------------+-----------------+
+| intervention_effect |                40 | severe_lockdown |
++---------------------+-------------------+-----------------+
+
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The time courses table with three mandatory columns ``experimentId``,
+``time``, and ``conditionId``:
+
+- ``experimentId`` [STRING, NOT NULL]
+
+  Identifier of the experiment. The usual PEtab identifier requirements apply.
+  This is referenced by the ``experimentId`` column in the measurement table.
+
+- ``time``: [NUMERIC or  ``-inf``, NOT NULL]
+
+  The time when the condition will become active, in the time unit specified
+  in the model. ``-inf`` indicates pre-equilibration (e.g., for drug
+  treatments, the model would be pre-equilibrated with the no-drug condition).
+
+- ``CONDITION_ID``: Reference to a condition ID in the condition table that
+  is to be applied at the given `time`.
+
+  Note: The time interval in which a condition is applied includes the
+  respective starting timepoint, but excludes the starting timepoint of
+  the following condition. This means that for an experiment
+  ``[time_A:condition_A; time_B:condition_B]``, ``condition_A`` is active
+  during the interval ``[time_A, time_B)``. This implies that any event
+  assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
+  applied and for any measurements at ``time_B``, the observables will be
+  evaluated *after* ``condition_B`` was applied.
 
 Observable table
 ----------------
@@ -877,72 +937,6 @@ measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
 
-
-Timecourses table
------------------
-
-The optional time courses table describes a sequence of different experimental
-conditions (here: discrete changes) that are applied to the model.
-
-This is specified as a tab-separated value file in the following way:
-
-+--------------------+-------------------------------------------------+
-| timecourseId       | timecourse                                      |
-+====================+=================================================+
-| STRING             | STRING                                          |
-+--------------------+-------------------------------------------------+
-| timecourse_1       | 0:condition_1;10:condition_2;250:condition_3    |
-+--------------------+-------------------------------------------------+
-| patient_3          | -inf:condition_1;0:condition_2                  |
-+--------------------+-------------------------------------------------+
-| i                  | -20:                                            |
-| ntervention_effect | no_lockdown;20:mild_lockdown;40:severe_lockdown |
-+--------------------+-------------------------------------------------+
-
-Detailed field description
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The time courses table with two mandatory columns ``timecourseId`` and
-``timecourse``:
-
--  ``timecourseId`` [STRING, NOT NULL]
-
-  Identifier of the timecourse. The usual PEtab identifier requirements apply.
-
--  ``timecourse``: [STRING, NOT NULL]
-
-  A semicolon-separated list of different phases of the experiment along with
-  their starting time. A value in the ``timecourse`` column takes the format
-  ``[TIMEPOINT:CONDITION_ID;...]``.
-
-  ``TIMEPOINT`` can be:
-
-   -  ``-inf``: Marking the following condition as pre-equilibration
-      condition. (Despite ``-inf``, the pre-equilibration-starts at ``t=0`` and
-      simulation time is reset to ``TIMEPOINT`` of the following condition
-      afterwards).
-
-   -  ``float``: The timepoint at which to switch to the following
-      condition. The start time of the first non-preequilibration
-      condition is ``t_0``. If ``t_0`` is non-zero, then simulators are expected
-      to simulate from this non-zero time, not zero.
-
-   -  ``float0:float1``: indicates repetition of a period from ``time=float0``,
-      every ``float1`` time units, until the next period
-
-``CONDITION_ID``:
-
-   References condition IDs from the conditions table that specify which
-   changes to apply at ``TIMEPOINT``
-
-   Note: The time interval in which a condition is applied includes the
-   respective starting timepoint, but excludes the starting timepoint of
-   the following condition. This means that for a timecourse
-   ``[time_A:condition_A; time_B:condition_B]``, ``condition_A`` is active
-   during the interval ``[time_A, time_B)``. This implies that any event
-   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
-   applied and for any measurements at ``time_B``, the observables will be
-   evaluated *after* ``condition_B`` was applied.
 
 
 Math expressions syntax
