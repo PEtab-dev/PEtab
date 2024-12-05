@@ -158,6 +158,7 @@ This is specified as a tab-separated value file in the following way:
 | ...          | ...              | ...              |           | ...                |
 +--------------+------------------+------------------+-----------+--------------------+
 
+Each line specifies a change for one specific property of specific entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
 
@@ -167,7 +168,7 @@ Additional columns are *not* allowed.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``conditionId`` [PETAB_ID, NOT NULL]
+- ``conditionId`` [PETAB_ID, REQUIRED]
 
   Unique identifier for the simulation/experimental condition, to be referenced
   by the :ref:`experiments_table`.
@@ -176,6 +177,41 @@ Detailed field description
 
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
+
+- ``targetId`` [NON_ESTIMATED_ENTITY_ID, REQUIRED]
+
+  The ID of the an entity that is to be changed when applying this condition.
+  This may an entity defined in the model, the parameter table, or the mapping
+  table. The entity must be uniquely identifiable. Different restrictions
+  apply depending on the ``valueType`` and type of the model.
+
+- ``valueType`` [STRING, REQUIRED]
+
+  How the target value is to be interpreted. Allowed values are:
+
+  - ``constant``: The target is fixed to the current value of ``targetValue``.
+    The entity must be static in time while the condition is active,
+    e.g., a model parameter.
+
+  - ``initial``: The target is initialized to the value of ``targetValue``.
+    The entity must be dynamic and defined in terms of time-derivative
+    information, e.g., a model species involved in some reaction or specified
+    by an ordinary differential equation.
+
+  - ``rate``/``assignment``/``relativeRate``/``relativeAssignment``:
+
+    **TODO**
+
+    These are currently not supported, until a tool implements them. However, they are reserved to mean changes equivalent to setting a new SBML rateRule or assignmentRule for the entity. relative indicates relative changes to pre-existing rates or assignments. edit: These can only be applied to entities (inputId) that are already governed by these kinds of dynamics. i.e. rate can only apply to entities that already have a rate rule in the original model. assignment/relativeAssignment can only apply to entities that already have an assignment rule in the original model. relativeRate can only apply to entities that already have either a rate rule or reactions.
+
+- ``targetValue`` [MATH_EXPRESSION, REQUIRED]
+
+  The value that will be used to change the target. If a PEtab math expression
+  involves time-dependent entities, then they represent their values at the
+  simulation time when the condition is activated (or active, for time-varying
+  value types like rate), as defined in the :ref:`experiments_table`.
+
+  **TODO**: clarify order of evaluation
 
 **TODO**
 - ``${modelEntityId}``
@@ -314,24 +350,25 @@ replicates and plot error bars.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``observableId`` [STRING, NOT NULL, REFERENCES(observables.observableID)]
+- ``observableId`` [STRING, REQUIRED, REFERENCES(observables.observableID)]
 
   Observable ID as defined in the observable table described below.
 
-- ``experimentId`` [STRING, NOT NULL, REFERENCES(experimentsTable.experimentID)]
+- ``experimentId`` [STRING, REQUIRED, REFERENCES(experimentsTable.experimentID)]
 
   Experiment ID as defined in the experiments table described below. This column may
   have ``NA`` values, which are interpreted as *use the model as is*.
   This avoids the need for "dummy" conditions and experiments if only a single
   condition is required.
 
-- ``measurement`` [NUMERIC, NOT NULL]
+- ``measurement`` [NUMERIC, REQUIRED]
 
   The measured value in the same units/scale as the model output.
 
-- ``time`` [NUMERIC OR STRING, NOT NULL]
+- ``time`` [NUMERIC OR STRING, REQUIRED]
 
-  Time point of the measurement in the time unit specified in the SBML model, numeric value or ``inf`` (lower-case) for steady-state measurements.
+  Time point of the measurement in the time unit specified in the SBML model,
+  numeric value or ``inf`` (lower-case) for steady-state measurements.
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
@@ -416,12 +453,12 @@ Detailed field description
 The time courses table with three mandatory columns ``experimentId``,
 ``time``, and ``conditionId``:
 
-- ``experimentId`` [STRING, NOT NULL]
+- ``experimentId`` [STRING, REQUIRED]
 
   Identifier of the experiment. The usual PEtab identifier requirements apply.
   This is referenced by the ``experimentId`` column in the measurement table.
 
-- ``time``: [NUMERIC or  ``-inf``, NOT NULL]
+- ``time``: [NUMERIC or  ``-inf``, REQUIRED]
 
   The time when the condition will become active, in the time unit specified
   in the model. ``-inf`` indicates pre-equilibration (e.g., for drug
@@ -438,6 +475,12 @@ The time courses table with three mandatory columns ``experimentId``,
   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
   applied and for any measurements at ``time_B``, the observables will be
   evaluated *after* ``condition_B`` was applied.
+
+Multiple conditions can be applied at the same time point by specifying
+multiple lines with the same ``experimentId`` and ``time`` but different
+``conditionId``. The order of the conditions is arbitrary **????**.
+
+**TODO** how to deal with conflicts?
 
 .. _observables_table:
 
@@ -652,7 +695,7 @@ Additional columns may be added.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``parameterId`` [STRING, NOT NULL]
+- ``parameterId`` [STRING, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
   the ID of a parameter specified in the SBML model, a parameter introduced
@@ -799,7 +842,7 @@ order:
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``plotId`` [STRING, NOT NULL]
+- ``plotId`` [STRING, REQUIRED]
 
   An ID which corresponds to a specific plot. All datasets with the same
   plotId will be plotted into the same axes object.
@@ -819,7 +862,7 @@ Detailed field description
   ``provided`` (if numeric values for the noise level are provided in the
   measurement table). Default is ``MeanAndSD``.
 
-- ``datasetId`` [STRING, NOT NULL, REFERENCES(measurementTable.datasetId), OPTIONAL]
+- ``datasetId`` [STRING, REQUIRED, REFERENCES(measurementTable.datasetId), OPTIONAL]
 
   The datasets which should be grouped into one plot.
 
@@ -892,14 +935,14 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``petabEntityId`` [STRING, NOT NULL]
+- ``petabEntityId`` [STRING, REQUIRED]
 
   A valid PEtab identifier that is not defined in any other part of the PEtab
   problem. This identifier may be referenced in condition, measurement,
   parameter and observable tables, but cannot be referenced in the model
   itself.
 
-- ``modelEntityId`` [STRING, NOT NULL]
+- ``modelEntityId`` [STRING, REQUIRED]
 
   A globally unique identifier defined in the model,
   *that is not a valid PEtab ID* (see :ref:`identifiers`).
