@@ -482,9 +482,15 @@ The time courses table with three mandatory columns ``experimentId``,
 
 Multiple conditions can be applied at the same time point by specifying
 multiple lines with the same ``experimentId`` and ``time`` but different
-``conditionId``. The order of the conditions is arbitrary **????**.
+``conditionId``. The order of the conditions is arbitrary.
 
-**TODO** how to deal with conflicts?
+All changes across all simultaneous conditions are applied in order of
+dependencies, with conservation of mass when volumes change, i.e.
+a volume change implies a concentration change, but not vice versa.
+
+Hence, volume changes are applied before concentration changes in the
+same compartment, and changes to parameters are applied before
+changes to species that depend on the parameters.
 
 .. _observables_table:
 
