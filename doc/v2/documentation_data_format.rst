@@ -106,9 +106,8 @@ problem as such.
     `PEtab math expression syntax <math_expressions>`_.
   - ``PETAB_ID``: A string that is a valid PEtab ID
   - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
-    to an entity that has some associated numeric value and is not estimated,
-    e.g., a model parameter, parameter table parameter, or a species in the
-    model.
+    to an entity that has some associated numeric value (e.g. a model parameter,
+    parameter table parameter, or a species in the model) and is not estimated.
 
 
 
@@ -143,34 +142,35 @@ in the PEtab problem description (YAML) via its file name or a URL.
 Conditions table
 ----------------
 
-The conditions table specifies changes to parameters, initial values of species
-and compartments for specific simulation conditions. Different conditions can
-be combined to form time courses or experiment through the
-:ref:`experiments_table`. Any changes applied to the model will remain in
-effect until they are changed by a subsequent condition.
+The conditions table specifies changes to parameters, initial or intermediate values of
+species, and compartments, during specific time periods. The start and end of the time
+period is defined in the :ref:`experiments_table`, where multiple conditions can be
+combined to specify time courses or experiments that span multiple time periods. Any
+changes applied to the model will remain in effect until they are changed by a condition
+applied at a later time period.
 
 
 This is specified as a tab-separated value file in the following way:
 
 **TODO: keep conditionName or not?**
 
-+--------------+------------------+------------------+-----------------+--------------------+
-| conditionId  | [conditionName]  | targetId         | operationType   | targetValue        |
-+==============+==================+==================+=================+====================+
-| STRING       | [STRING]         | MODEL_ENTITY_ID  | STRING          | MATH_EXPRESSION    |
-+--------------+------------------+------------------+-----------------+--------------------+
-| e.g.         |                  |                  |                 |                    |
-+--------------+------------------+------------------+-----------------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId1   | setCurrentValue | 0.42               |
-+--------------+------------------+------------------+-----------------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId2   |                 | 0.42               |
-+--------------+------------------+------------------+-----------------+--------------------+
-| conditionId2 | ...              | modelEntityId1   |                 | modelEntityId1 + 3 |
-+--------------+------------------+------------------+-----------------+--------------------+
-| conditionId2 | ...              | someSpecies      | setCurrentValue | 8                  |
-+--------------+------------------+------------------+-----------------+--------------------+
-| ...          | ...              | ...              |                 | ...                |
-+--------------+------------------+------------------+-----------------+--------------------+
++--------------+------------------+-------------------------+-----------------+--------------------+
+| conditionId  | [conditionName]  | targetId                | operationType   | targetValue        |
++==============+==================+=========================+=================+====================+
+| PETAB_ID     | [STRING]         | NON_ESTIMATED_ENTITY_ID | STRING          | MATH_EXPRESSION    |
++--------------+------------------+-------------------------+-----------------+--------------------+
+| e.g.         |                  |                         |                 |                    |
++--------------+------------------+-------------------------+-----------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId1          | setCurrentValue | 0.42               |
++--------------+------------------+-------------------------+-----------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId2          | setCurrentValue | 0.42               |
++--------------+------------------+-------------------------+-----------------+--------------------+
+| conditionId2 | ...              | modelEntityId1          | setCurrentValue | modelEntityId1 + 3 |
++--------------+------------------+-------------------------+-----------------+--------------------+
+| conditionId2 | ...              | someSpecies             | setCurrentValue | 8                  |
++--------------+------------------+-------------------------+-----------------+--------------------+
+| ...          | ...              | ...                     | ...             | ...                |
++--------------+------------------+-------------------------+-----------------+--------------------+
 
 Each line specifies a change of one specific property of a specific entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
@@ -201,20 +201,17 @@ Detailed field description
 
   We distinguish between three types of entities:
 
-  * Entities that are defined in terms of a time-derivative, e.g., the targets
-    of SBML rate rules or non-constant species participating in reactions.
-    Referred to as `differential targets` below.
+  * **Differential Targets**: Entities that are defined in terms of a
+    time-derivative, e.g., the targets of SBML rate rules or non-constant
+    species participating in reactions.
 
-  * Entities that are defined in terms of an algebraic assignment, i.e., they
-    are not subject to time-derivative information, but are not generally
-    constant, e.g., the targets of SBML assignment rules.
-    Referred to as `algebraic targets` below.
+  * **Algebraic targets**: Entities that are defined in terms of an algebraic
+    assignment, i.e., they are not subject to time-derivative information, but
+    are not generally constant, e.g., the targets of SBML assignment rules.
 
-  * Entities are that are defined in terms of a constant value but may be
-    subject to event assignments, e.g., parameters of an SBML model that are
-    not targets of rate rules or assignment rules.
-    Referred to as `constant targets` below.
-
+  * **Constant targets**: Entities are that are defined in terms of a constant
+    value but may be subject to event assignments, e.g., parameters of an SBML
+    model that are not targets of rate rules or assignment rules.
 
 - ``operationType`` [STRING, REQUIRED]
 
@@ -320,7 +317,7 @@ order:
 +--------------+--------------+-------------+--------------+
 | observableId | experimentId | measurement | time         |
 +==============+==============+=============+==============+
-| observableId | experimentID | NUMERIC     | NUMERIC\|inf |
+| PETAB_ID     | PETAB_ID     | NUMERIC     | NUMERIC\|inf |
 +--------------+--------------+-------------+--------------+
 | ...          | ...          | ...         | ...          |
 +--------------+--------------+-------------+--------------+
@@ -354,14 +351,14 @@ replicates and plot error bars.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``observableId`` [STRING, REQUIRED, REFERENCES(observables.observableID)]
+- ``observableId`` [PETAB_ID, REQUIRED, REFERENCES(observables.observableID)]
 
   Observable ID as defined in the observable table described below.
 
-- ``experimentId`` [STRING, REQUIRED, REFERENCES(experimentsTable.experimentID)]
+- ``experimentId`` [[PETAB_ID], REQUIRED, REFERENCES(experimentsTable.experimentID)]
 
-  Experiment ID as defined in the experiments table described below. This column may
-  have ``NA`` values, which are interpreted as *use the model as is*.
+  Experiment ID as defined in the experiments table described below. This
+  column may have empty cells, which are interpreted as *use the model as is*.
   This avoids the need for "dummy" conditions and experiments if only a single
   condition is required.
 
@@ -457,9 +454,9 @@ Detailed field description
 The time courses table with three mandatory columns ``experimentId``,
 ``time``, and ``conditionId``:
 
-- ``experimentId`` [STRING, REQUIRED]
+- ``experimentId`` [PETAB_ID, REQUIRED]
 
-  Identifier of the experiment. The usual PEtab identifier requirements apply.
+  Identifier of the experiment.
   This is referenced by the ``experimentId`` column in the measurement table.
 
 - ``time``: [NUMERIC or  ``-inf``, REQUIRED]
@@ -468,13 +465,16 @@ The time courses table with three mandatory columns ``experimentId``,
   in the model. ``-inf`` indicates pre-equilibration (e.g., for drug
   treatments, the model would be pre-equilibrated with the no-drug condition).
 
-- ``CONDITION_ID``: Reference to a condition ID in the condition table that
+- ``CONDITION_ID``: [PETAB_ID, REQUIRED, REFERENCES(conditions.conditionID)]
+
+  Reference to a condition ID in the condition table that
   is to be applied at the given `time`.
 
   Note: The time interval in which a condition is applied includes the
   respective starting timepoint, but excludes the starting timepoint of
-  the following condition. This means that for an experiment
-  ``[time_A:condition_A; time_B:condition_B]``, ``condition_A`` is active
+  the following condition. This means that for an experiment where
+  ``condition_A`` is applied at ``time_A`` and later ``condition_B`` is
+  applied at ``time_B``, then ``condition_A`` is active
   during the interval ``[time_A, time_B)``. This implies that any event
   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
   applied and for any measurements at ``time_B``, the observables will be
@@ -939,7 +939,7 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``petabEntityId`` [STRING, REQUIRED]
+- ``petabEntityId`` [PETAB_ID, REQUIRED]
 
   A valid PEtab identifier that is not defined in any other part of the PEtab
   problem. This identifier may be referenced in condition, measurement,
