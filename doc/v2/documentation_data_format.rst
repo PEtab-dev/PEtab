@@ -202,8 +202,8 @@ Detailed field description
   We distinguish between three types of entities:
 
   * **Differential Targets**: Entities that are defined in terms of a
-    time-derivative, e.g., the targets of SBML rate rules or non-constant
-    species participating in reactions.
+    time-derivative, e.g., the targets of SBML rate rules or species that
+    change by participating in reactions (educts or products).
 
   * **Algebraic targets**: Entities that are defined in terms of an algebraic
     assignment, i.e., they are not subject to time-derivative information, but
@@ -249,8 +249,8 @@ Detailed field description
     is to be performed using the default values of the model, followed by a
     different condition.)
     ``targetId`` and ``targetValue`` have to be empty in this case.
-    For any conditionId with ``operationType=noChange``, there must not be any
-    other row  with the same ``conditionId`` in the conditions table.
+    For any ``conditionId`` with ``operationType=noChange``, there must not be
+    any other row with the same ``conditionId`` in the conditions table.
 
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
@@ -459,7 +459,7 @@ The time courses table with three mandatory columns ``experimentId``,
   Identifier of the experiment.
   This is referenced by the ``experimentId`` column in the measurement table.
 
-- ``time``: [NUMERIC or  ``-inf``, REQUIRED]
+- ``time``: [NUMERIC or ``-inf``, REQUIRED]
 
   The time when the condition will become active, in the time unit specified
   in the model. ``-inf`` indicates pre-equilibration (e.g., for drug
@@ -504,7 +504,7 @@ Since parameter estimation is beyond the scope of SBML, there exists no
 standard way to specify observables (model outputs) and respective noise
 models. Therefore, in PEtab observables are specified in a separate table
 as described in the following. This allows for a clear separation of the
-observation model and the underlying dynamic model, which allows, in  most
+observation model and the underlying dynamic model, which allows, in most
 cases, to reuse any existing SBML model without modifications.
 
 The observable table has the following columns:
@@ -705,7 +705,7 @@ Additional columns may be added.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``parameterId`` [STRING, REQUIRED]
+- ``parameterId`` [PETAB_ID, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
   the ID of a parameter specified in the SBML model, a parameter introduced
