@@ -107,6 +107,8 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   (math expressions, overriding values in the condition table, etc.)
 * Support for extensions
 * Observable IDs are now allowed to be used in observable/noise formulas
+* Support for new initializationPriorType and objectivePriorType distributions,
+  as well as support for truncated distributions.
 
 Model definition
 ----------------
@@ -575,21 +577,28 @@ Detailed field description
 
 - ``initializationPriorType`` [STRING, OPTIONAL]
 
-  Prior types used for sampling of initial points for estimation. Sampled
-  points are clipped to lie inside the parameter boundaries specified by
-  ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
+  Prior types used for sampling initial points for estimation. If the prior is
+  not truncated (see ``initializationPriorParameters``), sampled points are
+  clipped to lie within the parameter boundaries specified by ``lowerBound``
+  and ``upperBound``. Otherwise, points are sampled directly from the truncated
+  distribution. The default is ``parameterScaleUniform``.
 
-  Possible prior types are:
+  Possible prior types are (for mathematical definition see below):
 
-    - *uniform*: flat prior on linear parameters
-    - *normal*: Gaussian prior on linear parameters
+    - *cauchy*, Cauchy prior on linear parameters
+    - *chisquare*, Chisquare prior on linear parameters
+    - *exponential*, Exponential prior on linear parameters
+    - *gamma*, Gamma prior on linear parameters
     - *laplace*: Laplace prior on linear parameters
     - *logNormal*: exponentiated Gaussian prior on linear parameters
-    - *logLaplace*: exponentiated Laplace prior on linear parameters
+    - *normal*: Gaussian prior on linear parameters
+    - *rayleigh*, Rayleigh prior on linear parameters
+    - *uniform*: Flat prior on linear parameters
+    - *parameterScaleCauchy*, Cauchy prior on original parameter scale
+    - *parameterScaleLaplace*: Laplace prior on original parameter scale
+    - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleUniform* (default): Flat prior on original parameter
       scale (equivalent to "no prior")
-    - *parameterScaleNormal*: Gaussian prior on original parameter scale
-    - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
 
@@ -597,19 +606,32 @@ Detailed field description
   separated by a semicolon. Defaults to ``lowerBound;upperBound``.
   The parameters are expected to be in linear scale except for the
   ``parameterScale`` priors, where the prior parameters are expected to be
-  in parameter scale.
+  in parameter scale (e.g. `log10` scale if a parameter has ``parameterScale``
+  `log10`).
 
-  So far, only numeric values will be supported, no parameter names.
-  Parameters for the different prior types are:
+  Optionally, a *truncated* distribution can be specified for any distribution
+  except the uniform distributions by providing a lower and upper bound after 
+  the prior parameters. For example, a truncated normal distribution would be
+  defined with parameters ``mean;std;lb;ub``, where ``lb`` and ``ub`` are the 
+  lower and upper bounds, respectively. For a truncated distribution, both the 
+  lower and upper bounds must be provided.
 
-    - uniform: lower bound; upper bound
-    - normal: mean; standard deviation (**not** variance)
-    - laplace: location; scale
-    - logNormal: parameters of corresp. normal distribution (see: normal)
-    - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
-    - parameterScaleUniform: lower bound; upper bound
-    - parameterScaleNormal: mean; standard deviation (**not** variance)
-    - parameterScaleLaplace: location; scale
+  So far, only numeric values are supported, no parameter names. Parameters for
+  the different prior types are:
+
+    - *cauchy*, location; scale
+    - *chisquare*, degrees of freedom
+    - *exponential*, rate
+    - *gamma*, shape; scale
+    - *laplace*: location; scale
+    - *logNormal*: parameters of corresp. normal distribution (see: normal)
+    - *normal*: mean; standard deviation (**not** variance)
+    - *rayleigh*, scale
+    - *uniform*: lower bound; upper bound
+    - *parameterScaleCauchy*, location; scale
+    - *parameterScaleLaplace*: location; scale
+    - *parameterScaleNormal*: mean; standard deviation (**not** variance)
+    - *parameterScaleUniform*: lower bound; upper bound
 
 - ``objectivePriorType`` [STRING, OPTIONAL]
 
@@ -620,7 +642,69 @@ Detailed field description
 
   Prior parameters used for the objective function during estimation.
   For more detailed documentation, see ``initializationPriorParameters``.
+  As for initialization priors, truncated priors are allowed.
 
+Prior distributions
+~~~~~~~~~~~~~~~~~~~
+
+For ``initializationPriorParameters`` and ``objectivePriorType`` several
+distributions are supported (see above). Denote the parameter value by :math:`x`
+and the Gamma function by :math:`\Gamma`; then, the following parameterizations
+are used for the supported priors:
+
+- *cauchy*:
+  - parameters: (location, scale) = :math:`(\mu, \sigma)`
+
+  .. math::
+     \pi(x|\mu, \sigma) = \frac{1}{\pi \sigma \left( 1 + \left(\frac{x - \mu}{\sigma} \right)^2\right)} \quad x \in (-\infty, \infty)
+
+- *chisquare*, :
+  - parameter: degree of freedom = :math:`\nu`
+
+  .. math::
+     \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)}, \quad x \in (0, \infty)
+
+- *exponential*:
+  - parameter: scale = :math:`\theta`
+
+  .. math::
+     \pi(x|\theta) = \frac{1}{\theta}e^{-x/\theta} \quad x \in (0, \infty)
+
+- *gamma*:
+  - parameters: (shape, scale) = :math:`(\alpha, \theta)`
+
+  .. math::
+     \pi(x|\alpha, \theta) = \frac{x^{\alpha - 1}e^{-x/\theta}}{\Gamma(\alpha)\theta^{\alpha}}, \quad x \in (0, \infty)
+
+- *laplace*:
+  - parameters: (location, scale) = :math:`(\mu, \sigma)`
+
+  .. math::
+     \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right), \quad x \in (-\infty, \infty)
+
+- *logNormal*:
+  - parameters: (mean, standard deviation) = :math:`(\mu, \sigma)`
+
+  .. math::
+     \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left(- \frac{\left(\log(x) - \mu\right)^2}{2\sigma^2}\right) \quad x \in (0, \infty)
+
+- *normal*:
+  - parameters: (mean, standard deviation) = :math:`(\mu, \sigma)`
+
+  .. math::
+     \pi(x|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) \quad x \in (-\infty, \infty)
+
+- *rayleigh*:
+  - parameter: scale = :math:`\sigma`
+
+  .. math::
+     \pi(x|\sigma) = \frac{x}{\sigma^2}\exp\left(\frac{-x^2}{2\sigma^2}\right) \quad x \in (0, \infty)
+
+- *uniform*:
+  - parameters: (lower bound, upper bound) = :math:`(a, b)`
+
+  .. math::
+     \pi(x|a, b) = \frac{1}{b - a} \quad x \in [a, b]
 
 Visualization table
 -------------------
