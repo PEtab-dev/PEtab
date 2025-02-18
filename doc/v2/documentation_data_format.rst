@@ -583,21 +583,25 @@ Detailed field description
   and ``upperBound``. Otherwise, points are sampled directly from the truncated
   distribution. The default is ``parameterScaleUniform``.
 
-  Possible prior types are (for mathematical definition see below):
+  Possible prior types on linear parameter scale are (for mathematical 
+  definition see below):
 
-    - *cauchy*, Cauchy prior on linear parameters
-    - *chisquare*, Chisquare prior on linear parameters
-    - *exponential*, Exponential prior on linear parameters
-    - *gamma*, Gamma prior on linear parameters
+    - *cauchy*: Cauchy prior on linear parameters
+    - *chisquare*: Chisquare prior on linear parameters
+    - *exponential*: Exponential prior on linear parameters
+    - *gamma*: Gamma prior on linear parameters
     - *laplace*: Laplace prior on linear parameters
     - *logNormal*: exponentiated Gaussian prior on linear parameters
     - *normal*: Gaussian prior on linear parameters
     - *rayleigh*, Rayleigh prior on linear parameters
     - *uniform*: Flat prior on linear parameters
-    - *parameterScaleCauchy*, Cauchy prior on original parameter scale
+
+  Supported priors on the scale defined via ``parameterScale`` are:
+  
+    - *parameterScaleCauchy*: Cauchy prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
-    - *parameterScaleUniform* (default): Flat prior on original parameter
+    - *parameterScaleUniform*: (default): Flat prior on original parameter
       scale (equivalent to "no prior")
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
@@ -619,16 +623,16 @@ Detailed field description
   So far, only numeric values are supported, no parameter names. Parameters for
   the different prior types are:
 
-    - *cauchy*, location; scale
-    - *chisquare*, degrees of freedom
-    - *exponential*, rate
-    - *gamma*, shape; scale
+    - *cauchy*: location; scale
+    - *chisquare*: degrees of freedom
+    - *exponential*: rate
+    - *gamma*: shape; scale
     - *laplace*: location; scale
     - *logNormal*: parameters of corresp. normal distribution (see: normal)
     - *normal*: mean; standard deviation (**not** variance)
-    - *rayleigh*, scale
+    - *rayleigh*: scale
     - *uniform*: lower bound; upper bound
-    - *parameterScaleCauchy*, location; scale
+    - *parameterScaleCauchy*: location; scale
     - *parameterScaleLaplace*: location; scale
     - *parameterScaleNormal*: mean; standard deviation (**not** variance)
     - *parameterScaleUniform*: lower bound; upper bound
