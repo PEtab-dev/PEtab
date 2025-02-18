@@ -647,7 +647,7 @@ Detailed field description
 Prior distributions
 ~~~~~~~~~~~~~~~~~~~
 
-For ``initializationPriorParameters`` and ``objectivePriorType`` several
+For ``initializationPriorType`` and ``objectivePriorType`` several
 distributions are supported (see above). Denote the parameter value by :math:`x`
 and the Gamma function by :math:`\Gamma`; then, the following parameterizations
 are used for the supported priors:
