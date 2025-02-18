@@ -610,10 +610,10 @@ Detailed field description
   `log10`).
 
   Optionally, a *truncated* distribution can be specified for any distribution
-  except the uniform distributions by providing a lower and upper bound after 
+  except the uniform distributions by providing a lower and upper bound after
   the prior parameters. For example, a truncated normal distribution would be
-  defined with parameters ``mean;std;lb;ub``, where ``lb`` and ``ub`` are the 
-  lower and upper bounds, respectively. For a truncated distribution, both the 
+  defined with parameters ``mean;std;lb;ub``, where ``lb`` and ``ub`` are the
+  lower and upper bounds, respectively. For a truncated distribution, both the
   lower and upper bounds must be provided.
 
   So far, only numeric values are supported, no parameter names. Parameters for
@@ -659,49 +659,57 @@ are used for the supported priors:
   .. math::
      \pi(x|\mu, \sigma) = \frac{1}{\pi \sigma \left( 1 + \left(\frac{x - \mu}{\sigma} \right)^2\right)} \quad x \in (-\infty, \infty)
 
-- *chisquare*, :
+- *chisquare*:
+
   - parameter: degree of freedom = :math:`\nu`
 
   .. math::
      \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)}, \quad x \in (0, \infty)
 
 - *exponential*:
+
   - parameter: scale = :math:`\theta`
 
   .. math::
      \pi(x|\theta) = \frac{1}{\theta}e^{-x/\theta} \quad x \in (0, \infty)
 
 - *gamma*:
+
   - parameters: (shape, scale) = :math:`(\alpha, \theta)`
 
   .. math::
      \pi(x|\alpha, \theta) = \frac{x^{\alpha - 1}e^{-x/\theta}}{\Gamma(\alpha)\theta^{\alpha}}, \quad x \in (0, \infty)
 
 - *laplace*:
+
   - parameters: (location, scale) = :math:`(\mu, \sigma)`
 
   .. math::
      \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right), \quad x \in (-\infty, \infty)
 
 - *logNormal*:
+
   - parameters: (mean, standard deviation) = :math:`(\mu, \sigma)`
 
   .. math::
      \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left(- \frac{\left(\log(x) - \mu\right)^2}{2\sigma^2}\right) \quad x \in (0, \infty)
 
 - *normal*:
+
   - parameters: (mean, standard deviation) = :math:`(\mu, \sigma)`
 
   .. math::
      \pi(x|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) \quad x \in (-\infty, \infty)
 
 - *rayleigh*:
+
   - parameter: scale = :math:`\sigma`
 
   .. math::
      \pi(x|\sigma) = \frac{x}{\sigma^2}\exp\left(\frac{-x^2}{2\sigma^2}\right) \quad x \in (0, \infty)
 
 - *uniform*:
+
   - parameters: (lower bound, upper bound) = :math:`(a, b)`
 
   .. math::
