@@ -653,6 +653,7 @@ and the Gamma function by :math:`\Gamma`; then, the following parameterizations
 are used for the supported priors:
 
 - *cauchy*:
+
   - parameters: (location, scale) = :math:`(\mu, \sigma)`
 
   .. math::
