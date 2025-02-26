@@ -106,9 +106,10 @@ problem as such.
     `PEtab math expression syntax <math_expressions>`_.
   - ``PETAB_ID``: A string that is a valid PEtab ID
   - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
-    to an entity that has some associated numeric value (e.g. a model parameter,
-    parameter table parameter, or a species in the model) and is not estimated.
-
+    directly, or via the mapping table, to an entity that has some associated
+    numeric value (e.g. a model parameter, parameter table parameter,
+    or a species in the model) and is not listed in the
+    :ref:`parameters_table` (including ``estimate=0`` parameters).
 
 
 Changes from PEtab 1.0.0
@@ -172,7 +173,7 @@ This is specified as a tab-separated value file in the following way:
 | ...          | ...              | ...                     | ...             | ...                |
 +--------------+------------------+-------------------------+-----------------+--------------------+
 
-Each line specifies a change of one specific property of a specific entity.
+Each line specifies one change in one target entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
 
@@ -192,10 +193,7 @@ Detailed field description
 
 - ``targetId`` [NON_ESTIMATED_ENTITY_ID, required except for ``operationType=noChange``]
 
-  The ID of the an entity that is to be changed when applying this condition.
-  This may an entity defined in the model, or an alias from the mapping
-  table. The entity must be uniquely identifiable. Parameters from the
-  :ref:`parameters_table` are not allowed here.
+  The ID of the non-estimated entity that will change.
   Different restrictions apply depending on the ``operationType`` and the
   type of the model.
 
@@ -369,7 +367,8 @@ Detailed field description
 - ``time`` [NUMERIC OR STRING, REQUIRED]
 
   Time point of the measurement in the time unit specified in the SBML model,
-  numeric value or ``inf`` (lower-case) for steady-state measurements.
+  a finite numeric value, or ``inf`` (lower-case) for steady-state
+  measurements.
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
@@ -462,8 +461,15 @@ The time courses table with three mandatory columns ``experimentId``,
 - ``time``: [NUMERIC or ``-inf``, REQUIRED]
 
   The time when the condition will become active, in the time unit specified
-  in the model. ``-inf`` indicates pre-equilibration (e.g., for drug
-  treatments, the model would be pre-equilibrated with the no-drug condition).
+  in the model. ``-inf`` indicates that the respective condition will be
+  simulated until a steady state is reached.
+
+  If the simulation of a condition with steady fails to reach a steady state,
+  and the condition is required for the evaluation of simulation at measurement
+  points, the evaluation of the model is not well-defined.
+  In such cases, PEtab interpreters should notify the user, for example, by
+  returning ``NaN`` or ``inf`` values for the objective function.
+  PEtab does not specify a numerical criterion for steady states.
 
 - ``CONDITION_ID``: [PETAB_ID, REQUIRED, REFERENCES(conditions.conditionID)]
 
