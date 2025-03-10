@@ -42,7 +42,7 @@ available at https://github.com/PEtab-dev/libpetab-python/.
   * Added SBML2Julia to list of tools supporting PEtab
   * Extended PEtab introduction
   * Tutorial for creating PEtab files
-* Minor fix: Default argument for optional 'model' parameter in 
+* Minor fix: Default argument for optional 'model' parameter in
   `petab.lint.check_condition_df`` (#477)
 
 ### 0.1.11
@@ -172,7 +172,7 @@ Library:
 File format:
 
 * Updated documentation
-* Observables table in YAML file now mandatory in schema (was implicitly 
+* Observables table in YAML file now mandatory in schema (was implicitly
   mandatory before, as observable table was required already)
 
 Library:
@@ -180,14 +180,14 @@ Library:
   * Fix: allow specifying observables file via CLI (Closes #302)
   * Fix: nominalValue is optional unless estimated!=1 anywhere (Fixes #303)
   * Fix: handle undefined observables more gracefully (Closes #300) (#351)
-* Parameter mapping: 
+* Parameter mapping:
   * Fix / refactor parameter mapping (breaking change) (#344)
     (now performing parameter value and scale mapping together)
   * check optional measurement cols in mapping (#350)
 * allow calculating llhs (#349), chi2 values (#348) and residuals (#345)
 * Visualization
   * Basic Scatterplots & lot of bar plot fixes (#270)
-  * Fix incorrect length of bool `bool_preequ` when subsetting with ind_meas 
+  * Fix incorrect length of bool `bool_preequ` when subsetting with ind_meas
     (Closes #322)
 * make libcombine optional (#338)
 
@@ -220,7 +220,7 @@ Library:
 * Let get_placeholders return an (ordered) list of placeholders
 * Deprecate `petab.problem.from_folder` and related functions
   (obsolete after introducing more flexible YAML files for grouping tables
-  and models) 
+  and models)
 
 ### 0.1.0
 
@@ -280,20 +280,20 @@ Library:
 * Extended visualization support
 * Add helper function and test case to deal with timepoint-specific parameters
   flatten_timepoint_specific_output_overrides (#128) (Closes #125)
-* Fix get_noise_distributions: so far we got 'normal' everywhere due to 
+* Fix get_noise_distributions: so far we got 'normal' everywhere due to
   wrong grouping (#147)
 * Fix create_parameter_df: Exclude rule targets (#149)
 * Verify condition table column names occur as model parameters
   (Closes #150) (#151)
 * More informative error messages in case of wrongly set observable and
   noise parameters (Closes #118) (#155)
-* Update doc for copasi import and github installation (#158) 
+* Update doc for copasi import and github installation (#158)
 * Extend validator to check if all required parameters are present in
   parameter table (Closes #43) (#159)
 * Setup documentation for RTD (#161)
-* Handle None in petab.core.split_parameter_replacement_list (Closes #121) 
+* Handle None in petab.core.split_parameter_replacement_list (Closes #121)
 * Fix(lint) correct handling of optional columns. Check before access.
-* Remove obsolete generate_experiment_id.py (Closes #111) #166 
+* Remove obsolete generate_experiment_id.py (Closes #111) #166
 
 ### 0.0.0a16 and earlier
 

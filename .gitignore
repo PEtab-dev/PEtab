@@ -114,3 +114,4 @@ venv.bak/
 
 _untracked
 doc/_static/README.rst
+doc/build/
