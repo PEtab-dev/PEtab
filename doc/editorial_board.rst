@@ -45,7 +45,7 @@ Former PEtab editors
 +------+---------------------------------+
 | |SB| | **Severin Bang (2022-2025)**    |
 |      |                                 |
-|      | University of Bonn              |
+|      | University of Freiburg          |
 +------+---------------------------------+
 | |JH| | **Jan Hasenauer (2021-2024)**   |
 |      |                                 |
