@@ -18,7 +18,7 @@ The current board members are:
 .. |DW| image:: https://avatars.githubusercontent.com/u/18048784?s=128
 
 +----------------------------+---------------------+--------------------------+--------------------------+------------------------+
-| |MK|                       | |DP|                | |FB|                     | |SP|                     | |SB|                   |
+| |MK|                       | |DP|                | |FB|                     | |SP|                     | |DW|                   |
 |                            |                     |                          |                          |                        |
 | **Matthias König**         | **Dilan Pathirana** | **Frank Bergmann**       | **Sebastian Persson**    | **Daniel Weindl**      |
 |                            |                     |                          |                          |                        |
