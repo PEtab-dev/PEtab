@@ -24,7 +24,7 @@ The current board members are:
 |                            |                     |                          |                          |                        |
 | Humboldt-University Berlin | University of Bonn  | University of Heidelberg | University of Gothenburg | University of Bonn     |
 |                            |                     |                          |                          |                        |
-| 2023-2026                  | 2023-2026           | 2024-2027                | 2024-2027                | 2025-2028              |
+| 2023-2026                  | 2023-2026           | 2024-2027                | 2024-2025                | 2025-2028              |
 |                            |                     |                          |                          |                        |
 |                            |                     |                          | Francis Crick Instutute  |                        |
 |                            |                     |                          |                          |                        |
