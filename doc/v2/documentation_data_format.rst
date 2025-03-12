@@ -426,6 +426,7 @@ Detailed field description
   Defaults to ``normal``. If ``normal``, the specified ``noiseParameters`` will be
   interpreted as standard deviation (*not* variance). If ``Laplace`` ist specified, the specified ``noiseParameter`` will be interpreted as the scale, or diversity, parameter.
 
+.. _noise_distributions:
 
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
@@ -811,6 +812,34 @@ easy validation:
 
 .. literalinclude:: _static/petab_schema_v2.yaml
    :language: yaml
+
+
+Bayesian vs. frequentist parameter estimation
+---------------------------------------------
+
+PEtab supports both Bayesian and frequentist parameter estimation. The
+difference between the two is in the specification of the prior
+distributions. For Bayesian parameter estimation, the prior distributions are
+specified in the parameter table, while for frequentist parameter estimation,
+the prior distributions are not specified. The prior distributions are
+specified in the ``objectivePriorType`` and ``objectivePriorParameters``
+columns of the parameter table as described above. If priors are only specified
+for a subset of parameters, the remaining parameters are assumed to have a
+uniform prior between their lower and upper bounds.
+
+For optimization, the objective function is the negative log-likelihood of the
+data given the model and the parameters. For Bayesian parameter estimation,
+the objective function is the unnormalized negative log-posterior of the data
+given the model and the parameters. The posterior is the product of the
+likelihood and the prior. The prior is the product of the prior distributions
+of the parameters. The likelihood is the product of the probabilities
+of the data given the model and the parameters as described under
+:ref:`noise_distributions`.
+
+Different tools *may* use different objective function formulations internally,
+as long as they preserve the optima. However, tools *should* provide the
+final objective function value, as the negative log-likelihood or unnormalized
+negative log-posterior, to facilitate comparison and reproducibility.
 
 
 Parameter estimation problems combining multiple models
