@@ -52,15 +52,15 @@ of text-based files (
 
 - A measurement file to fit the model to [TSV]
 
-- (optional) A condition file specifying model inputs and condition-specific parameters
-  [TSV]
+- (optional) A conditions file specifying model inputs and condition-specific
+  parameters [TSV]
 
 - (optional) An experiments file, which describes a sequence of different
   experimental conditions that are applied to the model [TSV]
 
-- An observable file specifying the observation model [TSV]
+- An observables file specifying the observation model [TSV]
 
-- A parameter file specifying estimateable parameters and related information
+- A parameters file specifying estimateable parameters and related information
   [TSV]
 
 - A grouping file that lists all of the files and provides additional information
@@ -138,6 +138,20 @@ Model definition
 PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
 in the PEtab problem description (YAML) via its file name or a URL.
 
+We distinguish between three types of entities:
+
+* **Differential entities**: Entities that are defined in terms of a
+time-derivative, e.g., the targets of SBML rate rules or species that
+change by participating in reactions (educts or products).
+
+* **Algebraic entities**: Entities that are defined in terms of an algebraic
+assignment, i.e., they are not subject to time-derivative information, but
+are not generally constant, e.g., the targets of SBML assignment rules.
+
+* **Constant entities**: Entities are that are defined in terms of a constant
+value but may be subject to event assignments, e.g., parameters of an SBML
+model that are not targets of rate rules or assignment rules.
+
 .. _conditions_table:
 
 Conditions table
@@ -191,25 +205,12 @@ Detailed field description
   Condition names are arbitrary strings to describe the given condition.
   They may be used for reporting or visualization.
 
-- ``targetId`` [NON_ESTIMATED_ENTITY_ID, required except for ``operationType=noChange``]
+- ``targetId``
+  [NON_ESTIMATED_ENTITY_ID, required except for ``operationType=noChange``]
 
   The ID of the non-estimated entity that will change.
   Different restrictions apply depending on the ``operationType`` and the
   type of the model.
-
-  We distinguish between three types of entities:
-
-  * **Differential Targets**: Entities that are defined in terms of a
-    time-derivative, e.g., the targets of SBML rate rules or species that
-    change by participating in reactions (educts or products).
-
-  * **Algebraic targets**: Entities that are defined in terms of an algebraic
-    assignment, i.e., they are not subject to time-derivative information, but
-    are not generally constant, e.g., the targets of SBML assignment rules.
-
-  * **Constant targets**: Entities are that are defined in terms of a constant
-    value but may be subject to event assignments, e.g., parameters of an SBML
-    model that are not targets of rate rules or assignment rules.
 
 - ``operationType`` [STRING, REQUIRED]
 
@@ -217,35 +218,21 @@ Detailed field description
 
   - ``setCurrentValue``: The current value of the target is initialized to the
     value of ``targetValue`` when the respective condition is applied.
+    The target must be a constant target or a differential target.
+
     Any symbols in ``targetValue`` are interpreted as their value at the time
     just before this change is applied (similar
     to an SBML event with ``useValuesFromTriggerTime=True``; in case of the
     first period of a timecourse, they will be interpreted as their initial
     values as defined in the model).
-    The target must be a constant target or a differential target.
 
-  - ``setRate``: The time-derivative of the target is set to ``targetValue``
-    (symbolically; the expression is not evaluated at the time the condition is
-    applied).
-    The target must be a differential target.
-
-  - ``addToRate``: The target's rate is increased by ``targetValue``
-    (symbolically).
-    The target must be a differential target.
-
-  - ``setAssignment``: The target is set to the value of ``targetValue``
-    (symbolically).
-    The target must be an algebraic target.
-
-  - ``addToAssignment``: The expression assigned to the target is increased by
-    ``targetValue`` (symbolically).
-    The target must be an algebraic target.
+    **TODO** update
 
   - ``noChange``: This value is used to indicate that no change is associated
     with this condition. This is useful in cases where an explicit condition
-    ID is required, but no change is to be applied. (E.g., if pre-equilibration
-    is to be performed using the default values of the model, followed by a
-    different condition.)
+    ID is required, but no change is to be applied. (E.g., if pre-simulation
+    up to a steady state is to be performed using the default values of the
+    model, followed by a different condition.)
     ``targetId`` and ``targetValue`` have to be empty in this case.
     For any ``conditionId`` with ``operationType=noChange``, there must not be
     any other row with the same ``conditionId`` in the conditions table.
@@ -260,6 +247,14 @@ Detailed field description
   else in the model.
 
 **TODO**: clarify order of evaluation
+
+All changes are applied simultaneously,
+with conservation of mass when volumes change, i.e.
+a volume change implies a concentration change, but not vice versa.
+
+~~Hence, volume changes are applied before concentration changes in the
+same compartment, and changes to parameters are applied before
+changes to species that depend on the parameters.~~
 
 **Examples:** **TODO**
 
@@ -486,17 +481,9 @@ The time courses table with three mandatory columns ``experimentId``,
   applied and for any measurements at ``time_B``, the observables will be
   evaluated *after* ``condition_B`` was applied.
 
-Multiple conditions can be applied at the same time point by specifying
-multiple lines with the same ``experimentId`` and ``time`` but different
-``conditionId``. The order of the conditions is arbitrary.
-
-All changes across all simultaneous conditions are applied in order of
-dependencies, with conservation of mass when volumes change, i.e.
-a volume change implies a concentration change, but not vice versa.
-
-Hence, volume changes are applied before concentration changes in the
-same compartment, and changes to parameters are applied before
-changes to species that depend on the parameters.
+For each ``experimentId`` the ``time`` values must be unique. The order of
+the rows is arbitrary, but specifying the rows in ascending order of time
+may improve human readability.
 
 .. _observables_table:
 
@@ -677,7 +664,8 @@ and *must not* include:
 - Placeholder parameters (see ``observableParameters`` and ``noiseParameters``
   above)
 - Parameters included as column names in the *condition table*
-- Parameters that are AssignmentRule targets in the SBML model
+- "Parameters" that are not *constant entities (e.g., in an SBML model,
+  the targets of *AssignmentRules* or *EventAssignments*)
 - SBML *local* parameters
 
 it *may* include:
