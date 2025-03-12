@@ -836,6 +836,11 @@ of the parameters. The likelihood is the product of the probabilities
 of the data given the model and the parameters as described under
 :ref:`noise_distributions`.
 
+Different tools *may* use different objective function formulations internally,
+as long as they preserve the optima. However, tools *should* provide the
+final objective function value, as the negative log-likelihood or unnormalized
+negative log-posterior, to facilitate comparison and reproducibility.
+
 
 Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
