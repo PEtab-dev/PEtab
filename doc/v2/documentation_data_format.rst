@@ -416,7 +416,9 @@ Experiments table
 -----------------
 
 The optional experiments table describes a sequence of different experimental
-conditions (here: discrete changes) that are applied to the model.
+conditions (here: discrete changes) that are applied to the model. Only the
+model state can be changed by the conditions in the experiments table, not
+the model structure.
 
 This is specified as a tab-separated value file in the following way:
 
@@ -484,6 +486,10 @@ The time courses table with three mandatory columns ``experimentId``,
 For each ``experimentId`` the ``time`` values must be unique. The order of
 the rows is arbitrary, but specifying the rows in ascending order of time
 may improve human readability.
+
+Constructs that define initial values of model entities
+(e.g., SBML's *initialAssignments*) are only applied once at the beginning of
+the simulation, and are not re-evaluated at the beginning of each period.
 
 .. _observables_table:
 
