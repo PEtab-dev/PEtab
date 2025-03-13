@@ -141,16 +141,16 @@ in the PEtab problem description (YAML) via its file name or a URL.
 We distinguish between three types of entities:
 
 * **Differential entities**: Entities that are defined in terms of a
-time-derivative, e.g., the targets of SBML rate rules or species that
-change by participating in reactions (educts or products).
+  time-derivative, e.g., the targets of SBML rate rules or species that
+  change by participating in reactions (educts or products).
 
 * **Algebraic entities**: Entities that are defined in terms of an algebraic
-assignment, i.e., they are not subject to time-derivative information, but
-are not generally constant, e.g., the targets of SBML assignment rules.
+  assignment, i.e., they are not subject to time-derivative information, but
+  are not generally constant, e.g., the targets of SBML assignment rules.
 
 * **Constant entities**: Entities are that are defined in terms of a constant
-value but may be subject to event assignments, e.g., parameters of an SBML
-model that are not targets of rate rules or assignment rules.
+  value but may be subject to event assignments, e.g., parameters of an SBML
+  model that are not targets of rate rules or assignment rules.
 
 .. _conditions_table:
 
