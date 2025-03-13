@@ -460,9 +460,10 @@ The time courses table with three mandatory columns ``experimentId``,
   returning ``NaN`` or ``inf`` values for the objective function.
   PEtab does not specify a numerical criterion for steady states.
 
-  For each ``experimentId`` the ``time`` values must be unique. The order of
-  the rows is arbitrary, but specifying the rows in ascending order of time
-  may improve human readability.
+  Multiple conditions cannot be applied simultaneously in a single experiment,
+  i.e. the ``time`` values must be unique for each ``experimentId``.
+  The order of the rows is arbitrary, but specifying the rows in ascending order
+  of time may improve human readability.
 
 - ``CONDITION_ID``:
   [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
