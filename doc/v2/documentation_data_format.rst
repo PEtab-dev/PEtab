@@ -2,6 +2,8 @@
 
     This document is a draft and subject to change.
 
+.. _v2_spec:
+
 PEtab data format specification
 ===============================
 
@@ -109,7 +111,7 @@ problem as such.
     directly, or via the mapping table, to an entity that has some associated
     numeric value (e.g. a model parameter, parameter table parameter,
     or a species in the model) and is not listed in the
-    :ref:`parameters_table` (including ``estimate=0`` parameters).
+    :ref:`v2_parameters_table` (including ``estimate=0`` parameters).
 
 
 Changes from PEtab 1.0.0
@@ -117,20 +119,20 @@ Changes from PEtab 1.0.0
 
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
-* Support for non-SBML models (:ref:`model`)
-* Changed condition table format (wide -> long) (:ref:`conditions_table`)
+* Support for non-SBML models (:ref:`v2_model`)
+* Changed condition table format (wide -> long) (:ref:`v2_conditions_table`)
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
-  :ref:`measurements_table` are replaced by ``experimentId`` and a more
+  :ref:`v2_measurements_table` are replaced by ``experimentId`` and a more
   flexible way for defining experiments / time courses
-  (:ref:`experiments_table`)
-* Support for math expressions in the condition table (:ref:`conditions_table`)
+  (:ref:`v2_experiments_table`)
+* Support for math expressions in the condition table (:ref:`v2_conditions_table`)
 * Clarification and specification of various previously underspecified aspects
-  (:ref:`math_expressions`, overriding values in the condition table, etc.)
+  (:ref:`v2_math_expressions`, overriding values in the condition table, etc.)
 * Support for extensions
 * Observable IDs are now allowed to be used in observable/noise formulas
-  (:ref:`observables_table`)
+  (:ref:`v2_observables_table`)
 
-.. _model:
+.. _v2_model:
 
 Model definition
 ----------------
@@ -152,14 +154,14 @@ We distinguish between three types of entities:
   value but may be subject to event assignments, e.g., parameters of an SBML
   model that are not targets of rate rules or assignment rules.
 
-.. _conditions_table:
+.. _v2_conditions_table:
 
 Conditions table
 ----------------
 
 The conditions table specifies changes to parameters, initial or intermediate values of
 species, and compartments, during specific time periods. The start and end of the time
-period is defined in the :ref:`experiments_table`, where multiple conditions can be
+period is defined in the :ref:`v2_experiments_table`, where multiple conditions can be
 combined to specify time courses or experiments that span multiple time periods. Any
 changes applied to the model will remain in effect until they are changed by a condition
 applied at a later time period.
@@ -197,7 +199,7 @@ Detailed field description
 - ``conditionId`` [PETAB_ID, REQUIRED]
 
   Unique identifier for the simulation/experimental condition, to be referenced
-  by the :ref:`experiments_table`.
+  by the :ref:`v2_experiments_table`.
 
 - ``conditionName`` [STRING, OPTIONAL] **TODO: remove**
 
@@ -287,7 +289,7 @@ a volume change implies a concentration change, but not vice versa.
       match the concentration specified by the user, because it would be
       modified by the volume change.
 
-.. _measurements_table:
+.. _v2_measurements_table:
 
 Measurement table
 -----------------
@@ -401,7 +403,7 @@ Detailed field description
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
 
-.. _experiments_table:
+.. _v2_experiments_table:
 
 Experiments table
 -----------------
@@ -485,7 +487,7 @@ Constructs that define initial values of model entities
 (e.g., SBML's *initialAssignments*) are only applied once at the beginning of
 the simulation, and are not re-evaluated at the beginning of each period.
 
-.. _observables_table:
+.. _v2_observables_table:
 
 Observables table
 -----------------
@@ -646,7 +648,7 @@ The distributions above are for a single data point. For a collection :math:`D=\
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
 
-.. _parameters_table:
+.. _v2_parameters_table:
 
 Parameter table
 ---------------
@@ -801,7 +803,7 @@ Detailed field description
   Prior parameters used for the objective function during estimation.
   For more detailed documentation, see ``initializationPriorParameters``.
 
-.. _visualization_table:
+.. _v2_visualization_table:
 
 Visualization table
 -------------------
@@ -914,7 +916,7 @@ Detailed field description
   The name that should be displayed for the corresponding dataset in the
   legend and which defaults to the value in ``datasetId``.
 
-.. _mapping_table:
+.. _v2_mapping_table:
 
 Mapping table
 -------------
@@ -949,7 +951,7 @@ Detailed field description
 - ``modelEntityId`` [STRING, REQUIRED]
 
   A globally unique identifier defined in the model,
-  *that is not a valid PEtab ID* (see :ref:`identifiers`).
+  *that is not a valid PEtab ID* (see :ref:`v2_identifiers`).
 
   For example, in SBML, local parameters may be referenced as
   ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
@@ -975,7 +977,7 @@ Examples of the visualization table can be found in the
 `Benchmark model collection <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/>`_, for example in the `Chen_MSB2009 <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009>`_
 model.
 
-.. _problem_yaml:
+.. _v2_problem_yaml:
 
 YAML file for grouping files
 ----------------------------
@@ -1006,7 +1008,7 @@ namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
 
 
-.. _math_expressions:
+.. _v2_math_expressions:
 
 Math expressions syntax
 -----------------------
@@ -1189,7 +1191,7 @@ languages. Use parentheses to enforce the desired order of operations.
 Operators must be specified; there are no implicit operators.
 For example, ``a b`` is invalid, unlike ``a * b``.
 
-.. _math_functions:
+.. _v2_math_functions:
 
 Functions
 +++++++++
@@ -1331,7 +1333,7 @@ float values are demoted to boolean values. For example, in ``1 + true``,
 the expression is interpreted as ``true && true = true``.
 
 
-.. _identifiers:
+.. _v2_identifiers:
 
 Identifiers
 -----------
@@ -1361,4 +1363,4 @@ as identifiers:
   measurements
 * ``time``: Model time, used in PEtab expressions.
 * ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
-* PEtab math function names (:ref:`math_functions`)
+* PEtab math function names (:ref:`v2_math_functions`)
