@@ -468,7 +468,7 @@ The time courses table with three mandatory columns ``experimentId``,
   [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
 
   Reference to a condition ID in the condition table that
-  is to be applied at the given `time`, or empty to not apply any changes.
+  is to be applied at the given ``time``, or empty to not apply any changes.
 
   Note: The time interval in which a condition is applied includes the
   respective starting timepoint, but excludes the starting timepoint of
