@@ -164,30 +164,29 @@ combined to specify time courses or experiments that span multiple time periods.
 changes applied to the model will remain in effect until they are changed by a condition
 applied at a later time period.
 
-
 This is specified as a tab-separated value file in the following way:
 
 **TODO: keep conditionName or not?**
 
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| conditionId  | [conditionName]  | targetId                | operationType   | targetValue        |
-+==============+==================+=========================+=================+====================+
-| PETAB_ID     | [STRING]         | NON_ESTIMATED_ENTITY_ID | STRING          | MATH_EXPRESSION    |
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| e.g.         |                  |                         |                 |                    |
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId1          | setCurrentValue | 0.42               |
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId2          | setCurrentValue | 0.42               |
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| conditionId2 | ...              | modelEntityId1          | setCurrentValue | modelEntityId1 + 3 |
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| conditionId2 | ...              | someSpecies             | setCurrentValue | 8                  |
-+--------------+------------------+-------------------------+-----------------+--------------------+
-| ...          | ...              | ...                     | ...             | ...                |
-+--------------+------------------+-------------------------+-----------------+--------------------+
++--------------+------------------+-------------------------+--------------------+
+| conditionId  | [conditionName]  | targetId                | targetValue        |
++==============+==================+=========================+====================+
+| PETAB_ID     | [STRING]         | NON_ESTIMATED_ENTITY_ID | MATH_EXPRESSION    |
++--------------+------------------+-------------------------+--------------------+
+| e.g.         |                  |                         |                    |
++--------------+------------------+-------------------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId1          | 0.42               |
++--------------+------------------+-------------------------+--------------------+
+| conditionId1 | conditionName1   | modelEntityId2          | 0.42               |
++--------------+------------------+-------------------------+--------------------+
+| conditionId2 | ...              | modelEntityId1          | modelEntityId1 + 3 |
++--------------+------------------+-------------------------+--------------------+
+| conditionId2 | ...              | someSpecies             | 8                  |
++--------------+------------------+-------------------------+--------------------+
+| ...          | ...              | ...                     | ...                |
++--------------+------------------+-------------------------+--------------------+
 
-Each line specifies one change in one target entity.
+Each row specifies one change in one target entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
 
@@ -212,49 +211,41 @@ Detailed field description
   Different restrictions apply depending on the ``operationType`` and the
   type of the model.
 
-- ``operationType`` [STRING, REQUIRED]
-
-  How the target value is to be interpreted. Allowed values are:
-
-  - ``setCurrentValue``: The current value of the target is initialized to the
-    value of ``targetValue`` when the respective condition is applied.
-    The target must be a constant target or a differential target.
-
-    Any symbols in ``targetValue`` are interpreted as their value at the time
-    just before this change is applied (similar
-    to an SBML event with ``useValuesFromTriggerTime=True``; in case of the
-    first period of a timecourse, they will be interpreted as their initial
-    values as defined in the model).
-
-    **TODO** update
-
-  - ``noChange``: This value is used to indicate that no change is associated
-    with this condition. This is useful in cases where an explicit condition
-    ID is required, but no change is to be applied. (E.g., if pre-simulation
-    up to a steady state is to be performed using the default values of the
-    model, followed by a different condition.)
-    ``targetId`` and ``targetValue`` have to be empty in this case.
-    For any ``conditionId`` with ``operationType=noChange``, there must not be
-    any other row with the same ``conditionId`` in the conditions table.
-
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
-  The value or expression that will be used to change the target. The
-  interpretation of the value depends on the ``operationType`` as described
-  above.
+  The value or expression that will be used to change the target.
+  The current value of the target specified under ``targetId`` is initialized
+  to the value of ``targetValue`` when the respective condition is applied.
+
+  The target must be a constant target or a differential target.
+
   If the model has a concept of species and a species ID is provided, its
   value is interpreted as amount or concentration in the same way as anywhere
   else in the model.
 
-**TODO**: clarify order of evaluation
+
+TODO Detailed semantics
+~~~~~~~~~~~~~~~~~~~~~~~
+
+At the start of a new period, experimental condition changes are implemented.
+These changes (i) are evaluated with the values of the system state variables
+from immediately before the new period and (ii) are implemented before
+model-specific logic (including other events defined in the model).
+The model-specific logic may result in unexpected system states at the start
+of a new period. For example, if a new period changes both a volume and
+concentration, and the model is defined in SBML, then the concentration will
+change again according to the volume change and will therefore not match the
+specified concentration.
+
+Any symbols in ``targetValue`` are interpreted as their value at the time
+just before this change is applied (similar
+to an SBML event with ``useValuesFromTriggerTime=True``; in case of the
+first period of a timecourse, they will be interpreted as their initial
+values as defined in the model).
 
 All changes are applied simultaneously,
 with conservation of mass when volumes change, i.e.
 a volume change implies a concentration change, but not vice versa.
-
-~~Hence, volume changes are applied before concentration changes in the
-same compartment, and changes to parameters are applied before
-changes to species that depend on the parameters.~~
 
 **Examples:** **TODO**
 
@@ -420,7 +411,8 @@ conditions (here: discrete changes) that are applied to the model. Only the
 model state can be changed by the conditions in the experiments table, not
 the model structure.
 
-This is specified as a tab-separated value file in the following way:
+The experiments table is specified as a tab-separated value file in the
+following way:
 
 +---------------------+-------------------+-----------------+
 | experimentId        | time              | conditionId     |
@@ -468,10 +460,15 @@ The time courses table with three mandatory columns ``experimentId``,
   returning ``NaN`` or ``inf`` values for the objective function.
   PEtab does not specify a numerical criterion for steady states.
 
-- ``CONDITION_ID``: [PETAB_ID, REQUIRED, REFERENCES(conditions.conditionID)]
+  For each ``experimentId`` the ``time`` values must be unique. The order of
+  the rows is arbitrary, but specifying the rows in ascending order of time
+  may improve human readability.
+
+- ``CONDITION_ID``:
+  [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
 
   Reference to a condition ID in the condition table that
-  is to be applied at the given `time`.
+  is to be applied at the given `time`, or empty to not apply any changes.
 
   Note: The time interval in which a condition is applied includes the
   respective starting timepoint, but excludes the starting timepoint of
@@ -482,10 +479,6 @@ The time courses table with three mandatory columns ``experimentId``,
   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
   applied and for any measurements at ``time_B``, the observables will be
   evaluated *after* ``condition_B`` was applied.
-
-For each ``experimentId`` the ``time`` values must be unique. The order of
-the rows is arbitrary, but specifying the rows in ascending order of time
-may improve human readability.
 
 Constructs that define initial values of model entities
 (e.g., SBML's *initialAssignments*) are only applied once at the beginning of
