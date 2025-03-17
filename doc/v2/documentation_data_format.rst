@@ -239,18 +239,19 @@ phases, similar to events in SBML.
 2. **Assignment and Update of Derived Variables**
 
    Once evaluated, all ``targetValues`` are simultaneously assigned to their
-   corresponding ``targetId``s, and derived variables are updated accordingly.
+   corresponding targets, and derived variables are updated accordingly.
 
    * This means that values of variables assigned by SBML assignment rules
      or PYSB expressions will need to be re-evaluated.
 
    * Notably, for SBML models — where concentrations are always treated as
      derived variables — species with ``hasOnlySubstanceUnits=false`` and
-     simultaneous changes to concentration and compartment volume in the
-     condition table will have their amount and compartment volume updated
+     simultaneous changes to concentration and compartment size in the
+     condition table will have their amount and compartment size updated
      first, with the resulting concentration computed as the fraction of
-     amount to volume. For further details, refer to SBML semantic test suite
-     case `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+     amount to compartment size. For further details, refer to SBML semantic
+     test suite case
+     `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
 
 .. _v2_measurements_table:
 
