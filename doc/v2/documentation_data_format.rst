@@ -226,61 +226,38 @@ Detailed field description
   else in the model.
 
 
-TODO Detailed semantics
-~~~~~~~~~~~~~~~~~~~~~~~
+Detailed semantics
+~~~~~~~~~~~~~~~~~~
 
-All changes defined in the condition table are applied in two consecutive phases, similar to events in SBML.
+All changes defined in the condition table are applied in two consecutive
+phases, similar to events in SBML.
 
-1. **Evaluation of ``targetValues``**  
-   ``targetValues`` are first evaluated using the *current* values of all variables in the respective expression.  
-   - For the initial time period of an experiment, *current* values are determined by the initial conditions defined in the model.  
-   - For subsequent time periods, the *current* values are defined by the simulation results at the end of the preceding time period.  
+1. **Evaluation of** ``targetValues``
 
-2. **Assignment and Update of Derived Variables**  
-   Once evaluated, all ``targetValues`` are simultaneously assigned to their corresponding ``targetId``s, and derived variables are updated accordingly.  
-   - This means that values of variables assigned by SBML assignment rules or PYSB expressions will need to be re-evaluated.  
-   - Notably, for SBML models — where concentrations are always treated as derived variables — species with ``hasOnlySubstanceUnits=false`` and simultaneous changes to concentration and compartment volume in the condition table will have their amount and compartment volume updated first, with the resulting concentration computed as the fraction of amount to volume. For further details, refer to SBML semantic test suite case  
-`01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+   ``targetValues`` are first evaluated using the *current* values of all
+   variables in the respective expression.
 
-**Examples:** **TODO**
+   * For the initial time period of an experiment, *current* values are
+     determined by the initial conditions defined in the model.
 
-    -  given a timecourse ``0:condition1;10:condition2`` and two constant
-       model parameters ``par1``, ``par2`` and the two conditions:
+   * For subsequent time periods, the *current* values are defined by the
+     simulation results at the end of the preceding time period.
 
-      - ``condition1``: {``par1=0.1``, ``par2=0.2``}
-      - ``condition2``: {``par1=par2``, ``par2=par1``}
+2. **Assignment and Update of Derived Variables**
 
-      This is okay, since no circular dependencies exist: ``par1 = 0.2``, ``par2=0.1``
+   Once evaluated, all ``targetValues`` are simultaneously assigned to their
+   corresponding ``targetId``s, and derived variables are updated accordingly.
 
-    - given a ``timecourse 0:condition1`` and two model parameters
-      ``par1``, ``par2`` with only a single condition:
+   * This means that values of variables assigned by SBML assignment rules
+     or PYSB expressions will need to be re-evaluated.
 
-      - ``condition1``: {``par1=par2``, ``par2=par1``}
-
-      This is not allowed, in the first condition of the timecourse ``par1``, ``par2``
-      cannot be used in the right-hand side of the assignment
-
-    - Given a condition: ``condition1``: {``par1=par3``, ``par2=2*par3``}
-
-      This is allowed.
-
-    Condition changes should be implemented to respect the dependency
-    graph between model components:
-
-    - When a condition changes quantity ``A`` and ``B``, and ``B`` is dependent on
-      ``A``, the change in quantity A should be applied first such that the
-      new value for ``B`` is consistent with what is specified in the
-      condition.
-
-    - For example, concentrations are generally dependent on volume
-      i.e. when a model compartment volume changes, the concentrations
-      of all species in that compartment change too, because mass is
-      usually conserved. In this case, if a condition change involves a
-      change in both a compartment volume and a species concentration,
-      then the compartment change should be applied first. Otherwise,
-      the species concentration after the condition is applied, will not
-      match the concentration specified by the user, because it would be
-      modified by the volume change.
+   * Notably, for SBML models — where concentrations are always treated as
+     derived variables — species with ``hasOnlySubstanceUnits=false`` and
+     simultaneous changes to concentration and compartment volume in the
+     condition table will have their amount and compartment volume updated
+     first, with the resulting concentration computed as the fraction of
+     amount to volume. For further details, refer to SBML semantic test suite
+     case `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
 
 .. _v2_measurements_table:
 
