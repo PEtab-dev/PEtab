@@ -168,25 +168,23 @@ applied at a later time period.
 
 This is specified as a tab-separated value file in the following way:
 
-**TODO: keep conditionName or not?**
-
-+--------------+------------------+-------------------------+--------------------+
-| conditionId  | [conditionName]  | targetId                | targetValue        |
-+==============+==================+=========================+====================+
-| PETAB_ID     | [STRING]         | NON_ESTIMATED_ENTITY_ID | MATH_EXPRESSION    |
-+--------------+------------------+-------------------------+--------------------+
-| e.g.         |                  |                         |                    |
-+--------------+------------------+-------------------------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId1          | 0.42               |
-+--------------+------------------+-------------------------+--------------------+
-| conditionId1 | conditionName1   | modelEntityId2          | 0.42               |
-+--------------+------------------+-------------------------+--------------------+
-| conditionId2 | ...              | modelEntityId1          | modelEntityId1 + 3 |
-+--------------+------------------+-------------------------+--------------------+
-| conditionId2 | ...              | someSpecies             | 8                  |
-+--------------+------------------+-------------------------+--------------------+
-| ...          | ...              | ...                     | ...                |
-+--------------+------------------+-------------------------+--------------------+
++--------------+-------------------------+--------------------+
+| conditionId  | targetId                | targetValue        |
++==============+=========================+====================+
+| PETAB_ID     | NON_ESTIMATED_ENTITY_ID | MATH_EXPRESSION    |
++--------------+-------------------------+--------------------+
+| e.g.         |                         |                    |
++--------------+-------------------------+--------------------+
+| conditionId1 | modelEntityId1          | 0.42               |
++--------------+-------------------------+--------------------+
+| conditionId1 | modelEntityId2          | 0.42               |
++--------------+-------------------------+--------------------+
+| conditionId2 | modelEntityId1          | modelEntityId1 + 3 |
++--------------+-------------------------+--------------------+
+| conditionId2 | someSpecies             | 8                  |
++--------------+-------------------------+--------------------+
+| ...          | ...                     | ...                |
++--------------+-------------------------+--------------------+
 
 Each row specifies one change in one target entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
@@ -200,11 +198,6 @@ Detailed field description
 
   Unique identifier for the simulation/experimental condition, to be referenced
   by the :ref:`v2_experiments_table`.
-
-- ``conditionName`` [STRING, OPTIONAL] **TODO: remove**
-
-  Condition names are arbitrary strings to describe the given condition.
-  They may be used for reporting or visualization.
 
 - ``targetId``
   [NON_ESTIMATED_ENTITY_ID, required except for ``operationType=noChange``]
