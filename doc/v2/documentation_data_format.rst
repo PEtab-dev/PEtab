@@ -346,7 +346,9 @@ Detailed field description
   Experiment ID as defined in the experiments table described below. This
   column may have empty cells, which are interpreted as *use the model as is*.
   This avoids the need for "dummy" conditions and experiments if only a single
-  condition is required.
+  condition is required. If no experiment is specified, the model simulation
+  is assumed to start at time 0, unless the model specifies a different
+  initial time.
 
 - ``measurement`` [NUMERIC, REQUIRED]
 
@@ -461,11 +463,15 @@ The time courses table with three mandatory columns ``experimentId``,
   In such cases, PEtab interpreters should notify the user, for example, by
   returning ``NaN`` or ``inf`` values for the objective function.
   PEtab does not specify a numerical criterion for steady states.
+  Any event triggers defined in the model must also be checked
+  during this pre-simulation.
 
   Multiple conditions cannot be applied simultaneously in a single experiment,
   i.e. the ``time`` values must be unique for each ``experimentId``.
   The order of the rows is arbitrary, but specifying the rows in ascending order
   of time may improve human readability.
+
+  ``time`` will override any initial time specified in the model.
 
 - ``CONDITION_ID``:
   [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
