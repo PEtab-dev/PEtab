@@ -218,6 +218,7 @@ Detailed field description
   value is interpreted as amount or concentration in the same way as anywhere
   else in the model.
 
+.. _v2_reinitialization_semantics:
 
 Detailed semantics
 ~~~~~~~~~~~~~~~~~~
@@ -236,10 +237,12 @@ phases, similar to events in SBML.
    * For subsequent time periods, the *current* values are defined by the
      simulation results at the end of the preceding time period.
 
-2. **Assignment and Update of Derived Variables**
+2. **Assignment of the evaluated ``targetValues`` to their targets**
 
-   Once evaluated, all ``targetValues`` are simultaneously assigned to their
-   corresponding targets, and derived variables are updated accordingly.
+   All evaluated ``targetValues`` are simultaneously assigned to their
+   corresponding targets.
+   It is invalid to apply more than one assignment to a single target
+   simultaneously.
 
    * This means that values of variables assigned by SBML assignment rules
      or PYSB expressions will need to be re-evaluated.
@@ -252,6 +255,23 @@ phases, similar to events in SBML.
      amount to compartment size. For further details, refer to SBML semantic
      test suite case
      `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+
+3. **Update of Derived Variables**
+
+   After the assignment of the target values, all derived variables are
+   updated. If the model format has a concept of species and compartments,
+   this includes the update of species concentrations, which are derived from
+   their amount and compartment size.
+
+4. **Events and Finalization**
+
+   All other state- or time-dependent changes encoded in the model are now
+   applied as well. For example, this includes SBML events.
+   The model state for the evaluation of any trigger functions for this
+   timepoint is the model state after (3).
+
+   The initial model state for the new period at time = ``time``
+   (:ref:`v2_experiments_table`) the model state after all of these changes.
 
 .. _v2_measurements_table:
 
@@ -451,7 +471,8 @@ The time courses table with three mandatory columns ``experimentId``,
   during the interval ``[time_A, time_B)``. This implies that any event
   assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
   applied and for any measurements at ``time_B``, the observables will be
-  evaluated *after* ``condition_B`` was applied.
+  evaluated *after* ``condition_B`` was applied. For further details, refer to
+  :ref:`v2_reinitialization_semantics`.
 
 Constructs that define initial values of model entities
 (e.g., SBML's *initialAssignments*) are only applied once at the beginning of
