@@ -62,7 +62,7 @@ of text-based files (
 
 - An observables file specifying the observation model [TSV]
 
-- A parameters file specifying estimateable parameters and related information
+- A parameters file specifying estimatable parameters and related information
   [TSV]
 
 - A grouping file that lists all of the files and provides additional information
@@ -140,7 +140,7 @@ Model definition
 PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
 in the PEtab problem description (YAML) via its file name or a URL.
 
-We distinguish between three types of entities:
+In the following, we distinguish between three types of entities:
 
 * **Differential entities**: Entities that are defined in terms of a
   time-derivative, e.g., the targets of SBML rate rules or species that
@@ -159,14 +159,16 @@ We distinguish between three types of entities:
 Conditions table
 ----------------
 
-The conditions table specifies changes to parameters, initial or intermediate values of
-species, and compartments, during specific time periods. The start and end of the time
-period is defined in the :ref:`v2_experiments_table`, where multiple conditions can be
-combined to specify time courses or experiments that span multiple time periods. Any
-changes applied to the model will remain in effect until they are changed by a condition
-applied at a later time period.
+The conditions table specifies changes to parameters, initial or intermediate
+values of species, and compartments, during specific time periods.
+The start and end of the time period is defined in the
+:ref:`v2_experiments_table`, where multiple conditions can be combined to
+specify time courses or experiments that span multiple time periods.
+Any changes applied to the model will remain in effect until they are changed
+by a condition applied at a later time period or by the model itself.
 
-This is specified as a tab-separated value file in the following way:
+The conditions table is specified as a tab-separated value file in the
+following way:
 
 +--------------+-------------------------+--------------------+
 | conditionId  | targetId                | targetValue        |
@@ -273,6 +275,12 @@ phases, similar to events in SBML.
    The initial model state for the new period at time = ``time``
    (:ref:`v2_experiments_table`) the model state after all of these changes.
 
+5. **Evaluation of Observables**
+
+   If there are measurements for the current timepoint, the observables are
+   evaluated after all changes have been applied. This is the value that will
+   be compared to the measurements in the measurement table.
+
 .. _v2_measurements_table:
 
 Measurement table
@@ -378,10 +386,10 @@ Detailed field description
 
   The datasetId is used to group certain measurements to datasets. This is
   typically the case for data points which belong to the same observable,
-  the same simulation and preequilibration condition, the same noise model,
+  the same experiment, the same noise model,
   the same observable transformation and the same observable parameters.
-  This grouping makes it possible to use the plotting routines which are
-  provided in the PEtab repository.
+  This grouping makes it possible to use the plotting routines that are
+  provided by the PEtab Python library.
 
 - ``replicateId`` [STRING, OPTIONAL]
 
@@ -1369,7 +1377,7 @@ The following keywords, `case-insensitive`, are reserved and must not be used
 as identifiers:
 
 * ``true``, ``false``: Boolean literals, used in PEtab expressions.
-* ``inf``: Infinity, used in PEtab expressions and post-equilibration
+* ``inf``: Infinity, used in PEtab expressions and for steady-state
   measurements
 * ``time``: Model time, used in PEtab expressions.
 * ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
