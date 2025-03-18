@@ -924,7 +924,7 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 ``modelEntityId``. Additional columns are allowed.
 
 +---------------+---------------+---------------+
-| petabEntityId | modelEntityId | [name]          |
+| petabEntityId | modelEntityId | [name]        |
 +===============+===============+===============+
 | STRING        | STRING        | STRING        |
 +---------------+---------------+---------------+
