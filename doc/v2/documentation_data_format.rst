@@ -752,6 +752,11 @@ Detailed field description
   points are clipped to lie inside the parameter boundaries specified by
   ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
 
+  This is a hint for the optimization algorithm to start the optimization
+  process or for re-sampling random points. The initialization prior does not
+  change the objective function itself. Optimizers may choose to ignore this
+  information.
+
   Possible prior types are:
 
     - *uniform*: flat prior on linear parameters
