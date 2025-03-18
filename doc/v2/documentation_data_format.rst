@@ -891,21 +891,24 @@ Detailed field description
 Mapping table
 -------------
 
-Mapping PEtab entity IDs to entity IDs in the model. This optional file may be
-used to reference model entities in PEtab files where the ID in the model would
-not be a valid identifier in PEtab (e.g., due to inclusion of blanks, dots, or
-other special characters).
+The mapping table maps PEtab entity IDs to model entity IDs, and may be used
+for additional annotations. This file is optional.
+
+This file may be used to provide PEtab-compatible aliases to model entities
+whose ID in the model would not be a valid identifier in PEtab
+(e.g., due to inclusion of blanks, dots, or other special characters),
+and thus, would not be allowed in the PEtab problem files.
 
 The TSV file has two mandatory columns, ``petabEntityId`` and
 ``modelEntityId``. Additional columns are allowed.
 
-+---------------+---------------+
-| petabEntityId | modelEntityId |
-+===============+===============+
-| STRING        | STRING        |
-+---------------+---------------+
-| reaction1_k1  | reaction1.k1  |
-+---------------+---------------+
++---------------+---------------+---------------+
+| petabEntityId | modelEntityId | [name]          |
++===============+===============+===============+
+| STRING        | STRING        | STRING        |
++---------------+---------------+---------------+
+| reaction1_k1  | reaction1.k1  | reaction1 k1  |
++---------------+---------------+---------------+
 
 
 Detailed field description
@@ -913,15 +916,21 @@ Detailed field description
 
 - ``petabEntityId`` [PETAB_ID, REQUIRED]
 
-  A valid PEtab identifier that is not defined in any other part of the PEtab
-  problem. This identifier may be referenced in condition, measurement,
-  parameter and observable tables, but cannot be referenced in the model
-  itself.
+  A valid PEtab identifier (see :ref:`v2_identifiers`) that is not defined in
+  any other part of the PEtab problem.
+  This identifier may be referenced in condition, measurement, parameter and
+  observable tables, but cannot be referenced in the model itself.
+
+  The ``petabEntityId`` may be the same as the ``modelEntityId``, but it must
+  not be used to alias an entity that already has a valid PEtab identifier.
+  This restriction is to avoid unnecessary complexity in the PEtab problem
+  files.
 
 - ``modelEntityId`` [STRING, REQUIRED]
 
-  A globally unique identifier defined in the model,
-  *that is not a valid PEtab ID* (see :ref:`v2_identifiers`).
+  A globally unique identifier defined in the model, or empty if the entity is
+  not present in the model. This does not have to be a valid PEtab identifier.
+  Rows with empty ``modelEntityId`` serve as annotations only.
 
   For example, in SBML, local parameters may be referenced as
   ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
@@ -930,6 +939,11 @@ Detailed field description
   characters such as ``,``, ``(`` or ``.``. However, please note that IDs must
   exactly match the species names in the BNGL-generated network file, and no
   pattern matching will be performed.
+
+- ``name`` [STRING, OPTIONAL]
+
+  A human-readable name for the entity. This is optional and may be used for
+  reporting or visualization purposes.
 
 Extensions
 ~~~~~~~~~~
@@ -996,7 +1010,7 @@ Symbols
 
   * parameter IDs from the parameter table
   * model entity IDs that are globally unique and have a clear interpretation
-    in the math expression context
+    in a math expression context
   * observable IDs from the observable table
   * PEtab placeholder IDs in the observable and noise formulas
   * PEtab entity IDs in the mapping table
