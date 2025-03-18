@@ -8,8 +8,8 @@ additional documentation.
 
 ## About PEtab
 
-PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values 
-(TSV) files. It is meant as a standardized way to provide information for 
+PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values
+(TSV) files. It is meant as a standardized way to provide information for
 parameter estimation, which is out of the current scope of SBML. This includes,
 for example:
 
@@ -127,7 +127,7 @@ If you would like to use PEtab yourself, please have a look at:
   [benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 * the tutorials provided with each of the softwares supporting PEtab
 
-To convert your existing parameter estimation problem to the PEtab format, you 
+To convert your existing parameter estimation problem to the PEtab format, you
 will have to:
 
 1. Specify your model in SBML.
@@ -145,14 +145,14 @@ will have to:
 If you are using Python, some handy functions of the
 [PEtab library](https://github.com/PEtab-dev/libpetab-python/) can help
 you with that. This includes also a PEtab validator called `petablint` which
-you can use to check if your files adhere to the PEtab standard. If you have 
-further questions regarding PEtab, feel free to post an 
+you can use to check if your files adhere to the PEtab standard. If you have
+further questions regarding PEtab, feel free to post an
 [issue](https://github.com/PEtab-dev/PEtab/issues) at our GitHub repository.
 
 ## PEtab Python library
 
 PEtab comes with a Python package for creating, checking, visualizing and
-working with PEtab files. This package is available at 
+working with PEtab files. This package is available at
 https://github.com/PEtab-dev/libpetab-python/.
 
 ## PEtab R library

@@ -1,0 +1,86 @@
+# For syntax see: https://json-schema.org/understanding-json-schema/index.html
+#$schema: "https://json-schema.org/draft/2019-09/meta/core"
+$schema: "http://json-schema.org/draft-06/schema"
+description: PEtab parameter estimation problem config file schema
+
+properties:
+
+  format_version:
+    type: integer
+    description: Version of the PEtab format (e.g. 1).
+
+  parameter_file:
+    oneOf:
+    - type: string
+    - type: array
+    description: |
+      File name (absolute or relative) or URL to PEtab parameter table
+      containing parameters of all models listed in `problems`. A single
+      table may be split into multiple files and described as an array here.
+
+  problems:
+    type: array
+    description: |
+      One or multiple PEtab problems (sets of model, condition, observable
+      and measurement files). If different model and data files are
+      independent, they can be specified as separate PEtab problems, which
+      may allow more efficient handling. Files in one problem cannot refer
+      to models entities or data specified inside another problem.
+    items:
+
+      type: object
+      description: |
+        A set of PEtab model, condition, observable and measurement
+        files and optional visualization files.
+      properties:
+
+        sbml_files:
+          type: array
+          description: List of PEtab SBML files.
+
+          items:
+            type: string
+            description: PEtab SBML file name or URL.
+
+        measurement_files:
+          type: array
+          description: List of PEtab measurement files.
+
+          items:
+            type: string
+            description: PEtab measurement file name or URL.
+
+        condition_files:
+          type: array
+          description: List of PEtab condition files.
+
+          items:
+            type: string
+            description: PEtab condition file name or URL.
+
+        observable_files:
+          type: array
+          description: List of PEtab observable files.
+
+          items:
+            type: string
+            description: PEtab observable file name or URL.
+
+        visualization_files:
+          type: array
+          description: List of PEtab visualization files.
+
+          items:
+            type: string
+            description: PEtab visualization file name or URL.
+
+      required:
+        - sbml_files
+        - observable_files
+        - measurement_files
+        - condition_files
+
+required:
+  - format_version
+  - parameter_file
+  - problems
