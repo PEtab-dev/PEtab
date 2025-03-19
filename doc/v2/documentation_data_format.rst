@@ -678,7 +678,7 @@ This table *must* include the following parameters:
 - Named parameter overrides introduced in ``targetValue`` expressions
   in the *conditions table*, unless already defined in the model
 - Named parameter overrides introduced in ``observableParameters``
-  or ``noiseParameters *measurement table*
+  or ``noiseParameters`` in the *measurement table*
 - Parameters introduced in the ``observableFormula`` or ``noiseFormula``
   expressions in the *observables table*
 
@@ -703,6 +703,8 @@ One row per parameter with arbitrary order of rows and columns:
 +=============+=================+=========================+=============+============+==============+==========+=====+
 | STRING      | [STRING]        | log10\|lin\|log         | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
+| k1          |                 | lin                     | 1e-5        | 1e5        | 100          | 1        | ... |
++-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
 | ...         | ...             | ...                     | ...         | ...        | ...          | ...      | ... |
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
 
@@ -712,6 +714,8 @@ One row per parameter with arbitrary order of rows and columns:
 | ... | [initializationPriorType] | [initializationPriorParameters] | [objectivePriorType] | [objectivePriorParameters] |
 +=====+===========================+=================================+======================+============================+
 | ... | *see below*               | *see below*                     | *see below*          | *see below*                |
++-----+---------------------------+---------------------------------+----------------------+----------------------------+
+| ... |                           |                                 | normal               | 1000;100                   |
 +-----+---------------------------+---------------------------------+----------------------+----------------------------+
 | ... | ...                       | ...                             | ...                  | ...                        |
 +-----+---------------------------+---------------------------------+----------------------+----------------------------+
