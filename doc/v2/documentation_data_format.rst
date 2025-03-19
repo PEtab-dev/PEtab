@@ -875,6 +875,20 @@ as long as they preserve the optima. However, tools *should* provide the
 final objective function value, as the negative log-likelihood or unnormalized
 negative log-posterior, to facilitate comparison and reproducibility.
 
+Example
+~~~~~~~
+
+In the case of independently and normally distributed noise, the negative
+log-likelihood would be:
+
+.. math::
+
+    \mathcal{L}_{\text{ML}}(\theta) = \frac{1}{2} \sum_{i=1}^N \left( \log(2\pi \sigma_i^2) + \frac{(m_i - y_i)^2}{\sigma_i^2} \right)
+
+where :math:`m_i` is the measurement, :math:`y_i` is the model output, and
+:math:`\sigma_i` is the standard deviation of the noise for the :math:`i`-th
+measurement.
+
 
 Math expressions syntax
 -----------------------
