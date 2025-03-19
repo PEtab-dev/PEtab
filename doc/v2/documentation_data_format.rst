@@ -172,7 +172,7 @@ following way:
 +--------------+-------------------------+--------------------+
 | conditionId  | targetId                | targetValue        |
 +==============+=========================+====================+
-| PETAB_ID     | NON_ESTIMATED_ENTITY_ID | MATH_EXPRESSION    |
+| PETAB_ID     | NON_PARAMETER_TABLE_ID  | MATH_EXPRESSION    |
 +--------------+-------------------------+--------------------+
 | e.g.         |                         |                    |
 +--------------+-------------------------+--------------------+
@@ -201,7 +201,7 @@ Detailed field description
   by the :ref:`v2_experiments_table`.
 
 - ``targetId``
-  [NON_ESTIMATED_ENTITY_ID, REQUIRED]
+  [NON_PARAMETER_TABLE_ID, REQUIRED]
 
   The ID of the entity that will change.
   The target must be a constant target or a differential target, and must not
@@ -675,23 +675,26 @@ A tab-separated value text file containing information on model parameters.
 
 This table *must* include the following parameters:
 
-- Named parameter overrides introduced in the *conditions table*,
-  unless defined in the SBML model
-- Named parameter overrides introduced in the *measurement table*
+- Named parameter overrides introduced in ``targetValue`` expressions
+  in the *conditions table*, unless already defined in the model
+- Named parameter overrides introduced in ``observableParameters``
+  or ``noiseParameters *measurement table*
+- Parameters introduced in the ``observableFormula`` or ``noiseFormula``
+  expressions in the *observables table*
 
 and *must not* include:
 
 - Placeholder parameters (see ``observableParameters`` and ``noiseParameters``
   above)
-- Parameters included as column names in the *condition table*
+- Parameters occurring as ``targetId`` in the *condition table*
 - "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
-- SBML *local* parameters
+- Any parameters that do not have valid PEtab IDs
+  (e.g., SBML *local* parameters)
 
 it *may* include:
 
-- Any SBML model parameter that was not excluded above
-- Named parameter overrides introduced in the *conditions table*
+- Any model parameter that was not excluded above
 
 One row per parameter with arbitrary order of rows and columns:
 
