@@ -107,11 +107,11 @@ problem as such.
   - ``MATH_EXPRESSION``: A mathematical expression according to the
     `PEtab math expression syntax <math_expressions>`_.
   - ``PETAB_ID``: A string that is a valid PEtab ID
-  - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
-    directly, or via the mapping table, to an entity that has some associated
-    numeric value (e.g., a model parameter, parameter table parameter,
-    or a species in the model) and is not listed in the
-    :ref:`v2_parameters_table` (including ``estimate=0`` parameters).
+  - ``NON_PARAMETER_TABLE_ID``: A valid PEtab ID that refers to a constant or
+    differential entity (:ref:`v2_model_entities`),
+    including PEtab output parameters, but excluding parameters that are
+    listed in the :ref:`v2_parameters_table`
+    (independent of their ``estimate`` value).
 
 
 Changes from PEtab 1.0.0
@@ -133,6 +133,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   (:ref:`v2_observables_table`)
 
 .. _v2_model:
+.. _v2_model_entities:
 
 Model definition
 ----------------
@@ -242,18 +243,31 @@ phases, following the logic of a single SBML event assignment.
    It is invalid to apply more than one assignment to a single target
    simultaneously.
 
-   * This means that values of algebraic entities assigned by, e.g., SBML assignment rules
-     or PYSB expressions will need to be re-evaluated.
+   * This means that values of algebraic entities assigned by, e.g.,
+     SBML assignment rules or PYSB expressions will need to be re-evaluated.
 
-   * These assignments respect language specific interpretations of which variables are *atomic* or *derived*/*algebraic*. Most notably, SBML considers species amounts and compartment size but **not** concentrations to be *atomic*. This means that for any entry that has a ``targetId`` that refers to a species with ``hasOnlySubstanceUnits=false`` will have it's ``targetValue`` (interpreted as concentration) converted to amounts using the **current** compartment size and then applied to the ``targetId``s amount. For further details, refer to SBML semantic
-     test suite case `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+   * These assignments respect language specific interpretations of which
+     variables are *atomic* or *derived*/*algebraic*.
+     Most notably, SBML considers species amounts and compartment sizes
+     but **not** concentrations to be *atomic*.
+     This means that any entry that has a ``targetId`` that refers to a
+     species with ``hasOnlySubstanceUnits=false`` will have its ``targetValue``
+     (interpreted as concentration) converted to amounts using the **current**
+     compartment size and then applied to the target's amount.
+     For further details, refer to SBML semantic test suite case
+     `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
 
 3. **Update of Derived Variables**
 
-   After the assignment of the target values, all derived variables, i.e. algebraic entities, are
-   updated.
-   
-   * These updates respect language specific interpretations of which variables are *atomic* or *derived*/*algebraic*. For example, SBML considers concentrations to be *derived*, meaning that species concentrations will be recomputed based on (updated) values of species amounts and corresponding compartment sizes.
+   After the assignment of the target values, all derived variables,
+   i.e. algebraic entities, are updated.
+
+   * These updates respect language specific interpretations of which variables
+     are *atomic* or *derived*/*algebraic*.
+     For example, SBML considers concentrations to be *derived*,
+     meaning that species concentrations will be recomputed
+     based on (updated) values of species amounts
+     and corresponding compartment sizes.
 
 4. **Events and Finalization**
 
@@ -288,6 +302,10 @@ order:
 +==============+==============+=============+==============+
 | PETAB_ID     | PETAB_ID     | NUMERIC     | NUMERIC\|inf |
 +--------------+--------------+-------------+--------------+
+| e.g.         |              |             |              |
++--------------+--------------+-------------+--------------+
+| observable1  | experiment1  | 0.42        | 0            |
++--------------+--------------+-------------+--------------+
 | ...          | ...          | ...         | ...          |
 +--------------+--------------+-------------+--------------+
 
@@ -297,6 +315,10 @@ order:
 | ... | [observableParameters]                             | [noiseParameters]                                  |
 +=====+====================================================+====================================================+
 | ... | [parameterId\|NUMERIC[;parameterId\|NUMERIC][...]] | [parameterId\|NUMERIC[;parameterId\|NUMERIC][...]] |
++-----+----------------------------------------------------+----------------------------------------------------+
+| ... |                                                    |                                                    |
++-----+----------------------------------------------------+----------------------------------------------------+
+| ... |                                                    |                                                    |
 +-----+----------------------------------------------------+----------------------------------------------------+
 | ... | ...                                                | ...                                                |
 +-----+----------------------------------------------------+----------------------------------------------------+
@@ -342,6 +364,10 @@ Detailed field description
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
   measurements.
+
+  If this time point coincides with the time point of a condition change,
+  the condition change is applied before the observable is evaluated
+  (see :ref:`v2_reinitialization_semantics` for details).
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
