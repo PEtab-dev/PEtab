@@ -204,15 +204,15 @@ Detailed field description
 - ``targetId``
   [NON_ESTIMATED_ENTITY_ID, REQUIRED]
 
-  The ID of the non-estimated entity that will change.
+  The ID of the entity that will change.
+  The target must be a constant target or a differential target, and must not
+  be listed in the :ref:`v2_parameters_table`.
 
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
   The value or expression that will be used to change the target.
   The current value of the target specified under ``targetId`` is initialized
   to the value of ``targetValue`` when the respective condition is applied.
-
-  The target must be a constant target or a differential target.
 
   If the model has a concept of species and a species ID is provided, its
   value is interpreted as amount or concentration in the same way as anywhere
@@ -271,7 +271,8 @@ phases, following the logic of a single SBML event assignment.
    timepoint is the model state after (3).
 
    The initial model state for the new period at time = ``time``
-   (:ref:`v2_experiments_table`) the model state after all of these changes.
+   (:ref:`v2_experiments_table`) will be the model state after all of these
+   changes.
 
 5. **Evaluation of Observables**
 
@@ -475,8 +476,10 @@ The time courses table with three mandatory columns ``experimentId``,
   ``condition_A`` is applied at ``time_A`` and later ``condition_B`` is
   applied at ``time_B``, then ``condition_A`` is active
   during the interval ``[time_A, time_B)``. This implies that any event
-  assignment that triggers at ``time_B`` will occur *after* ``condition_B`` was
-  applied and for any measurements at ``time_B``, the observables will be
+  that triggers at ``time_B`` or is executed at ``time_B``
+  (including events with delays) will trigger or will be executed *after*
+  ``condition_B`` was applied,
+  and for any measurements at ``time_B``, the observables will be
   evaluated *after* ``condition_B`` was applied. For further details, refer to
   :ref:`v2_reinitialization_semantics`.
 
@@ -976,6 +979,8 @@ Detailed field description
 
   A human-readable name for the entity. This is optional and may be used for
   reporting or visualization purposes.
+  Any tool making use of this value should default to the ``petabEntityId``
+  if this field is empty.
 
 Extensions
 ~~~~~~~~~~
