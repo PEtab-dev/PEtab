@@ -57,7 +57,7 @@ of text-based files (
 - (optional) A conditions file specifying model inputs and condition-specific
   parameters [TSV]
 
-- (optional) An experiments file, which describes a sequence of different
+- (optional) An experiments file describing a sequence of different
   experimental conditions that are applied to the model [TSV]
 
 - An observables file specifying the observation model [TSV]
@@ -109,7 +109,7 @@ problem as such.
   - ``PETAB_ID``: A string that is a valid PEtab ID
   - ``NON_ESTIMATED_ENTITY_ID``: A string that is a valid PEtab ID and refers
     directly, or via the mapping table, to an entity that has some associated
-    numeric value (e.g. a model parameter, parameter table parameter,
+    numeric value (e.g., a model parameter, parameter table parameter,
     or a species in the model) and is not listed in the
     :ref:`v2_parameters_table` (including ``estimate=0`` parameters).
 
@@ -202,11 +202,9 @@ Detailed field description
   by the :ref:`v2_experiments_table`.
 
 - ``targetId``
-  [NON_ESTIMATED_ENTITY_ID, required except for ``operationType=noChange``]
+  [NON_ESTIMATED_ENTITY_ID, REQUIRED]
 
   The ID of the non-estimated entity that will change.
-  Different restrictions apply depending on the ``operationType`` and the
-  type of the model.
 
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
@@ -225,8 +223,8 @@ Detailed field description
 Detailed semantics
 ~~~~~~~~~~~~~~~~~~
 
-All changes defined in the condition table are applied in two consecutive
-phases, similar to events in SBML.
+All changes defined in the condition table are applied in five consecutive
+phases, following the logic of a single SBML event assignment.
 
 1. **Evaluation of** ``targetValues``
 
@@ -246,11 +244,11 @@ phases, similar to events in SBML.
    It is invalid to apply more than one assignment to a single target
    simultaneously.
 
-   * This means that values of variables assigned by SBML assignment rules
+   * This means that values of algebraic entities assigned by, e.g., SBML assignment rules
      or PYSB expressions will need to be re-evaluated.
 
    * Notably, for SBML models — where concentrations are always treated as
-     derived variables — species with ``hasOnlySubstanceUnits=false`` and
+     derived (algebraic) variables — species with ``hasOnlySubstanceUnits=false`` and
      simultaneous changes to concentration and compartment size in the
      condition table will have their amount and compartment size updated
      first, with the resulting concentration computed as the fraction of
@@ -333,7 +331,7 @@ Detailed field description
 
   Observable ID as defined in the observable table described below.
 
-- ``experimentId`` [[PETAB_ID], REQUIRED, REFERENCES(experimentsTable.experimentID)]
+- ``experimentId`` [PETAB_ID or empty, REQUIRED, REFERENCES(experimentsTable.experimentID)]
 
   Experiment ID as defined in the experiments table described below. This
   column may have empty cells, which are interpreted as *use the model as is*.
@@ -348,7 +346,7 @@ Detailed field description
 
 - ``time`` [NUMERIC OR STRING, REQUIRED]
 
-  Time point of the measurement in the time unit specified in the SBML model,
+  Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
   measurements.
 
@@ -665,7 +663,7 @@ and *must not* include:
 - Placeholder parameters (see ``observableParameters`` and ``noiseParameters``
   above)
 - Parameters included as column names in the *condition table*
-- "Parameters" that are not *constant entities (e.g., in an SBML model,
+- "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
 - SBML *local* parameters
 
@@ -960,7 +958,7 @@ Detailed field description
   This restriction is to avoid unnecessary complexity in the PEtab problem
   files.
 
-- ``modelEntityId`` [STRING, REQUIRED]
+- ``modelEntityId`` [STRING or empty, REQUIRED]
 
   A globally unique identifier defined in the model, or empty if the entity is
   not present in the model. This does not have to be a valid PEtab identifier.
@@ -974,7 +972,7 @@ Detailed field description
   exactly match the species names in the BNGL-generated network file, and no
   pattern matching will be performed.
 
-- ``name`` [STRING, OPTIONAL]
+- ``name`` [STRING or empty, OPTIONAL]
 
   A human-readable name for the entity. This is optional and may be used for
   reporting or visualization purposes.
