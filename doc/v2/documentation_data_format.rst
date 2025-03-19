@@ -245,21 +245,15 @@ phases, following the logic of a single SBML event assignment.
    * This means that values of algebraic entities assigned by, e.g., SBML assignment rules
      or PYSB expressions will need to be re-evaluated.
 
-   * Notably, for SBML models — where concentrations are always treated as
-     derived (algebraic) variables — species with ``hasOnlySubstanceUnits=false`` and
-     simultaneous changes to concentration and compartment size in the
-     condition table will have their amount and compartment size updated
-     first, with the resulting concentration computed as the fraction of
-     amount to compartment size. For further details, refer to SBML semantic
-     test suite case
-     `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+   * These assignments respect language specific interpretations of which variables are *atomic* or *derived*/*algebraic*. Most notably, SBML considers species amounts and compartment size but **not** concentrations to be *atomic*. This means that for any entry that has a ``targetId`` that refers to a species with ``hasOnlySubstanceUnits=false`` will have it's ``targetValue`` (interpreted as concentration) converted to amounts using the **current** compartment size and then applied to the ``targetId``s amount. For further details, refer to SBML semantic
+     test suite case `01779 <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
 
 3. **Update of Derived Variables**
 
-   After the assignment of the target values, all derived variables are
-   updated. If the model format has a concept of species and compartments,
-   this includes the update of species concentrations, which are derived from
-   their amount and compartment size.
+   After the assignment of the target values, all derived variables, i.e. algebraic entities, are
+   updated.
+   
+   * These updates respect language specific interpretations of which variables are *atomic* or *derived*/*algebraic*. For example, SBML considers concentrations to be *derived*, meaning that species concentrations will be recomputed based on (updated) values of species amounts and corresponding compartment sizes.
 
 4. **Events and Finalization**
 
