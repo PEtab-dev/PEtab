@@ -164,8 +164,6 @@ values of species, and compartments, during specific time periods.
 The start and end of the time period is defined in the
 :ref:`v2_experiments_table`, where multiple conditions can be combined to
 specify time courses or experiments that span multiple time periods.
-Any changes applied to the model will remain in effect until they are changed
-by a condition applied at a later time period or by the model itself.
 
 The conditions table is specified as a tab-separated value file in the
 following way:
@@ -873,7 +871,7 @@ Detailed field description
   ``provided`` (if numeric values for the noise level are provided in the
   measurement table). Default is ``MeanAndSD``.
 
-- ``datasetId`` [STRING, REQUIRED, REFERENCES(measurementTable.datasetId), OPTIONAL]
+- ``datasetId`` [STRING, REFERENCES(measurementTable.datasetId), OPTIONAL]
 
   The datasets which should be grouped into one plot.
 
