@@ -127,7 +127,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   (:ref:`v2_experiments_table`)
 * Support for math expressions in the condition table (:ref:`v2_conditions_table`)
 * Clarification and specification of various previously underspecified aspects
-  (:ref:`v2_math_expressions`, overriding values in the condition table, etc.)
+  (:ref:`v2_math_expressions`, overriding values via the condition table)
 * Support for extensions
 * Observable IDs are now allowed to be used in observable/noise formulas
   (:ref:`v2_observables_table`)
@@ -359,7 +359,7 @@ Detailed field description
 
   The measured value in the same units/scale as the model output.
 
-- ``time`` [NUMERIC OR STRING, REQUIRED]
+- ``time`` [NUMERIC OR ``inf``, REQUIRED]
 
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
