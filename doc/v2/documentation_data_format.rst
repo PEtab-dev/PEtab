@@ -955,6 +955,22 @@ Detailed field description
   The name that should be displayed for the corresponding dataset in the
   legend and which defaults to the value in ``datasetId``.
 
+Extensions
+~~~~~~~~~~
+
+Additional columns, such as ``Color``, etc. may be specified. Extensions
+that define operations on multiple PEtab problems need to employ a single
+PEtab YAML file as entrypoint to the analysis. This PEtab file may leave all
+fields specifying files empty and reference the other PEtab problems in the
+extension specific fields.
+
+Examples
+~~~~~~~~
+
+Examples of the visualization table can be found in the
+`Benchmark model collection <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/>`_, for example in the `Chen_MSB2009 <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009>`_
+model.
+
 .. _v2_mapping_table:
 
 Mapping table
@@ -1015,22 +1031,6 @@ Detailed field description
   reporting or visualization purposes.
   Any tool making use of this value should default to the ``petabEntityId``
   if this field is empty.
-
-Extensions
-~~~~~~~~~~
-
-Additional columns, such as ``Color``, etc. may be specified. Extensions
-that define operations on multiple PEtab problems need to employ a single
-PEtab YAML file as entrypoint to the analysis. This PEtab file may leave all
-fields specifying files empty and reference the other PEtab problems in the
-extension specific fields.
-
-Examples
-~~~~~~~~
-
-Examples of the visualization table can be found in the
-`Benchmark model collection <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/>`_, for example in the `Chen_MSB2009 <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009>`_
-model.
 
 .. _v2_problem_yaml:
 
