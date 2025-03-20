@@ -9,10 +9,16 @@ table_dir = Path(__file__).parent
 MULTILINE_DELIMITER = ";"
 tables = {
     "Supported functions": {
-        "target": doc_dir / "documentation_data_format.rst",
+        "target": doc_dir / "v2" / "documentation_data_format.rst",
         "options": {
             "header-rows": "1",
             # "widths": "20 10 10 5",
+        },
+    },
+    "Tool support": {
+        "target": doc_dir / "software_support.rst",
+        "options": {
+            "header-rows": "1",
         },
     },
 }
@@ -83,7 +89,7 @@ DISCLAIMER = "(GENERATED, DO NOT EDIT, INSTEAD EDIT IN PEtab/doc/src)"
 for table_id, table_data in tables.items():
     target_file = table_data["target"]
     options = table_data["options"]
-    df = pd.read_csv(table_dir/ f"{table_id}.tsv", sep="\t")
+    df = pd.read_csv(table_dir/ f"{table_id}.tsv", sep="\t", dtype=str)
     table = df_to_list_table(df, options=options, name=table_id)
     replace_text(
         filename=target_file,
