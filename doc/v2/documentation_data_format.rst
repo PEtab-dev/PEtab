@@ -50,23 +50,26 @@ of text-based files (
 `Tab-Separated Values (TSV) <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_)
 (Figure 2), i.e.:
 
-- A model
+- A :ref:`model <v2_model>` file specifying the base model
 
-- A measurement file to fit the model to [TSV]
+- A :ref:`measurement file <v2_measurements_table>` with measurements to fit
+  the model to [TSV]
 
-- (optional) A conditions file specifying model inputs and condition-specific
-  parameters [TSV]
+- (optional) A :ref:`conditions file <v2_conditions_table>`
+  specifying model inputs and condition-specific parameters [TSV]
 
-- (optional) An experiments file describing a sequence of different
+- (optional) An :ref:`experiments file <v2_experiments_table>`
+  describing a sequence of different
   experimental conditions that are applied to the model [TSV]
 
-- An observables file specifying the observation model [TSV]
+- An :ref:`observables file <v2_observables_table>`
+  specifying the observation model [TSV]
 
-- A parameters file specifying estimatable parameters and related information
-  [TSV]
+- A :ref:`parameters file <v2_parameters_table>`
+  specifying estimatable parameters and related information [TSV]
 
-- A grouping file that lists all of the files and provides additional information
-  including employed extensions [YAML]
+- A :ref:`grouping file <v2_problem_yaml>` that lists all of the files
+  and provides additional information including employed extensions [YAML]
 
 - (optional) A simulation file, which has the same format as the measurement
   file, but contains model simulations [TSV]
@@ -74,9 +77,10 @@ of text-based files (
 - (optional) A visualization file, which contains specifications how the data
   and/or simulations should be plotted by the visualization routines [TSV]
 
-- (optional) A mapping file, which allows mapping PEtab entity IDs to entity
-  IDs in the model, which might not have valid PEtab IDs themselves [TSV]
-
+- (optional) A :ref:`mapping file <v2_mapping_table>`,
+  which allows mapping PEtab entity IDs to entity IDs in the model,
+  which might not have valid PEtab IDs themselves,
+  and to provide additional annotations [TSV]
 
 .. figure:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
@@ -139,7 +143,8 @@ Model definition
 ----------------
 
 PEtab 2.0.0 is agnostic of specific model formats. A model file is referenced
-in the PEtab problem description (YAML) via its file name or a URL.
+in the :ref:`PEtab problem description (YAML) <v2_problem_yaml>`
+via its file name or a URL.
 
 In the following, we distinguish between three types of entities:
 
