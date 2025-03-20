@@ -14,7 +14,6 @@
    :caption: About
 
    software_support
-   Changelog <CHANGELOG.md>
    Development <development>
    how_to_cite
    license
