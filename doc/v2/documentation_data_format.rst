@@ -248,7 +248,7 @@ phases, following the logic of the event assignments in a single SBML event.
    variables in the respective expressions.
 
    * For the initial time period of an experiment, *current* values are
-   determined by the initial conditions defined in the model.
+     determined by the initial conditions defined in the model.
 
      Constructs defining initial values of model entities (e.g., SBML's
      *initialAssignments*) are applied only once at the start of the first
