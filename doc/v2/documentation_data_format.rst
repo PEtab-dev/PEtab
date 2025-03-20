@@ -372,7 +372,7 @@ The time courses table has three mandatory columns ``experimentId``,
   ``time`` will override any initial time specified in the model.
 
 - ``CONDITION_ID``:
-  [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
+  [PETAB_ID or empty, REQUIRED, REFERENCES(condition.conditionId)]
 
   Reference to a condition ID in the :ref:`v2_conditions_table` that
   is to be applied at the given ``time``, or empty to not apply any changes.
@@ -435,11 +435,13 @@ replicates and plot error bars.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``observableId`` [PETAB_ID, REQUIRED, REFERENCES(observables.observableID)]
+- ``observableId``
+  [PETAB_ID, REQUIRED, REFERENCES(observable.observableId)]
 
   Observable ID as defined in the observable table described below.
 
-- ``experimentId`` [PETAB_ID or empty, REQUIRED, REFERENCES(experimentsTable.experimentID)]
+- ``experimentId``
+  [PETAB_ID or empty, REQUIRED, REFERENCES(experiment.experimentId)]
 
   Experiment ID as defined in the experiments table described below. This
   column may have empty cells, which are interpreted as *use the model as is*.
@@ -900,7 +902,7 @@ Detailed field description
   ``provided`` (if numeric values for the noise level are provided in the
   measurement table). Default is ``MeanAndSD``.
 
-- ``datasetId`` [STRING, REFERENCES(measurementTable.datasetId), OPTIONAL]
+- ``datasetId`` [STRING, REFERENCES(measurement.datasetId), OPTIONAL]
 
   The datasets which should be grouped into one plot.
 
@@ -927,7 +929,7 @@ Detailed field description
   the ``plotTypeSimulation`` column. In this case, points on x axis will be
   placed equidistantly from each other. Default is ``lin``.
 
-- ``yValues`` [observableId, REFERENCES(measurementTable.observableId), OPTIONAL]
+- ``yValues`` [observableId, REFERENCES(measurement.observableId), OPTIONAL]
 
   The observable which should be plotted on the y-axis.
 
