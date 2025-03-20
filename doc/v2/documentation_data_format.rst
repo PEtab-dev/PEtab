@@ -426,6 +426,7 @@ Detailed field description
   Defaults to ``normal``. If ``normal``, the specified ``noiseParameters`` will be
   interpreted as standard deviation (*not* variance). If ``Laplace`` ist specified, the specified ``noiseParameter`` will be interpreted as the scale, or diversity, parameter.
 
+.. _noise_distributions:
 
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
@@ -826,6 +827,67 @@ allows one to specify multiple models with corresponding condition and
 measurement tables, and one joint parameter table. This means that the parameter
 namespace is global. Therefore, parameters with the same ID in different models
 will be considered identical.
+
+
+.. _v2_objective_function:
+
+Frequentist vs. Bayesian inference
+----------------------------------
+
+PEtab supports `maximum likelihood estimation <https://en.wikipedia.org/wiki/Maximum_likelihood_estimation>`__,
+`maximum a posteriori (MAP) estimation <https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation>`__,
+and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
+
+For MAP estimation and Bayesian inference, the prior
+distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
+specified in the parameter table
+(``objectivePriorType`` and ``objectivePriorParameters`` columns,
+as described above),
+while for maximum likelihood estimation, the prior distributions are not
+specified. If priors are only specified
+for a subset of inferred parameters, the remaining parameters are assumed to have a
+uniform prior between their lower and upper bounds.
+
+For maximum likelihood estimation, the objective function is the negative
+log-likelihood of the data given the model :math:`\mathcal{M}` with
+parameters :
+
+.. math::
+
+    \mathcal{L}_{\text{ML}}(\theta) = - \log p(\mathcal{D} \mid \mathcal{M}, \theta)
+
+    \theta_{\text{ML}} = \arg\min_{\theta} \mathcal{L}_{\text{ML}}(\theta)
+
+Where :math:`p(\mathcal{D} \mid \mathcal{M}, \theta)` is the likelihood
+as described under :ref:`noise_distributions`.
+
+For MAP estimation, the objective function is the unnormalized negative
+log-posterior of the data given the model and the parameters:
+
+.. math::
+
+    \mathcal{L}_{\text{MAP}}(\theta) = - \log p(\mathcal{D} \mid \mathcal{M}, \theta) - \log p(\theta)
+
+    \theta_{\text{MAP}} = \arg\min_{\theta} \mathcal{L}_{\text{MAP}}(\theta)
+
+Different tools *may* use different objective function formulations internally,
+as long as they preserve the optima. However, tools *should* provide the
+final objective function value, as the negative log-likelihood or unnormalized
+negative log-posterior, to facilitate comparison and reproducibility.
+
+Example
+~~~~~~~
+
+In the case of independently and normally distributed noise, the negative
+log-likelihood would be:
+
+.. math::
+
+    \mathcal{L}_{\text{ML}}(\theta) = \frac{1}{2} \sum_{i=1}^N \left( \log(2\pi \sigma_i^2) + \frac{(m_i - y_i)^2}{\sigma_i^2} \right)
+
+where :math:`m_i` is the measurement, :math:`y_i` is the model output, and
+:math:`\sigma_i` is the standard deviation of the noise for the :math:`i`-th
+measurement.
 
 
 Math expressions syntax
