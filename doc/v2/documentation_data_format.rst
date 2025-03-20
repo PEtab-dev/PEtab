@@ -56,7 +56,7 @@ format (Figure 2), including:
 - A :ref:`model <v2_model>` file specifying the base model
   [SBML, CELLML, BNGL, PYSB, ...].
 
-- A :ref:`measurement file <v2_measurments_table>` containing experimental
+- A :ref:`measurement file <v2_measurements_table>` containing experimental
   data used for model fitting [TSV].
 
 - (optional) A :ref:`conditions file <v2_conditions_table>` specifying model
@@ -119,10 +119,9 @@ should not alter the definition of the estimation problem itself.
 
 Changes from PEtab 1.0.0
 ------------------------
-eme
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
-* Support for models in other formats then SBML (:ref:`v2_model`).
+* Support for models in other formats than SBML (:ref:`v2_model`).
 * Revised condition table format from wide to long format
   (:ref:`v2_conditions_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
@@ -151,16 +150,16 @@ problem description (YAML) <v2_problem_yaml>` by its file name or a URL.
 PEtab distinguishes between three types of entities:
 
 * **Differential entities**: Entities that are defined in terms of a
-time-derivative, e.g., the targets of SBML rate rules or species that change
-due to participation in reactions (reactants or products).
+  time-derivative, e.g., the targets of SBML rate rules or species that change
+  due to participation in reactions (reactants or products).
 
 * **Algebraic entities**: Entities that are defined in terms of an algebraic
-assignment rather than time derivatives. They are not necessarily constant,
-for example, the targets of SBML assignment rules.
+  assignment rather than time derivatives. They are not necessarily constant,
+  for example, the targets of SBML assignment rules.
 
 * **Constant entities**: Entities are that are defined in terms of a constant
-value but may be subject to event assignments, e.g., parameters of an SBML
-model that are not targets of rate rules or assignment rules.
+  value but may be subject to event assignments, e.g., parameters of an SBML
+  model that are not targets of rate rules or assignment rules.
 
 .. _v2_conditions_table:
 
@@ -180,8 +179,8 @@ given experiment or the time between the last time point of an experiment and
 the time point of the last measurement for that experiment in the
 :ref:`v2_measurements_table`.
 
-The conditions tably only allows changes in the model state, not the model
-structure. That mean that only constant or differential entities (e.g.,
+The conditions table only allows changes in the model state, not the model
+structure. That means that only constant or differential entities (e.g.,
 constant parameters or model states) can be modified. **Algebraic entities**
 (e.g., the targets of SBML assignment rules) cannot be changed.
 
@@ -357,7 +356,7 @@ The time courses table has three mandatory columns ``experimentId``,
   unit specified in the model. ``-inf`` indicates that the respective
   condition will be simulated until a steady state is reached.
 
-  If the simulation of a condition with steady fails to reach a steady state,
+  If the simulation of a condition with steady state fails to reach a steady state,
   and the condition is required for the evaluation of simulation at
   measurement points, the evaluation of the model is not well-defined.
   In such cases, PEtab interpreters should notify the user, for example, by
@@ -366,7 +365,7 @@ The time courses table has three mandatory columns ``experimentId``,
   Any event triggers defined in the model must also be checked during this
   pre-simulation.
 
-  Multiple conditions cannot be applied simultaneously within in a single
+  Multiple conditions cannot be applied simultaneously within a single
   experiment; each ``time`` values must be unique for each ``experimentId``.
 
   ``time`` will override any initial time specified in the model.
