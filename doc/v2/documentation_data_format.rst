@@ -160,11 +160,22 @@ In the following, we distinguish between three types of entities:
 Conditions table
 ----------------
 
-The conditions table specifies changes to parameters, initial or intermediate
-values of species, and compartments, during specific time periods.
-The start and end of the time period is defined in the
-:ref:`v2_experiments_table`, where multiple conditions can be combined to
-specify time courses or experiments that span multiple time periods.
+The conditions table specifies discrete changes to the model.
+These (sets of) changes are often used to model interventions, perturbations,
+or changes in the environment of the system of interest,
+and are referred to as (experimental) *conditions*.
+These conditions are applied at specific time points, which are defined in the
+:ref:`v2_experiments_table`, that allows for the specification of time courses
+or experiments that span multiple time periods. A time period is the time
+between two consecutive time points in the experiments table for a given
+experiment, or the time between the last time point of an experiment and the
+time point of the last measurement for that experiment in the
+:ref:`v2_measurements_table`.
+
+Only the model state can be changed through the conditions table, not
+the model structure. I.e., only constant or differential targets
+(constant parameters, or model state) can be changed, but not algebraic
+entities (e.g., the targets of SBML assignment rules).
 
 The conditions table is specified as a tab-separated value file in the
 following way:
@@ -191,19 +202,18 @@ Each row specifies one change in one target entity.
 Row- and column-ordering are arbitrary, although specifying ``conditionId``
 first may improve human readability.
 
-
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``conditionId`` [PETAB_ID, REQUIRED]
 
-  Unique identifier for the simulation/experimental condition, to be referenced
-  by the :ref:`v2_experiments_table`.
+  Unique identifier for the condition the given change is part of,
+  to be referenced by the :ref:`v2_experiments_table`.
 
 - ``targetId``
   [NON_PARAMETER_TABLE_ID, REQUIRED]
 
-  The ID of the entity that will change.
+  The ID of the target (i.e., the entity that will change).
   The target must be a constant target or a differential target, and must not
   be listed in the :ref:`v2_parameters_table`.
 
@@ -232,6 +242,11 @@ phases, following the logic of a single SBML event assignment.
 
    * For the initial time period of an experiment, *current* values are
      determined by the initial conditions defined in the model.
+
+     Constructs that define initial values of model entities
+     (e.g., SBML's *initialAssignments*) are only applied once for this
+     initial time period, and are not re-evaluated at the beginning of
+     subsequent time periods.
 
    * For subsequent time periods, the *current* values are defined by the
      simulation results at the end of the preceding time period.
@@ -273,7 +288,8 @@ phases, following the logic of a single SBML event assignment.
 
    All other state- or time-dependent changes encoded in the model are now
    applied as well. For example, this includes SBML events.
-   The model state for the evaluation of any trigger functions for this
+   The model state for the evaluation of any trigger functions or the execution
+   of any event assignments (including events with delays) for this
    timepoint is the model state after (3).
 
    The initial model state for the new period at time = ``time``
@@ -285,6 +301,83 @@ phases, following the logic of a single SBML event assignment.
    If there are measurements for the current timepoint, the observables are
    evaluated after all changes have been applied. This is the value that will
    be compared to the measurements in the measurement table.
+
+.. _v2_experiments_table:
+
+Experiments table
+-----------------
+
+The optional experiments table describes a sequence of different experimental
+conditions (here: discrete changes; see :ref:`v2_conditions_table`) that are
+applied to the model.
+
+The experiments table is specified as a tab-separated value file in the
+following way:
+
++---------------------+-------------------+-----------------+
+| experimentId        | time              | conditionId     |
++=====================+===================+=================+
+| PETAB_ID            | NUMERIC or '-inf' | CONDITION_ID    |
++---------------------+-------------------+-----------------+
+| timecourse_1        |                 0 | condition_1     |
++---------------------+-------------------+-----------------+
+| timecourse_1        |                10 | condition_2     |
++---------------------+-------------------+-----------------+
+| timecourse_1        |               250 | condition_3     |
++---------------------+-------------------+-----------------+
+| patient_3           |              -inf | condition_1     |
++---------------------+-------------------+-----------------+
+| patient_3           |                 0 | condition_2     |
++---------------------+-------------------+-----------------+
+| intervention_effect |               -20 | no_lockdown     |
++---------------------+-------------------+-----------------+
+| intervention_effect |                20 | mild_lockdown   |
++---------------------+-------------------+-----------------+
+| intervention_effect |                40 | severe_lockdown |
++---------------------+-------------------+-----------------+
+
+The order of the rows is arbitrary, but specifying the rows in ascending order
+of time may improve human readability.
+
+Detailed field description
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The time courses table has three mandatory columns ``experimentId``,
+``time``, and ``conditionId``:
+
+- ``experimentId`` [PETAB_ID, REQUIRED]
+
+  Identifier of the experiment.
+  This is referenced by the ``experimentId`` column in the
+  :ref:`v2_measurements_table`.
+
+- ``time``: [NUMERIC or ``-inf``, REQUIRED]
+
+  The time when the condition will become active, in the time unit specified
+  in the model. ``-inf`` indicates that the respective condition will be
+  simulated until a steady state is reached.
+
+  If the simulation of a condition with steady fails to reach a steady state,
+  and the condition is required for the evaluation of simulation at measurement
+  points, the evaluation of the model is not well-defined.
+  In such cases, PEtab interpreters should notify the user, for example, by
+  returning ``NaN`` or ``inf`` values for the objective function.
+  PEtab does not specify a numerical criterion for steady states.
+  Any event triggers defined in the model must also be checked
+  during this pre-simulation.
+
+  Multiple conditions cannot be applied simultaneously in a single experiment,
+  i.e., the ``time`` values must be unique for each ``experimentId``.
+
+  ``time`` will override any initial time specified in the model.
+
+- ``CONDITION_ID``:
+  [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
+
+  Reference to a condition ID in the :ref:`v2_conditions_table` that
+  is to be applied at the given ``time``, or empty to not apply any changes.
+
+  For further details, refer to :ref:`v2_reinitialization_semantics`.
 
 .. _v2_measurements_table:
 
@@ -412,98 +505,6 @@ Detailed field description
 
   The replicateId can be used to discern replicates with the same
   ``datasetId``, which is helpful for plotting e.g. error bars.
-
-
-.. _v2_experiments_table:
-
-Experiments table
------------------
-
-The optional experiments table describes a sequence of different experimental
-conditions (here: discrete changes) that are applied to the model. Only the
-model state can be changed by the conditions in the experiments table, not
-the model structure.
-
-The experiments table is specified as a tab-separated value file in the
-following way:
-
-+---------------------+-------------------+-----------------+
-| experimentId        | time              | conditionId     |
-+=====================+===================+=================+
-| PETAB_ID            | NUMERIC or '-inf' | CONDITION_ID    |
-+---------------------+-------------------+-----------------+
-| timecourse_1        |                 0 | condition_1     |
-+---------------------+-------------------+-----------------+
-| timecourse_1        |                10 | condition_2     |
-+---------------------+-------------------+-----------------+
-| timecourse_1        |               250 | condition_3     |
-+---------------------+-------------------+-----------------+
-| patient_3           |              -inf | condition_1     |
-+---------------------+-------------------+-----------------+
-| patient_3           |                 0 | condition_2     |
-+---------------------+-------------------+-----------------+
-| intervention_effect |               -20 | no_lockdown     |
-+---------------------+-------------------+-----------------+
-| intervention_effect |                20 | mild_lockdown   |
-+---------------------+-------------------+-----------------+
-| intervention_effect |                40 | severe_lockdown |
-+---------------------+-------------------+-----------------+
-
-Detailed field description
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The time courses table with three mandatory columns ``experimentId``,
-``time``, and ``conditionId``:
-
-- ``experimentId`` [PETAB_ID, REQUIRED]
-
-  Identifier of the experiment.
-  This is referenced by the ``experimentId`` column in the measurement table.
-
-- ``time``: [NUMERIC or ``-inf``, REQUIRED]
-
-  The time when the condition will become active, in the time unit specified
-  in the model. ``-inf`` indicates that the respective condition will be
-  simulated until a steady state is reached.
-
-  If the simulation of a condition with steady fails to reach a steady state,
-  and the condition is required for the evaluation of simulation at measurement
-  points, the evaluation of the model is not well-defined.
-  In such cases, PEtab interpreters should notify the user, for example, by
-  returning ``NaN`` or ``inf`` values for the objective function.
-  PEtab does not specify a numerical criterion for steady states.
-  Any event triggers defined in the model must also be checked
-  during this pre-simulation.
-
-  Multiple conditions cannot be applied simultaneously in a single experiment,
-  i.e. the ``time`` values must be unique for each ``experimentId``.
-  The order of the rows is arbitrary, but specifying the rows in ascending order
-  of time may improve human readability.
-
-  ``time`` will override any initial time specified in the model.
-
-- ``CONDITION_ID``:
-  [PETAB_ID or empty, REQUIRED, REFERENCES(conditions.conditionID)]
-
-  Reference to a condition ID in the condition table that
-  is to be applied at the given ``time``, or empty to not apply any changes.
-
-  Note: The time interval in which a condition is applied includes the
-  respective starting timepoint, but excludes the starting timepoint of
-  the following condition. This means that for an experiment where
-  ``condition_A`` is applied at ``time_A`` and later ``condition_B`` is
-  applied at ``time_B``, then ``condition_A`` is active
-  during the interval ``[time_A, time_B)``. This implies that any event
-  that triggers at ``time_B`` or is executed at ``time_B``
-  (including events with delays) will trigger or will be executed *after*
-  ``condition_B`` was applied,
-  and for any measurements at ``time_B``, the observables will be
-  evaluated *after* ``condition_B`` was applied. For further details, refer to
-  :ref:`v2_reinitialization_semantics`.
-
-Constructs that define initial values of model entities
-(e.g., SBML's *initialAssignments*) are only applied once at the beginning of
-the simulation, and are not re-evaluated at the beginning of each period.
 
 .. _v2_observables_table:
 
