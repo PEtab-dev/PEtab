@@ -380,7 +380,7 @@ The experiments table has three mandatory columns ``experimentId``,
   time).
 
 
-- ``CONDITION_ID``:
+- ``conditionId``:
   [PETAB_ID or empty, REQUIRED, REFERENCES(condition.conditionId)]
 
   A reference to a condition ID in the :ref:`v2_conditions_table` that
