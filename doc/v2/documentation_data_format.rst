@@ -167,7 +167,7 @@ PEtab distinguishes between three types of entities:
 Conditions table
 ----------------
 
-The conditions table defines discrete changes to the model. These (sets of)
+The optional conditions table defines discrete changes to the model. These (sets of)
 changes typically represent interventions, perturbations, or changes in the
 environment of the system of interest. These modifications are referred to as
 (experimental) *conditions*.
@@ -320,6 +320,8 @@ the following structure:
 +=====================+===================+=================+
 | PETAB_ID            | NUMERIC or '-inf' | CONDITION_ID    |
 +---------------------+-------------------+-----------------+
+| e.g.                |                   |                 |
++---------------------+-------------------+-----------------+
 | timecourse_1        |                 0 | condition_1     |
 +---------------------+-------------------+-----------------+
 | timecourse_1        |                10 | condition_2     |
@@ -343,7 +345,7 @@ of time may improve human readability.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The time courses table has three mandatory columns ``experimentId``,
+The experiment table has three mandatory columns ``experimentId``,
 ``time``, and ``conditionId``:
 
 - ``experimentId`` [PETAB_ID, REQUIRED]
@@ -367,10 +369,10 @@ The time courses table has three mandatory columns ``experimentId``,
   pre-simulation.
 
   Multiple conditions cannot be applied simultaneously within a single
-  experiment; each ``time`` values must be unique for each ``experimentId``.
+  experiment; each ``time`` value must be unique for each ``experimentId``.
 
   ``time`` will override any initial time specified in the model,
-  except in the case of ``time`` =  `ìnf``, in which case the model-specified
+  except in the case of ``time`` =  ``-ìnf``, in which case the model-specified
   time will be used (or 0, if the model does not explicitly specify an initial
   time).
 
@@ -709,7 +711,7 @@ One row per parameter with arbitrary order of rows and columns:
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
 | parameterId | [parameterName] | parameterScale          | lowerBound  | upperBound | nominalValue | estimate | ... |
 +=============+=================+=========================+=============+============+==============+==========+=====+
-| STRING      | [STRING]        | log10\|lin\|log         | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
+| PETAB_ID    | [STRING]        | log10\|lin\|log         | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
 | k1          |                 | lin                     | 1e-5        | 1e5        | 100          | 1        | ... |
 +-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
@@ -989,7 +991,7 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 +---------------+---------------+---------------+
 | petabEntityId | modelEntityId | [name]        |
 +===============+===============+===============+
-| STRING        | STRING        | STRING        |
+| PETAB_ID        | STRING        | STRING        |
 +---------------+---------------+---------------+
 | reaction1_k1  | reaction1.k1  | reaction1 k1  |
 +---------------+---------------+---------------+
