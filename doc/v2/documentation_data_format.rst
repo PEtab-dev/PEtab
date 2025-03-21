@@ -123,7 +123,7 @@ Changes from PEtab 1.0.0
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
 * Support for models in other formats than SBML (:ref:`v2_model`).
-* Revised condition table format from wide to long format
+* The (now optional) conditions table format changed from wide to long
   (:ref:`v2_conditions_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
   :ref:`v2_measurements_table` are replaced by ``experimentId`` and a more
@@ -154,11 +154,13 @@ PEtab distinguishes between three types of entities:
   time-derivative, e.g., the targets of SBML rate rules or species that change
   due to participation in reactions (reactants or products).
 
-* **Algebraic entities**: Entities that are defined in terms of an algebraic
-  assignment rather than time derivatives. They are not necessarily constant,
-  for example, the targets of SBML assignment rules.
+* **Algebraic entities**: Entities that are defined in terms of algebraic
+  assignments, rather than time derivatives, that are in effect throughout the
+  simulation. They are not necessarily constant, for example,
+  the targets of SBML assignment rules.
 
-* **Constant entities**: Entities are that are defined in terms of a constant
+* **Constant entities**: Entities are that not differential or algebraic
+  entities. They are defined in terms of an at least piecewise constant
   value but may be subject to event assignments, e.g., parameters of an SBML
   model that are not targets of rate rules or assignment rules.
 
@@ -175,10 +177,11 @@ environment of the system of interest. These modifications are referred to as
 Conditions are applied at specific time points, which are defined in the
 :ref:`v2_experiments_table`. This allows for the specification of time
 courses or experiments spanning multiple time periods. A time period is the
-interval between two consecutive time points in the experiments table for a
-given experiment or the time between the last time point of an experiment and
-the time point of the last measurement for that experiment in the
-:ref:`v2_measurements_table`.
+interval between two consecutive time points in the experiments table
+(including the first, excluding the second) for a given experiment,
+or the time between the last time point of an experiment and
+the end of the simulation (usually, the time point of the last measurement
+for that experiment in the :ref:`v2_measurements_table`).
 
 The conditions table only allows changes in the model state, not the model
 structure. That means that only constant or differential entities (e.g.,
@@ -345,7 +348,7 @@ of time may improve human readability.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The experiment table has three mandatory columns ``experimentId``,
+The experiments table has three mandatory columns ``experimentId``,
 ``time``, and ``conditionId``:
 
 - ``experimentId`` [PETAB_ID, REQUIRED]
@@ -991,7 +994,7 @@ The TSV file has two mandatory columns, ``petabEntityId`` and
 +---------------+---------------+---------------+
 | petabEntityId | modelEntityId | [name]        |
 +===============+===============+===============+
-| PETAB_ID        | STRING        | STRING        |
+| PETAB_ID      | STRING        | STRING        |
 +---------------+---------------+---------------+
 | reaction1_k1  | reaction1.k1  | reaction1 k1  |
 +---------------+---------------+---------------+
