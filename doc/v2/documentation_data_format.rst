@@ -1178,7 +1178,7 @@ The following functions are supported:
      - float
    * - ``sign(x)``
      - | sign of ``x``
-       | ``piecewise(1, x > 0, -1, x < 0, 0)``
+       | ``piecewise(1, x>=0, -1)``
      - float
      - float
    * - | ``min(a, b)``
