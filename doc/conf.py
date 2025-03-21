@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'PEtab'
-copyright = '2018-2021, the PEtab developers'
+copyright = '2018-2025, the PEtab developers'
 author = 'PEtab developers'
 
 # The full version, including alpha/beta/rc tags
