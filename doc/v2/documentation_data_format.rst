@@ -68,7 +68,9 @@ format (Figure 2), including:
 - An :ref:`observables file <v2_observables_table>` defining the observation
   model [TSV].
 
-- A :ref:`parameters file <v2_parameters_table>` to set parameter values globally, and to specify the parameters to be estimated as well as their parameter bounds and prior distributions [TSV].
+- A :ref:`parameters file <v2_parameters_table>` to set parameter values
+  globally, and to specify the parameters to be estimated as well as their
+  parameter bounds and prior distributions [TSV].
 
 - A :ref:`grouping file <v2_problem_yaml>` that lists all relevant files and
   provides additional information including extensions [YAML].
@@ -367,7 +369,10 @@ The time courses table has three mandatory columns ``experimentId``,
   Multiple conditions cannot be applied simultaneously within a single
   experiment; each ``time`` values must be unique for each ``experimentId``.
 
-  ``time`` will override any initial time specified in the model, except in the case of ``time`` =  `ìnf``, in which case the model-specified time will be used (or 0, if the model does not explicitly specify an initial time).
+  ``time`` will override any initial time specified in the model,
+  except in the case of ``time`` =  `ìnf``, in which case the model-specified
+  time will be used (or 0, if the model does not explicitly specify an initial
+  time).
 
 
 - ``CONDITION_ID``:

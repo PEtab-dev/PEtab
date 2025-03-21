@@ -76,11 +76,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.65539119"
-     inkscape:cx="11.443547"
-     inkscape:cy="313.55319"
+     inkscape:zoom="0.86992678"
+     inkscape:cx="170.70402"
+     inkscape:cy="490.27115"
      inkscape:document-units="mm"
-     inkscape:current-layer="g2250"
+     inkscape:current-layer="g927"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1110"
@@ -1098,12 +1098,12 @@
             <text
                xml:space="preserve"
                style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-               x="116.48923"
+               x="140.81935"
                y="132.34807"
                id="text2019"><tspan
                  sodipodi:role="line"
                  id="tspan2017"
-                 x="116.48923"
+                 x="140.81935"
                  y="132.34807"
                  style="font-weight:bold;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round">Observable table</tspan></text>
             <rect
@@ -1220,7 +1220,7 @@
                  id="tspan798"
                  style="stroke-width:0.529249px"
                  x="263.63083"
-                 y="142.4104"></tspan></text>
+                 y="142.4104" /></text>
             <text
                xml:space="preserve"
                style="font-style:normal;font-weight:normal;font-size:4.234px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -1236,7 +1236,7 @@
                  x="259.50632"
                  y="136.87125"
                  style="font-weight:bold;font-size:4.234px;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                 id="tspan804"></tspan><tspan
+                 id="tspan804" /><tspan
                  sodipodi:role="line"
                  x="259.50632"
                  y="142.16376"
@@ -1246,74 +1246,70 @@
           <g
              id="g915"
              transform="translate(168.74841,-39.16474)">
+            <text
+               id="text2015"
+               y="214.27122"
+               x="51.181431"
+               style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+               xml:space="preserve"><tspan
+                 style="font-weight:bold;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
+                 y="214.27122"
+                 x="51.181431"
+                 id="tspan2013"
+                 sodipodi:role="line">Measurement table</tspan></text>
+            <rect
+               ry="2.651422"
+               rx="2.1955087"
+               y="208.6987"
+               x="17.731647"
+               height="34.468487"
+               width="111.80054"
+               id="rect2003-1"
+               style="fill:#800000;fill-opacity:0.12549;fill-rule:nonzero;stroke:#800000;stroke-width:0.683813;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
             <g
-               id="g1305"
-               transform="translate(-35.987881,32.814498)"
-               style="stroke-linecap:butt;stroke-linejoin:round">
+               id="g887"
+               transform="translate(-0.46777761)">
+              <path
+                 sodipodi:nodetypes="cc"
+                 inkscape:connector-curvature="0"
+                 id="path2040-1"
+                 d="m 56.567499,189.77711 c 0,0 89.971401,0 107.320821,0"
+                 style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.240694px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+                 transform="translate(-35.987882,32.8145)" />
               <text
-                 id="text2015"
-                 y="181.45673"
-                 x="98.67672"
+                 id="text2046-0"
+                 y="188.13367"
+                 x="56.075958"
                  style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-                 xml:space="preserve"><tspan
-                   style="font-weight:bold;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                   y="181.45673"
-                   x="98.67672"
-                   id="tspan2013"
-                   sodipodi:role="line">Measurement table</tspan></text>
-              <rect
-                 ry="2.651422"
-                 rx="2.1955087"
-                 y="175.8842"
-                 x="53.719528"
-                 height="34.468487"
-                 width="111.80054"
-                 id="rect2003-1"
-                 style="opacity:1;fill:#800000;fill-opacity:0.12549;fill-rule:nonzero;stroke:#800000;stroke-width:0.683813;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
-              <g
-                 style="stroke-linecap:butt;stroke-linejoin:round"
-                 transform="translate(0.09130474,1.0585323)"
-                 id="g1293">
-                <path
-                   sodipodi:nodetypes="cc"
-                   inkscape:connector-curvature="0"
-                   id="path2040-1"
-                   d="m 56.476194,188.71858 c 0,0 89.971406,0 107.320826,0"
-                   style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.240694px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-                <text
-                   id="text2046-0"
-                   y="187.07513"
-                   x="55.984653"
-                   style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-                   xml:space="preserve"><tspan
-                     id="tspan2065-5"
-                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                     y="187.07513"
-                     x="55.984653"
-                     sodipodi:role="line">observableId timecourseId time measurement</tspan><tspan
-                     id="tspan2152"
-                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                     y="193.24875"
-                     x="55.984653"
-                     sodipodi:role="line">Observable1  Timecourse1  1.0     2.0</tspan><tspan
-                     id="tspan2048-5"
-                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                     y="199.42236"
-                     x="55.984653"
-                     sodipodi:role="line">Observable2  Timecourse2  1.0     3.0</tspan><tspan
-                     id="tspan2050-0"
-                     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
-                     y="205.59598"
-                     x="55.984653"
-                     sodipodi:role="line">...</tspan></text>
-              </g>
+                 xml:space="preserve"
+                 transform="translate(-35.987882,32.8145)"><tspan
+                   id="tspan2065-5"
+                   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
+                   y="188.13367"
+                   x="56.075958"
+                   sodipodi:role="line">observableId experimentId time measurement</tspan><tspan
+                   id="tspan2152"
+                   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
+                   y="194.30728"
+                   x="56.075958"
+                   sodipodi:role="line">Observable1  Experiment1   1.0     2.0</tspan><tspan
+                   id="tspan2048-5"
+                   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
+                   y="200.4809"
+                   x="56.075958"
+                   sodipodi:role="line">Observable2  Experiment2   1.0     3.0</tspan><tspan
+                   id="tspan2050-0"
+                   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
+                   y="206.65451"
+                   x="56.075958"
+                   sodipodi:role="line">...</tspan></text>
+              <path
+                 sodipodi:nodetypes="cc"
+                 inkscape:connector-curvature="0"
+                 id="path2042-7-8"
+                 d="m 51.954622,217.73186 v 22.28007"
+                 style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
             </g>
-            <path
-               sodipodi:nodetypes="cc"
-               inkscape:connector-curvature="0"
-               id="path2042-7-8"
-               d="m 51.954622,217.73186 v 22.28007"
-               style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
           </g>
           <g
              id="g927"
@@ -1321,18 +1317,18 @@
             <text
                id="text2023"
                y="213.8007"
-               x="161.01901"
+               x="191.53197"
                style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
                xml:space="preserve"><tspan
                  style="font-weight:bold;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
                  y="213.8007"
-                 x="161.01901"
+                 x="191.53197"
                  id="tspan2021"
                  sodipodi:role="line">Parameter table</tspan></text>
             <rect
                style="fill:#00aad4;fill-opacity:0.12549;fill-rule:nonzero;stroke:#00aad4;stroke-width:0.741638;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
                id="rect2154"
-               width="156.7733"
+               width="150.08699"
                height="34.41066"
                x="131.75659"
                y="208.72762"
@@ -1370,7 +1366,7 @@
                  style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
                  y="232.34497"
                  x="134.85385"
-                 sodipodi:role="line">Parameter2        0       3.0         -50         25o</tspan><tspan
+                 sodipodi:role="line">Parameter2        0       3.0         -50         250</tspan><tspan
                  id="tspan2050-1"
                  style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.234px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round"
                  y="238.51859"
@@ -1384,12 +1380,12 @@
             <text
                xml:space="preserve"
                style="font-style:normal;font-weight:normal;font-size:4.93889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-               x="42.354477"
+               x="37.414452"
                y="157.75285"
                id="text859"><tspan
                  sodipodi:role="line"
                  id="tspan857"
-                 x="42.354477"
+                 x="37.414452"
                  y="157.75285"
                  style="font-weight:bold;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:round">Experiment table</tspan></text>
             <rect
