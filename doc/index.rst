@@ -13,7 +13,6 @@
    :maxdepth: 2
    :caption: About
 
-   Changelog <CHANGELOG.md>
    Development <development>
    how_to_cite
    license

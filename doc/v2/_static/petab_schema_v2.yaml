@@ -34,8 +34,9 @@ properties:
 
       type: object
       description: |
-        A set of PEtab model, condition, observable and measurement
-        files and optional visualization files.
+        A set of PEtab model, observable and measurement
+        files and optional condition, experiment, and visualization files.
+
       properties:
 
         model_files:
@@ -75,6 +76,14 @@ properties:
             type: string
             description: PEtab condition file name or URL.
 
+        experiment_files:
+          type: array
+          description: List of PEtab experiment files
+
+          items:
+            type: string
+            description: PEtab experiment file name or URL.
+
         observable_files:
           type: array
           description: List of PEtab observable files.
@@ -103,7 +112,6 @@ properties:
         - model_files
         - observable_files
         - measurement_files
-        - condition_files
 
   extensions:
     type: object

@@ -1,3 +1,5 @@
+.. _v1_spec:
+
 PEtab data format specification
 ===============================
 
@@ -87,12 +89,14 @@ problem as such.
 - All model entities, column names and row names are case-sensitive
 - Fields in "[]" are optional and may be left empty.
 
+.. _v1_model:
 
 SBML model definition
 ---------------------
 
 The model must be specified as valid SBML. There are no further restrictions.
 
+.. _v1_conditions_table:
 
 Condition table
 ---------------
@@ -163,6 +167,7 @@ Detailed field description
     If a compartment ID is provided, it is interpreted as the initial
     compartment size.
 
+.. _v1_measurements_table:
 
 Measurement table
 -----------------
@@ -276,6 +281,7 @@ Detailed field description
   The replicateId can be used to discern replicates with the same
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
+.. _v1_observables_table:
 
 Observables table
 -----------------
@@ -388,6 +394,7 @@ Detailed field description
   Defaults to ``normal``. If ``normal``, the specified ``noiseParameters`` will be
   interpreted as standard deviation (*not* variance). If ``Laplace`` ist specified, the specified ``noiseParameter`` will be interpreted as the scale, or diversity, parameter.
 
+.. _v1_noise_distributions:
 
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
@@ -430,6 +437,7 @@ The distributions above are for a single data point. For a collection :math:`D=\
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
 
+.. _v1_parameters_table:
 
 Parameter table
 ---------------
@@ -570,6 +578,7 @@ Detailed field description
   Prior parameters used for the objective function during optimization.
   For more detailed documentation, see ``initializationPriorParameters``.
 
+.. _v1_visualization_table:
 
 Visualization table
 -------------------
@@ -696,6 +705,7 @@ Examples of the visualization table can be found in the
 `Benchmark model collection <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/>`_, for example in the `Chen_MSB2009 <https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab/tree/master/Benchmark-Models/Chen_MSB2009>`_
 model.
 
+.. _v1_problem_yaml:
 
 YAML file for grouping files
 ----------------------------
