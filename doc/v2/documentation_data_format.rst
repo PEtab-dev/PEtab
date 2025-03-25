@@ -795,7 +795,7 @@ Detailed field description
 
 - ``prior`` [STRING, OPTIONAL]
 
-  Prior types used for used for the :ref:`MAP objective function and for Bayesian inference <_v2_objective_function>`.
+  Prior types used for used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   If priors are specified for a subset of parameters, this defaults to 
   ``parameterScaleUniform`` for any unspecified parameter.
 
@@ -813,7 +813,7 @@ Detailed field description
 
 - ``priorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for the :ref:`MAP objective function and for Bayesian inference <_v2_objective_function>`.
+  Prior parameters used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   ``priorParameters`` is required if ``prior`` is non-empty. If ``prior`` is specified for any other parameter, and ``prior`` is  empty for the given parameter, this defaults to ``lowerBound;upperBound``.
 
   So far, only numeric values will be supported, no parameter names.
