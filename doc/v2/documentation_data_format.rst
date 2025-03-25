@@ -723,15 +723,15 @@ One row per parameter with arbitrary order of rows and columns:
 
 *(wrapped for readability)*
 
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... | [initializationPriorType] | [initializationPriorParameters] | [objectivePriorType] | [objectivePriorParameters] |
-+=====+===========================+=================================+======================+============================+
-| ... | *see below*               | *see below*                     | *see below*          | *see below*                |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... |                           |                                 | normal               | 1000;100                   |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... | ...                       | ...                             | ...                  | ...                        |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
++-----+----------------+----------------------------+
+| ... | [prior]        | [priorParameters]          |
++=====+================+============================+
+| ... | *see below*    | *see below*                |
++-----+----------------+----------------------------+
+| ... | normal         | 1000;100                   |
++-----+----------------+----------------------------+
+| ... | ...            | ...                        |
++-----+----------------+----------------------------+
 
 Additional columns may be added.
 
@@ -793,16 +793,11 @@ Detailed field description
   1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
   value(0) (see ``nominalValue``).
 
-- ``initializationPriorType`` [STRING, OPTIONAL]
+- ``prior`` [STRING, OPTIONAL]
 
-  Prior types used for sampling of initial points for estimation. Sampled
-  points are clipped to lie inside the parameter boundaries specified by
-  ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
-
-  This is a hint for the optimization algorithm to start the optimization
-  process or for re-sampling random points. The initialization prior does not
-  change the objective function itself. Optimizers may choose to ignore this
-  information.
+  Prior types used for the objective function during estimation or inference.
+  If priors are specified for a subset of parameters, defaults to 
+  ``parameterScaleUniform`` for any unspecified parameter.
 
   Possible prior types are:
 
@@ -816,13 +811,10 @@ Detailed field description
     - *parameterScaleNormal*: Gaussian prior on original parameter scale
     - *parameterScaleLaplace*: Laplace prior on original parameter scale
 
-- ``initializationPriorParameters`` [STRING, OPTIONAL]
+- ``priorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for sampling of initial points for estimation,
-  separated by a semicolon. Defaults to ``lowerBound;upperBound``.
-  The parameters are expected to be in linear scale except for the
-  ``parameterScale`` priors, where the prior parameters are expected to be
-  in parameter scale.
+  Prior parameters used for the objective function during estimation.
+  Defaults to ``lowerBound;upperBound``.
 
   So far, only numeric values will be supported, no parameter names.
   Parameters for the different prior types are:
@@ -835,16 +827,6 @@ Detailed field description
     - parameterScaleUniform: lower bound; upper bound
     - parameterScaleNormal: mean; standard deviation (**not** variance)
     - parameterScaleLaplace: location; scale
-
-- ``objectivePriorType`` [STRING, OPTIONAL]
-
-  Prior types used for the objective function during estimation.
-  For possible values, see ``initializationPriorType``.
-
-- ``objectivePriorParameters`` [STRING, OPTIONAL]
-
-  Prior parameters used for the objective function during estimation.
-  For more detailed documentation, see ``initializationPriorParameters``.
 
 .. _v2_visualization_table:
 
@@ -1079,7 +1061,7 @@ and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
 For MAP estimation and Bayesian inference, the prior
 distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
 specified in the parameter table
-(``objectivePriorType`` and ``objectivePriorParameters`` columns,
+(``prior`` and ``priorParameters`` columns,
 as described above),
 while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
