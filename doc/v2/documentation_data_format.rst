@@ -143,6 +143,8 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   parameter priors was not well-defined.
   To obtain the same effect, the model parameters can be transformed in the
   model file.
+* The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
+  are now ``true`` and ``false`` instead of ``1`` and ``0``.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -717,15 +719,15 @@ it *may* include:
 
 One row per parameter with arbitrary order of rows and columns:
 
-+-------------+-----------------+-------------+------------+--------------+----------+-----+
-| parameterId | [parameterName] | lowerBound  | upperBound | nominalValue | estimate | ... |
-+=============+=================+=============+============+==============+==========+=====+
-| PETAB_ID    | [STRING]        | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
-+-------------+-----------------+-------------+------------+--------------+----------+-----+
-| k1          |                 | 1e-5        | 1e5        | 100          | 1        | ... |
-+-------------+-----------------+-------------+------------+--------------+----------+-----+
-| ...         | ...             | ...         | ...        | ...          | ...      | ... |
-+-------------+-----------------+-------------+------------+--------------+----------+-----+
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
+| parameterId | [parameterName] | lowerBound  | upperBound | nominalValue | estimate    | ... |
++=============+=================+=============+============+==============+=============+=====+
+| PETAB_ID    | [STRING]        | NUMERIC     | NUMERIC    | NUMERIC      | true\|false | ... |
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
+| k1          |                 | 1e-5        | 1e5        | 100          | true        | ... |
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
+| ...         | ...             | ...         | ...        | ...          | ...         | ... |
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
 
 *(wrapped for readability)*
 
@@ -761,23 +763,24 @@ Detailed field description
 - ``lowerBound`` [NUMERIC]
 
   Lower bound of the parameter used for estimation.
-  Optional, if ``estimate==0``.
+  Optional, if ``estimate==false``.
 
 - ``upperBound`` [NUMERIC]
 
   Upper bound of the parameter used for estimation.
-  Optional, if ``estimate==0``.
+  Optional, if ``estimate==false``.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  Optional, unless ``estimate==0``.
+  Optional, unless ``estimate==false``.
 
-- ``estimate`` [BOOL 0|1]
+- ``estimate`` [``true`` | ``false``]
 
-  1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
-  value(0) (see ``nominalValue``).
+  ``true`` or ``false`` (case-sensitive), depending on, if the parameter is
+  estimated (``true``) or set to a fixed value (``false``)
+  (see ``nominalValue``).
 
 - ``initializationPriorType`` [STRING, OPTIONAL]
 
