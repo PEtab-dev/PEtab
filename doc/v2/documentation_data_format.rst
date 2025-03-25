@@ -137,6 +137,12 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Support for format extensions.
 * Observable IDs can now be used in observable and noise formulas
   (:ref:`v2_observables_table`).
+* The ``parameterScale`` column of the :ref:`v2_parameters_table` is removed.
+  This change was made to simplify the PEtab format.
+  This feature was a constant source of confusion and the interaction with
+  parameter priors was not well-defined.
+  To obtain the same effect, the model parameters can be transformed in the
+  model file.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -711,15 +717,15 @@ it *may* include:
 
 One row per parameter with arbitrary order of rows and columns:
 
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
-| parameterId | [parameterName] | parameterScale          | lowerBound  | upperBound | nominalValue | estimate | ... |
-+=============+=================+=========================+=============+============+==============+==========+=====+
-| PETAB_ID    | [STRING]        | log10\|lin\|log         | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
-| k1          |                 | lin                     | 1e-5        | 1e5        | 100          | 1        | ... |
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
-| ...         | ...             | ...                     | ...         | ...        | ...          | ...      | ... |
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
++-------------+-----------------+-------------+------------+--------------+----------+-----+
+| parameterId | [parameterName] | lowerBound  | upperBound | nominalValue | estimate | ... |
++=============+=================+=============+============+==============+==========+=====+
+| PETAB_ID    | [STRING]        | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
++-------------+-----------------+-------------+------------+--------------+----------+-----+
+| k1          |                 | 1e-5        | 1e5        | 100          | 1        | ... |
++-------------+-----------------+-------------+------------+--------------+----------+-----+
+| ...         | ...             | ...         | ...        | ...          | ...      | ... |
++-------------+-----------------+-------------+------------+--------------+----------+-----+
 
 *(wrapped for readability)*
 
@@ -752,40 +758,20 @@ Detailed field description
   Parameter name to be used e.g. for plotting etc. Can be chosen freely. May
   or may not coincide with the SBML parameter name.
 
-- ``parameterScale`` [lin|log|log10]
-
-  Scale of the parameter to be used during parameter estimation.
-
-  ``lin``
-    Use the parameter value, ``lowerBound``, ``upperBound``, and
-    ``nominalValue`` without transformation.
-  ``log``
-    Take the natural logarithm of the parameter value, ``lowerBound``,
-    ``upperBound``, and ``nominalValue`` during parameter estimation.
-  ``log10``
-    Take the logarithm to base 10 of the parameter value, ``lowerBound``,
-    ``upperBound``, and ``nominalValue`` during parameter estimation.
-
 - ``lowerBound`` [NUMERIC]
 
   Lower bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
 
 - ``upperBound`` [NUMERIC]
 
   Upper bound of the parameter used for estimation.
   Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
   Optional, unless ``estimate==0``.
 
 - ``estimate`` [BOOL 0|1]
@@ -797,7 +783,7 @@ Detailed field description
 
   Prior types used for sampling of initial points for estimation. Sampled
   points are clipped to lie inside the parameter boundaries specified by
-  ``lowerBound`` and ``upperBound``. Defaults to ``parameterScaleUniform``.
+  ``lowerBound`` and ``upperBound``. Defaults to ``uniform``.
 
   This is a hint for the optimization algorithm to start the optimization
   process or for re-sampling random points. The initialization prior does not
@@ -806,23 +792,16 @@ Detailed field description
 
   Possible prior types are:
 
-    - *uniform*: flat prior on linear parameters
-    - *normal*: Gaussian prior on linear parameters
-    - *laplace*: Laplace prior on linear parameters
-    - *logNormal*: exponentiated Gaussian prior on linear parameters
-    - *logLaplace*: exponentiated Laplace prior on linear parameters
-    - *parameterScaleUniform* (default): Flat prior on original parameter
-      scale (equivalent to "no prior")
-    - *parameterScaleNormal*: Gaussian prior on original parameter scale
-    - *parameterScaleLaplace*: Laplace prior on original parameter scale
+    - *uniform*: flat/uninformative prior
+    - *normal*: Gaussian prior
+    - *laplace*: Laplace prior
+    - *logNormal*: exponentiated Gaussian prior
+    - *logLaplace*: exponentiated Laplace prior
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
 
   Prior parameters used for sampling of initial points for estimation,
   separated by a semicolon. Defaults to ``lowerBound;upperBound``.
-  The parameters are expected to be in linear scale except for the
-  ``parameterScale`` priors, where the prior parameters are expected to be
-  in parameter scale.
 
   So far, only numeric values will be supported, no parameter names.
   Parameters for the different prior types are:
@@ -832,9 +811,6 @@ Detailed field description
     - laplace: location; scale
     - logNormal: parameters of corresp. normal distribution (see: normal)
     - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
-    - parameterScaleUniform: lower bound; upper bound
-    - parameterScaleNormal: mean; standard deviation (**not** variance)
-    - parameterScaleLaplace: location; scale
 
 - ``objectivePriorType`` [STRING, OPTIONAL]
 
