@@ -143,6 +143,14 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   parameter priors was not well-defined.
   To obtain the same effect, the model parameters can be transformed in the
   model file.
+* The ``initializationPriorType`` and ``initializationPriorParameters`` 
+  columns  of the :ref:`v2_parameters_table` are removed. Initialization 
+  priors are outside the definition of the parameter estimation problem 
+  and were a source of confusion.
+* ``objectivePriorType`` and ``objectivePriorParameters`` in the 
+  :ref:`v2_parameters_table` are renamed to ``prior`` and 
+  ``priorParameters``, respectively. This change was made to simplify 
+  the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
 
@@ -731,15 +739,15 @@ One row per parameter with arbitrary order of rows and columns:
 
 *(wrapped for readability)*
 
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... | [initializationPriorType] | [initializationPriorParameters] | [objectivePriorType] | [objectivePriorParameters] |
-+=====+===========================+=================================+======================+============================+
-| ... | *see below*               | *see below*                     | *see below*          | *see below*                |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... |                           |                                 | normal               | 1000;100                   |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... | ...                       | ...                             | ...                  | ...                        |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
++-----+----------------+----------------------------+
+| ... | [prior]        | [priorParameters]          |
++=====+================+============================+
+| ... | *see below*    | *see below*                |
++-----+----------------+----------------------------+
+| ... | normal         | 1000;100                   |
++-----+----------------+----------------------------+
+| ... | ...            | ...                        |
++-----+----------------+----------------------------+
 
 Additional columns may be added.
 
@@ -782,16 +790,12 @@ Detailed field description
   estimated (``true``) or set to a fixed value (``false``)
   (see ``nominalValue``).
 
-- ``initializationPriorType`` [STRING, OPTIONAL]
+- ``prior`` [STRING, OPTIONAL]
 
-  Prior types used for sampling of initial points for estimation. Sampled
-  points are clipped to lie inside the parameter boundaries specified by
-  ``lowerBound`` and ``upperBound``. Defaults to ``uniform``.
-
-  This is a hint for the optimization algorithm to start the optimization
-  process or for re-sampling random points. The initialization prior does not
-  change the objective function itself. Optimizers may choose to ignore this
-  information.
+  Prior types used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  It is valid to have no priors. However, if priors are specified for a subset
+  of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
+  set to ``lowerBound;upperBound``) for the other parameters.
 
   Possible prior types are:
 
@@ -801,10 +805,10 @@ Detailed field description
     - *logNormal*: exponentiated Gaussian prior
     - *logLaplace*: exponentiated Laplace prior
 
-- ``initializationPriorParameters`` [STRING, OPTIONAL]
+- ``priorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for sampling of initial points for estimation,
-  separated by a semicolon. Defaults to ``lowerBound;upperBound``.
+  Prior parameters used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  ``priorParameters`` is required if ``prior`` is non-empty.
 
   So far, only numeric values will be supported, no parameter names.
   Parameters for the different prior types are:
@@ -814,16 +818,6 @@ Detailed field description
     - laplace: location; scale
     - logNormal: parameters of corresp. normal distribution (see: normal)
     - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
-
-- ``objectivePriorType`` [STRING, OPTIONAL]
-
-  Prior types used for the objective function during estimation.
-  For possible values, see ``initializationPriorType``.
-
-- ``objectivePriorParameters`` [STRING, OPTIONAL]
-
-  Prior parameters used for the objective function during estimation.
-  For more detailed documentation, see ``initializationPriorParameters``.
 
 .. _v2_visualization_table:
 
@@ -1058,7 +1052,7 @@ and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
 For MAP estimation and Bayesian inference, the prior
 distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
 specified in the parameter table
-(``objectivePriorType`` and ``objectivePriorParameters`` columns,
+(``prior`` and ``priorParameters`` columns,
 as described above),
 while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
