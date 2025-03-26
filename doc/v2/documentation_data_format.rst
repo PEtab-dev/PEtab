@@ -143,13 +143,13 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   parameter priors was not well-defined.
   To obtain the same effect, the model parameters can be transformed in the
   model file.
-* The ``initializationPriorType`` and ``initializationPriorParameters`` 
-  columns  of the :ref:`v2_parameters_table` are removed. Initialization 
-  priors are outside the definition of the parameter estimation problem 
+* The ``initializationPriorType`` and ``initializationPriorParameters``
+  columns  of the :ref:`v2_parameters_table` are removed. Initialization
+  priors are outside the definition of the parameter estimation problem
   and were a source of confusion.
-* ``objectivePriorType`` and ``objectivePriorParameters`` in the 
-  :ref:`v2_parameters_table` are renamed to ``prior`` and 
-  ``priorParameters``, respectively. This change was made to simplify 
+* ``objectivePriorType`` and ``objectivePriorParameters`` in the
+  :ref:`v2_parameters_table` are renamed to ``prior`` and
+  ``priorParameters``, respectively. This change was made to simplify
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
