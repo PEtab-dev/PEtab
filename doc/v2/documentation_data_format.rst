@@ -653,17 +653,11 @@ Detailed field description
   * ``log-normal``: Log-normal noise model with standard deviation as specified
     in ``noiseFormula``. I.e., the logarithm of the measurements is normally
     distributed.
-  * ``log10-normal``: Log10-normal noise model with standard deviation as
-    specified in ``noiseFormula``. I.e., the logarithm to the base 10 of the
-    measurement is normally distributed.
   * ``laplace``: Laplace noise model with scale parameter as specified in
     ``noiseFormula``.
   * ``log-laplace``: Log-Laplace noise model with scale parameter as specified
     in ``noiseFormula``. I.e., the logarithm of the measurements is Laplace
     distributed.
-  * ``log10-laplace``: Log10-Laplace noise model with scale parameter as
-    specified in ``noiseFormula``. I.e., the logarithm to the base 10 of the
-    measurement is Laplace distributed.
 
   The respective probability density functions are given in the
   :ref:`noise distributions section <v2_noise_distributions>`.
@@ -689,11 +683,6 @@ Then we have the following effective noise distributions:
   .. math::
      \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
 
-- Log10-normal distribution (i.e. log10(m) is normally distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m \log(10)}\exp\left(-\frac{(\log_{10} m - \log_{10} y)^2}{2\sigma^2}\right)
-
 - Laplace distribution:
 
   .. math::
@@ -703,12 +692,6 @@ Then we have the following effective noise distributions:
 
   .. math::
      \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
-
-- Log10-Laplace distribution (i.e. log10(m) is Laplace distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{2\sigma m \log(10)}\exp\left(-\frac{|\log_{10} m - \log_{10} y|}{\sigma}\right)
-
 
 The distributions above are for a single data point. For a collection :math:`D=\{m_i\}_i` of data points and corresponding simulations :math:`Y=\{y_i\}_i` and noise parameters :math:`\Sigma=\{\sigma_i\}_i`, the current specification assumes independence, i.e. the full distributions is
 
