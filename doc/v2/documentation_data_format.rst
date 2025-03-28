@@ -391,7 +391,7 @@ The experiments table has three mandatory columns ``experimentId``,
   Multiple conditions may be applied simultaneously by specifying the same
   ``experimentId`` and ``time`` for multiple conditions. The changes associated
   with these conditions must be disjoint, i.e., no two conditions applied at
-  the same time may modify the same entity. The union of these changes is
+  the same time may involve the same ``targetId``. The union of these changes is
   applied to the model as if they were specified as a single condition.
 
   ``time`` will override any initial time specified in the model,
