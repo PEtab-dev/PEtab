@@ -862,7 +862,7 @@ following parameterizations are used:
   - parameter: degrees of freedom = :math:`\nu`
 
   .. math::
-     \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)}, \quad x \in (0, \infty)
+     \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)} \quad x \in (0, \infty)
 
 - *exponential*:
 
@@ -876,14 +876,14 @@ following parameterizations are used:
   - parameters: (shape, scale) = :math:`(\alpha, \theta)`
 
   .. math::
-     \pi(x|\alpha, \theta) = \frac{x^{\alpha - 1}e^{-x/\theta}}{\Gamma(\alpha)\theta^{\alpha}}, \quad x \in (0, \infty)
+     \pi(x|\alpha, \theta) = \frac{x^{\alpha - 1}e^{-x/\theta}}{\Gamma(\alpha)\theta^{\alpha}} \quad x \in (0, \infty)
 
 - *laplace*:
 
   - parameters: (location, scale) = :math:`(\mu, \sigma)`
 
   .. math::
-     \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right), \quad x \in (-\infty, \infty)
+     \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right) \quad x \in (-\infty, \infty)
 
 - *log10Normal*:
 
@@ -897,7 +897,7 @@ following parameterizations are used:
   - parameters: (location, scale) = :math:`(\mu, \sigma)`
 
   .. math::
-     \pi(x|\mu, \sigma) = \frac{1}{2\sigma x} \exp\left( - \frac{|\log(x) - \mu|}{\sigma} \right), \quad x \in (0, \infty)
+     \pi(x|\mu, \sigma) = \frac{1}{2\sigma x} \exp\left( - \frac{|\log(x) - \mu|}{\sigma} \right) \quad x \in (0, \infty)
 
 - *logNormal*:
 
