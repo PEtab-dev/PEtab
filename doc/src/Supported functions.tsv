@@ -9,5 +9,5 @@ Function	Comment	Argument types	Evaluates to
 ``arcsinh``;``arccosh``;``arctanh``;``arccoth``;``arcsech``;``arccsch``	inverse hyperbolic functions	float	float
 ``piecewise(``;    ``true_value_1,``;      ``condition_1,``;    ``[true_value_2,``;      ``condition_2,]``;    ``[...]``;    ``[true_value_n,``;      ``condition_n,]``;    ``otherwise``;``)``	The function value is;the ``true_value*`` for the;first ``true`` ``condition*``;or ``otherwise`` if all;conditions are ``false``.	``*value*``: all float or all bool;``condition*``: all bool	float
 ``abs(x)``	absolute value;``piecewise(x, x>=0, -x)``	float	float
-``sign(x)``	sign of ``x``;``piecewise(1, x>=0, -1)``	float	float
+``sign(x)``	sign of ``x``;``piecewise(1, x > 0, -1, x < 0, 0)``	float	float
 ``min(a, b)``;``max(a, b)``	minimum / maximum of {``a``, ``b``};``piecewise(a, a<=b, b)``;``piecewise(a, a>=b, b)``	float, float	float
