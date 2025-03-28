@@ -153,8 +153,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
-* Support for new ``prior`` distributions,  as well as support for 
-  truncated distributions in the :ref:`v2_parameters_table`.
+* Support for new ``prior`` distributions in the :ref:`v2_parameters_table`, and clarification that bounds truncate the prior distributions.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -801,7 +800,7 @@ Detailed field description
   set to ``lowerBound;upperBound``) for the other parameters.
 
   Prior distributions are truncated by the ``lowerBound`` and ``upperBound`` if 
-  the prior's domain is outside the parameter bounds. A non-truncated prior can 
+  the prior's domain exceeds the parameter bounds. A non-truncated prior can 
   be created by setting the parameter bounds to  match the prior's domain 
   (e.g., ``0`` and ``inf`` for ``logNormal``).
 
@@ -826,7 +825,7 @@ Detailed field description
   :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   ``priorParameters`` is required if ``prior`` is non-empty.
 
-  So far, only numeric values are supported, no parameter names.
+  Only numeric values are supported, no parameter names.
   Parameters for the different prior types are:
 
   - *cauchy*: location; scale
