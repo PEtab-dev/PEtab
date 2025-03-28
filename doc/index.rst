@@ -13,6 +13,7 @@
    :maxdepth: 2
    :caption: About
 
+   software_support
    Development <development>
    how_to_cite
    license

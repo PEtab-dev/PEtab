@@ -137,6 +137,22 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Support for format extensions.
 * Observable IDs can now be used in observable and noise formulas
   (:ref:`v2_observables_table`).
+* The ``parameterScale`` column of the :ref:`v2_parameters_table` is removed.
+  This change was made to simplify the PEtab format.
+  This feature was a constant source of confusion and the interaction with
+  parameter priors was not well-defined.
+  To obtain the same effect, the model parameters can be transformed in the
+  model file.
+* The ``initializationPriorType`` and ``initializationPriorParameters``
+  columns  of the :ref:`v2_parameters_table` are removed. Initialization
+  priors are outside the definition of the parameter estimation problem
+  and were a source of confusion.
+* ``objectivePriorType`` and ``objectivePriorParameters`` in the
+  :ref:`v2_parameters_table` are renamed to ``prior`` and
+  ``priorParameters``, respectively. This change was made to simplify
+  the PEtab format.
+* The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
+  are now ``true`` and ``false`` instead of ``1`` and ``0``.
 * Support for new initializationPriorType and objectivePriorType distributions,
   as well as support for truncated distributions.
 
@@ -713,27 +729,27 @@ it *may* include:
 
 One row per parameter with arbitrary order of rows and columns:
 
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
-| parameterId | [parameterName] | parameterScale          | lowerBound  | upperBound | nominalValue | estimate | ... |
-+=============+=================+=========================+=============+============+==============+==========+=====+
-| PETAB_ID    | [STRING]        | log10\|lin\|log         | NUMERIC     | NUMERIC    | NUMERIC      | 0\|1     | ... |
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
-| k1          |                 | lin                     | 1e-5        | 1e5        | 100          | 1        | ... |
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
-| ...         | ...             | ...                     | ...         | ...        | ...          | ...      | ... |
-+-------------+-----------------+-------------------------+-------------+------------+--------------+----------+-----+
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
+| parameterId | [parameterName] | lowerBound  | upperBound | nominalValue | estimate    | ... |
++=============+=================+=============+============+==============+=============+=====+
+| PETAB_ID    | [STRING]        | NUMERIC     | NUMERIC    | NUMERIC      | true\|false | ... |
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
+| k1          |                 | 1e-5        | 1e5        | 100          | true        | ... |
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
+| ...         | ...             | ...         | ...        | ...          | ...         | ... |
++-------------+-----------------+-------------+------------+--------------+-------------+-----+
 
 *(wrapped for readability)*
 
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... | [initializationPriorType] | [initializationPriorParameters] | [objectivePriorType] | [objectivePriorParameters] |
-+=====+===========================+=================================+======================+============================+
-| ... | *see below*               | *see below*                     | *see below*          | *see below*                |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... |                           |                                 | normal               | 1000;100                   |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
-| ... | ...                       | ...                             | ...                  | ...                        |
-+-----+---------------------------+---------------------------------+----------------------+----------------------------+
++-----+----------------+----------------------------+
+| ... | [prior]        | [priorParameters]          |
++=====+================+============================+
+| ... | *see below*    | *see below*                |
++-----+----------------+----------------------------+
+| ... | normal         | 1000;100                   |
++-----+----------------+----------------------------+
+| ... | ...            | ...                        |
++-----+----------------+----------------------------+
 
 Additional columns may be added.
 
@@ -754,59 +770,34 @@ Detailed field description
   Parameter name to be used e.g. for plotting etc. Can be chosen freely. May
   or may not coincide with the SBML parameter name.
 
-- ``parameterScale`` [lin|log|log10]
-
-  Scale of the parameter to be used during parameter estimation.
-
-  ``lin``
-    Use the parameter value, ``lowerBound``, ``upperBound``, and
-    ``nominalValue`` without transformation.
-  ``log``
-    Take the natural logarithm of the parameter value, ``lowerBound``,
-    ``upperBound``, and ``nominalValue`` during parameter estimation.
-  ``log10``
-    Take the logarithm to base 10 of the parameter value, ``lowerBound``,
-    ``upperBound``, and ``nominalValue`` during parameter estimation.
-
 - ``lowerBound`` [NUMERIC]
 
   Lower bound of the parameter used for estimation.
-  Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
+  Optional, if ``estimate==false``.
 
 - ``upperBound`` [NUMERIC]
 
   Upper bound of the parameter used for estimation.
-  Optional, if ``estimate==0``.
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
+  Optional, if ``estimate==false``.
 
 - ``nominalValue`` [NUMERIC]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
-  The provided value should be untransformed, as it will be transformed
-  according to ``parameterScale`` during parameter estimation.
-  Optional, unless ``estimate==0``.
+  Optional, unless ``estimate==false``.
 
-- ``estimate`` [BOOL 0|1]
+- ``estimate`` [``true`` | ``false``]
 
-  1 or 0, depending on, if the parameter is estimated (1) or set to a fixed
-  value(0) (see ``nominalValue``).
+  ``true`` or ``false`` (case-sensitive), depending on, if the parameter is
+  estimated (``true``) or set to a fixed value (``false``)
+  (see ``nominalValue``).
 
-- ``initializationPriorType`` [STRING, OPTIONAL]
+- ``prior`` [STRING, OPTIONAL]
 
-  Prior types used for sampling initial points for estimation. If the prior is
-  not truncated (see ``initializationPriorParameters``), sampled points are
-  clipped to lie within the parameter boundaries specified by ``lowerBound``
-  and ``upperBound``. Otherwise, points are sampled directly from the truncated
-  distribution. The default is ``parameterScaleUniform``.
-
-  This is a hint for the optimization algorithm to start the optimization
-  process or for re-sampling random points. The initialization prior does not
-  change the objective function itself. Optimizers may choose to ignore this
-  information.
+  Prior types used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  It is valid to have no priors. However, if priors are specified for a subset
+  of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
+  set to ``lowerBound;upperBound``) for the other parameters.
 
   Possible prior types on linear parameter scale are (for mathematical
   definition see below):
@@ -831,22 +822,11 @@ Detailed field description
 
 - ``initializationPriorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for sampling of initial points for estimation,
-  separated by a semicolon. Defaults to ``lowerBound;upperBound``.
-  The parameters are expected to be in linear scale except for the
-  ``parameterScale`` priors, where the prior parameters are expected to be
-  in parameter scale (e.g. `log10` scale if a parameter has ``parameterScale``
-  `log10`).
+  Prior parameters used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  ``priorParameters`` is required if ``prior`` is non-empty.
 
-  Optionally, a *truncated* distribution can be specified for any distribution
-  except the uniform distributions by providing a lower and upper bound after
-  the prior parameters. For example, a truncated normal distribution would be
-  defined with parameters ``mean;std;lb;ub``, where ``lb`` and ``ub`` are the
-  lower and upper bounds, respectively. For a truncated distribution, both the
-  lower and upper bounds must be provided.
-
-  So far, only numeric values are supported, no parameter names. Parameters for
-  the different prior types are:
+  So far, only numeric values will be supported, no parameter names.
+  Parameters for the different prior types are:
 
     - *cauchy*: location; scale
     - *chisquare*: degrees of freedom
@@ -1178,7 +1158,7 @@ and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
 For MAP estimation and Bayesian inference, the prior
 distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
 specified in the parameter table
-(``objectivePriorType`` and ``objectivePriorParameters`` columns,
+(``prior`` and ``priorParameters`` columns,
 as described above),
 while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
