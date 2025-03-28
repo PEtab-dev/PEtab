@@ -1,11 +1,11 @@
-.. warning::
-
-    This document is a draft and subject to change.
-
 .. _v2_spec:
 
 PEtab data format specification
 ===============================
+
+.. warning::
+
+    This document is a draft and subject to change.
 
 Format version: 2.0.0
 
