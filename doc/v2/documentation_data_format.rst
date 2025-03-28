@@ -153,8 +153,8 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
-* Support for new initializationPriorType and objectivePriorType distributions,
-  as well as support for truncated distributions.
+* Support for new ``prior`` distributions,  as well as support for 
+  truncated distributions in the :ref:`v2_parameters_table`.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -794,72 +794,60 @@ Detailed field description
 
 - ``prior`` [STRING, OPTIONAL]
 
-  Prior types used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  Prior types used for the 
+  :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   It is valid to have no priors. However, if priors are specified for a subset
   of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
   set to ``lowerBound;upperBound``) for the other parameters.
 
-  Possible prior types on linear parameter scale are (for mathematical
-  definition see below):
+  Prior distributions are truncated by the ``lowerBound`` and ``upperBound`` if 
+  the prior's domain is outside the parameter bounds. A non-truncated prior can 
+  be created by setting the parameter bounds to  match the prior's domain 
+  (e.g., ``0`` and ``inf`` for ``logNormal``).
 
-    - *cauchy*: Cauchy prior on linear parameters
-    - *chisquare*: Chisquare prior on linear parameters
-    - *exponential*: Exponential prior on linear parameters
-    - *gamma*: Gamma prior on linear parameters
-    - *laplace*: Laplace prior on linear parameters
-    - *logNormal*: exponentiated Gaussian prior on linear parameters
-    - *normal*: Gaussian prior on linear parameters
-    - *rayleigh*, Rayleigh prior on linear parameters
-    - *uniform*: Flat prior on linear parameters
+  Possible prior types are (mathematical definition below):
 
-  Supported priors on the scale defined via ``parameterScale`` are:
+    - *cauchy*: Cauchy prior
+    - *chisquare*: Chisquare prior
+    - *exponential*: Exponential prior
+    - *gamma*: Gamma prior
+    - *laplace*: Laplace prior
+    - *log10Normal*: Log10-normal prior
+    - *logLaplace*: Log-Laplace prior
+    - *logNormal*: Log-normal prior
+    - *logUniform*: Log-uniform prior
+    - *normal*: Normal prior
+    - *rayleigh*, Rayleigh prior
+    - *uniform*: Flat (uniform) prior
 
-    - *parameterScaleCauchy*: Cauchy prior on original parameter scale
-    - *parameterScaleLaplace*: Laplace prior on original parameter scale
-    - *parameterScaleNormal*: Gaussian prior on original parameter scale
-    - *parameterScaleUniform*: (default): Flat prior on original parameter
-      scale (equivalent to "no prior")
+- ``priorParameters`` [STRING, OPTIONAL]
 
-- ``initializationPriorParameters`` [STRING, OPTIONAL]
-
-  Prior parameters used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  Prior parameters used for the 
+  :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   ``priorParameters`` is required if ``prior`` is non-empty.
 
-  So far, only numeric values will be supported, no parameter names.
+  So far, only numeric values are supported, no parameter names.
   Parameters for the different prior types are:
 
-    - *cauchy*: location; scale
-    - *chisquare*: degrees of freedom
-    - *exponential*: rate
-    - *gamma*: shape; scale
-    - *laplace*: location; scale
-    - *logNormal*: parameters of corresp. normal distribution (see: normal)
-    - *normal*: mean; standard deviation (**not** variance)
-    - *rayleigh*: scale
-    - *uniform*: lower bound; upper bound
-    - *parameterScaleCauchy*: location; scale
-    - *parameterScaleLaplace*: location; scale
-    - *parameterScaleNormal*: mean; standard deviation (**not** variance)
-    - *parameterScaleUniform*: lower bound; upper bound
-
-- ``objectivePriorType`` [STRING, OPTIONAL]
-
-  Prior types used for the objective function during estimation.
-  For possible values, see ``initializationPriorType``.
-
-- ``objectivePriorParameters`` [STRING, OPTIONAL]
-
-  Prior parameters used for the objective function during estimation.
-  For more detailed documentation, see ``initializationPriorParameters``.
-  As for initialization priors, truncated priors are allowed.
+  - *cauchy*: location; scale
+  - *chisquare*: degrees of freedom
+  - *exponential*: rate
+  - *gamma*: shape; scale
+  - *laplace*: location; scale
+  - *log10Normal*: parameters of corresponding normal distribution (see normal)
+  - *logLaplace*: parameters of corresponding Laplace distribution (see laplace)
+  - *logNormal*: parameters of corresponding normal distribution (see normal)
+  - *logUniform*: parameters of corresponding uniform distribution (see uniform)
+  - *normal*: mean; standard deviation (**not** variance)
+  - *rayleigh*: scale
+  - *uniform*: lower bound; upper bound
 
 Prior distributions
 ~~~~~~~~~~~~~~~~~~~
 
-For ``initializationPriorType`` and ``objectivePriorType`` several
-distributions are supported (see above). Denote the parameter value by :math:`x`
-and the Gamma function by :math:`\Gamma`; then, the following parameterizations
-are used for the supported priors:
+For ``prior`` several distributions are supported (see above). Denote the parameter
+value by :math:`x` and the Gamma function by :math:`\Gamma`; then, the
+following parameterizations are used:
 
 - *cauchy*:
 
@@ -896,12 +884,33 @@ are used for the supported priors:
   .. math::
      \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right), \quad x \in (-\infty, \infty)
 
+- *log10Normal*:
+
+  - parameters: (mean, standard deviation) = :math:`(\mu, \sigma)`
+
+  .. math::
+     \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right) \quad x \in (0, \infty)
+
+- *logLaplace*:
+
+  - parameters: (location, scale) = :math:`(\mu, \sigma)`
+
+  .. math::
+     \pi(x|\mu, \sigma) = \frac{1}{2\sigma x} \exp\left( - \frac{|\log(x) - \mu|}{\sigma} \right), \quad x \in (0, \infty)
+
 - *logNormal*:
 
   - parameters: (mean, standard deviation) = :math:`(\mu, \sigma)`
 
   .. math::
      \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left(- \frac{\left(\log(x) - \mu\right)^2}{2\sigma^2}\right) \quad x \in (0, \infty)
+
+- *logUniform*:
+
+  - parameters: (lower bound, upper bound) = :math:`(a, b)`
+
+  .. math::
+     \pi(x|a, b) = \frac{1}{x\left( \log(b) - \log(a) \right)} \quad x \in (0, \infty)
 
 - *normal*:
 
