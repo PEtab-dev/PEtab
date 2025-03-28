@@ -148,12 +148,14 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   priors are outside the definition of the parameter estimation problem
   and were a source of confusion.
 * ``objectivePriorType`` and ``objectivePriorParameters`` in the
-  :ref:`v2_parameters_table` are renamed to ``prior`` and
+  :ref:`v2_parameters_table` are renamed to ``priorDistribution`` and
   ``priorParameters``, respectively. This change was made to simplify
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
-* Support for new ``prior`` distributions in the :ref:`v2_parameters_table`, and clarification that bounds truncate the prior distributions.
+* Support for new ``priorDistribution`` distributions in the 
+  :ref:`v2_parameters_table`, and clarification that bounds truncate the 
+  prior distributions.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -740,15 +742,15 @@ One row per parameter with arbitrary order of rows and columns:
 
 *(wrapped for readability)*
 
-+-----+----------------+----------------------------+
-| ... | [prior]        | [priorParameters]          |
-+=====+================+============================+
-| ... | *see below*    | *see below*                |
-+-----+----------------+----------------------------+
-| ... | normal         | 1000;100                   |
-+-----+----------------+----------------------------+
-| ... | ...            | ...                        |
-+-----+----------------+----------------------------+
++-----+-------------------------+----------------------------+
+| ... | [priorDistribution]     | [priorParameters]          |
++=====+=========================+============================+
+| ... | *see below*             | *see below*                |
++-----+-------------------------+----------------------------+
+| ... | normal                  | 1000;100                   |
++-----+-------------------------+----------------------------+
+| ... | ...                     | ...                        |
++-----+-------------------------+----------------------------+
 
 Additional columns may be added.
 
@@ -791,7 +793,7 @@ Detailed field description
   estimated (``true``) or set to a fixed value (``false``)
   (see ``nominalValue``).
 
-- ``prior`` [STRING, OPTIONAL]
+- ``priorDistribution`` [STRING, OPTIONAL]
 
   Prior types used for the 
   :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
@@ -823,7 +825,7 @@ Detailed field description
 
   Prior parameters used for the 
   :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
-  ``priorParameters`` is required if ``prior`` is non-empty.
+  ``priorParameters`` is required if ``priorDistribution`` is non-empty.
 
   Only numeric values are supported, no parameter names.
   Parameters for the different prior types are:
@@ -844,7 +846,7 @@ Detailed field description
 Prior distributions
 ~~~~~~~~~~~~~~~~~~~
 
-For ``prior`` several distributions are supported (see above). Denote the parameter
+For ``priorDistribution`` several distributions are supported (see above). Denote the parameter
 value by :math:`x` and the Gamma function by :math:`\Gamma`; then, the
 following parameterizations are used:
 
@@ -1166,7 +1168,7 @@ and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
 For MAP estimation and Bayesian inference, the prior
 distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
 specified in the parameter table
-(``prior`` and ``priorParameters`` columns,
+(``priorDistribution`` and ``priorParameters`` columns,
 as described above),
 while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
