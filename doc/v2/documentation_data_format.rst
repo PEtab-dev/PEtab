@@ -153,7 +153,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
-* Support for new ``priorDistribution`` distributions in the 
+* Support for new parameter prior distributions in the 
   :ref:`v2_parameters_table`, and clarification that bounds truncate the 
   prior distributions.
 
@@ -859,7 +859,7 @@ following parameterizations are used:
 
 - *chisquare*:
 
-  - parameter: degree of freedom = :math:`\nu`
+  - parameter: degrees of freedom = :math:`\nu`
 
   .. math::
      \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)}, \quad x \in (0, \infty)
