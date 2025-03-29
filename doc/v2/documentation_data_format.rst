@@ -827,7 +827,7 @@ Detailed field description
   :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   ``priorParameters`` is required if ``priorDistribution`` is non-empty.
 
-  Only numeric values are supported, no parameter names.
+  Only numeric values are supported (no parameter IDs).
   Parameters for the different prior types are:
 
   - *cauchy*: location; scale
