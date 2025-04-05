@@ -861,7 +861,7 @@ then the following prior distributions are supported:
   * - laplace
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
-        \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right) \quad x \in (-\infty, \infty)
+        \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
     - :math:`(-\infty, \infty)`
 
   * - log10Normal
