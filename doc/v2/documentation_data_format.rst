@@ -53,7 +53,7 @@ text-based files in `Tab-Separated Values (TSV)
 <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_
 format (Figure 2), including:
 
-- A :ref:`model <v2_model>` file specifying the base model
+- One or multiple (optional) :ref:`model <v2_model>` file(s) specifying the base model(s)
   [SBML, CELLML, BNGL, PYSB, ...].
 
 - A :ref:`measurement file <v2_measurements_table>` containing experimental
@@ -153,6 +153,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
+* 
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -185,10 +186,10 @@ PEtab distinguishes between three types of entities:
 Conditions table
 ----------------
 
-The optional conditions table defines discrete changes to the model. These (sets of)
-changes typically represent interventions, perturbations, or changes in the
-environment of the system of interest. These modifications are referred to as
-(experimental) *conditions*.
+The optional conditions table defines discrete changes to the simulated model. 
+These (sets of) changes typically represent interventions, perturbations, or 
+changes in the environment of the system of interest. These modifications are 
+referred to as experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
 :ref:`v2_experiments_table`. This allows for the specification of time
@@ -278,6 +279,9 @@ phases, following the logic of the event assignments in a single SBML event.
    * For subsequent time periods, the *current* values are taken from the
      simulation results at the end of the preceding time period.
 
+   * For problems involving multiple models, any variable not present in 
+     the currently simulated model will default to a value of zero.
+
 2. **Assignment of the evaluated ``targetValues`` to their targets**
 
    All evaluated ``targetValues`` are simultaneously assigned to their
@@ -294,6 +298,9 @@ phases, following the logic of the event assignments in a single SBML event.
      **current** compartment size and then applied to the target's amount.
      For further details, refer to SBML semantic test suite case `01779
      <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+
+   * For problems involving multiple models, any assignment to targets not
+     present in the currently simulated model will be ignored.
 
 3. **Update of derived variables**
 
@@ -444,13 +451,17 @@ order:
 Additional (non-standard) columns may be added. If the additional plotting
 functionality of PEtab should be used, such columns could be
 
-+-----+-------------+---------------+
-| ... | [datasetId] | [replicateId] |
-+=====+=============+===============+
-| ... | [datasetId] | [replicateId] |
-+-----+-------------+---------------+
-| ... | ...         | ...           |
-+-----+-------------+---------------+
++-----+-------------+---------------+-----------+
+| ... | [datasetId] | [replicateId] | [modelId] |
++=====+=============+===============+===========+
+| ... | [datasetId] | [replicateId] | [modelId] |
++-----+-------------+---------------+-----------+
+| ... |             |               |           |
++-----+-------------+---------------+-----------+
+| ... |             |               |           |
++-----+-------------+---------------+-----------+
+| ... | ...         | ...           |           |
++-----+-------------+---------------+-----------+
 
 where ``datasetId`` is a necessary column to use particular plotting
 functionality, and ``replicateId`` is optional, which can be used to group
@@ -533,6 +544,14 @@ Detailed field description
   The replicateId can be used to discern replicates with the same
   ``datasetId``, which is helpful for plotting e.g. error bars.
 
+- ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.models.model_id)]
+
+  The modelId specifies which model to simulate for each data point. modelIds
+  are defined by the keys of the models dict in the PEtab problem YAML file.
+  This column is required when multiple models are defined in the PEtab problem. 
+  For problems with a single model, this column is ignored, and the same model
+  is used for all simulations.
+
 .. _v2_observables_table:
 
 Observables table
@@ -593,11 +612,14 @@ Detailed field description
 * ``observableFormula`` [STRING]
 
   Observation function as plain text formula expression.
-  May contain any symbol defined in the SBML model (including model time ``time``)
-  or parameter table. In the simplest case just an SBML species ID
-  or an ``AssignmentRule`` target. Additionally, any observable ID
+  May contain any symbol defined any of the employed models (including model 
+  time ``time``) or parameter table. In the simplest case, for SBML models, 
+  just a species ID or an ``AssignmentRule`` target. Additionally, any observable ID
   introduced in the observable table may be referenced, but circular definitions
   must be avoided.
+
+  In problems with multiple models, symbols not defined in the currently simulated 
+  model default to a value of zero.
 
   May introduce new parameters of the form ``observableParameter${n}_${observableId}``,
   which are overridden by ``observableParameters`` in the measurement table
@@ -719,7 +741,7 @@ and *must not* include:
 - "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
 - Any parameters that do not have valid PEtab IDs
-  (e.g., SBML *local* parameters)
+  (e.g., SBML *local* parameters that are not mapped in the mapping table)
 
 it *may* include:
 
@@ -758,7 +780,7 @@ Detailed field description
 - ``parameterId`` [PETAB_ID, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
-  the ID of a parameter specified in the SBML model, a parameter introduced
+  the ID of a parameter specified any model, a parameter introduced
   as override in the condition table, or a parameter occurring in the
   ``observableParameters`` or ``noiseParameters`` column of the measurement table
   (see above).
@@ -990,8 +1012,8 @@ Detailed field description
 
 - ``modelEntityId`` [STRING or empty, REQUIRED]
 
-  A globally unique identifier defined in the model, or empty if the entity is
-  not present in the model. This does not have to be a valid PEtab identifier.
+  A globally unique identifier defined in any model, or empty if the entity is
+  not present any model. This does not have to be a valid PEtab identifier.
   Rows with empty ``modelEntityId`` serve as annotations only.
 
   For example, in SBML, local parameters may be referenced as
@@ -1033,12 +1055,14 @@ easy validation:
 Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Parameter estimation problems can comprise multiple models. For now, PEtab
-allows one to specify multiple models with corresponding condition and
-measurement tables, and one joint parameter table. This means that the parameter
-namespace is global. Therefore, parameters with the same ID in different models
-will be considered identical.
-
+Parameter estimation problems can involve multiple models, with a specific model
+assigned to each individual data point. However, all tables in a PEtab problem apply
+uniformly to all models. As a result:
+- Multiple models may need to be simulated for a single experiment.
+- Each model may be simulated for a distinct subset of experiments.
+- The number of conditions that must be simulated for an experiment may vary depending 
+  on the model used.
+- Each parameter in the parameter table hase the same value across all models.
 
 .. _v2_objective_function:
 
