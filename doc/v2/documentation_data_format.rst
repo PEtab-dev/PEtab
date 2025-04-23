@@ -127,8 +127,9 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   (:ref:`v2_conditions_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
   :ref:`v2_measurements_table` are replaced by ``experimentId`` and a more
-  flexible way for defining experiments and time courses
-  (:ref:`v2_experiments_table`).
+  flexible way for defining experiments and time courses. This allows
+  arbitrary sequences of conditions and combinations of conditions to be
+  applied to the model (:ref:`v2_experiments_table`).
 * Support for math expressions in the condition table
   (:ref:`v2_conditions_table`).
 * Clarification and specification of various previously underspecified
@@ -148,12 +149,14 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   priors are outside the definition of the parameter estimation problem
   and were a source of confusion.
 * ``objectivePriorType`` and ``objectivePriorParameters`` in the
-  :ref:`v2_parameters_table` are renamed to ``prior`` and
+  :ref:`v2_parameters_table` are renamed to ``priorDistribution`` and
   ``priorParameters``, respectively. This change was made to simplify
   the PEtab format.
 * The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
-* 
+* Support for new parameter prior distributions in the
+  :ref:`v2_parameters_table`, and clarification that bounds truncate the
+  prior distributions.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -394,8 +397,11 @@ The experiments table has three mandatory columns ``experimentId``,
   Any event triggers defined in the model must also be checked during this
   pre-simulation.
 
-  Multiple conditions cannot be applied simultaneously within a single
-  experiment; each ``time`` value must be unique for each ``experimentId``.
+  Multiple conditions may be applied simultaneously by specifying the same
+  ``experimentId`` and ``time`` for multiple conditions. The changes associated
+  with these conditions must be disjoint, i.e., no two conditions applied at
+  the same time may involve the same ``targetId``. The union of these changes is
+  applied to the model as if they were specified as a single condition.
 
   ``time`` will override any initial time specified in the model,
   except in the case of ``time`` =  ``-ìnf``, in which case the model-specified
@@ -761,15 +767,15 @@ One row per parameter with arbitrary order of rows and columns:
 
 *(wrapped for readability)*
 
-+-----+----------------+----------------------------+
-| ... | [prior]        | [priorParameters]          |
-+=====+================+============================+
-| ... | *see below*    | *see below*                |
-+-----+----------------+----------------------------+
-| ... | normal         | 1000;100                   |
-+-----+----------------+----------------------------+
-| ... | ...            | ...                        |
-+-----+----------------+----------------------------+
++-----+-------------------------+----------------------------+
+| ... | [priorDistribution]     | [priorParameters]          |
++=====+=========================+============================+
+| ... | *see below*             | *see below*                |
++-----+-------------------------+----------------------------+
+| ... | normal                  | 1000;100                   |
++-----+-------------------------+----------------------------+
+| ... | ...                     | ...                        |
++-----+-------------------------+----------------------------+
 
 Additional columns may be added.
 
@@ -812,34 +818,119 @@ Detailed field description
   estimated (``true``) or set to a fixed value (``false``)
   (see ``nominalValue``).
 
-- ``prior`` [STRING, OPTIONAL]
+- ``priorDistribution`` [STRING, OPTIONAL]
 
-  Prior types used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  Prior types used for the
+  :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   It is valid to have no priors. However, if priors are specified for a subset
   of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
   set to ``lowerBound;upperBound``) for the other parameters.
 
-  Possible prior types are:
-
-    - *uniform*: flat/uninformative prior
-    - *normal*: Gaussian prior
-    - *laplace*: Laplace prior
-    - *logNormal*: exponentiated Gaussian prior
-    - *logLaplace*: exponentiated Laplace prior
+  Prior distributions are
+  `truncated <https://en.wikipedia.org/wiki/Truncated_distribution>`__
+  by the ``lowerBound`` and ``upperBound`` if
+  the prior's domain exceeds the parameter bounds. A non-truncated prior can
+  be created by setting the parameter bounds to  match the prior's domain
+  (e.g., ``0`` and ``inf`` for ``log-normal``). For supported prior distributions
+  see :ref:`prior distributions <v2_prior_distributions>`.
 
 - ``priorParameters`` [STRING, OPTIONAL]
 
-  Prior parameters used for the :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
-  ``priorParameters`` is required if ``prior`` is non-empty.
+  Prior parameters used for the
+  :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  ``priorParameters`` is required if ``priorDistribution`` is non-empty.
 
-  So far, only numeric values will be supported, no parameter names.
-  Parameters for the different prior types are:
+  Only numeric values are supported (no parameter IDs). For available
+  parameters see :ref:`prior distributions <v2_prior_distributions>`.
 
-    - uniform: lower bound; upper bound
-    - normal: mean; standard deviation (**not** variance)
-    - laplace: location; scale
-    - logNormal: parameters of corresp. normal distribution (see: normal)
-    - logLaplace: parameters of corresp. Laplace distribution (see: laplace)
+.. _v2_prior_distributions:
+
+Prior distributions
+~~~~~~~~~~~~~~~~~~~
+
+Let :math:`x` denote the parameter value and :math:`\Gamma` the Gamma function,
+then the following prior distributions are supported:
+
+.. list-table::
+  :header-rows: 1
+  :widths: 10 15 20 5
+
+  * - ``priorDistribution``
+    - ``priorParameters``
+    - Probability density function (PDF)
+    - Domain
+  * - cauchy
+    - location (:math:`\mu`); scale (:math:`\sigma`)
+    - .. math::
+        \pi(x|\mu, \sigma) = \frac{1}{\pi \sigma \left( 1 + \left(\frac{x - \mu}{\sigma} \right)^2\right)}
+    - :math:`(-\infty, \infty)`
+
+  * - chisquare
+    - degrees of freedom (:math:`\nu`)
+    - .. math::
+        \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)}
+    - :math:`(0, \infty)`
+
+  * - exponential
+    - scale (:math:`\theta`)
+    - .. math::
+        \pi(x|\theta) = \frac{1}{\theta}e^{-x/\theta}
+    - :math:`(0, \infty)`
+
+  * - gamma
+    - shape (:math:`\alpha`); scale (:math:`\theta`)
+    - .. math::
+        \pi(x|\alpha, \theta) = \frac{x^{\alpha - 1}e^{-x/\theta}}{\Gamma(\alpha)\theta^{\alpha}}
+    - :math:`(-\infty, \infty)`
+
+  * - laplace
+    - location (:math:`\mu`); scale (:math:`\sigma`)
+    - .. math::
+        \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
+    - :math:`(-\infty, \infty)`
+
+  * - log10-normal
+    - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
+    - .. math::
+        \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right)
+    - :math:`(0, \infty)`
+
+  * - log-laplace
+    - location (:math:`\mu`); scale (:math:`\sigma`)
+    - .. math::
+        \pi(x|\mu, \sigma) = \frac{1}{2\sigma x} \exp\left( - \frac{|\log(x) - \mu|}{\sigma} \right)
+    - :math:`(0, \infty)`
+
+  * - log-normal
+    - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
+    - .. math::
+        \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left(- \frac{\left(\log(x) - \mu\right)^2}{2\sigma^2}\right)
+    - :math:`(0, \infty)`
+
+  * - log-uniform
+    - lower bound (:math:`a`); upper bound (:math:`b`)
+    - .. math::
+        \pi(x|a, b) = \frac{1}{x\left( \log(b) - \log(a) \right)}
+    - :math:`[a, b]`
+
+  * - normal
+    - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
+    - .. math::
+        \pi(x|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
+    - :math:`(-\infty, \infty)`
+
+  * - rayleigh
+    - scale (:math:`\sigma`)
+    - .. math::
+        \pi(x|\sigma) = \frac{x}{\sigma^2}\exp\left(\frac{-x^2}{2\sigma^2}\right)
+    - :math:`(0, \infty)`
+
+  * - uniform
+    - lower bound (:math:`a`); upper bound (:math:`b`)
+    - .. math::
+        \pi(x|a, b) = \frac{1}{b - a}
+    - :math:`[a, b]`
+
 
 .. _v2_visualization_table:
 
@@ -1076,7 +1167,7 @@ and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
 For MAP estimation and Bayesian inference, the prior
 distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
 specified in the parameter table
-(``prior`` and ``priorParameters`` columns,
+(``priorDistribution`` and ``priorParameters`` columns,
 as described above),
 while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
