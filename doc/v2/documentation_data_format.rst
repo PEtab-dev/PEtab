@@ -617,6 +617,8 @@ Detailed field description
 
 * ``noiseFormula`` [NUMERIC|STRING]
 
+  The scale parameter of the noise distribution for the given observable.
+
   Measurement noise can be specified as a numerical value which will
   default to a Gaussian noise model if not specified differently in
   ``noiseDistribution`` with standard deviation as provided here. In this case,
@@ -652,55 +654,50 @@ Detailed field description
 * ``noiseDistribution`` [STRING, OPTIONAL]
 
   Assumed noise distribution for the measurements of the given observable.
-
-  Supported options are:
-
-  * ``normal``: Gaussian noise model with standard deviation as specified in
-    ``noiseFormula``.
-  * ``log-normal``: Log-normal noise model with standard deviation as specified
-    in ``noiseFormula``. I.e., the logarithm of the measurements is normally
-    distributed.
-  * ``laplace``: Laplace noise model with scale parameter as specified in
-    ``noiseFormula``.
-  * ``log-laplace``: Log-Laplace noise model with scale parameter as specified
-    in ``noiseFormula``. I.e., the logarithm of the measurements is Laplace
-    distributed.
-
-  The respective probability density functions are given in the
-  :ref:`noise distributions section <v2_noise_distributions>`.
-
+  The supported :ref:`noise distributions <v2_noise_distributions>` and the
+  respective interpretation of ``noiseFormula`` are given in the table below.
 
 .. _v2_noise_distributions:
 
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Denote by :math:`y` the simulation, :math:`m` the measurement,
-and :math:`\sigma` the standard deviation of a normal, or the scale parameter
-of a laplace model, as given via the ``noiseFormula`` field.
+Denote by :math:`m` the measurement, :math:`y` the simulation
+(the location parameter of the noise distribution),
+and :math:`\sigma` the scale parameter of the noise distribution
+as given via the ``noiseFormula`` field (the standard deviation of a normal,
+or the scale parameter of a laplace model).
 Then we have the following effective noise distributions:
 
-- Normal distribution:
+.. list-table::
+  :header-rows: 1
+  :widths: 10 10 80
 
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
+  * - Type
+    - ``noiseDistribution``
+    - Probability density function (PDF)
+  * - Gaussian distribution
+    - ``normal``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
+  * - Log-normal distribution (i.e. log(m) is normally distributed)
+    - ``log-normal``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
+  * - Laplace distribution
+    - ``laplace``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
+  * - Log-Laplace distribution (i.e. log(m) is Laplace distributed)
+    - ``log-laplace``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
 
-- Log-normal distribution (i.e. log(m) is normally distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
-
-- Laplace distribution:
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
-
-- Log-Laplace distribution (i.e. log(m) is Laplace distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
-
-The distributions above are for a single data point. For a collection :math:`D=\{m_i\}_i` of data points and corresponding simulations :math:`Y=\{y_i\}_i` and noise parameters :math:`\Sigma=\{\sigma_i\}_i`, the current specification assumes independence, i.e. the full distributions is
+The distributions above are for a single data point.
+For a collection :math:`D=\{m_i\}_i` of data points and corresponding
+simulations :math:`Y=\{y_i\}_i`
+and noise parameters :math:`\Sigma=\{\sigma_i\}_i`,
+the current specification assumes independence, i.e. the full distributions is
 
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
