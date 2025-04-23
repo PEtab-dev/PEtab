@@ -806,7 +806,7 @@ Detailed field description
   by the ``lowerBound`` and ``upperBound`` if
   the prior's domain exceeds the parameter bounds. A non-truncated prior can
   be created by setting the parameter bounds to  match the prior's domain
-  (e.g., ``0`` and ``inf`` for ``logNormal``). For supported prior distributions
+  (e.g., ``0`` and ``inf`` for ``log-normal``). For supported prior distributions
   see :ref:`prior distributions <v2_prior_distributions>`.
 
 - ``priorParameters`` [STRING, OPTIONAL]
@@ -864,25 +864,25 @@ then the following prior distributions are supported:
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
     - :math:`(-\infty, \infty)`
 
-  * - log10Normal
+  * - log10-normal
     - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right)
     - :math:`(0, \infty)`
 
-  * - logLaplace
+  * - log-laplace
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma x} \exp\left( - \frac{|\log(x) - \mu|}{\sigma} \right)
     - :math:`(0, \infty)`
 
-  * - logNormal
+  * - log-normal
     - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left(- \frac{\left(\log(x) - \mu\right)^2}{2\sigma^2}\right)
     - :math:`(0, \infty)`
 
-  * - logUniform
+  * - log-uniform
     - lower bound (:math:`a`); upper bound (:math:`b`)
     - .. math::
         \pi(x|a, b) = \frac{1}{x\left( \log(b) - \log(a) \right)}
