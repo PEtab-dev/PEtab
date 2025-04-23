@@ -802,7 +802,7 @@ Detailed field description
   set to ``lowerBound;upperBound``) for the other parameters.
 
   Prior distributions are
-  `truncated <https://en.wikipedia.org/wiki/Truncated_distribution>`
+  `truncated <https://en.wikipedia.org/wiki/Truncated_distribution>`__
   by the ``lowerBound`` and ``upperBound`` if
   the prior's domain exceeds the parameter bounds. A non-truncated prior can
   be created by setting the parameter bounds to  match the prior's domain
