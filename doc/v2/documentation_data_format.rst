@@ -815,7 +815,7 @@ Detailed field description
   :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
   ``priorParameters`` is required if ``priorDistribution`` is non-empty.
 
-  Only numeric values are supported (no parameter IDs). For available 
+  Only numeric values are supported (no parameter IDs). For available
   parameters see :ref:`prior distributions <v2_prior_distributions>`.
 
 .. _v2_prior_distributions:
@@ -827,12 +827,12 @@ Let :math:`x` denote the parameter value and :math:`\Gamma` the Gamma function,
 then the following prior distributions are supported:
 
 .. list-table::
-   :header-rows: 1
-   :widths: 10 15 20 5
+  :header-rows: 1
+  :widths: 10 15 20 5
 
   * - ``priorDistribution``
     - ``priorParameters``
-    - PDF
+    - Probability density function (PDF)
     - Domain
   * - cauchy
     - location (:math:`\mu`); scale (:math:`\sigma`)
