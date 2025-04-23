@@ -189,7 +189,7 @@ Conditions table
 The optional conditions table defines discrete changes to the simulated model. 
 These (sets of) changes typically represent interventions, perturbations, or 
 changes in the environment of the system of interest. These modifications are 
-referred to as experimental) *conditions*.
+referred to as (experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
 :ref:`v2_experiments_table`. This allows for the specification of time
@@ -780,7 +780,7 @@ Detailed field description
 - ``parameterId`` [PETAB_ID, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
-  the ID of a parameter specified any model, a parameter introduced
+  the ID of a parameter specified at least one model, a parameter introduced
   as override in the condition table, or a parameter occurring in the
   ``observableParameters`` or ``noiseParameters`` column of the measurement table
   (see above).
@@ -1013,7 +1013,7 @@ Detailed field description
 - ``modelEntityId`` [STRING or empty, REQUIRED]
 
   A globally unique identifier defined in any model, or empty if the entity is
-  not present any model. This does not have to be a valid PEtab identifier.
+  not present in any model. This does not have to be a valid PEtab identifier.
   Rows with empty ``modelEntityId`` serve as annotations only.
 
   For example, in SBML, local parameters may be referenced as
@@ -1062,7 +1062,7 @@ uniformly to all models. As a result:
 - Each model may be simulated for a distinct subset of experiments.
 - The number of conditions that must be simulated for an experiment may vary depending 
   on the model used.
-- Each parameter in the parameter table hase the same value across all models.
+- Each parameter in the parameter table has the same value across all models.
 
 .. _v2_objective_function:
 
