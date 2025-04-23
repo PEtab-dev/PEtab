@@ -127,8 +127,9 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   (:ref:`v2_conditions_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
   :ref:`v2_measurements_table` are replaced by ``experimentId`` and a more
-  flexible way for defining experiments and time courses
-  (:ref:`v2_experiments_table`).
+  flexible way for defining experiments and time courses. This allows
+  arbitrary sequences of conditions and combinations of conditions to be
+  applied to the model (:ref:`v2_experiments_table`).
 * Support for math expressions in the condition table
   (:ref:`v2_conditions_table`).
 * Clarification and specification of various previously underspecified
@@ -390,8 +391,11 @@ The experiments table has three mandatory columns ``experimentId``,
   Any event triggers defined in the model must also be checked during this
   pre-simulation.
 
-  Multiple conditions cannot be applied simultaneously within a single
-  experiment; each ``time`` value must be unique for each ``experimentId``.
+  Multiple conditions may be applied simultaneously by specifying the same
+  ``experimentId`` and ``time`` for multiple conditions. The changes associated
+  with these conditions must be disjoint, i.e., no two conditions applied at
+  the same time may involve the same ``targetId``. The union of these changes is
+  applied to the model as if they were specified as a single condition.
 
   ``time`` will override any initial time specified in the model,
   except in the case of ``time`` =  ``-ìnf``, in which case the model-specified
