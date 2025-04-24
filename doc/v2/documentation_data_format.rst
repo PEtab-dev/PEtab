@@ -157,6 +157,11 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Support for new parameter prior distributions in the
   :ref:`v2_parameters_table`, and clarification that bounds truncate the
   prior distributions.
+* The ``observableTransformation`` column of the :ref:`v2_observables_table`
+  has been combined with the ``noiseDistribution`` column to make its intent
+  clearer. The ``log10`` transformation has been removed, since this was mostly
+  relevant for visualization purposes, and the same effect can be achieved by
+  rescaling the parameters of the respective (natural) log-distributions.
 
 .. _v2_model:
 .. _v2_model_entities:
@@ -571,17 +576,17 @@ The observable table has the following columns:
 
 *(wrapped for readability)*
 
-+-----+----------------------------+---------------------------------------+-----------------------+
-| ... | [observableTransformation] | noiseFormula                          | [noiseDistribution]   |
-+=====+============================+=======================================+=======================+
-| ... | [lin(default)\|log\|log10] | STRING\|NUMBER                        | [laplace\|normal]     |
-+-----+----------------------------+---------------------------------------+-----------------------+
-| ... | e.g.                       |                                       |                       |
-+-----+----------------------------+---------------------------------------+-----------------------+
-| ... | lin                        | noiseParameter1_relativeTotalProtein1 | normal                |
-+-----+----------------------------+---------------------------------------+-----------------------+
-| ... | ...                        | ...                                   | ...                   |
-+-----+----------------------------+---------------------------------------+-----------------------+
++-----+---------------------------------------+-----------------------+
+| ... | noiseFormula                          | [noiseDistribution]   |
++=====+=======================================+=======================+
+| ... | STRING\|NUMBER                        | *see below*           |
++-----+---------------------------------------+-----------------------+
+| ... |                                       |                       |
++-----+---------------------------------------+-----------------------+
+| ... | noiseParameter1_relativeTotalProtein1 | normal                |
++-----+---------------------------------------+-----------------------+
+| ... | ...                                   | ...                   |
++-----+---------------------------------------+-----------------------+
 
 
 Detailed field description
@@ -610,14 +615,9 @@ Detailed field description
   which are overridden by ``observableParameters`` in the measurement table
   (see description there).
 
-- ``observableTransformation`` [STRING, OPTIONAL]
-
-  Transformation of the observable and measurement for computing the objective
-  function. Must be one of ``lin``, ``log`` or ``log10``. Defaults to ``lin``.
-  The measurements and model outputs are both assumed to be provided in linear
-  space.
-
 * ``noiseFormula`` [NUMERIC|STRING]
+
+  The scale parameter of the noise distribution for the given observable.
 
   Measurement noise can be specified as a numerical value which will
   default to a Gaussian noise model if not specified differently in
@@ -651,53 +651,56 @@ Detailed field description
   observable formula contains an override, and a proportional noise model is
   used, which means the observable formula also appears in the noise formula.
 
-- ``noiseDistribution`` [STRING: 'normal' or 'laplace', OPTIONAL]
+* ``noiseDistribution`` [STRING, OPTIONAL]
 
-  Assumed noise distribution for the given measurement. Only normally or
-  Laplace distributed noise is currently allowed (log-normal and
-  log-Laplace are obtained by setting ``observableTransformation`` to ``log``, similarly for ``log10``).
-  Defaults to ``normal``. If ``normal``, the specified ``noiseParameters`` will be
-  interpreted as standard deviation (*not* variance). If ``Laplace`` ist specified, the specified ``noiseParameter`` will be interpreted as the scale, or diversity, parameter.
+  Assumed noise distribution for the measurements of the given observable.
+  The supported :ref:`noise distributions <v2_noise_distributions>` and the
+  respective interpretation of ``noiseFormula`` are given in the table below.
 
-.. _noise_distributions:
+.. _v2_noise_distributions:
 
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-For ``noiseDistribution``, ``normal`` and ``laplace`` are supported. For ``observableTransformation``, ``lin``, ``log`` and ``log10`` are supported. Denote by :math:`y` the simulation, :math:`m` the measurement, and :math:`\sigma` the standard deviation of a normal, or the scale parameter of a laplace model, as given via the ``noiseFormula`` field. Then we have the following effective noise distributions.
+Denote by :math:`m` the measured value,
+:math:`y:=\text{observableFormula}` the simulated value
+(the location parameter of the noise distribution),
+and :math:`\sigma` the scale parameter of the noise distribution
+as given via the ``noiseFormula`` field (the standard deviation of a normal,
+or the scale parameter of a laplace model).
+Then we have the following effective noise distributions:
 
-- Normal distribution:
+.. list-table::
+  :header-rows: 1
+  :widths: 10 10 80
 
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
+  * - Type
+    - ``noiseDistribution``
+    - Probability density function (PDF)
+  * - Gaussian distribution
+    - ``normal``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
+  * - | Log-normal distribution
+      | (i.e., :math:`\log(m)` is normally distributed)
+    - ``log-normal``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
+  * - Laplace distribution
+    - ``laplace``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
+  * - | Log-Laplace distribution
+      | (i.e., :math:`\log(m)` is Laplace distributed)
+    - ``log-laplace``
+    - .. math::
+         \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
 
-- Log-normal distribution (i.e. log(m) is normally distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
-
-- Log10-normal distribution (i.e. log10(m) is normally distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m \log(10)}\exp\left(-\frac{(\log_{10} m - \log_{10} y)^2}{2\sigma^2}\right)
-
-- Laplace distribution:
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
-
-- Log-Laplace distribution (i.e. log(m) is Laplace distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
-
-- Log10-Laplace distribution (i.e. log10(m) is Laplace distributed):
-
-  .. math::
-     \pi(m|y,\sigma) = \frac{1}{2\sigma m \log(10)}\exp\left(-\frac{|\log_{10} m - \log_{10} y|}{\sigma}\right)
-
-
-The distributions above are for a single data point. For a collection :math:`D=\{m_i\}_i` of data points and corresponding simulations :math:`Y=\{y_i\}_i` and noise parameters :math:`\Sigma=\{\sigma_i\}_i`, the current specification assumes independence, i.e. the full distributions is
+The distributions above are for a single data point.
+For a collection :math:`D=\{m_i\}_i` of data points and corresponding
+simulations :math:`Y=\{y_i\}_i`
+and noise parameters :math:`\Sigma=\{\sigma_i\}_i`,
+the current specification assumes independence, i.e. the full distribution is
 
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
@@ -1162,7 +1165,7 @@ parameters :
     \theta_{\text{ML}} = \arg\min_{\theta} \mathcal{L}_{\text{ML}}(\theta)
 
 Where :math:`p(\mathcal{D} \mid \mathcal{M}, \theta)` is the likelihood
-as described under :ref:`noise_distributions`.
+as described under :ref:`v2_noise_distributions`.
 
 For MAP estimation, the objective function is the unnormalized negative
 log-posterior of the data given the model and the parameters:
