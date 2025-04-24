@@ -662,7 +662,8 @@ Detailed field description
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Denote by :math:`m` the measurement, :math:`y:=\text{observableFormula}` the simulation
+Denote by :math:`m` the measured value,
+:math:`y:=\text{observableFormula}` the simulated value
 (the location parameter of the noise distribution),
 and :math:`\sigma` the scale parameter of the noise distribution
 as given via the ``noiseFormula`` field (the standard deviation of a normal,
@@ -681,7 +682,7 @@ Then we have the following effective noise distributions:
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
   * - | Log-normal distribution
-      | (i.e. log(m) is normally distributed)
+      | (i.e., :math:`\log(m)` is normally distributed)
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
@@ -689,7 +690,8 @@ Then we have the following effective noise distributions:
     - ``laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
-  * - Log-Laplace distribution (i.e. log(m) is Laplace distributed)
+  * - | Log-Laplace distribution
+      | (i.e., :math:`\log(m)` is Laplace distributed)
     - ``log-laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
