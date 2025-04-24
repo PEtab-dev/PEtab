@@ -662,7 +662,7 @@ Detailed field description
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Denote by :math:`m` the measurement, :math:`y` the simulation
+Denote by :math:`m` the measurement, :math:`y:=\text{observableFormula}` the simulation
 (the location parameter of the noise distribution),
 and :math:`\sigma` the scale parameter of the noise distribution
 as given via the ``noiseFormula`` field (the standard deviation of a normal,
@@ -680,7 +680,8 @@ Then we have the following effective noise distributions:
     - ``normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
-  * - Log-normal distribution (i.e. log(m) is normally distributed)
+  * - | Log-normal distribution
+      | (i.e. log(m) is normally distributed)
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
@@ -697,7 +698,7 @@ The distributions above are for a single data point.
 For a collection :math:`D=\{m_i\}_i` of data points and corresponding
 simulations :math:`Y=\{y_i\}_i`
 and noise parameters :math:`\Sigma=\{\sigma_i\}_i`,
-the current specification assumes independence, i.e. the full distributions is
+the current specification assumes independence, i.e. the full distribution is
 
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
