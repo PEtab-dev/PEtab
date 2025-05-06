@@ -1,0 +1,408 @@
+$defs:
+  OptimizationResult:
+    description: The result of a single optimization.
+    properties:
+      endpoint:
+        description: 'End point of the optimization. Dimension: (n_parameters)'
+        items:
+          type: number
+        title: Endpoint
+        type: array
+      fval:
+        description: Final value of the objective function.
+        title: Fval
+        type: number
+      fval0:
+        anyOf:
+        - type: number
+        - type: 'null'
+        default: null
+        description: Initial value of the objective function.
+        title: Fval0
+      grad:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Gradient at the endpoint. Dimension: (n_parameters)'
+        title: Grad
+      hess:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Hessian at the endpoint. Dimension: (n_parameters, n_parameters)'
+        title: Hess
+      history:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+        description: Link to file of History of the optimization process
+        title: History
+      id:
+        description: Unique identifier for the optimization result. Multi-start local
+          optimizations should be separated for each startpoint.
+        title: Id
+        type: string
+      optimizer:
+        allOf:
+        - $ref: '#/$defs/VersionedMetadata'
+        description: Metadata on the optimizer used.
+      startpoint:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        description: 'Starting point(s) for the optimization. May be multiple incase
+          of swarm based optimizers. Dimension: (n_parameters) | (n_starts, n_parameters)'
+        title: Startpoint
+    required:
+    - id
+    - optimizer
+    - startpoint
+    - endpoint
+    - fval
+    title: OptimizationResult
+    type: object
+  OptimizeResult:
+    description: Optimization result for multiple optimization starts.
+    properties:
+      optimization_result:
+        items:
+          $ref: '#/$defs/OptimizationResult'
+        title: Optimization Result
+        type: array
+    required:
+    - optimization_result
+    title: OptimizeResult
+    type: object
+  PetabProblemSnapshot:
+    description: 'The PEtab problem as it was used for result generation.
+
+
+      Extensive description of the PEtab data format can be found
+
+      at https://petab.readthedocs.io/en/latest/documentation_data_format.html.'
+    properties:
+      condition_df:
+        items:
+          type: object
+        title: Condition Df
+        type: array
+      measurement_df:
+        items:
+          type: object
+        title: Measurement Df
+        type: array
+      observable_df:
+        items:
+          type: object
+        title: Observable Df
+        type: array
+      parameter_df:
+        items:
+          type: object
+        title: Parameter Df
+        type: array
+      sbml_file:
+        description: SMBL model as a string representation
+        title: Sbml File
+        type: string
+    required:
+    - measurement_df
+    - observable_df
+    - condition_df
+    - parameter_df
+    - sbml_file
+    title: PetabProblemSnapshot
+    type: object
+  ProfileResult:
+    description: Profile results for multiple parameters and/or methods.
+    properties:
+      profile_results:
+        items:
+          $ref: '#/$defs/ProfilingResult'
+        title: Profile Results
+        type: array
+    required:
+    - profile_results
+    title: ProfileResult
+    type: object
+  ProfilingResult:
+    description: Profiling result for a single parameter profile.
+    properties:
+      id:
+        description: Unique identifier for the profiling result
+        title: Id
+        type: string
+      profile_confidence_interval:
+        anyOf:
+        - maxItems: 2
+          minItems: 2
+          prefixItems:
+          - type: number
+          - type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: Confidence interval for the profile
+        title: Profile Confidence Interval
+      profile_confidence_level:
+        anyOf:
+        - type: number
+        - type: 'null'
+        default: null
+        description: Confidence level for the profile
+        title: Profile Confidence Level
+      profile_method:
+        $ref: '#/$defs/VersionedMetadata'
+      profile_objective_trace:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (trace_length)'
+        title: Profile Objective Trace
+      profile_parameter_id:
+        description: ID of the profiled parameter
+        title: Profile Parameter Id
+        type: string
+      profile_parameter_trace:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (trace_length, n_parameters)'
+        title: Profile Parameter Trace
+      profile_settings:
+        title: Profile Settings
+        type: object
+      profile_startpoint:
+        anyOf:
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: Parameter vector from which the profile was started
+        title: Profile Startpoint
+    required:
+    - id
+    - profile_method
+    - profile_settings
+    - profile_parameter_id
+    title: ProfilingResult
+    type: object
+  SampleResult:
+    description: Sample result for multiple sampling executions.
+    properties:
+      sampling_results:
+        items:
+          $ref: '#/$defs/SamplingResult'
+        title: Sampling Results
+        type: array
+    required:
+    - sampling_results
+    title: SampleResult
+    type: object
+  SamplingResult:
+    description: Sampling result for a single sampling execution with one or more
+      chains.
+    properties:
+      burn_in:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Number of burn-in samples
+        title: Burn In
+      id:
+        description: Unique identifier for the sampling result
+        title: Id
+        type: string
+      log_posterior_trace:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (n_chains, trace_length) or (trace_length)'
+        title: Log Posterior Trace
+      number_of_chains:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Number of chains used in the sampling
+        title: Number Of Chains
+      parameter_startpoints:
+        anyOf:
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - items:
+            type: number
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (n_chains, n_parameters) or (n_parameters)'
+        title: Parameter Startpoints
+      parameter_trace:
+        anyOf:
+        - items:
+            items:
+              items:
+                type: number
+              type: array
+            type: array
+          type: array
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: Dimension (n_chains, trace_length, n_parameters) or (trace_length,
+          n_parameters)
+        title: Parameter Trace
+      sampler:
+        $ref: '#/$defs/VersionedMetadata'
+      sampler_settings:
+        description: Settings for the sampler
+        title: Sampler Settings
+        type: object
+      samples:
+        anyOf:
+        - items:
+            items:
+              items:
+                type: number
+              type: array
+            type: array
+          type: array
+        - items:
+            items:
+              type: number
+            type: array
+          type: array
+        - type: 'null'
+        default: null
+        description: 'Dimension: (n_chains, n_samples, n_parameters) or (n_samples,
+          n_parameters)'
+        title: Samples
+      thinning:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+        description: Thinning factor
+        title: Thinning
+    required:
+    - id
+    - sampler
+    - sampler_settings
+    title: SamplingResult
+    type: object
+  VersionedMetadata:
+    additionalProperties: true
+    description: 'Any kind of Metadata (e.g. packages) including version.
+
+
+      Additonal info may be added.'
+    properties:
+      id:
+        title: Id
+        type: string
+      version:
+        title: Version
+        type: string
+    required:
+    - id
+    - version
+    title: VersionedMetadata
+    type: object
+description: The result object structure.
+properties:
+  author:
+    anyOf:
+    - type: string
+    - type: 'null'
+    default: null
+    description: The name of the author responsible for the result.
+    title: Author
+  date:
+    anyOf:
+    - format: date-time
+      type: string
+    - type: 'null'
+    default: null
+    description: Time of saving.
+    title: Date
+  optimization_result:
+    anyOf:
+    - $ref: '#/$defs/OptimizeResult'
+    - type: 'null'
+    default: null
+    description: Optimization results
+  petab_problem_snapshot:
+    allOf:
+    - $ref: '#/$defs/PetabProblemSnapshot'
+    description: Snapshot of the PEtab problem
+  profile_result:
+    anyOf:
+    - $ref: '#/$defs/ProfileResult'
+    - type: 'null'
+    default: null
+    description: Profiling results
+  programming_language:
+    allOf:
+    - $ref: '#/$defs/VersionedMetadata'
+    description: Programming language.
+  sample_result:
+    anyOf:
+    - $ref: '#/$defs/SampleResult'
+    - type: 'null'
+    default: null
+    description: Sampling results
+  system:
+    allOf:
+    - $ref: '#/$defs/VersionedMetadata'
+    description: System metadata
+  tool_origin:
+    allOf:
+    - $ref: '#/$defs/VersionedMetadata'
+    description: Origin tool in which the result was created.
+required:
+- system
+- programming_language
+- tool_origin
+- petab_problem_snapshot
+title: Result
+type: object
