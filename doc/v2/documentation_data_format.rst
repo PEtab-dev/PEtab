@@ -522,9 +522,9 @@ Detailed field description
   The :ref:`observables table <v2_observables_table>` allows marking some
   parameters as measurement-specific (see below). Their values for a given
   measurement are specified in this column. The values are separated by
-  semicolons. The order of the values must match the order of the
-  placeholders in the observable formula. The number of values must match
-  the number of placeholders in the observable formula. The values may be
+  semicolons. The order (and number) of values must match the order (and number) of
+  placeholders in the ``observablePlaceholders`` field of the corresponding
+  observable in the observable table. The values may be
   either numeric values or the IDs of parameters from the
   :ref:`parameters table <v2_parameters_table>`.
 
@@ -626,15 +626,15 @@ Detailed field description
   Furthermore, any parameters introduced through the ``observablePlaceholders``
   field for the given observable may be used (see below).
 
-* ``observablePlaceholders`` [STRING, OPTIONAL]
+* ``observablePlaceholders`` [LIST[PETAB_ID], OPTIONAL]
 
   A semicolon-separated list of valid PEtab identifiers that have not been
   introduced elsewhere, marking them as placeholders for
   measurement-specific parameters.
   The actual values for these parameters are specified in the
   ``observableParameters`` field of the measurement table.
-  The ordering of the symbols in ``observableParameters`` must match the
-  ordering of the symbols in ``observablePlaceholders``.
+  The ordering and number of values in ``observableParameters`` must match the
+  ordering and number of placeholders in ``observablePlaceholders``.
 
 * ``noiseFormula`` [NUMERIC|STRING]
 
@@ -654,15 +654,15 @@ Detailed field description
   placeholders for noise parameters that are declared in ``noisePlaceholders``
   may be used.
 
-* ``noisePlaceholders`` [STRING, OPTIONAL]
+* ``noisePlaceholders`` [LIST[PETAB_ID], OPTIONAL]
 
-  A semicolon-separated list of valid PEtab identifiers that have not been
+  A semicolon-delimited list of valid PEtab identifiers that have not been
   introduced elsewhere, marking them as placeholders for
   measurement-specific noise parameters.
   The actual values for these parameters are specified in the
   ``noiseParameters`` field of the measurement table.
-  The ordering of the symbols in ``noiseParameters`` must match the
-  ordering of the symbols in ``noisePlaceholders``.
+  The ordering and number of values in ``noiseParameters`` must match the
+  ordering and number of placeholders in ``noisePlaceholders``.
 
   For example, a noise model that accounts for measurement-specific relative
   and absolute contributions for some observable with the ID
