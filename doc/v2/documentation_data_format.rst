@@ -621,8 +621,6 @@ Detailed field description
   The expression may contain any symbol defined in the model,
   the mapping table or the parameter table.
   Often, this is just the ID of a state variable.
-  Additionally, any observable ID introduced in the observable table
-  may be referenced, but circular definitions must be avoided.
   Furthermore, any parameters introduced through the ``observablePlaceholders``
   field for the given observable may be used (see below).
 
