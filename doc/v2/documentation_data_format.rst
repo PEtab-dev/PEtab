@@ -635,6 +635,7 @@ Detailed field description
   ``observableParameters`` field of the measurement table.
   The ordering and number of values in ``observableParameters`` must match the
   ordering and number of placeholders in ``observablePlaceholders``.
+  For an example, see the description of ``noisePlaceholders`` below.
 
 * ``noiseFormula`` [NUMERIC|STRING]
 
