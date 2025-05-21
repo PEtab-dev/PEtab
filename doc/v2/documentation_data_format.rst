@@ -454,20 +454,7 @@ order:
 | ... | ...                                                | ...                                                |
 +-----+----------------------------------------------------+----------------------------------------------------+
 
-Additional (non-standard) columns may be added. If the additional plotting
-functionality of PEtab should be used, such columns could be
-
-+-----+-------------+---------------+
-| ... | [datasetId] | [replicateId] |
-+=====+=============+===============+
-| ... | [datasetId] | [replicateId] |
-+-----+-------------+---------------+
-| ... | ...         | ...           |
-+-----+-------------+---------------+
-
-where ``datasetId`` is a necessary column to use particular plotting
-functionality, and ``replicateId`` is optional, which can be used to group
-replicates and plot error bars.
+Additional (non-standard) columns may be added.
 
 
 Detailed field description
@@ -531,20 +518,6 @@ Detailed field description
 
   Numeric values or parameter names are allowed. Same rules apply as for
   ``observableParameters`` in the previous point.
-
-- ``datasetId`` [STRING, OPTIONAL]
-
-  The datasetId is used to group certain measurements to datasets. This is
-  typically the case for data points which belong to the same observable,
-  the same experiment, the same noise model,
-  the same observable transformation and the same observable parameters.
-  This grouping makes it possible to use the plotting routines that are
-  provided by the PEtab Python library.
-
-- ``replicateId`` [STRING, OPTIONAL]
-
-  The replicateId can be used to discern replicates with the same
-  ``datasetId``, which is helpful for plotting e.g. error bars.
 
 .. _v2_observables_table:
 
