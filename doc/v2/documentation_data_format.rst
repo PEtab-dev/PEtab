@@ -549,8 +549,8 @@ Simulation table
 
 For some applications, it is useful to provide a simulation file that contains
 the simulation results of the model for the same time points as the
-measurements. This is useful for example for comparing the simulation results
-with the measurements or for distributing expected model outputs.
+measurements. This is useful, for example, for comparing the simulation results
+with the measurements, or for assessing simulation reproducibility across tools.
 The simulation table is provided as a tab-separated values (TSV) file with
 the same structure as the measurement table, only that the
 ``measurement`` column is replaced by the ``simulation`` column that contains
