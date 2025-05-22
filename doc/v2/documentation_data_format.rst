@@ -282,9 +282,6 @@ phases, following the logic of the event assignments in a single SBML event.
    * For subsequent time periods, the *current* values are taken from the
      simulation results at the end of the preceding time period.
 
-   * For problems involving multiple models, any variable not present in 
-     the currently simulated model will default to a value of zero.
-
 2. **Assignment of the evaluated ``targetValues`` to their targets**
 
    All evaluated ``targetValues`` are simultaneously assigned to their
@@ -558,6 +555,13 @@ Detailed field description
   For problems with a single model, this column is ignored, and the same model
   is used for all simulations.
 
+  For model definitions that include multiple models, only those experiments and
+  bservables that appear in the same rows of the measurement table need to be 
+  valid for a given model. This means that all symbols used in the corresponding
+  observable formulas, as well as all symbols assigned in the associated 
+  conditions, must be present in that specific model. Conditions and observables
+  do not need to be valid for models to which they are not applied.
+
 .. _v2_observables_table:
 
 Observables table
@@ -618,14 +622,11 @@ Detailed field description
 * ``observableFormula`` [STRING]
 
   Observation function as plain text formula expression.
-  May contain any symbol defined any of the employed models (including model 
+  May contain any symbol defined in a model (including model 
   time ``time``) or parameter table. In the simplest case, for SBML models, 
   just a species ID or an ``AssignmentRule`` target. Additionally, any observable ID
   introduced in the observable table may be referenced, but circular definitions
   must be avoided.
-
-  In problems with multiple models, symbols not defined in the currently simulated 
-  model default to a value of zero.
 
   May introduce new parameters of the form ``observableParameter${n}_${observableId}``,
   which are overridden by ``observableParameters`` in the measurement table
