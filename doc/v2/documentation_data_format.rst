@@ -555,13 +555,6 @@ Detailed field description
   For problems with a single model, this column is ignored, and the same model
   is used for all simulations.
 
-  For model definitions that include multiple models, only those experiments and
-  bservables that appear in the same rows of the measurement table need to be 
-  valid for a given model. This means that all symbols used in the corresponding
-  observable formulas, as well as all symbols assigned in the associated 
-  conditions, must be present in that specific model. Conditions and observables
-  do not need to be valid for models to which they are not applied.
-
 .. _v2_observables_table:
 
 Observables table
@@ -1147,14 +1140,51 @@ easy validation:
 Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Parameter estimation problems can involve multiple models, with a specific model
-assigned to each individual data point. However, all tables in a PEtab problem apply
-uniformly to all models. As a result:
-- Multiple models may need to be simulated for a single experiment.
-- Each model may be simulated for a distinct subset of experiments.
-- The number of conditions that must be simulated for an experiment may vary depending 
-  on the model used.
-- Each parameter in the parameter table has the same value across all models.
+Purpose
+^^^^^^^
+PEtab supports defining multiple models within a single problem specification. This
+feature is designed to enable users to define experiment-specific model variants or
+submodels. Rather than implementing a single global, parameterized model, users can
+define multiple smaller, self-contained models that differ structurally as needed.
+
+This approach offers several benefits:
+
+- Simplified model definition for users, as each variant can be independently 
+specified.
+- Improved simulation performance for tool developers, as smaller models can be 
+simulated more efficiently.
+
+Scope and Application
+^^^^^^^^^^^^^^^^^^^^^
+While multiple models are intended to be applied to different experiments, model
+selection is specified at the level of individual data points in the 
+:ref:`v2_measurements_table`. This design enables:
+
+- Reuse of experiments across models.
+- Fine-grained model-to-data assignment.
+
+With the exception of the :ref:`v2_measurements_table`, all other PEtab tables apply
+uniformly to all models.
+
+This design has several implications:
+
+- A single experiment may require simulations using multiple models.
+- Each model may be associated with a distinct subset of experiments.
+- The number of conditions to be simulated for a model-specific instance
+of an experiment may vary across models.
+- Each parameter defined in the :ref:`v2_parameters_table` has a shared value across all 
+models.
+
+Validation Rules
+^^^^^^^^^^^^^^^^
+For any given model Only those experiments and observables that appear in the 
+same rows of the :ref:`v2_measurements_table` need to be valid. This means that all 
+symbols used in the corresponding ``observableFormula`` and all symbols assigned 
+in the associated condition definitions must be defined in the model.
+
+Conditions and observables that are not applied to a model do not need to be 
+valid for that model.
+
 
 .. _v2_objective_function:
 
