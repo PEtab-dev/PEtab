@@ -304,9 +304,6 @@ phases, following the logic of the event assignments in a single SBML event.
      For further details, refer to SBML semantic test suite case `01779
      <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
 
-   * For problems involving multiple models, any assignment to targets not
-     present in the currently simulated model will be ignored.
-
 3. **Update of derived variables**
 
    After target values have been assigned, all derived variables (i.e.,
