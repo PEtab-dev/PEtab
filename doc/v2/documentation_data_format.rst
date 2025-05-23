@@ -786,7 +786,7 @@ Detailed field description
 - ``parameterId`` [PETAB_ID, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
-  the ID of a parameter specified at least one model, a parameter introduced
+  the ID of a parameter specified in at least one model, a parameter introduced
   as override in the condition table, or a parameter occurring in the
   ``observableParameters`` or ``noiseParameters`` column of the measurement table
   (see above).
@@ -1183,7 +1183,7 @@ models.
 
 Validation Rules
 ^^^^^^^^^^^^^^^^
-For any given model Only those experiments and observables that appear in the 
+For any given model, only those experiments and observables that appear in the 
 same rows of the :ref:`v2_measurements_table` need to be valid. This means that all 
 symbols used in the corresponding ``observableFormula`` and all symbols assigned 
 in the associated condition definitions must be defined in the model.
