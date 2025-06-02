@@ -173,7 +173,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   ``observablePlaceholders`` and ``noisePlaceholders`` fields in the
   :ref:`v2_observables_table`. This replaces the previous
   ``observableParameter${n}_${observableId}`` syntax. The new approach is more
-  more explicit and allows for more descriptive and shorter names for the
+  explicit and allows for more descriptive and shorter names for the
   placeholders.
 
 .. _v2_model:
@@ -522,7 +522,7 @@ Detailed field description
   The :ref:`observables table <v2_observables_table>` allows marking some
   parameters as measurement-specific (see below). Their values for a given
   measurement are specified in this column. The values are separated by
-  semicolons. The order (and number) of values must match the order (and number) of
+  semicolons. The order and number of values must match the order and number of
   placeholders in the ``observablePlaceholders`` field of the corresponding
   observable in the observable table. The values may be
   either numeric values or the IDs of parameters from the
