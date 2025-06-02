@@ -484,6 +484,9 @@ Detailed field description
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
   measurements.
+  This value must be greater than or equal to the first time point
+  of the experiment referenced in the ``experimentId`` column
+  that is not ``-inf``.
 
   If this time point coincides with the time point of a condition change,
   the condition change is applied before the observable is evaluated
