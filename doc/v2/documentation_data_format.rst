@@ -985,7 +985,8 @@ Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Purpose
-^^^^^^^
++++++++
+
 PEtab supports defining multiple models within a single problem specification. This
 feature is designed to enable users to define experiment-specific model variants or
 submodels. Rather than implementing a single global, parameterized model, users can
@@ -999,7 +1000,8 @@ This approach offers several benefits:
   simulated more efficiently.
 
 Scope and Application
-^^^^^^^^^^^^^^^^^^^^^
++++++++++++++++++++++
+
 While multiple models are intended to be applied to different experiments, model
 selection is specified at the level of individual data points in the
 :ref:`v2_measurements_table`. This design enables:
@@ -1020,7 +1022,8 @@ This design has several implications:
   across all models.
 
 Validation Rules
-^^^^^^^^^^^^^^^^
+++++++++++++++++
+
 For any given model, only those experiments and observables that appear in the
 same rows of the :ref:`v2_measurements_table` need to be valid. This means that all
 symbols used in the corresponding ``observableFormula`` and all symbols assigned
