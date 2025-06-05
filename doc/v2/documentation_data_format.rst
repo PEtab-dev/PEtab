@@ -111,12 +111,20 @@ should not alter the definition of the estimation problem itself.
     parameters, but excluding parameters listed in the
     :ref:`v2_parameters_table` (independent of their ``estimate`` value).
 
+.. _v2_changes:
 
 Changes from PEtab 1.0.0
 ------------------------
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
+* The :ref:`PEtab YAML problem description <v2_problem_yaml>` is now
+  mandatory and its structure changed. In particular, the `problems` list
+  has been flattened.
 * Support for models in other formats than SBML (:ref:`v2_model`).
+* The use of different models for different measurements is now
+  supported via the optional ``modelId`` column in the
+  :ref:`v2_measurements_table`, see also :ref:`v2_multiple_models`.
+  This was poorly defined in PEtab 1.0.0 and probably not used in practice.
 * The (now optional) conditions table format changed from wide to long
   (:ref:`v2_conditions_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
@@ -1020,6 +1028,7 @@ easy validation:
 .. literalinclude:: _static/petab_schema_v2.yaml
    :language: yaml
 
+.. _v2_multiple_models:
 
 Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
