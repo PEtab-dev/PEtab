@@ -76,14 +76,6 @@ properties:
       type: string
       description: PEtab observable file name or URL.
 
-  visualization_files:
-    type: array
-    description: List of PEtab visualization files.
-
-    items:
-      type: string
-      description: PEtab visualization file name or URL.
-
   mapping_files:
     type: array
     description: List of PEtab mapping files.
@@ -91,8 +83,6 @@ properties:
     items:
       type: string
       description: PEtab mapping file name or URL.
-
-      required:
 
   extensions:
     type: object
@@ -109,7 +99,7 @@ properties:
             type: string
             pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
           required:
-            type: bool
+            type: boolean
             description: |
               Indicates whether the extension is required for the
               mathematical interpretation of the problem.
@@ -126,4 +116,3 @@ required:
   - model_files
   - observable_files
   - measurement_files
-
