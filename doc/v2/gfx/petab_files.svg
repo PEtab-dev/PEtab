@@ -3,8 +3,8 @@
 
 <svg
    width="289.77234mm"
-   height="147.0425mm"
-   viewBox="0 0 289.77234 147.0425"
+   height="156.7068mm"
+   viewBox="0 0 289.77234 156.70681"
    version="1.1"
    id="svg8536"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
@@ -29,9 +29,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.50922277"
-     inkscape:cx="-54.00387"
-     inkscape:cy="317.15"
+     inkscape:zoom="0.37998713"
+     inkscape:cx="-14.474174"
+     inkscape:cy="111.84589"
      inkscape:window-width="1920"
      inkscape:window-height="1110"
      inkscape:window-x="0"
@@ -1758,24 +1758,20 @@
              style="font-weight:bold;font-size:6.35px;stroke-width:0.264583px">Problem configuration</tspan></text>
         <text
            xml:space="preserve"
-           transform="matrix(0.26458333,0,0,0.26458333,-4.4155108,1.4597434)"
+           transform="matrix(0.26458333,0,0,0.26458333,-4.4155108,6.5634839)"
            id="text29665"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:21.3333px;line-height:1.2;font-family:Arial;-inkscape-font-specification:Arial;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;white-space:pre;shape-inside:url(#rect29667);shape-padding:0;shape-margin:0;inline-size:0;display:inline;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"><tspan
              x="-329.58008"
              y="556.13"
-             id="tspan8352">• References models
+             id="tspan5976">• Links all PEtab files
 </tspan><tspan
              x="-329.58008"
              y="581.72997"
-             id="tspan8354">  and other tables
+             id="tspan5978">• Metadata of PEtab
 </tspan><tspan
              x="-329.58008"
              y="607.32995"
-             id="tspan8356">• Information on version
-</tspan><tspan
-             x="-329.58008"
-             y="632.92992"
-             id="tspan8358">  extensions</tspan></text>
+             id="tspan5980">  extensions</tspan></text>
       </g>
     </g>
     <g
@@ -2426,7 +2422,7 @@
     <g
        id="g4527"
        transform="translate(-2.2920292,22.836103)"
-       style="opacity:0.7">
+       style="opacity:0.6">
       <g
          transform="matrix(0.68469006,0,0,0.68469006,581.24169,-44.566381)"
          id="g2799"
@@ -2731,22 +2727,17 @@
            x="68.505363"
            y="232.20859"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5422">Model state changes</tspan><tspan
+           id="tspan5422">Changes in model</tspan><tspan
            sodipodi:role="line"
            x="68.505363"
            y="239.26414"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5430">at the start of </tspan><tspan
+           id="tspan5426">state, used to define</tspan><tspan
            sodipodi:role="line"
            x="68.505363"
            y="246.31969"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5434">experiment periods</tspan><tspan
-           sodipodi:role="line"
-           x="68.505363"
-           y="253.37524"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5426">  </tspan></text>
+           id="tspan11">experimental protocols</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6.35px;line-height:100%;font-family:Arial;-inkscape-font-specification:'Arial, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -3417,7 +3408,7 @@
     <g
        id="g4390"
        transform="matrix(0.99640636,0,0,0.99640636,-90.824462,-52.696758)"
-       style="opacity:0.7">
+       style="opacity:0.6">
       <g
          transform="matrix(0.68469006,0,0,0.68469006,660.66044,-16.489961)"
          id="g2931"
@@ -3575,17 +3566,12 @@
            x="148.28528"
            y="260.81418"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan956">Sequences of</tspan><tspan
+           id="tspan1037">Experimental</tspan><tspan
            sodipodi:role="line"
            x="148.28528"
            y="267.86972"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan1035">experimental</tspan><tspan
-           sodipodi:role="line"
-           x="148.28528"
-           y="274.92529"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan1037">conditionl</tspan></text>
+           id="tspan9">protocols</tspan></text>
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6.35px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -3751,8 +3737,9 @@
        id="path39256" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#RoundedArrow);paint-order:stroke fill markers"
-       d="m 218.12042,191.66579 h 11.29064"
-       id="path3748" />
+       d="m 216.92512,201.19485 14.54214,1.03084"
+       id="path3748"
+       sodipodi:nodetypes="cc" />
     <g
        id="g4970">
       <g
@@ -4411,16 +4398,19 @@
     </g>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#RoundedArrow);paint-order:stroke fill markers"
-       d="M 108.23258,204.89498 H 96.941904"
-       id="path5635" />
+       d="m 110.02488,203.99961 -13.082976,0.89537"
+       id="path5635"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#RoundedArrow);paint-order:stroke fill markers"
-       d="m 111.56577,183.81079 -10.6659,-3.70376"
-       id="path5637" />
+       d="m 113.30505,177.47416 -9.5721,-3.75063"
+       id="path5637"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#RoundedArrow);paint-order:stroke fill markers"
-       d="m 157.06332,222.41177 -8.21383,7.74675"
-       id="path5639" />
+       d="m 151.53638,223.77992 -2.68689,6.3786"
+       id="path5639"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#RoundedArrow);paint-order:stroke fill markers"
        d="m 200.19857,222.41177 8.21383,7.74675"
@@ -4428,7 +4418,7 @@
     <g
        id="g5889"
        transform="matrix(0.99640636,0,0,0.99640636,-85.003628,-97.146763)"
-       style="opacity:0.7">
+       style="opacity:0.6">
       <g
          transform="matrix(0.68469006,0,0,0.68469006,660.66044,-16.489961)"
          id="g5821"
@@ -4586,20 +4576,15 @@
            x="148.28528"
            y="256.03458"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5928">• Mapping </tspan><tspan
+           id="tspan5934">• Use non-standard</tspan><tspan
            sodipodi:role="line"
            x="148.28528"
            y="263.09012"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5940">  model entities </tspan><tspan
+           id="tspan2">  model entities in PEtab</tspan><tspan
            sodipodi:role="line"
            x="148.28528"
            y="270.14569"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
-           id="tspan5934">  to PEtab entities</tspan><tspan
-           sodipodi:role="line"
-           x="148.28528"
-           y="277.20123"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583px"
            id="tspan5930">• Annotations</tspan></text>
       <text
@@ -4765,5 +4750,27 @@
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#RoundedArrow);paint-order:stroke fill markers"
        d="m 112.99977,218.85162 -9.77801,5.64533"
        id="path5938" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444px;line-height:100%;font-family:Arial;-inkscape-font-specification:'Arial, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:0.6;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="47.163643"
+       y="285.27975"
+       id="text35730-3"><tspan
+         sodipodi:role="line"
+         x="47.163643"
+         y="285.27975"
+         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444px;font-family:Arial;-inkscape-font-specification:'Arial, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583px"
+         id="tspan29679-6">Optional files</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444px;line-height:100%;font-family:Arial;-inkscape-font-specification:'Arial, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="285.2887"
+       y="285.27975"
+       id="text4364"><tspan
+         sodipodi:role="line"
+         x="285.2887"
+         y="285.27975"
+         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.64444px;font-family:Arial;-inkscape-font-specification:'Arial, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;stroke-width:0.264583px"
+         id="tspan4362">Required files</tspan></text>
   </g>
 </svg>
