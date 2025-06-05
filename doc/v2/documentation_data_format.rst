@@ -1063,7 +1063,10 @@ uniformly to all models.
 
 This design has several implications:
 
-- A single experiment may require simulations using multiple models.
+- A single experiment may need to be simulated with different models for
+  different measurements.
+  However, a single simulation of a given experiment is always performed
+  using one single model
 - Each model may be associated with a distinct subset of experiments.
 - The number of conditions to be simulated for a model-specific instance
   of an experiment may vary across models.
