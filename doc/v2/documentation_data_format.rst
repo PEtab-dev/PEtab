@@ -159,6 +159,19 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   clearer. The ``log10`` transformation has been removed, since this was mostly
   relevant for visualization purposes, and the same effect can be achieved by
   rescaling the parameters of the respective (natural) log-distributions.
+* The ``observableFormula`` field in the :ref:`v2_observables_table` must not
+  contain any observable IDs. This was previously allowed, but it was not
+  well-defined how to deal with placeholder parameters in this case.
+  The ``noiseFormula`` field may contain only the observable ID of the
+  respective observable itself, but no other observable IDs for the same
+  reason.
+* Placeholders for measurement-specific parameters in ``observableFormula``
+  and ``noiseFormula`` are now declared using the
+  ``observablePlaceholders`` and ``noisePlaceholders`` fields in the
+  :ref:`v2_observables_table`. This replaces the previous
+  ``observableParameter${n}_${observableId}`` syntax. The new approach is more
+  explicit and allows for more descriptive and shorter names for the
+  placeholders.
 * The visualization table has been removed. The PEtab v1 visualization table
   was not well-defined and not widely used. Visualization is handled by the
   PEtab Python library which also provides documentation on the respective
@@ -494,24 +507,23 @@ Detailed field description
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
-  This field allows overriding or introducing condition-specific versions of
-  output parameters defined in the observation model. The model can define
-  observables (see below) containing place-holder parameters which can be
-  replaced by condition-specific dynamic or constant parameters. Placeholder
-  parameters must be named ``observableParameter${n}_${observableId}``
-  with ``n`` ranging from 1 (not 0) to the number of placeholders for the given
-  observable, without gaps.
-  If the observable specified under ``observableId`` contains no placeholders,
-  this field must be empty. If it contains ``n > 0`` placeholders, this field
-  must hold ``n`` semicolon-separated numeric values or parameter names. No
-  trailing semicolon must be added.
+  Measurement-specific overrides for placeholder parameters declared in the
+  observation model.
+
+  The :ref:`observables table <v2_observables_table>` allows marking some
+  parameters as measurement-specific (see below). Their values for a given
+  measurement are specified in this column. The values are separated by
+  semicolons. The order and number of values must match the order and number of
+  placeholders in the ``observablePlaceholders`` field of the corresponding
+  observable in the observable table. The values may be
+  either numeric values or the IDs of parameters from the
+  :ref:`parameters table <v2_parameters_table>`.
 
   Different lines for the same ``observableId`` may specify different
   parameters. This may be used to account for condition-specific or
   batch-specific parameters. This will translate into an extended estimation
   parameter vector.
 
-  All placeholders defined in the observation model must be overwritten here.
   If there are no placeholders used, this column may be omitted.
 
 - ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
@@ -582,15 +594,23 @@ Detailed field description
 * ``observableFormula`` [STRING]
 
   Observation function as plain text formula expression.
-  May contain any symbol defined in the SBML model (including model time ``time``)
-  or parameter table. In the simplest case just an SBML species ID
-  or an ``AssignmentRule`` target. Additionally, any observable ID
-  introduced in the observable table may be referenced, but circular definitions
-  must be avoided.
 
-  May introduce new parameters of the form ``observableParameter${n}_${observableId}``,
-  which are overridden by ``observableParameters`` in the measurement table
-  (see description there).
+  The expression may contain any symbol defined in the model,
+  the mapping table or the parameter table.
+  Often, this is just the ID of a state variable.
+  Furthermore, any parameters introduced through the ``observablePlaceholders``
+  field for the given observable may be used (see below).
+
+* ``observablePlaceholders`` [LIST[PETAB_ID], OPTIONAL]
+
+  A semicolon-separated list of valid PEtab identifiers that have not been
+  introduced elsewhere, marking them as placeholders for
+  measurement-specific parameters.
+  The actual values for these parameters are specified in the
+  ``observableParameters`` field of the measurement table.
+  The ordering and number of values in ``observableParameters`` must match the
+  ordering and number of placeholders in ``observablePlaceholders``.
+  For an example, see the description of ``noisePlaceholders`` below.
 
 * ``noiseFormula`` [NUMERIC|STRING]
 
@@ -603,30 +623,40 @@ Detailed field description
   observable.
 
   Alternatively, some formula expression can be provided to specify
-  more complex noise models. The formula may reference any uniquely identifiable
-  model entity with PEtab-compatible identifier or any observable ID
-  specified in the observable table.
+  more complex noise models. The same rules as for ``observableFormula``
+  apply here. In addition, the current observable ID may be used to refer to
+  the ``observableFormula`` expression.
+  In addition to the placeholders declared in ``observablePlaceholders``,
+  placeholders for noise parameters that are declared in ``noisePlaceholders``
+  may be used.
 
-  A noise model which accounts for relative and
-  absolute contributions could, e.g., be defined as::
+* ``noisePlaceholders`` [LIST[PETAB_ID], OPTIONAL]
 
-    noiseParameter1_observable_pErk + noiseParameter2_observable_pErk * observable_pErk
+  A semicolon-delimited list of valid PEtab identifiers that have not been
+  introduced elsewhere, marking them as placeholders for
+  measurement-specific noise parameters.
+  The actual values for these parameters are specified in the
+  ``noiseParameters`` field of the measurement table.
+  The ordering and number of values in ``noiseParameters`` must match the
+  ordering and number of placeholders in ``noisePlaceholders``.
 
-  with ``noiseParameter1_observable_pErk`` denoting the absolute and
-  ``noiseParameter2_observable_pErk`` the relative contribution for the
-  observable ``observable_pErk`` corresponding to species ``pErk``.
-  IDs of noise parameters
-  that need to have different values for different measurements have the
-  structure: ``noiseParameter${indexOfNoiseParameter}_${observableId}``
-  to facilitate automatic recognition. The specific values or parameters are
-  assigned in the ``noiseParameters`` field of the *measurement table*
-  (see above). Any parameters named ``noiseParameter${1..n}_${observableId}``
-  *must* be overwritten in the measurement table.
+  For example, a noise model that accounts for measurement-specific relative
+  and absolute contributions for some observable with the ID
+  ``observable_pErk`` could be defined as::
 
-  Noise formulae can also contain observable parameter overrides, which are
-  described under ``observableFormula`` in this table. An example is when an
-  observable formula contains an override, and a proportional noise model is
-  used, which means the observable formula also appears in the noise formula.
+    noise_offset_pErk + noise_scale_pErk * observable_pErk
+
+  with ``noise_offset_pErk`` denoting the absolute and
+  ``noise_scale_pErk`` the relative contribution.
+  The corresponding ``noisePlaceholders`` would be::
+
+    noise_offset_pErk;noise_scale_pErk
+
+  and the ``noiseParameters`` in the measurement table could be, for example,
+  ``0.1;0.2`` resulting in::
+
+    noise_offset_pErk = 0.1
+    noise_scale_pErk = 0.2
 
 * ``noiseDistribution`` [STRING, OPTIONAL]
 
