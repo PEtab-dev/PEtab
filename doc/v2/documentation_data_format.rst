@@ -541,12 +541,9 @@ Detailed field description
 
 - ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.models.model_id)]
 
-  The modelId specifies which model to simulate for each data point. modelIds
-  are defined by the keys of the models dict in the PEtab problem YAML file.
-  This column is required when multiple models are defined in the PEtab problem.
-  For problems with a single model, this column is ignored, and the same model
-  is used for all simulations.
-
+  Which model to simulate for each data point. modelIds are defined by the keys of 
+  the models dict in the PEtab problem YAML file. This column is required when 
+  multiple models are defined in the PEtab problem, otherwise it is ignored.
 .. _v2_simulation_table:
 
 Simulation table
