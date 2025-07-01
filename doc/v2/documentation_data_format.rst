@@ -347,9 +347,16 @@ phases, following the logic of the event assignments in a single SBML event.
 Experiments table
 -----------------
 
-The optional experiments table defines a sequence of experimental
-conditions (i.e., discrete changes; see :ref:`v2_conditions_table`) applied
-to the model.
+The optional experiments table defines a sequence (Figure 3, lower) of
+experimental conditions (i.e., discrete changes; see
+:ref:`v2_conditions_table`) applied to the model.
+
+
+.. figure:: gfx/v2_experiment.png
+   :alt: A comparison of simulations in PEtab v1 and v2.
+
+   **Figure 3: A comparison of simulations in PEtab v1 and v2.**
+
 
 The experiments table is provided as a tab-separated values (TSV) file with
 the following structure:
