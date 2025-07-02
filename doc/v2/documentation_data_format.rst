@@ -123,7 +123,13 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   :ref:`v2_measurements_table` are replaced by ``experimentId`` and a more
   flexible way for defining experiments and time courses. This allows
   arbitrary sequences of conditions and combinations of conditions to be
-  applied to the model (:ref:`v2_experiments_table`).
+  applied to the model (Figure 3 and :ref:`v2_experiments_table`).
+
+.. figure:: gfx/v2_experiment.png
+   :alt: A comparison of simulations in PEtab v1 and v2.
+
+   **Figure 3: A comparison of simulations in PEtab v1 and v2.**
+
 * Support for math expressions in the condition table
   (:ref:`v2_conditions_table`).
 * Clarification and specification of various previously underspecified
@@ -347,9 +353,9 @@ phases, following the logic of the event assignments in a single SBML event.
 Experiments table
 -----------------
 
-The optional experiments table defines a sequence of experimental
-conditions (i.e., discrete changes; see :ref:`v2_conditions_table`) applied
-to the model.
+The optional experiments table defines a sequence (Figure 3, lower) of
+experimental conditions (i.e., discrete changes; see
+:ref:`v2_conditions_table`) applied to the model.
 
 The experiments table is provided as a tab-separated values (TSV) file with
 the following structure:
