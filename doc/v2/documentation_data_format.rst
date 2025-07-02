@@ -213,7 +213,7 @@ PEtab distinguishes between three types of entities:
 Conditions table
 ----------------
 
-The optional conditions table defines discrete changes to the simulated model.
+The optional conditions table defines discrete changes to the simulated model(s).
 These (sets of) changes typically represent interventions, perturbations, or
 changes in the environment of the system of interest. These modifications are
 referred to as (experimental) *conditions*.
