@@ -415,7 +415,12 @@ The experiment table has three mandatory columns ``experimentId``,
 
   The time at which the specified condition will become active, in the time
   unit specified in the model. ``-inf`` indicates that the respective
-  condition will be simulated until a steady state is reached.
+  condition will be simulated until a steady state is reached. The system is
+  considered to be at steady state once the time derivative of all
+  differential entities is almost zero (where "almost zero" is to be defined by
+  the simulator or user), even if there are discontinuities in
+  the model (e.g., due to events) that may change the model state
+  at a later time point.
 
   If the simulation of a condition with steady state fails to reach a steady state,
   and the condition is required for the evaluation of simulation at
@@ -512,7 +517,8 @@ Detailed field description
 
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
-  measurements.
+  measurements (the same definition of steady state as in the
+  :ref:`v2_experiments_table` applies here).
   This value must be greater than or equal to the first time point
   of the experiment referenced in the ``experimentId`` column
   that is not ``-inf``.
