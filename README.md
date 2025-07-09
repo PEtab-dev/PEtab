@@ -50,7 +50,7 @@ A wide range of PEtab examples can be found in the systems biology parameter est
 ## PEtab support in systems biology tools
 
 For a list of tools supporting PEtab, see the
-[PEtab website](https://petab.readthedocs.io/en/latest/software_support.html).
+[PEtab website](https://petab.readthedocs.io/en/latest/v1/software_support.html).
 
 
 ## Using PEtab

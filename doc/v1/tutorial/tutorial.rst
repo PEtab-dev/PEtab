@@ -1,5 +1,5 @@
 ==============
-PEtab Tutorial
+PEtab tutorial
 ==============
 
 .. _Boehm et al. (2014): https://dx.doi.org/10.1021/pr5006923
@@ -31,9 +31,9 @@ SBML model provided in the original publication, which is also available
 on Biomodels (https://www.ebi.ac.uk/biomodels/BIOMD0000000591). For
 illustration purposes we slightly modified the SBML model and shortened
 some parts of the PEtab files. The full PEtab problem introduced in this
-tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/b50d000a5fb4cf37bf62315686acd2694e29e5fc/doc/tutorial>`_.
+tutorial is available `online <https://github.com/PEtab-dev/PEtab/tree/main/doc/v1/tutorial>`_.
 
-.. figure:: tutorial/gfx/tutorial_model.png
+.. figure:: gfx/tutorial_model.png
    :width: 4.9846in
    :height: 5.5634in
 
@@ -65,7 +65,7 @@ phosphorylation levels of STAT5A and STAT5B as well as relative STAT5A
 abundance for different timepoints between 0 - 240 minutes after
 stimulation with erythropoietin (Epo):
 
-.. figure:: tutorial/gfx/tutorial_data.png
+.. figure:: gfx/tutorial_data.png
    :width: 6.2681in
    :height: 2.0835in
 
@@ -384,7 +384,7 @@ PEtab. The easiest tool to get started with is probably COPASI which comes
 with a graphical user interface
 (see https://github.com/copasi/python-petab-importer for further instructions).
 
-.. figure:: tutorial/gfx/copasi_simulation.png
+.. figure:: gfx/copasi_simulation.png
    :width: 4.9846in
    :height: 5.5634in
 
