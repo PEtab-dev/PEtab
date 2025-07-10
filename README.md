@@ -50,17 +50,17 @@ A wide range of PEtab examples can be found in the systems biology parameter est
 ## PEtab support in systems biology tools
 
 For a list of tools supporting PEtab, see the
-[PEtab website](https://petab.readthedocs.io/en/latest/v1/software_support.html).
+[software support page](https://petab.readthedocs.io/en/latest/v1/software_support.html).
 
 
 ## Using PEtab
 
 If you would like to use PEtab yourself, please have a look at:
 
-* [a PEtab tutorial](https://petab.readthedocs.io/en/latest/tutorial.html)
+* [a PEtab tutorial](https://petab.readthedocs.io/en/latest/v1/tutorial/tutorial.html)
   going through the individual steps of setting up a parameter estimation
   problem in PEtab, independently of any specific software
-* [the PEtab format reference](https://petab.readthedocs.io/en/latest/documentation_data_format.html)
+* [the PEtab format reference](https://petab.readthedocs.io/en/latest/v1/documentation_data_format.html)
 * the example models provided in the
   [benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 * the tutorials provided with each of the softwares supporting PEtab
