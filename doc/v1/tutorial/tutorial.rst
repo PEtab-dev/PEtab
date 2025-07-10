@@ -317,9 +317,9 @@ the measurement data similar to the figure above.
   observables are plotted individually.
 
 There are various ways of further individualizing the plots, e.g. by
-defining legend entries or data plotted on log-scale (see the
-documentation for further information
-https://petab.readthedocs.io/en/latest/documentation_data_format.html#visualization-table).
+defining legend entries or data plotted on log-scale.
+For further information, see the
+:ref:`visualization table specification <v1_visualization_table>`.
 
 5. YAML file
 ++++++++++++
@@ -385,8 +385,6 @@ with a graphical user interface
 (see https://github.com/copasi/python-petab-importer for further instructions).
 
 .. figure:: gfx/copasi_simulation.png
-   :width: 4.9846in
-   :height: 5.5634in
 
    Visualization of model outputs after simulation with random parameters and
    measurements in COPASI.
@@ -395,22 +393,21 @@ It is apparent from the figure, that the random parameters yield a poor fit of
 the model with the data. Therefore, it is important to optimize the parameters
 to improve the model fit. This can be done using various parameter
 estimation tools. Links to detailed descriptions how to use the individual
-toolboxes are provided at the `PEtab Github page <https://github.com/PEtab-dev/PEtab#petab-support-in-systems-biology-tools>`_.
+toolboxes are provided at the `software support page <https://petab.readthedocs.io/en/latest/v1/software_support.html>`__.
 
 7. Further information
 ++++++++++++++++++++++
 
 This tutorial only demonstrates a subset of PEtab functionality. For
 full reference, consult the
-`PEtab reference <https://petab.readthedocs.io/en/stable/>`_. After
+`PEtab specification <https://petab.readthedocs.io/en/latest/v1/documentation_data_format.html>`_. After
 finishing the implementation of the PEtab problem, its correctness can
-be verified using the PEtab library (see
-https://github.com/PEtab-dev/PEtab/blob/master/doc/example/example_petablint.ipynb
-for instructions). The PEtab problem can then be used as input to the
+be verified using the ``petablint`` tool provided by the PEtab Python library
+(`usage <https://petab.readthedocs.io/projects/libpetab-python/en/latest/example/example_petablint.html>`__).
+The PEtab problem can then be used as input to the
 supporting toolboxes to estimate the unknown parameters or calculate
 parameter uncertainties. Links to tutorials for the different tools can
-be found at the PEtab Github page
-(https://github.com/PEtab-dev/PEtab#petab-support-in-systems-biology-tools).
+be found at the `software support page <https://petab.readthedocs.io/en/latest/v1/software_support.html>`__.
 
 .. [#f1]
    TSV files can be created using any standard spreadsheet application,
