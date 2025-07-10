@@ -385,8 +385,6 @@ with a graphical user interface
 (see https://github.com/copasi/python-petab-importer for further instructions).
 
 .. figure:: gfx/copasi_simulation.png
-   :width: 4.9846in
-   :height: 5.5634in
 
    Visualization of model outputs after simulation with random parameters and
    measurements in COPASI.
