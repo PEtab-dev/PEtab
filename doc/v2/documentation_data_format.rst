@@ -305,6 +305,8 @@ phases, following the logic of the event assignments in a single SBML event.
 
    * For subsequent time periods, the *current* values are taken from the
      simulation results at the end of the preceding time period.
+     A special case is simulation time (``time``),
+     which is set to the start time of the current time period.
 
 2. **Assignment of the evaluated ``targetValues`` to their targets**
 
