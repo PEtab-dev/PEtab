@@ -22,96 +22,67 @@ properties:
       File name (absolute or relative) or URL to PEtab parameter table
       containing parameters of all models listed in `problems`. A single
       table may be split into multiple files and described as an array here.
-  problems:
+
+  model_files:
+    type: object
+    description: One or multiple models
+
+    # the model ID
+    patternProperties:
+      "^[a-zA-Z_]\\w*$":
+        type: object
+        properties:
+          location:
+            type: string
+            description: Model file name or URL
+          language:
+            type: string
+            description: |
+              Model language, e.g., 'sbml', 'cellml', 'bngl', 'pysb'
+        required:
+          - location
+          - language
+    additionalProperties: false
+
+  measurement_files:
     type: array
-    description: |
-      One or multiple PEtab problems (sets of model, condition, observable
-      and measurement files). If different model and data files are
-      independent, they can be specified as separate PEtab problems, which
-      may allow more efficient handling. Files in one problem cannot refer
-      to models entities or data specified inside another problem.
+    description: List of PEtab measurement files.
+
     items:
+      type: string
+      description: PEtab measurement file name or URL.
 
-      type: object
-      description: |
-        A set of PEtab model, observable and measurement
-        files and optional condition, experiment, and visualization files.
+  condition_files:
+    type: array
+    description: List of PEtab condition files.
 
-      properties:
+    items:
+      type: string
+      description: PEtab condition file name or URL.
 
-        model_files:
-          type: object
-          description: One or multiple models
+  experiment_files:
+    type: array
+    description: List of PEtab experiment files
 
-          # the model ID
-          patternProperties:
-            "^[a-zA-Z_]\\w*$":
-              type: object
-              properties:
-                location:
-                  type: string
-                  description: Model file name or URL
-                language:
-                  type: string
-                  description: |
-                    Model language, e.g., 'sbml', 'cellml', 'bngl', 'pysb'
-              required:
-                - location
-                - language
-          additionalProperties: false
+    items:
+      type: string
+      description: PEtab experiment file name or URL.
 
-        measurement_files:
-          type: array
-          description: List of PEtab measurement files.
+  observable_files:
+    type: array
+    description: List of PEtab observable files.
 
-          items:
-            type: string
-            description: PEtab measurement file name or URL.
+    items:
+      type: string
+      description: PEtab observable file name or URL.
 
-        condition_files:
-          type: array
-          description: List of PEtab condition files.
+  mapping_files:
+    type: array
+    description: List of PEtab mapping files.
 
-          items:
-            type: string
-            description: PEtab condition file name or URL.
-
-        experiment_files:
-          type: array
-          description: List of PEtab experiment files
-
-          items:
-            type: string
-            description: PEtab experiment file name or URL.
-
-        observable_files:
-          type: array
-          description: List of PEtab observable files.
-
-          items:
-            type: string
-            description: PEtab observable file name or URL.
-
-        visualization_files:
-          type: array
-          description: List of PEtab visualization files.
-
-          items:
-            type: string
-            description: PEtab visualization file name or URL.
-
-        mapping_files:
-          type: array
-          description: List of PEtab mapping files.
-
-          items:
-            type: string
-            description: PEtab mapping file name or URL.
-
-      required:
-        - model_files
-        - observable_files
-        - measurement_files
+    items:
+      type: string
+      description: PEtab mapping file name or URL.
 
   extensions:
     type: object
@@ -128,7 +99,7 @@ properties:
             type: string
             pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
           required:
-            type: bool
+            type: boolean
             description: |
               Indicates whether the extension is required for the
               mathematical interpretation of the problem.
@@ -142,4 +113,6 @@ properties:
 required:
   - format_version
   - parameter_file
-  - problems
+  - model_files
+  - observable_files
+  - measurement_files
