@@ -53,7 +53,7 @@ text-based files in `Tab-Separated Values (TSV)
 <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_
 format (Figure 2), including:
 
-- A :ref:`model <v2_model>` file specifying the base model
+- One or multiple (optional) :ref:`model <v2_model>` file(s) specifying the base model(s)
   [SBML, CELLML, BNGL, PYSB, ...].
 
 - A :ref:`measurement file <v2_measurements_table>` containing experimental
@@ -111,12 +111,20 @@ should not alter the definition of the estimation problem itself.
     parameters, but excluding parameters listed in the
     :ref:`v2_parameters_table` (independent of their ``estimate`` value).
 
+.. _v2_changes:
 
 Changes from PEtab 1.0.0
 ------------------------
 PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 
+* The :ref:`PEtab YAML problem description <v2_problem_yaml>` is now
+  mandatory and its structure changed. In particular, the `problems` list
+  has been flattened.
 * Support for models in other formats than SBML (:ref:`v2_model`).
+* The use of different models for different measurements is now
+  supported via the optional ``modelId`` column in the
+  :ref:`v2_measurements_table`, see also :ref:`v2_multiple_models`.
+  This was poorly defined in PEtab 1.0.0 and probably not used in practice.
 * The (now optional) conditions table format changed from wide to long
   (:ref:`v2_conditions_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
@@ -211,10 +219,10 @@ PEtab distinguishes between three types of entities:
 Conditions table
 ----------------
 
-The optional conditions table defines discrete changes to the model. These (sets of)
-changes typically represent interventions, perturbations, or changes in the
-environment of the system of interest. These modifications are referred to as
-(experimental) *conditions*.
+The optional conditions table defines discrete changes to the simulated model(s).
+These (sets of) changes typically represent interventions, perturbations, or
+changes in the environment of the system of interest. These modifications are
+referred to as (experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
 :ref:`v2_experiments_table`. This allows for the specification of time
@@ -303,6 +311,8 @@ phases, following the logic of the event assignments in a single SBML event.
 
    * For subsequent time periods, the *current* values are taken from the
      simulation results at the end of the preceding time period.
+     A special case is simulation time (``time``),
+     which is set to the start time of the current time period.
 
 2. **Assignment of the evaluated ``targetValues`` to their targets**
 
@@ -537,6 +547,15 @@ Detailed field description
   Numeric values or parameter names are allowed. Same rules apply as for
   ``observableParameters`` in the previous point.
 
+- ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.models.model_id)]
+
+  Which model to simulate for each data point. Model IDs are defined by the
+  keys of the `models` object in the PEtab problem YAML file.
+  This column is required when multiple models are defined in the PEtab
+  problem.
+  For problems with a single model, this column is optional,
+  and its values default to the ID of the only model present.
+
 .. _v2_simulation_table:
 
 Simulation table
@@ -612,8 +631,7 @@ Detailed field description
 * ``observableFormula`` [STRING]
 
   Observation function as plain text formula expression.
-
-  The expression may contain any symbol defined in the model,
+  The expression may contain any symbol defined in a model,
   the mapping table or the parameter table.
   Often, this is just the ID of a state variable.
   Furthermore, any parameters introduced through the ``observablePlaceholders``
@@ -754,7 +772,7 @@ and *must not* include:
 - "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
 - Any parameters that do not have valid PEtab IDs
-  (e.g., SBML *local* parameters)
+  (e.g., SBML *local* parameters that are not mapped in the mapping table)
 
 it *may* include:
 
@@ -793,7 +811,7 @@ Detailed field description
 - ``parameterId`` [PETAB_ID, REQUIRED]
 
   The ``parameterId`` of the parameter described in this row. This has to match
-  the ID of a parameter specified in the SBML model, a parameter introduced
+  the ID of a parameter specified in at least one model, a parameter introduced
   as override in the condition table, or a parameter occurring in the
   ``observableParameters`` or ``noiseParameters`` column of the measurement table
   (see above).
@@ -980,8 +998,8 @@ Detailed field description
 
 - ``modelEntityId`` [STRING or empty, REQUIRED]
 
-  A globally unique identifier defined in the model, or empty if the entity is
-  not present in the model. This does not have to be a valid PEtab identifier.
+  A globally unique identifier defined in any model, or empty if the entity is
+  not present in any model. This does not have to be a valid PEtab identifier.
   Rows with empty ``modelEntityId`` serve as annotations only.
 
   For example, in SBML, local parameters may be referenced as
@@ -1019,15 +1037,66 @@ easy validation:
 .. literalinclude:: _static/petab_schema_v2.yaml
    :language: yaml
 
+.. _v2_multiple_models:
 
 Parameter estimation problems combining multiple models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Parameter estimation problems can comprise multiple models. For now, PEtab
-allows one to specify multiple models with corresponding condition and
-measurement tables, and one joint parameter table. This means that the parameter
-namespace is global. Therefore, parameters with the same ID in different models
-will be considered identical.
+Purpose
++++++++
+
+PEtab supports defining multiple models within a single problem specification. This
+feature is designed to enable users to define experiment-specific model variants or
+submodels. Rather than implementing a single global, parameterized model, users can
+define multiple smaller, self-contained models that differ structurally as needed.
+
+This approach offers several benefits:
+
+- Simplified model definition for users, as each variant can be independently
+  specified.
+- Improved simulation performance for tool developers, as smaller models can be
+  simulated more efficiently.
+
+Scope and Application
++++++++++++++++++++++
+
+While multiple models are intended to be applied to different experiments, model
+selection is specified at the level of individual data points in the
+:ref:`v2_measurements_table`. This design enables:
+
+- Reuse of experiments across models.
+- Fine-grained model-to-data assignment.
+
+With the exception of the :ref:`v2_measurements_table`, all other PEtab tables apply 
+to all models. Parameters listed in the parameter table are defined globally and 
+shared across all models. In contrast, entries in all other tables implicitly define
+model-specific instances of observables, conditions, experiments, etc., with their 
+respective PEtab IDs existing in local, model-specific namespaces. Each PEtab 
+subproblem defined in this way must constitute a valid PEtab problem on its own.
+
+This design has several implications:
+
+- A single experiment may need to be simulated with different models for
+  different measurements. However, a single simulation of a given experiment
+  is always performed using one single model.
+- Each model may be associated with a distinct subset of experiments.
+- The number of conditions to be simulated for a model-specific instance
+  of an experiment may vary across models.
+- Each parameter defined in the :ref:`v2_parameters_table` has a shared value
+  across all models. Parameters not listed in the parameter table do not share
+  values, which can result in model-specific instantiations of model observables 
+  referencing these parameters.
+
+Validation Rules
+++++++++++++++++
+
+For any given model, only those experiments and observables that appear in the
+same rows of the :ref:`v2_measurements_table` need to be valid. This means that all
+symbols used in the corresponding ``observableFormula`` and all symbols assigned
+in the associated condition definitions must be defined in the model.
+
+Conditions and observables that are not applied to a model do not need to be
+valid for that model.
 
 
 .. _v2_objective_function:

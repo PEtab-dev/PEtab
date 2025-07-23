@@ -16,7 +16,7 @@ tables = {
         },
     },
     "Tool support": {
-        "target": doc_dir / "software_support.rst",
+        "target": doc_dir / "v1" / "software_support.rst",
         "options": {
             "header-rows": "1",
         },
