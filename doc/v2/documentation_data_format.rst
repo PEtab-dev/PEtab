@@ -908,12 +908,6 @@ then the following prior distributions are supported:
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
     - :math:`(-\infty, \infty)`
 
-  * - log10-normal
-    - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
-    - .. math::
-        \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right)
-    - :math:`(0, \infty)`
-
   * - log-laplace
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
@@ -1061,11 +1055,11 @@ selection is specified at the level of individual data points in the
 - Reuse of experiments across models.
 - Fine-grained model-to-data assignment.
 
-With the exception of the :ref:`v2_measurements_table`, all other PEtab tables apply 
-to all models. Parameters listed in the parameter table are defined globally and 
+With the exception of the :ref:`v2_measurements_table`, all other PEtab tables apply
+to all models. Parameters listed in the parameter table are defined globally and
 shared across all models. In contrast, entries in all other tables implicitly define
-model-specific instances of observables, conditions, experiments, etc., with their 
-respective PEtab IDs existing in local, model-specific namespaces. Each PEtab 
+model-specific instances of observables, conditions, experiments, etc., with their
+respective PEtab IDs existing in local, model-specific namespaces. Each PEtab
 subproblem defined in this way must constitute a valid PEtab problem on its own.
 
 This design has several implications:
@@ -1078,7 +1072,7 @@ This design has several implications:
   of an experiment may vary across models.
 - Each parameter defined in the :ref:`v2_parameters_table` has a shared value
   across all models. Parameters not listed in the parameter table do not share
-  values, which can result in model-specific instantiations of model observables 
+  values, which can result in model-specific instantiations of model observables
   referencing these parameters.
 
 Validation Rules
