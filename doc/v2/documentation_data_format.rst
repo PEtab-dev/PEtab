@@ -1,7 +1,7 @@
 .. _v2_spec:
 
-PEtab data format specification
-===============================
+PEtab data format specification 2.0
+===================================
 
 .. warning::
 
@@ -49,35 +49,36 @@ Overview
 ---------
 
 The PEtab data format defines a parameter estimation problem using multiple
-text-based files in `Tab-Separated Values (TSV)
+text-based files in `YAML <https://yaml.org/>`_ and `Tab-Separated Values (TSV)
 <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_
 format (Figure 2), including:
 
-- One or multiple (optional) :ref:`model <v2_model>` file(s) specifying the base model(s)
-  [SBML, CELLML, BNGL, PYSB, ...].
+- A :ref:`grouping file <v2_problem_yaml>` that lists all of the following
+  files and provides additional information including
+  :ref:`extensions <petab_extensions>` [YAML].
 
-- A :ref:`measurement file <v2_measurements_table>` containing experimental
-  data used for model fitting [TSV].
-
-- (optional) A :ref:`conditions file <v2_conditions_table>` specifying model
-  inputs and condition-specific parameters [TSV].
-
-- (optional) An :ref:`experiments file <v2_experiments_table>` describing
-  sequences of experimental conditions applied to the model [TSV].
-
-- An :ref:`observables file <v2_observables_table>` defining the observation
-  model [TSV].
-
-- A :ref:`parameters file <v2_parameters_table>` to set parameter values
+- :ref:`Parameter file(s) <v2_parameter_table>` to set parameter values
   globally, and to specify the parameters to be estimated as well as their
   parameter bounds and prior distributions [TSV].
 
-- A :ref:`grouping file <v2_problem_yaml>` that lists all relevant files and
-  provides additional information including extensions [YAML].
+- :ref:`Model <v2_model>` file(s) specifying the base model(s)
+  [SBML, CELLML, BNGL, PYSB, ...].
 
-- (optional) A :ref:`mapping file <v2_mapping_table>` which allows mapping
-  PEtab entity IDs to entity IDs in the model, which might not have valid
-  PEtab IDs themselves, and to provide additional annotations [TSV].
+- :ref:`Observable file(s) <v2_observable_table>` defining the observation
+  model [TSV].
+
+- :ref:`Measurement file(s) <v2_measurement_table>` containing experimental
+  data used for model fitting [TSV].
+
+- (optional) :ref:`Condition file(s) <v2_condition_table>` specifying model
+  inputs and condition-specific parameters [TSV].
+
+- (optional) :ref:`Experiment file(s) <v2_experiment_table>` describing
+  sequences of experimental conditions applied to the model [TSV].
+
+- (optional) :ref:`Mapping file(s) <v2_mapping_table>` assigning
+  PEtab-compatible IDs to model entities that do not have valid
+  PEtab IDs themselves, and providing additional annotations [TSV].
 
 .. figure:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
@@ -109,7 +110,7 @@ should not alter the definition of the estimation problem itself.
   - ``NON_PARAMETER_TABLE_ID``: A valid PEtab ID referring to a constant or
     differential entity (:ref:`v2_model_entities`), including PEtab output
     parameters, but excluding parameters listed in the
-    :ref:`v2_parameters_table` (independent of their ``estimate`` value).
+    :ref:`v2_parameter_table` (independent of their ``estimate`` value).
 
 .. _v2_changes:
 
@@ -123,15 +124,15 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Support for models in other formats than SBML (:ref:`v2_model`).
 * The use of different models for different measurements is now
   supported via the optional ``modelId`` column in the
-  :ref:`v2_measurements_table`, see also :ref:`v2_multiple_models`.
+  :ref:`v2_measurement_table`, see also :ref:`v2_multiple_models`.
   This was poorly defined in PEtab 1.0.0 and probably not used in practice.
-* The (now optional) conditions table format changed from wide to long
-  (:ref:`v2_conditions_table`).
+* The (now optional) condition table format changed from wide to long
+  (:ref:`v2_condition_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
-  :ref:`v2_measurements_table` are replaced by ``experimentId`` and a more
+  :ref:`v2_measurement_table` are replaced by ``experimentId`` and a more
   flexible way for defining experiments and time courses. This allows
   arbitrary sequences of conditions and combinations of conditions to be
-  applied to the model (Figure 3 and :ref:`v2_experiments_table`).
+  applied to the model (Figure 3 and :ref:`v2_experiment_table`).
 
 .. figure:: gfx/v2_experiment.png
    :width: 80 %
@@ -141,38 +142,38 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
    **Figure 3: A comparison of simulations in PEtab v1 and v2.**
 
 * Support for math expressions in the condition table
-  (:ref:`v2_conditions_table`).
+  (:ref:`v2_condition_table`).
 * Clarification and specification of various previously underspecified
   aspects, including overriding values via the condition table
   (:ref:`v2_math_expressions`).
-* Support for format extensions.
+* Support for format :ref:`extensions <petab_extensions>`.
 * Observable IDs can now be used in observable and noise formulas
-  (:ref:`v2_observables_table`).
-* The ``parameterScale`` column of the :ref:`v2_parameters_table` is removed.
+  (:ref:`v2_observable_table`).
+* The ``parameterScale`` column of the :ref:`v2_parameter_table` is removed.
   This change was made to simplify the PEtab format.
   This feature was a constant source of confusion and the interaction with
   parameter priors was not well-defined.
   To obtain the same effect, the model parameters can be transformed in the
   model file.
 * The ``initializationPriorType`` and ``initializationPriorParameters``
-  columns  of the :ref:`v2_parameters_table` are removed. Initialization
+  columns  of the :ref:`v2_parameter_table` are removed. Initialization
   priors are outside the definition of the parameter estimation problem
   and were a source of confusion.
 * ``objectivePriorType`` and ``objectivePriorParameters`` in the
-  :ref:`v2_parameters_table` are renamed to ``priorDistribution`` and
+  :ref:`v2_parameter_table` are renamed to ``priorDistribution`` and
   ``priorParameters``, respectively. This change was made to simplify
   the PEtab format.
-* The admissible values for ``estimate`` in the :ref:`v2_parameters_table`
+* The admissible values for ``estimate`` in the :ref:`v2_parameter_table`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
 * Support for new parameter prior distributions in the
-  :ref:`v2_parameters_table`, and clarification that bounds truncate the
+  :ref:`v2_parameter_table`, and clarification that bounds truncate the
   prior distributions.
-* The ``observableTransformation`` column of the :ref:`v2_observables_table`
+* The ``observableTransformation`` column of the :ref:`v2_observable_table`
   has been combined with the ``noiseDistribution`` column to make its intent
   clearer. The ``log10`` transformation has been removed, since this was mostly
   relevant for visualization purposes, and the same effect can be achieved by
   rescaling the parameters of the respective (natural) log-distributions.
-* The ``observableFormula`` field in the :ref:`v2_observables_table` must not
+* The ``observableFormula`` field in the :ref:`v2_observable_table` must not
   contain any observable IDs. This was previously allowed, but it was not
   well-defined how to deal with placeholder parameters in this case.
   The ``noiseFormula`` field may contain only the observable ID of the
@@ -181,7 +182,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Placeholders for measurement-specific parameters in ``observableFormula``
   and ``noiseFormula`` are now declared using the
   ``observablePlaceholders`` and ``noisePlaceholders`` fields in the
-  :ref:`v2_observables_table`. This replaces the previous
+  :ref:`v2_observable_table`. This replaces the previous
   ``observableParameter${n}_${observableId}`` syntax. The new approach is more
   explicit and allows for more descriptive and shorter names for the
   placeholders.
@@ -216,31 +217,31 @@ PEtab distinguishes between three types of entities:
   value but may be subject to event assignments, e.g., parameters of an SBML
   model that are not targets of rate rules or assignment rules.
 
-.. _v2_conditions_table:
+.. _v2_condition_table:
 
-Conditions table
-----------------
+Condition table
+---------------
 
-The optional conditions table defines discrete changes to the simulated model(s).
+The optional condition table defines discrete changes to the simulated model(s).
 These (sets of) changes typically represent interventions, perturbations, or
 changes in the environment of the system of interest. These modifications are
 referred to as (experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
-:ref:`v2_experiments_table`. This allows for the specification of time
+:ref:`v2_experiment_table`. This allows for the specification of time
 courses or experiments spanning multiple time periods. A time period is the
-interval between two consecutive time points in the experiments table
+interval between two consecutive time points in the experiment table
 (including the first, excluding the second) for a given experiment,
 or the time between the last time point of an experiment and
 the end of the simulation (usually, the time point of the last measurement
-for that experiment in the :ref:`v2_measurements_table`).
+for that experiment in the :ref:`v2_measurement_table`).
 
-The conditions table only allows changes in the model state, not the model
+The condition table only allows changes in the model state, not the model
 structure. That means that only constant or differential entities (e.g.,
 constant parameters or model states) can be modified. **Algebraic entities**
 (e.g., the targets of SBML assignment rules) cannot be changed.
 
-The conditions table is provided as a tab-separated values (TSV) file with
+The condition table is provided as a tab-separated values (TSV) file with
 the following structure:
 
 +--------------+-------------------------+--------------------+
@@ -261,7 +262,7 @@ the following structure:
 | ...          | ...                     | ...                |
 +--------------+-------------------------+--------------------+
 
-Each row in the conditions table represents a single modification to a target
+Each row in the condition table represents a single modification to a target
 entity. The order of rows and columns is arbitrary, but placing
 ``conditionId`` first can enhance readability.
 
@@ -272,13 +273,13 @@ Detailed field description
 - ``conditionId`` [PETAB_ID, REQUIRED]
 
   A unique identifier for the condition associated with the change. This ID
-  is referenced in the :ref:`v2_experiments_table`.
+  is referenced in the :ref:`v2_experiment_table`.
 
 - ``targetId`` [NON_PARAMETER_TABLE_ID, REQUIRED]
 
   The ID of the entity being modified. The target must be either a constant
   or differential entity and must not be listed in the
-  :ref:`v2_parameters_table`.
+  :ref:`v2_parameter_table`.
 
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
@@ -295,7 +296,7 @@ Detailed field description
 Detailed semantics
 ~~~~~~~~~~~~~~~~~~
 
-All changes defined in the conditions table are applied in five consecutive
+All changes defined in the condition table are applied in five consecutive
 phases, following the logic of the event assignments in a single SBML event.
 
 1. **Evaluation of** ``targetValues``
@@ -316,7 +317,7 @@ phases, following the logic of the event assignments in a single SBML event.
      A special case is simulation time (``time``),
      which is set to the start time of the current time period.
 
-2. **Assignment of the evaluated ``targetValues`` to their targets**
+2. **Assignment of the evaluated** ``targetValues`` **to their targets**
 
    All evaluated ``targetValues`` are simultaneously assigned to their
    respective targets. It is invalid to apply multiple assignments to the
@@ -350,8 +351,8 @@ phases, following the logic of the event assignments in a single SBML event.
    evaluation of trigger functions or the execution of any event assignments
    (including events with delays) is the model state after (3).
 
-   The initial model state for the new period at time = ``time``
-   (:ref:`v2_experiments_table`) is the model state after all these updates
+   The initial model state for the new period at `time` = ``time``
+   (:ref:`v2_experiment_table`) is the model state after all these updates
    have been applied.
 
 5. **Evaluation of observables**
@@ -360,16 +361,16 @@ phases, following the logic of the event assignments in a single SBML event.
    evaluated after all changes have been applied. The resulting values are
    then compared against the corresponding measurements in the measurement table.
 
-.. _v2_experiments_table:
+.. _v2_experiment_table:
 
-Experiments table
------------------
+Experiment table
+----------------
 
 The optional experiments table defines a sequence (Figure 3, lower) of
 experimental conditions (i.e., discrete changes; see
-:ref:`v2_conditions_table`) applied to the model.
+:ref:`v2_condition_table`) applied to the model.
 
-The experiments table is provided as a tab-separated values (TSV) file with
+The experiment table is provided as a tab-separated values (TSV) file with
 the following structure:
 
 +---------------------+-------------------+-----------------+
@@ -402,13 +403,13 @@ of time may improve human readability.
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The experiments table has three mandatory columns ``experimentId``,
+The experiment table has three mandatory columns ``experimentId``,
 ``time``, and ``conditionId``:
 
 - ``experimentId`` [PETAB_ID, REQUIRED]
 
   A unique identifier for the experiment, referenced by the ``experimentId``
-  column in the :ref:`v2_measurements_table`.
+  column in the :ref:`v2_measurement_table`.
 
 - ``time``: [NUMERIC or ``-inf``, REQUIRED]
 
@@ -440,12 +441,12 @@ The experiments table has three mandatory columns ``experimentId``,
 - ``conditionId``:
   [PETAB_ID or empty, REQUIRED, REFERENCES(condition.conditionId)]
 
-  A reference to a condition ID in the :ref:`v2_conditions_table` that
+  A reference to a condition ID in the :ref:`v2_condition_table` that
   will be applied at the given ``time``. If empty, no changes are applied.
 
   For further details, see :ref:`v2_reinitialization_semantics`.
 
-.. _v2_measurements_table:
+.. _v2_measurement_table:
 
 Measurement table
 -----------------
@@ -496,7 +497,7 @@ Detailed field description
 - ``experimentId``
   [PETAB_ID or empty, REQUIRED, REFERENCES(experiment.experimentId)]
 
-  Experiment ID as defined in the experiments table described below. This
+  Experiment ID as defined in the experiment table described below. This
   column may have empty cells, which are interpreted as *use the model as is*.
   This avoids the need for "dummy" conditions and experiments if only a single
   condition is required. If no experiment is specified, the model simulation
@@ -525,14 +526,14 @@ Detailed field description
   Measurement-specific overrides for placeholder parameters declared in the
   observation model.
 
-  The :ref:`observables table <v2_observables_table>` allows marking some
+  The :ref:`observable table <v2_observable_table>` allows marking some
   parameters as measurement-specific (see below). Their values for a given
   measurement are specified in this column. The values are separated by
   semicolons. The order and number of values must match the order and number of
   placeholders in the ``observablePlaceholders`` field of the corresponding
   observable in the observable table. The values may be
   either numeric values or the IDs of parameters from the
-  :ref:`parameters table <v2_parameters_table>`.
+  :ref:`parameter table <v2_parameter_table>`.
 
   Different lines for the same ``observableId`` may specify different
   parameters. This may be used to account for condition-specific or
@@ -573,10 +574,10 @@ the same structure as the measurement table, only that the
 the simulation results.
 
 
-.. _v2_observables_table:
+.. _v2_observable_table:
 
-Observables table
------------------
+Observable table
+----------------
 
 Parameter estimation requires linking experimental observations to the model
 of interest. Therefore, one needs to define observables (model outputs) and
@@ -712,7 +713,7 @@ Denote by :math:`m` the measured value,
 (the location parameter of the noise distribution),
 and :math:`\sigma` the scale parameter of the noise distribution
 as given via the ``noiseFormula`` field (the standard deviation of a normal,
-or the scale parameter of a laplace model).
+or the scale parameter of a Laplace model).
 Then we have the following effective noise distributions:
 
 .. list-table::
@@ -750,7 +751,7 @@ the current specification assumes independence, i.e. the full distribution is
 .. math::
    \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
 
-.. _v2_parameters_table:
+.. _v2_parameter_table:
 
 Parameter table
 ---------------
@@ -760,11 +761,11 @@ A tab-separated value text file containing information on model parameters.
 This table *must* include the following parameters:
 
 - Named parameter overrides introduced in ``targetValue`` expressions
-  in the *conditions table*, unless already defined in the model
+  in the *condition table*, unless already defined in the model
 - Named parameter overrides introduced in ``observableParameters``
   or ``noiseParameters`` in the *measurement table*
 - Parameters introduced in the ``observableFormula`` or ``noiseFormula``
-  expressions in the *observables table*
+  expressions in the *observable table*
 
 and *must not* include:
 
@@ -875,7 +876,8 @@ Detailed field description
 Prior distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Let :math:`x` denote the parameter value and :math:`\Gamma` the Gamma function,
+Let :math:`x` denote the parameter value and :math:`\Gamma` the
+`Gamma function <https://en.wikipedia.org/wiki/Gamma_function>`__.,
 then the following prior distributions are supported:
 
 .. list-table::
@@ -886,73 +888,73 @@ then the following prior distributions are supported:
     - ``priorParameters``
     - Probability density function (PDF)
     - Domain
-  * - cauchy
+  * - ``cauchy``
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{\pi \sigma \left( 1 + \left(\frac{x - \mu}{\sigma} \right)^2\right)}
     - :math:`(-\infty, \infty)`
 
-  * - chisquare
+  * - ``chisquare``
     - degrees of freedom (:math:`\nu`)
     - .. math::
         \pi(x|\nu) = \frac{x^{\nu/2-1}e^{-x/2}}{2^{\nu/2}\Gamma(\nu/2)}
     - :math:`(0, \infty)`
 
-  * - exponential
+  * - ``exponential``
     - scale (:math:`\theta`)
     - .. math::
         \pi(x|\theta) = \frac{1}{\theta}e^{-x/\theta}
     - :math:`(0, \infty)`
 
-  * - gamma
+  * - ``gamma``
     - shape (:math:`\alpha`); scale (:math:`\theta`)
     - .. math::
         \pi(x|\alpha, \theta) = \frac{x^{\alpha - 1}e^{-x/\theta}}{\Gamma(\alpha)\theta^{\alpha}}
     - :math:`(-\infty, \infty)`
 
-  * - laplace
+  * - ``laplace``
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
     - :math:`(-\infty, \infty)`
 
-  * - log10-normal
+  * - ``log10-normal``
     - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right)
     - :math:`(0, \infty)`
 
-  * - log-laplace
+  * - ``log-laplace``
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma x} \exp\left( - \frac{|\log(x) - \mu|}{\sigma} \right)
     - :math:`(0, \infty)`
 
-  * - log-normal
+  * - ``log-normal``
     - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma} \exp\left(- \frac{\left(\log(x) - \mu\right)^2}{2\sigma^2}\right)
     - :math:`(0, \infty)`
 
-  * - log-uniform
+  * - ``log-uniform``
     - lower bound (:math:`a`); upper bound (:math:`b`)
     - .. math::
         \pi(x|a, b) = \frac{1}{x\left( \log(b) - \log(a) \right)}
     - :math:`[a, b]`
 
-  * - normal
+  * - ``normal``
     - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
     - .. math::
         \pi(x|\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
     - :math:`(-\infty, \infty)`
 
-  * - rayleigh
+  * - ``rayleigh``
     - scale (:math:`\sigma`)
     - .. math::
         \pi(x|\sigma) = \frac{x}{\sigma^2}\exp\left(\frac{-x^2}{2\sigma^2}\right)
     - :math:`(0, \infty)`
 
-  * - uniform
+  * - ``uniform``
     - lower bound (:math:`a`); upper bound (:math:`b`)
     - .. math::
         \pi(x|a, b) = \frac{1}{b - a}
@@ -1064,16 +1066,16 @@ Scope and Application
 
 While multiple models are intended to be applied to different experiments, model
 selection is specified at the level of individual data points in the
-:ref:`v2_measurements_table`. This design enables:
+:ref:`v2_measurement_table`. This design enables:
 
 - Reuse of experiments across models.
 - Fine-grained model-to-data assignment.
 
-With the exception of the :ref:`v2_measurements_table`, all other PEtab tables apply 
-to all models. Parameters listed in the parameter table are defined globally and 
+With the exception of the :ref:`v2_measurement_table`, all other PEtab tables apply
+to all models. Parameters listed in the parameter table are defined globally and
 shared across all models. In contrast, entries in all other tables implicitly define
-model-specific instances of observables, conditions, experiments, etc., with their 
-respective PEtab IDs existing in local, model-specific namespaces. Each PEtab 
+model-specific instances of observables, conditions, experiments, etc., with their
+respective PEtab IDs existing in local, model-specific namespaces. Each PEtab
 subproblem defined in this way must constitute a valid PEtab problem on its own.
 
 This design has several implications:
@@ -1084,16 +1086,16 @@ This design has several implications:
 - Each model may be associated with a distinct subset of experiments.
 - The number of conditions to be simulated for a model-specific instance
   of an experiment may vary across models.
-- Each parameter defined in the :ref:`v2_parameters_table` has a shared value
+- Each parameter defined in the :ref:`v2_parameter_table` has a shared value
   across all models. Parameters not listed in the parameter table do not share
-  values, which can result in model-specific instantiations of model observables 
+  values, which can result in model-specific instantiations of model observables
   referencing these parameters.
 
 Validation Rules
 ++++++++++++++++
 
 For any given model, only those experiments and observables that appear in the
-same rows of the :ref:`v2_measurements_table` need to be valid. This means that all
+same rows of the :ref:`v2_measurement_table` need to be valid. This means that all
 symbols used in the corresponding ``observableFormula`` and all symbols assigned
 in the associated condition definitions must be defined in the model.
 
@@ -1466,15 +1468,15 @@ The following functions are supported:
    END TABLE Supported functions
 
 
-Boolean <-> float conversion
+Boolean ↔ float conversion
 ++++++++++++++++++++++++++++
 
 Boolean and float values are implicitly convertible. The following rules apply:
 
-bool -> float: ``true`` is converted to ``1.0``, ``false`` is converted to
+bool → float: ``true`` is converted to ``1.0``, ``false`` is converted to
 ``0.0``.
 
-float -> bool: ``0.0`` is converted to ``false``, all other values are
+float → bool: ``0.0`` is converted to ``false``, all other values are
 converted to ``true``.
 
 Operands and function arguments are implicitly converted as needed. If there is
