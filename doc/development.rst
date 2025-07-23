@@ -192,6 +192,8 @@ Upon a new release, the PEtab editors ensure that
 * the new version of the specifications is deposited at Zenodo
 * the new release is announced on the PEtab mailing list
 
+.. _petab_extensions:
+
 PEtab Extensions
 ----------------
 

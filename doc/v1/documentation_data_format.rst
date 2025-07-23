@@ -1,7 +1,7 @@
 .. _v1_spec:
 
-PEtab data format specification
-===============================
+PEtab data format specification 1.0
+===================================
 
 
 Format version: 1
