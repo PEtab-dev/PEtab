@@ -134,6 +134,8 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   applied to the model (Figure 3 and :ref:`v2_experiments_table`).
 
 .. figure:: gfx/v2_experiment.png
+   :width: 80 %
+   :align: center
    :alt: A comparison of simulations in PEtab v1 and v2.
 
    **Figure 3: A comparison of simulations in PEtab v1 and v2.**
