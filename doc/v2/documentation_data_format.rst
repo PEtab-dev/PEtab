@@ -307,6 +307,12 @@ phases, following the logic of the event assignments in a single SBML event.
    * For the initial time period of an experiment, *current* values are
      determined by the initial conditions defined in the model.
 
+     For the all parameters that occur in the parameter table, the
+     respective externally provided values for any estimated parameters,
+     or ``nominalValue`` for any non-estimated parameters are used for model
+     initialization. Any model constructs that would override the initial
+     values of a model entity that occurs in the parameter table are ignored.
+
      Constructs defining initial values of model entities (e.g., SBML's
      *initialAssignments*) are applied only once at the start of the first
      time period and are not re-evaluated in later time periods. The start
