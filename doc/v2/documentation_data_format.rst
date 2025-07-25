@@ -305,18 +305,8 @@ phases, following the logic of the event assignments in a single SBML event.
    variables in the respective expressions.
 
    * For the initial time period of an experiment, *current* values are
-     determined by the initial conditions defined in the model.
-
-     For the all parameters that occur in the parameter table, the
-     respective externally provided values for any estimated parameters,
-     or ``nominalValue`` for any non-estimated parameters are used for model
-     initialization. Any model constructs that would override the initial
-     values of a model entity that occurs in the parameter table are ignored.
-
-     Constructs defining initial values of model entities (e.g., SBML's
-     *initialAssignments*) are applied only once at the start of the first
-     time period and are not re-evaluated in later time periods. The start
-     time of the first time period is defined by the respective experiment.
+     determined by the initial conditions defined in the model and the current
+     values of parameter table parameters (see also :ref:`v2_initialization`).
 
    * For subsequent time periods, the *current* values are taken from the
      simulation results at the end of the preceding time period.
@@ -813,6 +803,8 @@ One row per parameter with arbitrary order of rows and columns:
 
 Additional columns may be added.
 
+See :ref:`v2_initialization` for details on how and when the values of
+parameter table parameters are applied.
 
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1108,6 +1100,32 @@ in the associated condition definitions must be defined in the model.
 Conditions and observables that are not applied to a model do not need to be
 valid for that model.
 
+
+.. _v2_initialization:
+
+Initialization and parameter application
+----------------------------------------
+
+The following describes how the model is initialized and how other PEtab
+parameter values are applied before the simulation starts.
+
+1. The model is initialized independently of any other PEtab constructs.
+   Model constructs defining initial values of model entities (e.g., SBML's
+   *initialAssignments*) are applied now. Any event trigger evaluation
+   is deferred until the first time point of the simulation (step 4 below).
+   The current time is the initial time of the model, or 0 if not specified.
+
+2. Parameters values for parameters that occur in the parameter table are
+   applied. For estimated parameters, the respective externally provided values
+   are applied and for non-estimated parameters, the nominal values
+   from the parameter table are applied.
+
+3. The time is set to the start time of the first period of the given
+   experiment (or 0 if there is no explicit experiment), and any
+   experiment-specific conditions provided for the first period are applied
+   (see :ref:`v2_reinitialization_semantics` for details).
+
+4. Simulation starts.
 
 .. _v2_objective_function:
 
