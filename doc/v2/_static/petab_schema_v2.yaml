@@ -14,6 +14,11 @@ properties:
 
     description: Version of the PEtab format
 
+  id:
+    type: string
+    description: Identifier of the PEtab problem.
+    pattern: "^[a-zA-Z_]\\w*$"
+
   parameter_files:
     type: array
     description: |
