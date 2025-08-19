@@ -296,22 +296,19 @@ Detailed field description
 Detailed semantics
 ~~~~~~~~~~~~~~~~~~
 
-All changes defined in the condition table are applied in five consecutive
-phases, following the logic of the event assignments in a single SBML event.
+See :ref:`v2_initialization_semantics` for how the changes for the initial
+period of an experiment are applied and how the model is initialized.
+For any subsequent time period, the changes defined in the condition table
+are applied in five consecutive phases:
 
 1. **Evaluation of** ``targetValues``
 
    ``targetValues`` are first evaluated using the *current* values of all
    variables in the respective expressions.
-
-   * For the initial time period of an experiment, *current* values are
-     determined by the initial conditions defined in the model and the current
-     values of parameter table parameters (see also :ref:`v2_initialization`).
-
-   * For subsequent time periods, the *current* values are taken from the
-     simulation results at the end of the preceding time period.
-     A special case is simulation time (``time``),
-     which is set to the start time of the current time period.
+   The *current* values are taken from the simulation results at the end of the
+   preceding time period.
+   A special case is simulation time (``time``),
+   which is set to the start time of the current time period.
 
 2. **Assignment of the evaluated** ``targetValues`` **to their targets**
 
@@ -319,26 +316,30 @@ phases, following the logic of the event assignments in a single SBML event.
    respective targets. It is invalid to apply multiple assignments to the
    same target at the same time.
 
-   * These assignments respect language specific interpretations of which
-     variables are *atomic* or *derived*/*algebraic*. Most notably, SBML
-     considers species amounts and compartment sizes but not
-     concentrations to be *atomic*. This means that any entry that has a
-     ``targetId`` that refers to a species with
-     ``hasOnlySubstanceUnits=false`` will have its ``targetValue``
-     (interpreted as concentration) converted to amounts using the
-     **current** compartment size and then applied to the target's amount.
-     For further details, refer to SBML semantic test suite case `01779
-     <https://github.com/sbmlteam/sbml-test-suite/blob/7ab011efe471877987b5d6dcba8cc19a6ff71254/cases/semantic/01779/01779-model.m>`_.
+   The interpretation of the assigned value depends on the type of the
+   model and the target entity.
+   For example, for an SBML model and a ``targetId`` referring to a species,
+   the ``targetValue`` will override the current amount of the species
+   if ``hasOnlySubstanceUnits=true`` (*amount-based species*),
+   or the current concentration if ``hasOnlySubstanceUnits=false``
+   (*concentration-based species*).
+
+   If the target is a compartment, the compartment size is set to the
+   evaluated value of the ``targetValue`` expression.
+   The value of a species in such a compartment is not changed by this
+   assignment. I.e., for an amount-based species, the amount of the species
+   will be preserved (the concentration may change accordingly),
+   and for a concentration-based species, the concentration will be preserved
+   (the amount may change accordingly).
+   Mind that this differs from the behavior of an SBML event assignment where
+   compartment size changes always preserve the amounts of species in that
+   compartment.
 
 3. **Update of derived variables**
 
    After target values have been assigned, all derived variables (i.e.,
-   algebraic entities such as SBML assignment rules or PySB expressions) are updated.
-
-   * These updates follow language specific rules of which variables are
-     *atomic* or *derived*/*algebraic*. For example, SBML treats species
-     concentrations to be *derived*, meaning they are recomputed based on
-     (updated) species amounts and corresponding compartment sizes.
+   algebraic entities such as SBML assignment rules or PySB expressions)
+   are updated.
 
 4. **Events and finalization**
 
@@ -803,7 +804,7 @@ One row per parameter with arbitrary order of rows and columns:
 
 Additional columns may be added.
 
-See :ref:`v2_initialization` for details on how and when the values of
+See :ref:`v2_initialization_semantics` for details on how and when the values of
 parameter table parameters are applied.
 
 Detailed field description
@@ -1101,31 +1102,51 @@ Conditions and observables that are not applied to a model do not need to be
 valid for that model.
 
 
-.. _v2_initialization:
+.. _v2_initialization_semantics:
 
 Initialization and parameter application
 ----------------------------------------
 
 The following describes how the model is initialized and how other PEtab
 parameter values are applied before the simulation starts.
+This procedure is executed for each model and experiment combination
+defined in the PEtab problem.
 
-1. The model is initialized independently of any other PEtab constructs.
-   Model constructs defining initial values of model entities (e.g., SBML's
-   *initialAssignments*) are applied now. Any event trigger evaluation
-   is deferred until the first time point of the simulation (step 4 below).
-   The current time is the initial time of the model, or 0 if not specified.
+1. Pre-initialization
 
-2. Parameters values for parameters that occur in the parameter table are
-   applied. For estimated parameters, the respective externally provided values
-   are applied and for non-estimated parameters, the nominal values
-   from the parameter table are applied.
+   1. Parameters values for parameters that occur in the parameter table are
+      applied to the uninitialized model.
+      For estimated parameters, the respective externally provided values
+      are applied and for non-estimated parameters, the nominal values
+      from the parameter table are applied.
 
-3. The time is set to the start time of the first period of the given
-   experiment (or 0 if there is no explicit experiment), and any
-   experiment-specific conditions provided for the first period are applied
-   (see :ref:`v2_reinitialization_semantics` for details).
+   2. The time is set to the start time of the first period of the given
+      experiment (or 0 if there is no explicit experiment), and any
+      experiment-specific conditions provided for the first period are applied
+      (see :ref:`v2_reinitialization_semantics` for details).
+      Target value expressions for the first period must not refer to model
+      entities that are not also listed in the parameter table.
 
-4. Simulation starts.
+   This pre-initialization replaces any model-internal initial values
+   (or initialization constructs such as SBML's *initialAssignments*)
+   that would alter the initial time, the values of the parameters contained
+   in the parameter table or any target values from the condition table.
+
+2. Model initialization
+
+   The model is initialized according to the model semantics, e.g., by
+   evaluating the initial assignments or applying the initial values of
+   state variables.
+
+3. Simulation
+
+   Model simulation starts with evaluating any event triggers at the initial
+   time, applying pending event assignments, and evaluating the observables
+   at the initial time (Steps 4 and 5 in :ref:`v2_reinitialization_semantics`).
+
+   For any subsequent experiment periods, the steps described in
+   :ref:`v2_reinitialization_semantics` are applied at their start times.
+
 
 .. _v2_objective_function:
 
