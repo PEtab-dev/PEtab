@@ -1116,7 +1116,7 @@ defined in the PEtab problem.
 
    1. Parameters values for parameters that occur in the parameter table are
       applied to the uninitialized model.
-      For estimated parameters, the respective externally provided values
+      For estimated parameters, the respective externally-provided values
       are applied and for non-estimated parameters, the nominal values
       from the parameter table are applied.
 
