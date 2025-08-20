@@ -142,10 +142,10 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
    **Figure 3: A comparison of simulations in PEtab v1 and v2.**
 
 * Support for math expressions in the condition table
-  (:ref:`v2_condition_table`).
+  (:ref:`v2_condition_table`, :ref:`v2_math_expressions`).
 * Clarification and specification of various previously underspecified
   aspects, including overriding values via the condition table
-  (:ref:`v2_math_expressions`).
+  (:ref:`v2_initialization_semantics`, :ref:`v2_reinitialization_semantics`).
 * Support for format :ref:`extensions <petab_extensions>`.
 * Observable IDs can now be used in observable and noise formulas
   (:ref:`v2_observable_table`).
@@ -804,8 +804,8 @@ One row per parameter with arbitrary order of rows and columns:
 
 Additional columns may be added.
 
-See :ref:`v2_initialization_semantics` for details on how and when the values of
-parameter table parameters are applied.
+See :ref:`v2_initialization_semantics` for details on how and when the values
+of parameter table parameters are applied.
 
 Detailed field description
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
