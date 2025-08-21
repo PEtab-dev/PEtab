@@ -530,7 +530,7 @@ Detailed field description
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
   measurements (the same definition of steady state as in the
-  :ref:`v2_experiments_table` applies here, with the additional
+  :ref:`v2_experiment_table` applies here, with the additional
   sanity check that the steady state occurs during the final
   experiment period).
   This value must be greater than or equal to the first time point
