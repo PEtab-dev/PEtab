@@ -415,12 +415,24 @@ The experiment table has three mandatory columns ``experimentId``,
 
   The time at which the specified condition will become active, in the time
   unit specified in the model. ``-inf`` indicates that the respective
-  condition will be simulated until a steady state is reached. The system is
-  considered to be at steady state once the time derivative of all
-  differential entities is almost zero (where "almost zero" is to be defined by
-  the simulator or user), even if there are discontinuities in
-  the model (e.g., due to events) that may change the model state
-  at a later time point.
+  condition will be simulated until a steady state is reached.
+
+  .. note::
+
+     PEtab does not specify exact steady state conditions. The
+     interpretation of steady state is left to the simulator. In general,
+     a steady state of a dynamical system is a condition in which the time
+     derivative of all differential entities is—and remains—zero.
+     Simulators should use reasonable numerical criteria to determine
+     whether a steady state has been reached.
+
+     In models with discontinuities, such as events, it may be very difficult
+     or practically impossible to determine whether a steady state has
+     been reached, and the simulator may choose to stop once the time
+     derivative of all differential entities is "almost zero", independent of
+     any later discontinuities (where "almost zero" is to be defined by the
+     simulator or user). It is on the user to avoid situations where
+     such behavior is problematic.
 
   If the simulation of a condition with steady state fails to reach a steady state,
   and the condition is required for the evaluation of simulation at
