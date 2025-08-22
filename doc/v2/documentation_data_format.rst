@@ -918,12 +918,6 @@ then the following prior distributions are supported:
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
     - :math:`(-\infty, \infty)`
 
-  * - ``log10-normal``
-    - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
-    - .. math::
-        \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right)
-    - :math:`(0, \infty)`
-
   * - ``log-laplace``
     - location (:math:`\mu`); scale (:math:`\sigma`)
     - .. math::
