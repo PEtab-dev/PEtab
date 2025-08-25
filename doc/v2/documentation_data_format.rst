@@ -419,20 +419,20 @@ The experiment table has three mandatory columns ``experimentId``,
 
   .. note::
 
-     PEtab does not specify exact steady state conditions. The
-     interpretation of steady state is left to the simulator. In general,
-     a steady state of a dynamical system is a condition in which the time
-     derivative of all differential entities is—and remains—zero.
-     Simulators should use reasonable numerical criteria to determine
-     whether a steady state has been reached.
-
-     In models with discontinuities, such as events, it may be very difficult
-     or practically impossible to determine whether a steady state has
-     been reached, and the simulator may choose to stop once the time
-     derivative of all differential entities is "almost zero", independent of
-     any later discontinuities (where "almost zero" is to be defined by the
-     simulator or user). It is on the user to avoid situations where
-     such behavior is problematic.
+     In PEtab, the steady state definition is that *all* differential entities
+     are at steady state, meaning that all differential entities have reached,
+     and will remain at, a constant value.
+     
+     Determining whether differential entities are at steady state is left to
+     the simulator and user. Reasonable numerical criteria should be used
+     to determine whether a steady state is reached. Users should
+     share their chosen numerical criteria when sharing their model, for
+     reproducibility.
+     
+     It can be difficult to determine whether the differential entities are
+     at steady state. For example, events and other discontinuities may
+     occur after an apparent steady state is reached. It is left to the user to
+     avoid situations where this issue is problematic.
 
   If the simulation of a condition with steady state fails to reach a steady state,
   and the condition is required for the evaluation of simulation at
