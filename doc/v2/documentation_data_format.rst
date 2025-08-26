@@ -417,6 +417,23 @@ The experiment table has three mandatory columns ``experimentId``,
   unit specified in the model. ``-inf`` indicates that the respective
   condition will be simulated until a steady state is reached.
 
+  .. note::
+
+     In PEtab, the steady state definition is that *all* differential entities
+     are at steady state, meaning that all differential entities have reached,
+     and will remain at, a constant value.
+     
+     Determining whether differential entities are at steady state is left to
+     the simulator and user. Reasonable numerical criteria should be used
+     to determine whether a steady state is reached. Users should
+     share their chosen numerical criteria when sharing their model, for
+     reproducibility.
+     
+     It can be difficult to determine whether the differential entities are
+     at steady state. For example, events and other discontinuities may
+     occur after an apparent steady state is reached. It is left to the user to
+     avoid situations where this issue is problematic.
+
   If the simulation of a condition with steady state fails to reach a steady state,
   and the condition is required for the evaluation of simulation at
   measurement points, the evaluation of the model is not well-defined.
@@ -512,7 +529,10 @@ Detailed field description
 
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
-  measurements.
+  measurements (the same definition of steady state as in the
+  :ref:`v2_experiment_table` applies here, with the additional
+  sanity check that the steady state occurs during the final
+  experiment period).
   This value must be greater than or equal to the first time point
   of the experiment referenced in the ``experimentId`` column
   that is not ``-inf``.
@@ -917,12 +937,6 @@ then the following prior distributions are supported:
     - .. math::
         \pi(x|\mu, \sigma) = \frac{1}{2\sigma}\exp\left(- \frac{|x - \mu |}{\sigma}\right)
     - :math:`(-\infty, \infty)`
-
-  * - ``log10-normal``
-    - mean (:math:`\mu`); standard deviation (:math:`\sigma`)
-    - .. math::
-        \pi(x|\mu, \sigma) = \frac{1}{x \sqrt{2\pi}\sigma \log(10)} \exp\left(- \frac{\left(\log_{10}(x) - \mu\right)^2}{2\sigma^2}\right)
-    - :math:`(0, \infty)`
 
   * - ``log-laplace``
     - location (:math:`\mu`); scale (:math:`\sigma`)
