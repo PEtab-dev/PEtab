@@ -1110,6 +1110,10 @@ defined in the PEtab problem.
 
    1. Parameters values for parameters that occur in the parameter table are
       applied to the uninitialized model.
+      *Uninitialized* means that no model-internal initial values have been
+      computed yet (e.g., in SBML models, no initial assignments have been
+      evaluated and no derived initial quantities such as concentrations have
+      been computed yet).
       For estimated parameters, the respective externally-provided values
       are applied and for non-estimated parameters, the nominal values
       from the parameter table are applied.
