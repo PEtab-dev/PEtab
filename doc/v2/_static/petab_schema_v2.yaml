@@ -1,12 +1,11 @@
-# For syntax see: https://json-schema.org/understanding-json-schema/index.html
-#$schema: "https://json-schema.org/draft/2019-09/meta/core"
-$schema: "http://json-schema.org/draft-06/schema"
+# For syntax see: https://json-schema.org/understanding-json-schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
 description: PEtab parameter estimation problem config file schema
 
 properties:
 
   format_version:
-    anyof:
+    anyOf:
       - type: string
         #  (corresponding to PEP 440).
         pattern: ^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$
@@ -20,7 +19,7 @@ properties:
       Identifier of the PEtab problem.
 
       This is optional and has no effect on the PEtab problem itself.
-    pattern: "^[a-zA-Z_]\\w*$"
+    pattern: "^[a-zA-Z_]\\w*|^$"
 
   parameter_files:
     type: array
@@ -121,7 +120,9 @@ properties:
 
 required:
   - format_version
-  - parameter_file
+  - parameter_files
   - model_files
   - observable_files
   - measurement_files
+
+additionalProperties: false
