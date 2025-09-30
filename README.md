@@ -87,6 +87,13 @@ you can use to check if your files adhere to the PEtab standard. If you have
 further questions regarding PEtab, feel free to post an
 [issue](https://github.com/PEtab-dev/PEtab/issues) at our GitHub repository.
 
+## Editing PEtab files
+
+PEtab files can be created or edited using any text editor or spreadsheet
+software, or programmatically (see libraries below).
+There is also a dedicated graphical user interface for creating and editing
+PEtab 1.0 files, called [PEtab-GUI](https://github.com/PEtab-dev/PEtab-GUI/).
+
 ## PEtab Python library
 
 PEtab comes with a Python package for creating, checking, visualizing and
