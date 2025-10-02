@@ -121,6 +121,12 @@ Other standardization-related projects that extend or build on PEtab include:
 * [petabunit](https://github.com/matthiaskoenig/petabunit) (WIP)
   A Python library that extends PEtab to annotate and convert physical units.
 
+* [PEtab SciML](https://github.com/PEtab-dev/petab_sciml) (WIP)
+  PEtab SciML brings Scientific Machine Learning (SciML) models that
+  combine mechanistic and machine learning models to PEtab. It comprises
+  both a standardized way to define SciML problems, and a Python library 
+  to work with these problems. 
+
 ## Getting help
 
 If you have any questions or problems with PEtab, feel free to post them at
