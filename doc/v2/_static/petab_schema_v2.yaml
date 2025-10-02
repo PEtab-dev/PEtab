@@ -19,7 +19,7 @@ properties:
       Identifier of the PEtab problem.
 
       This is optional and has no effect on the PEtab problem itself.
-    pattern: "^[a-zA-Z_]\\w*|^$"
+    pattern: "^[a-zA-Z_]\\w*$"
 
   parameter_files:
     type: array
