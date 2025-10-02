@@ -109,6 +109,18 @@ PEtab Python library, and an interface to dMod that supports: conversion of
 dMod models to SBML; and simulation and visualization of results. The package
 is available at https://github.com/dlill/petab/.
 
+## PEtab extensions
+
+Other standardization-related projects that extend or build on PEtab include:
+
+* [PEtab Select](https://petab-select.readthedocs.io/en/latest/)
+  PEtab Select brings model selection to PEtab. It comprises both a
+  standardized way to define model selection problems in PEtab and a Python
+  library to work with these problems.
+
+* [petabunit](https://github.com/matthiaskoenig/petabunit) (WIP)
+  A Python library that extends PEtab to annotate and convert physical units.
+
 ## Getting help
 
 If you have any questions or problems with PEtab, feel free to post them at
