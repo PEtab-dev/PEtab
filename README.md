@@ -87,6 +87,13 @@ you can use to check if your files adhere to the PEtab standard. If you have
 further questions regarding PEtab, feel free to post an
 [issue](https://github.com/PEtab-dev/PEtab/issues) at our GitHub repository.
 
+## Editing PEtab files
+
+PEtab files can be created or edited using any text editor or spreadsheet
+software, or programmatically (see libraries below).
+There is also a dedicated graphical user interface for creating and editing
+PEtab 1.0 files, called [PEtab-GUI](https://github.com/PEtab-dev/PEtab-GUI/).
+
 ## PEtab Python library
 
 PEtab comes with a Python package for creating, checking, visualizing and
@@ -101,6 +108,24 @@ observables; and visualizing measurements. It also provides an interface to the
 PEtab Python library, and an interface to dMod that supports: conversion of
 dMod models to SBML; and simulation and visualization of results. The package
 is available at https://github.com/dlill/petab/.
+
+## PEtab extensions
+
+Other standardization-related projects that extend or build on PEtab include:
+
+* [PEtab Select](https://petab-select.readthedocs.io/en/latest/)
+  PEtab Select brings model selection to PEtab. It comprises both a
+  standardized way to define model selection problems in PEtab and a Python
+  library to work with these problems.
+
+* [petabunit](https://github.com/matthiaskoenig/petabunit) (WIP)
+  A Python library that extends PEtab to annotate and convert physical units.
+
+* [PEtab SciML](https://github.com/PEtab-dev/petab_sciml) (WIP)
+  PEtab SciML brings Scientific Machine Learning (SciML) models that
+  combine mechanistic and machine learning models to PEtab. It comprises
+  both a standardized way to define SciML problems, and a Python library 
+  to work with these problems. 
 
 ## Getting help
 
