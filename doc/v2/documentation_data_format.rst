@@ -556,7 +556,7 @@ Detailed field description
   The values may be either numeric values or the IDs of parameters from the
   :ref:`parameter table <v2_parameter_table>`.
 
-  Different lines for the same ``observableId`` may specify different
+  Different measurements for the same ``observableId`` may specify different
   values. This may be used to account for condition-specific or
   batch-specific parameters.
 
@@ -581,7 +581,7 @@ Detailed field description
   The values may be either numeric values or the IDs of parameters from the
   :ref:`parameter table <v2_parameter_table>`.
 
-  Different lines for the same ``observableId`` may specify different
+  Different measurements for the same ``observableId`` may specify different
   values. This may be used to account for condition-specific or
   batch-specific parameters.
 
