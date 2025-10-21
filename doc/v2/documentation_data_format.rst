@@ -419,13 +419,13 @@ The experiment table has three mandatory columns ``experimentId``,
      In PEtab, the steady state definition is that *all* differential entities
      are at steady state, meaning that all differential entities have reached,
      and will remain at, a constant value.
-     
+
      Determining whether differential entities are at steady state is left to
      the simulator and user. Reasonable numerical criteria should be used
      to determine whether a steady state is reached. Users should
      share their chosen numerical criteria when sharing their model, for
      reproducibility.
-     
+
      It can be difficult to determine whether the differential entities are
      at steady state. For example, events and other discontinuities may
      occur after an apparent steady state is reached. It is left to the user to
@@ -540,39 +540,60 @@ Detailed field description
 
 - ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
-  Measurement-specific overrides for placeholder parameters declared in the
-  observation model.
+  Measurement-specific overrides for placeholder parameters in the
+  `observableFormula` declared in the
+  :ref:`observable table <v2_observable_table>`.
 
   The :ref:`observable table <v2_observable_table>` allows marking some
-  parameters as measurement-specific (see below). Their values for a given
-  measurement are specified in this column. The values are separated by
-  semicolons. The order and number of values must match the order and number of
+  parameters as measurement-specific (see `observablePlaceholders` there).
+  Their values for a given measurement are specified in this column.
+  The values are separated by semicolons.
+  The order and number of values must match the order and number of
   placeholders in the ``observablePlaceholders`` field of the corresponding
-  observable in the observable table. The values may be
-  either numeric values or the IDs of parameters from the
+  observable in the observable table. I.e., if the observable table contains
+  no observable placeholders for the given observable, this field must be
+  empty.
+  The values may be either numeric values or the IDs of parameters from the
   :ref:`parameter table <v2_parameter_table>`.
 
-  Different lines for the same ``observableId`` may specify different
-  parameters. This may be used to account for condition-specific or
-  batch-specific parameters. This will translate into an extended estimation
-  parameter vector.
+  Different measurements for the same ``observableId`` may specify different
+  values. This may be used to account for condition-specific or
+  batch-specific parameters.
 
-  If there are no placeholders used, this column may be omitted.
+  If none of the observables referenced in a given measurement table use any
+  noise placeholders, this column may be omitted there.
 
 - ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
-  The measurement standard deviation or empty if the corresponding sigma is a
-  model parameter.
+  Measurement-specific overrides for placeholder parameters in the
+  `noiseFormula` declared in the
+  :ref:`observable table <v2_observable_table>`.
 
-  Numeric values or parameter names are allowed. Same rules apply as for
-  ``observableParameters`` in the previous point.
+  The :ref:`observable table <v2_observable_table>` allows marking some
+  parameters as measurement-specific (see `noisePlaceholders` there).
+  Their values for a given measurement are specified in this column.
+  The values are separated by semicolons.
+  The order and number of values must match the order and number of
+  placeholders in the ``noisePlaceholders`` field of the corresponding
+  observable in the observable table. I.e., if the observable table contains
+  no noise placeholders for the given observable, this field must be
+  empty.
+  The values may be either numeric values or the IDs of parameters from the
+  :ref:`parameter table <v2_parameter_table>`.
+
+  Different measurements for the same ``observableId`` may specify different
+  values. This may be used to account for condition-specific or
+  batch-specific parameters.
+
+  If none of the observables referenced in a given measurement table use any
+  noise placeholders, this column may be omitted there.
 
 - ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.models.model_id)]
 
   Which model to simulate for each data point. Model IDs are defined by the
   keys of the `models` object in the PEtab problem YAML file.
   This column is required when multiple models are defined in the PEtab
-  problem.
+  problem (see :ref:`v2_multiple_models`).
   For problems with a single model, this column is optional,
   and its values default to the ID of the only model present.
 
@@ -979,7 +1000,7 @@ Mapping table
 -------------
 
 The mapping table maps PEtab entity IDs to model entity IDs, and may be used
-for additional annotations. This file is optional.
+for additional annotations of model or PEtab entities. This file is optional.
 
 This file may be used to provide PEtab-compatible aliases to model entities
 whose ID in the model would not be a valid identifier in PEtab
