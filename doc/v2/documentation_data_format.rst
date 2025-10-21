@@ -560,8 +560,8 @@ Detailed field description
   values. This may be used to account for condition-specific or
   batch-specific parameters.
 
-  If none of the observables use any observable placeholders,
-  this column may be omitted.
+  If none of the observables referenced in a given measurement table use any
+  noise placeholders, this column may be omitted there.
 
 - ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
 
@@ -585,8 +585,8 @@ Detailed field description
   values. This may be used to account for condition-specific or
   batch-specific parameters.
 
-  If none of the observables use any noise placeholders,
-  this column may be omitted.
+  If none of the observables referenced in a given measurement table use any
+  noise placeholders, this column may be omitted there.
 
 - ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.models.model_id)]
 
