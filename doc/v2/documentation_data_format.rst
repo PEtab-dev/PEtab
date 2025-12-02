@@ -521,6 +521,8 @@ Detailed field description
 - ``measurement`` [NUMERIC, REQUIRED]
 
   The measured value in the same units/scale as the model output.
+  If the corresponding ``noiseDistribution`` specifies a discrete distribution,
+  this value must be integral.
 
 - ``time`` [NUMERIC OR ``inf``, REQUIRED]
 
@@ -746,11 +748,25 @@ Detailed field description
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Denote by :math:`m` the measured value,
+The supported continuous and discrete probability distributions to model
+measurement noise are listed below.
+Those distributions are for a single data point.
+For a collection :math:`D=\{m_i\}_i` of data points and corresponding
+simulations :math:`Y=\{y_i\}_i`
+and noise parameters :math:`\Sigma=\{\sigma_i\}_i`,
+the current specification assumes independence, i.e. the full distribution is
+
+.. math::
+   \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
+
+Continuous distributions
+++++++++++++++++++++++++
+
+Denote by :math:`m:=\text{measurement}` the measured value,
 :math:`y:=\text{observableFormula}` the simulated value
 (the location parameter of the noise distribution),
-and :math:`\sigma` the scale parameter of the noise distribution
-as given via the ``noiseFormula`` field (the standard deviation of a normal,
+and :math:`\sigma := \text{noiseFormula}` the scale parameter of the noise
+distribution (e.g., the standard deviation of a normal,
 or the scale parameter of a Laplace model).
 Then we have the following effective noise distributions:
 
@@ -780,14 +796,46 @@ Then we have the following effective noise distributions:
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
 
-The distributions above are for a single data point.
-For a collection :math:`D=\{m_i\}_i` of data points and corresponding
-simulations :math:`Y=\{y_i\}_i`
-and noise parameters :math:`\Sigma=\{\sigma_i\}_i`,
-the current specification assumes independence, i.e. the full distribution is
+Discrete distributions
+++++++++++++++++++++++
 
-.. math::
-   \pi(D|Y,\Sigma) = \prod_i\pi(m_i|y_i,\sigma_i)
+Denote by :math:`m` the ``measurement`` in the measurement table,
+then we have the following effective noise distributions:
+
+.. list-table::
+  :header-rows: 1
+  :widths: 10 10 80
+
+  * - Type
+    - ``noiseDistribution``
+    - Probability density function (PDF)
+  * - Poisson distribution
+    - ``poisson``
+    - .. math::
+         \pi(m|\lambda) = \frac{\lambda^m\exp(-\lambda)}{m!}
+
+      where the rate :math:`\lambda` is given via ``observableFormula``.
+      ``noiseFormula`` must be empty in this case.
+      The measurement :math:`m` is the number of observed events
+      and must be a non-negative integer.
+  * - Binomial distribution
+    - ``binomial``
+    - .. math::
+         \pi(m|n,p) = \binom{n}{m}p^m(1-p)^{n-m}
+
+      where :math:`n` is the number of trials given via ``observableFormula``
+      and :math:`p` the probability of success given via ``noiseFormula``.
+      The measurement :math:`m` is the number of observed successes
+      and must be an integer between 0 and :math:`n`.
+  * - Negative binomial distribution
+    - ``negative-binomial``
+    - .. math::
+         \pi(m|r,p) = \binom{m+r-1}{m}p^r(1-p)^m
+
+      where :math:`r` is the number of successes given via ``observableFormula``
+      and :math:`p` the probability of success given via ``noiseFormula``.
+      The measurement :math:`m` is the number of observed failures
+      and must be a non-negative integer.
 
 .. _v2_parameter_table:
 
