@@ -811,31 +811,25 @@ then we have the following effective noise distributions:
     - Probability density function (PDF)
   * - Poisson distribution
     - ``poisson``
-    - .. math::
-         \pi(m|\lambda) = \frac{\lambda^m\exp(-\lambda)}{m!}
-
-      where the rate :math:`\lambda` is given via ``observableFormula``.
-      ``noiseFormula`` must be empty in this case.
-      The measurement :math:`m` is the number of observed events
-      and must be a non-negative integer.
+    - | :math:`\pi(m|\lambda) = \frac{\lambda^m\exp(-\lambda)}{m!}`
+      | where the rate :math:`\lambda` is given via ``observableFormula``.
+      | ``noiseFormula`` must be empty in this case.
+      | The measurement :math:`m` is the number of observed events
+      | and must be a non-negative integer.
   * - Binomial distribution
     - ``binomial``
-    - .. math::
-         \pi(m|n,p) = \binom{n}{m}p^m(1-p)^{n-m}
-
-      where :math:`n` is the number of trials given via ``observableFormula``
-      and :math:`p` the probability of success given via ``noiseFormula``.
-      The measurement :math:`m` is the number of observed successes
-      and must be an integer between 0 and :math:`n`.
+    - | :math:`\pi(m|n,p) = \binom{n}{m}p^m(1-p)^{n-m}`
+      | where :math:`n` is the number of trials given via ``observableFormula``
+      | and :math:`p` the probability of success given via ``noiseFormula``.
+      | The measurement :math:`m` is the number of observed successes
+      | and must be an integer between 0 and :math:`n`.
   * - Negative binomial distribution
     - ``negative-binomial``
-    - .. math::
-         \pi(m|r,p) = \binom{m+r-1}{m}p^r(1-p)^m
-
-      where :math:`r` is the number of successes given via ``observableFormula``
-      and :math:`p` the probability of success given via ``noiseFormula``.
-      The measurement :math:`m` is the number of observed failures
-      and must be a non-negative integer.
+    - | :math:`\pi(m|r,p) = \binom{m+r-1}{m}p^r(1-p)^m`
+      | where :math:`r` is the number of successes given via ``observableFormula``
+      | and :math:`p` the probability of success given via ``noiseFormula``.
+      | The measurement :math:`m` is the number of observed failures
+      | and must be a non-negative integer.
 
 .. _v2_parameter_table:
 
