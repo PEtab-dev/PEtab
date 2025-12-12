@@ -922,10 +922,10 @@ are listed below. PEtab only supports univariate prior distributions.
 The probability density functions (PDFs) below assume that the parameter bounds
 are wide enough to not truncate the distributions. If the parameter bounds
 are narrower than the distribution's support, the distributions are truncated,
-resulting in the following effective prior distribution:
+resulting in the following truncated prior distribution:
 
 .. math::
-   \pi_{\text{eff}}(x) = \frac{\pi(x)}{\text{CDF}(\text{upperBound}) - \text{CDF}(\text{lowerBound})}
+   \pi_{\text{trunc}}(x) = \frac{\pi(x)}{\text{CDF}(\text{upperBound}) - \text{CDF}(\text{lowerBound})}
 
 where :math:`\pi(x)` is the PDF of the non-truncated distribution
 and :math:`\text{CDF}(\cdot)` its cumulative distribution function.
