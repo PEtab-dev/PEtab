@@ -748,7 +748,7 @@ Noise distributions
 
 Denote by :math:`m` the measured value,
 :math:`y:=\text{observableFormula}` the simulated value
-(the location parameter of the noise distribution),
+(the median of the noise distribution),
 and :math:`\sigma` the scale parameter of the noise distribution
 as given via the ``noiseFormula`` field (the standard deviation of a normal,
 or the scale parameter of a Laplace model).
@@ -761,24 +761,30 @@ Then we have the following effective noise distributions:
   * - Type
     - ``noiseDistribution``
     - Probability density function (PDF)
-  * - Gaussian distribution
+  * - | Gaussian distribution
+      | (i.e., :math:`m` is normally distributed as :math:`m \sim \mathcal{N}(y, \sigma)`)
     - ``normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
   * - | Log-normal distribution
-      | (i.e., :math:`\log(m)` is normally distributed)
+      | (i.e., :math:`\log(m)` is normally distributed as :math:`\log(m) \sim \mathcal{N}(\log(y), \sigma)`)
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
   * - Laplace distribution
-    - ``laplace``
+    - | ``laplace``
+      | (i.e., :math:`m` is Laplace distributed as :math:`m \sim \mathcal{L}(y, \sigma)`)
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
   * - | Log-Laplace distribution
-      | (i.e., :math:`\log(m)` is Laplace distributed)
+      | (i.e., :math:`\log(m)` is Laplace distributed as :math:`\log(m) \sim \mathcal{L}(\log(y), \sigma)`)
     - ``log-laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
+
+Note that, for all continuous distributions, the simulated value is modeled
+as the median of the noise distribution; i.e., measurements are assumed to
+be equally likely to lie above or below the model output.
 
 The distributions above are for a single data point.
 For a collection :math:`D=\{m_i\}_i` of data points and corresponding
