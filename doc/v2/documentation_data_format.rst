@@ -746,13 +746,12 @@ Detailed field description
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Denote by :math:`m` the measured value,
-:math:`y:=\text{observableFormula}` the simulated value
-(the median of the noise distribution),
-and :math:`\sigma` the scale parameter of the noise distribution
-as given via the ``noiseFormula`` field (the standard deviation of a normal,
-or the scale parameter of a Laplace model).
-Then we have the following effective noise distributions:
+Let :math:`m` denote the measured value,
+:math:`y := \text{observableFormula}` the simulated value (the median of
+the noise distribution), and :math:`\sigma := \text{noiseFormula}` the
+noise parameter (the standard deviation and the scale parameter for the
+Normal and Laplace distributions, respectively). Then we have the following
+effective noise distributions:
 
 .. list-table::
   :header-rows: 1
@@ -771,9 +770,9 @@ Then we have the following effective noise distributions:
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
-  * - Laplace distribution
-    - | ``laplace``
+  * - | Laplace distribution
       | (i.e., :math:`m` is Laplace distributed as :math:`m \sim \mathcal{L}(y, \sigma)`)
+    - ``laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
   * - | Log-Laplace distribution
