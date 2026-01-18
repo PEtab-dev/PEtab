@@ -762,12 +762,12 @@ Then we have the following effective noise distributions:
     - ``noiseDistribution``
     - Probability density function (PDF)
   * - | Gaussian distribution
-      | (i.e., :math:`m` is normally distributed as :math:`m \sim \mathcal{N}(y, \sigma)`)
+      | (i.e., :math:`m` is normally distributed as :math:`m \sim \mathcal{N}(y, \sigma^2)`)
     - ``normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
   * - | Log-normal distribution
-      | (i.e., :math:`\log(m)` is normally distributed as :math:`\log(m) \sim \mathcal{N}(\log(y), \sigma)`)
+      | (i.e., :math:`\log(m)` is normally distributed as :math:`\log(m) \sim \mathcal{N}(\log(y), \sigma^2)`)
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
@@ -777,12 +777,12 @@ Then we have the following effective noise distributions:
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
   * - | Log-Laplace distribution
-      | (i.e., :math:`\log(m)` is Laplace distributed as :math:`\log(m) \sim \mathcal{L}(\log(y), \sigma)`)
+      | (i.e., :math:`\log(m) \sim \mathrm{Laplace}(\log(y), \sigma)`)
     - ``log-laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
 
-Note that, for all continuous distributions, the simulated value is modeled
+Note that, for all PEtab noise distributions, the simulated value is modeled
 as the median of the noise distribution; i.e., measurements are assumed to
 be equally likely to lie above or below the model output.
 
