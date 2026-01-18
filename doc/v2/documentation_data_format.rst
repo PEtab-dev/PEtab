@@ -761,17 +761,17 @@ effective noise distributions:
     - ``noiseDistribution``
     - Probability density function (PDF)
   * - | Gaussian distribution
-      | (i.e., :math:`m` is normally distributed as :math:`m \sim \mathcal{N}(y, \sigma^2)`)
+      | (i.e., :math:`m \sim \mathcal{N}(y, \sigma^2)`)
     - ``normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
   * - | Log-normal distribution
-      | (i.e., :math:`\log(m)` is normally distributed as :math:`\log(m) \sim \mathcal{N}(\log(y), \sigma^2)`)
+      | (i.e., :math:`\log(m) \sim \mathcal{N}(\log(y), \sigma^2)`)
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
   * - | Laplace distribution
-      | (i.e., :math:`m` is Laplace distributed as :math:`m \sim \mathcal{L}(y, \sigma)`)
+      | (i.e., :math:`m \sim \mathrm{Laplace}(y, \sigma)`)
     - ``laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
