@@ -746,13 +746,12 @@ Detailed field description
 Noise distributions
 ~~~~~~~~~~~~~~~~~~~
 
-Denote by :math:`m` the measured value,
-:math:`y:=\text{observableFormula}` the simulated value
-(the location parameter of the noise distribution),
-and :math:`\sigma` the scale parameter of the noise distribution
-as given via the ``noiseFormula`` field (the standard deviation of a normal,
-or the scale parameter of a Laplace model).
-Then we have the following effective noise distributions:
+Let :math:`m` denote the measured value,
+:math:`y := \text{observableFormula}` the simulated value (the median of
+the noise distribution), and :math:`\sigma := \text{noiseFormula}` the
+noise parameter (the standard deviation and the scale parameter for the
+Normal and Laplace distributions, respectively). Then we have the following
+effective noise distributions:
 
 .. list-table::
   :header-rows: 1
@@ -761,24 +760,30 @@ Then we have the following effective noise distributions:
   * - Type
     - ``noiseDistribution``
     - Probability density function (PDF)
-  * - Gaussian distribution
+  * - | Gaussian distribution
+      | (i.e., :math:`m \sim \mathcal{N}(y, \sigma^2)`)
     - ``normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}\exp\left(-\frac{(m-y)^2}{2\sigma^2}\right)
   * - | Log-normal distribution
-      | (i.e., :math:`\log(m)` is normally distributed)
+      | (i.e., :math:`\log(m) \sim \mathcal{N}(\log(y), \sigma^2)`)
     - ``log-normal``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{\sqrt{2\pi}\sigma m}\exp\left(-\frac{(\log m - \log y)^2}{2\sigma^2}\right)
-  * - Laplace distribution
+  * - | Laplace distribution
+      | (i.e., :math:`m \sim \mathrm{Laplace}(y, \sigma)`)
     - ``laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma}\exp\left(-\frac{|m-y|}{\sigma}\right)
   * - | Log-Laplace distribution
-      | (i.e., :math:`\log(m)` is Laplace distributed)
+      | (i.e., :math:`\log(m) \sim \mathrm{Laplace}(\log(y), \sigma)`)
     - ``log-laplace``
     - .. math::
          \pi(m|y,\sigma) = \frac{1}{2\sigma m}\exp\left(-\frac{|\log m - \log y|}{\sigma}\right)
+
+Note that, for all PEtab noise distributions, the simulated value is modeled
+as the median of the noise distribution; i.e., measurements are assumed to
+be equally likely to lie above or below the model output.
 
 The distributions above are for a single data point.
 For a collection :math:`D=\{m_i\}_i` of data points and corresponding
