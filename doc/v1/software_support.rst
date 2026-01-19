@@ -24,9 +24,6 @@ Where PEtab is supported (in alphabetical order):
 * `PEtab.jl <https://github.com/sebapersson/PEtab.jl>`__
   (`HOWTO <https://sebapersson.github.io/PEtab.jl/stable/>`__)
 
-* `PumasQSP.jl <https://help.juliahub.com/pumasqsp/stable/>`__
-  (`HOWTO <https://help.juliahub.com/pumasqsp/stable/tutorials/petabimport/>`__)
-
 * `pyABC <https://github.com/ICB-DCM/pyABC/>`__
   (`Example <https://pyabc.readthedocs.io/en/latest/examples/petab.html>`__)
 
@@ -60,7 +57,6 @@ different tools, based on passed test cases of the
      - | MEIGO
      - | parPE;`develop`
      - | PEtab.jl;`>=1.1.0`
-     - | PumasQSP
      - | pyABC;`>=0.10.1`
      - | pyPESTO;`>=0.0.11`
      - | SBML2Julia
@@ -72,7 +68,6 @@ different tools, based on passed test cases of the
      - +++
      - +++
      - --+
-     - +++
      - +++
      - +++
      - +++
@@ -89,7 +84,6 @@ different tools, based on passed test cases of the
      - +++
      - +++
      - +++
-     - +++
    * - 3
      - Numeric observable parameter overrides in measurement table
      - +++
@@ -99,7 +93,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
@@ -111,7 +104,6 @@ different tools, based on passed test cases of the
      - +++
      - +++
      - --+
-     - +++
      - +++
      - +++
      - +++
@@ -128,7 +120,6 @@ different tools, based on passed test cases of the
      - +++
      - +++
      - +++
-     - +++
    * - 6
      - Time-point specific overrides in the measurement table
      - ---
@@ -138,7 +129,6 @@ different tools, based on passed test cases of the
      - +++
      - ---
      - +++
-     - ---
      - ---
      - ---
      - +++
@@ -151,7 +141,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - +-+
      - +++
      - +++
      - +++
@@ -167,7 +156,6 @@ different tools, based on passed test cases of the
      - +++
      - +++
      - +++
-     - +++
    * - 9
      - Pre-equilibration
      - +++
@@ -177,7 +165,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
@@ -190,7 +177,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
@@ -206,7 +192,6 @@ different tools, based on passed test cases of the
      - +++
      - +++
      - +++
-     - +++
    * - 12
      - Numeric initial compartment sizes in condition table
      - ---
@@ -216,7 +201,6 @@ different tools, based on passed test cases of the
      - +++
      - ---
      - +++
-     - ---
      - ---
      - ---
      - +++
@@ -229,7 +213,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
@@ -242,7 +225,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
@@ -255,7 +237,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
@@ -268,7 +249,6 @@ different tools, based on passed test cases of the
      - +++
      - --+
      - +++
-     - ---
      - +++
      - +++
      - +++
