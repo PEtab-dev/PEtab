@@ -94,8 +94,8 @@ html_context = {
     "display_github": True,
     "github_user": "petab-dev",
     "github_repo": "petab",
-    "github_version": "develop",
-    "conf_py_path": "/doc",
+    "github_version": "main",
+    "conf_py_path": "/doc/",
 }
 
 html_logo = 'logo/PEtab.png'
