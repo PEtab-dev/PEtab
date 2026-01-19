@@ -921,6 +921,20 @@ Detailed field description
 Prior distributions
 ~~~~~~~~~~~~~~~~~~~
 
+The prior distributions supported for the
+:ref:`MAP objective function and for Bayesian inference <v2_objective_function>`
+are listed below. PEtab only supports univariate prior distributions.
+The probability density functions (PDFs) below assume that the parameter bounds
+are wide enough to not truncate the distributions. If the parameter bounds
+are narrower than the distribution's support, the distributions are truncated,
+resulting in the following truncated prior distribution:
+
+.. math::
+   \pi_{\text{trunc}}(x) = \frac{\pi(x)}{\text{CDF}(\text{upperBound}) - \text{CDF}(\text{lowerBound})}
+
+where :math:`\pi(x)` is the PDF of the non-truncated distribution
+and :math:`\text{CDF}(\cdot)` its cumulative distribution function.
+
 Let :math:`x` denote the parameter value and :math:`\Gamma` the
 `Gamma function <https://en.wikipedia.org/wiki/Gamma_function>`__.,
 then the following prior distributions are supported:
