@@ -817,7 +817,10 @@ and *must not* include:
 - Parameters occurring as ``targetId`` in the *condition table*
 - "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
-- Any parameters that do not have valid PEtab IDs
+- Any parameters that do not have valid PEtab IDs.
+  (For example, *local parameters* in an SBML model, which are not globally
+  accessible, cannot be used in PEtab; if they are to be estimated or
+  changed, they must be converted to global parameters first.)
 
 it *may* include:
 
