@@ -818,7 +818,6 @@ and *must not* include:
 - "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
 - Any parameters that do not have valid PEtab IDs
-  (e.g., SBML *local* parameters that are not mapped in the mapping table)
 
 it *may* include:
 
@@ -1059,9 +1058,7 @@ Detailed field description
   not present in any model. This does not have to be a valid PEtab identifier.
   Rows with empty ``modelEntityId`` serve as annotations only.
 
-  For example, in SBML, local parameters may be referenced as
-  ``$reactionId.$localParameterId``, which are not valid PEtab IDs as they
-  contain a ``.`` character. Similarly, this table may be used to reference
+  This table may be used, for example, to reference
   specific species in a BNGL model that may contain many unsupported
   characters such as ``,``, ``(`` or ``.``. However, please note that IDs must
   exactly match the species names in the BNGL-generated network file, and no
