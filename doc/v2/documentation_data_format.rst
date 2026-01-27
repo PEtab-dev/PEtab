@@ -111,6 +111,9 @@ should not alter the definition of the estimation problem itself.
     differential entity (:ref:`v2_model_entities`), including PEtab output
     parameters, but excluding parameters listed in the
     :ref:`v2_parameter_table` (independent of their ``estimate`` value).
+  - ``LIST[...]``: A ``STRING`` that is a semicolon-delimited list of values,
+    where each value can be interpreted as the type or value inside the
+    brackets.
 
 .. _v2_changes:
 
@@ -485,17 +488,17 @@ order:
 
 *(wrapped for readability)*
 
-+-----+----------------------------------------------------+----------------------------------------------------+
-| ... | [observableParameters]                             | [noiseParameters]                                  |
-+=====+====================================================+====================================================+
-| ... | [parameterId\|NUMERIC[;parameterId\|NUMERIC][...]] | [parameterId\|NUMERIC[;parameterId\|NUMERIC][...]] |
-+-----+----------------------------------------------------+----------------------------------------------------+
-| ... |                                                    |                                                    |
-+-----+----------------------------------------------------+----------------------------------------------------+
-| ... |                                                    |                                                    |
-+-----+----------------------------------------------------+----------------------------------------------------+
-| ... | ...                                                | ...                                                |
-+-----+----------------------------------------------------+----------------------------------------------------+
++-----+----------------------------+----------------------------+
+| ... | [observableParameters]     | [noiseParameters]          |
++=====+============================+============================+
+| ... | LIST[parameterId\|NUMERIC] | LIST[parameterId\|NUMERIC] |
++-----+----------------------------+----------------------------+
+| ... |                            |                            |
++-----+----------------------------+----------------------------+
+| ... |                            |                            |
++-----+----------------------------+----------------------------+
+| ... | ...                        | ...                        |
++-----+----------------------------+----------------------------+
 
 Additional (non-standard) columns may be added.
 
