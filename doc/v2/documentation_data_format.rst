@@ -92,7 +92,7 @@ in the core standard, which should provide all necessary information for
 defining a parameter estimation problem.
 
 Additional non-standard columns are allowed in all PEtab tables.
-While such extra column may, for example, contain metadata to enhance plotting,
+While such extra columns may, for example, contain metadata to enhance plotting,
 downstream analysis, or improve efficiency in parameter estimation, they
 must not alter the definition of the estimation problem itself.
 
