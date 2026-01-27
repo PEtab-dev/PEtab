@@ -94,7 +94,8 @@ defining a parameter estimation problem.
 Additional non-standard columns are allowed in all PEtab tables.
 While such extra columns may, for example, contain metadata to enhance plotting,
 downstream analysis, or improve efficiency in parameter estimation, they
-must not alter the definition of the estimation problem itself.
+must not alter the definition of the estimation problem itself, unless
+they are part of a :ref:`PEtab extension <petab_extensions>`.
 
 **General remarks**
 
