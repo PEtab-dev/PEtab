@@ -55,7 +55,7 @@ format (Figure 2), including:
 
 - A :ref:`grouping file <v2_problem_yaml>` that lists all of the following
   files and provides additional information including
-  :ref:`extensions <petab_extensions>` [YAML].
+  :ref:`extensions <v2_extensions>` [YAML].
 
 - :ref:`Parameter file(s) <v2_parameter_table>` to set parameter values
   globally, and to specify the parameters to be estimated as well as their
@@ -91,10 +91,11 @@ The following sections outline the minimum requirements of those components
 in the core standard, which should provide all necessary information for
 defining a parameter estimation problem.
 
-Extensions of this format (e.g., additional columns in the measurement table)
-are allowed and encouraged. While such extensions can enhance plotting,
+Additional non-standard columns are allowed in all PEtab tables.
+While such extra columns may, for example, contain metadata to enhance plotting,
 downstream analysis, or improve efficiency in parameter estimation, they
-should not alter the definition of the estimation problem itself.
+must not alter the definition of the estimation problem itself, unless
+they are part of a :ref:`PEtab extension <petab_extensions>`.
 
 **General remarks**
 
@@ -1625,3 +1626,36 @@ as identifiers:
 * ``time``: Model time, used in PEtab expressions.
 * ``nan``: Undefined in PEtab, but reserved to avoid implementation issues.
 * PEtab math function names (:ref:`v2_math_functions`)
+
+
+.. _v2_extensions:
+
+Extensions
+----------
+
+An elaborate, monolithic format would make it difficult to understand and
+implement support for PEtab, leading to a steep learning curve and discouraging
+support in new toolboxes. To address this issue, the PEtab format is modular and
+permits modifications through extensions that complement the core standard.
+This modular specification evens the learning curve and provides toolbox
+developers with more guidance on which features to implement to maximize
+support for real world applications. Moreover, such modular extensions
+facilitate and promote the use of specialized tools for specific, non-parameter
+estimation tasks such as visualization.
+
+Rules for extensions:
+
+* Specifications in PEtab extensions take precedence over PEtab core, i.e.,
+  they may ease or refine format restrictions imposed by PEtab core.
+* PEtab extensions should extend PEtab core with new orthogonal features or
+  tasks, i.e., they should not make trivial changes to PEtab core.
+* PEtab extensions must be named according to ``^[a-zA-Z][a-zA-Z0-9_\-]*$``.
+* PEtab extensions must be versioned using semantic versioning.
+* Extensions are specified in the problem configuration YAML file
+  (:ref:`v2_problem_yaml`) under the key ``extensions``.
+  If an extension changes the mathematical interpretation of a PEtab problem,
+  its ``required`` attribute must be set to ``true``.
+* Toolboxes may ignore extensions with ``required: false`` that they do not
+  support.
+* Toolboxes must reject PEtab problems that use extensions with
+  ``required: true`` that they do not support.
