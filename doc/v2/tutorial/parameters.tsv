@@ -1,0 +1,12 @@
+parameterId	parameterName	lowerBound	upperBound	nominalValue	estimate
+Epo_degradation_BaF3	EPO_{degradation,BaF3}	1E-05	100000		true
+k_exp_hetero	k_{exp,hetero}	1E-05	100000		true
+k_exp_homo	k_{exp,homo}	1E-05	100000		true
+k_imp_hetero	k_{imp,hetero}	1E-05	100000		true
+k_imp_homo	k_{imp,homo}	1E-05	100000		true
+k_phos	k_{phos}	1E-05	100000		true
+ratio	ratio			0.693	false
+sd_pSTAT5A_rel	\sigma_{pSTAT5A,rel}	1E-05	100000		true
+sd_pSTAT5B_rel	\sigma_{pSTAT5B,rel}	1E-05	100000		true
+sd_rSTAT5A_rel	\sigma_{rSTAT5A,rel}	1E-05	100000		true
+specC17	specC17			0.107	false
