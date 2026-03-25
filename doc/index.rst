@@ -14,7 +14,7 @@
    :maxdepth: 3
    :caption: PEtab v2
 
-   PEtab v2 draft <v2/documentation_data_format.rst>
+   PEtab v2 specs <v2/documentation_data_format.rst>
 
 .. toctree::
    :maxdepth: 2
