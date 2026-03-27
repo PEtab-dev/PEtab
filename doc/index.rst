@@ -4,6 +4,7 @@
 .. toctree::
    :maxdepth: 3
    :caption: PEtab v1
+   :hidden:
 
    PEtab v1 specs <v1/documentation_data_format.rst>
    Tutorial <v1/tutorial/tutorial>
@@ -13,6 +14,7 @@
 .. toctree::
    :maxdepth: 3
    :caption: PEtab v2
+   :hidden:
 
    PEtab v2 specs <v2/documentation_data_format.rst>
    Tutorial <v2/tutorial/tutorial>
@@ -20,6 +22,7 @@
 .. toctree::
    :maxdepth: 2
    :caption: About
+   :hidden:
 
    Development <development>
    how_to_cite
