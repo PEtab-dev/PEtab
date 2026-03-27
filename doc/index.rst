@@ -6,7 +6,7 @@
    :caption: PEtab v1
 
    PEtab v1 specs <v1/documentation_data_format.rst>
-   v1/tutorial/tutorial
+   Tutorial <v1/tutorial/tutorial>
    v1/software_support
 
 
@@ -15,6 +15,7 @@
    :caption: PEtab v2
 
    PEtab v2 draft <v2/documentation_data_format.rst>
+   Tutorial <v2/tutorial/tutorial>
 
 .. toctree::
    :maxdepth: 2
