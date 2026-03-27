@@ -3,10 +3,6 @@
 PEtab data format specification 2.0
 ===================================
 
-.. warning::
-
-    This document is a draft and subject to change.
-
 Format version: 2.0.0
 
 This document explains the PEtab data format.
@@ -27,48 +23,58 @@ The scope of PEtab is the complete specification of parameter estimation
 problems in typical systems biology applications. In practise, data-driven
 modeling often begins with either (i) a computational model of a biological
 system that requires calibration or (ii) experimental data that need
-integration and analysis through a computational model.
+integration and analysis through a computational model
+:cite:p:`VillaverdePat2021`.
 
 Measurements are linked to the biological model by an observation and noise
 model. Often, measurements are taken after some experimental perturbations
 have been applied, which are represented as derivations from a generic model
-(Figure 1A). Therefore, one goal was to specify such a setup in the least
-redundant way. Furthermore, we wanted to establish an intuitive, modular,
-machine- and human-readable and -writable format that makes use of existing
-standards.
+(Figure 1A). Therefore, a goal of PEtab is to specify
+such a setup in the least redundant way. Furthermore, PEtab aims to provide an
+intuitive, modular, machine- and human-readable and -writable format that makes
+use of existing standards.
 
 .. figure:: gfx/petab_scope_and_files.png
-   :alt: A typical setup for data-based modeling studies and its
-         representation in PEtab.
+   :alt: Structure of typical parameter estimation problems in systems biology
+         and their representation in PEtab.
    :scale: 80%
 
-   **Figure 1: A typical setup for data-based modeling studies and its
-   representation in PEtab.**
+   **Figure 1: Structure of typical parameter estimation problems in systems
+   biology and their representation in PEtab.**
+   **A:** Different experiments are conducted and measurements are taken.
+   The different experiments are described by different instances of a generic
+   model. These experiment-specific models are simulated to evaluate an
+   objective function.
+   **B:** How the different elements of A are represented in PEtab.
+   Corresponding elements are indicated by the same background color.
 
 Overview
 ---------
 
-The PEtab data format defines a parameter estimation problem using multiple
-text-based files in `YAML <https://yaml.org/>`_ and `Tab-Separated Values (TSV)
+PEtab builds on existing standards for model specification and defines a
+parameter estimation problem using multiple text-based files in
+`YAML <https://yaml.org/>`_ and `Tab-Separated Values (TSV)
 <https://www.iana.org/assignments/media-types/text/tab-separated-values>`_
-format (Figure 2), including:
+format (Figure 2).
+A PEtab problem consists of the following types of files:
 
-- A :ref:`grouping file <v2_problem_yaml>` that lists all of the following
-  files and provides additional information including
+- A :ref:`problem configuration file <v2_problem_yaml>` that lists all of the
+  following files and provides additional information including
   :ref:`extensions <v2_extensions>` [YAML].
 
 - :ref:`Parameter file(s) <v2_parameter_table>` to set parameter values
-  globally, and to specify the parameters to be estimated as well as their
-  parameter bounds and prior distributions [TSV].
+  globally(across all experiments), and to specify the parameters to be
+  estimated as well as their parameter bounds and prior distributions [TSV].
 
 - :ref:`Model <v2_model>` file(s) specifying the base model(s)
-  [SBML, CELLML, BNGL, PYSB, ...].
+  [SBML :cite:p:`HuckaFin2003,KeatingWal2020`, CellLML :cite:p:`ClerxCoo2020`,
+  BNGL :cite:p:`Faeder2009`, ...].
 
 - :ref:`Observable file(s) <v2_observable_table>` defining the observation
   model [TSV].
 
 - :ref:`Measurement file(s) <v2_measurement_table>` containing experimental
-  data used for model fitting [TSV].
+  data used for model calibration [TSV].
 
 - (optional) :ref:`Condition file(s) <v2_condition_table>` specifying model
   inputs and condition-specific parameters [TSV].
@@ -83,7 +89,10 @@ format (Figure 2), including:
 .. figure:: gfx/petab_files.png
    :alt: Files constituting a PEtab problem
 
-   **Figure 2: Files constituting a PEtab problem.**
+   **Figure 2: Files constituting a PEtab 2.0 problem.**
+   A single YAML file links the different files types.
+   There can be one or more files of each type; the grayed-out files are
+   optional.
 
 Figure 1B shows how those files relate to a typical data-based modeling setup.
 
@@ -111,10 +120,13 @@ they are part of a :ref:`PEtab extension <petab_extensions>`.
   - ``NON_PARAMETER_TABLE_ID``: A valid PEtab ID referring to a constant or
     differential entity (:ref:`v2_model_entities`), including PEtab output
     parameters, but excluding parameters listed in the
-    :ref:`v2_parameter_table` (independent of their ``estimate`` value).
+    :ref:`parameter tables <v2_parameter_table>`
+    (independent of their ``estimate`` value).
   - ``LIST[...]``: A ``STRING`` that is a semicolon-delimited list of values,
     where each value can be interpreted as the type or value inside the
     brackets.
+  - ``OPTIONAL`` indicates that a column is optional whereas ``NULL`` indicates
+    that individual cells in a column may be empty.
 
 .. _v2_changes:
 
@@ -128,12 +140,14 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Support for models in other formats than SBML (:ref:`v2_model`).
 * The use of different models for different measurements is now
   supported via the optional ``modelId`` column in the
-  :ref:`v2_measurement_table`, see also :ref:`v2_multiple_models`.
-  This was poorly defined in PEtab 1.0.0 and probably not used in practice.
+  :ref:`measurement table <v2_measurement_table>`,
+  see also :ref:`v2_multiple_models`.
+  This was poorly defined in PEtab 1.0.0.
 * The (now optional) condition table format changed from wide to long
   (:ref:`v2_condition_table`).
 * ``simulationConditionId`` and ``preequilibrationConditionId`` in the
-  :ref:`v2_measurement_table` are replaced by ``experimentId`` and a more
+  :ref:`measurement table <v2_measurement_table>`
+  are replaced by ``experimentId`` and a more
   flexible way for defining experiments and time courses. This allows
   arbitrary sequences of conditions and combinations of conditions to be
   applied to the model (Figure 3 and :ref:`v2_experiment_table`).
@@ -141,43 +155,50 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 .. figure:: gfx/v2_experiment.png
    :width: 80 %
    :align: center
-   :alt: A comparison of simulations in PEtab v1 and v2.
+   :alt: A comparison of simulations in PEtab 1.0 and 2.0.
 
-   **Figure 3: A comparison of simulations in PEtab v1 and v2.**
+   **Figure 3: A comparison of simulations in PEtab 1.0 and 2.0.**
+   While in PEtab 1.0, a simulation consisted of one or two periods,
+   PEtab 2.0 supports an arbitrary number of periods.
+   Furthermore, PEtab 2.0 allows specifying the initial time of the simulation.
 
 * Support for math expressions in the condition table
-  (:ref:`v2_condition_table`, :ref:`v2_math_expressions`).
+  (:ref:`condition table <v2_condition_table>`, :ref:`v2_math_expressions`).
 * Clarification and specification of various previously underspecified
   aspects, including overriding values via the condition table
   (:ref:`v2_initialization_semantics`, :ref:`v2_reinitialization_semantics`).
 * Support for format :ref:`extensions <petab_extensions>`.
 * Observable IDs can now be used in observable and noise formulas
   (:ref:`v2_observable_table`).
-* The ``parameterScale`` column of the :ref:`v2_parameter_table` is removed.
+* The ``parameterScale`` column of the
+  :ref:`parameter table <v2_parameter_table>` is removed.
   This change was made to simplify the PEtab format.
   This feature was a constant source of confusion and the interaction with
   parameter priors was not well-defined.
   To obtain the same effect, the model parameters can be transformed in the
   model file.
 * The ``initializationPriorType`` and ``initializationPriorParameters``
-  columns  of the :ref:`v2_parameter_table` are removed. Initialization
-  priors are outside the definition of the parameter estimation problem
-  and were a source of confusion.
+  columns  of the :ref:`parameter table <v2_parameter_table>` are removed.
+  Initialization priors are outside the definition of the parameter estimation
+  problem and were a source of confusion.
 * ``objectivePriorType`` and ``objectivePriorParameters`` in the
-  :ref:`v2_parameter_table` are renamed to ``priorDistribution`` and
-  ``priorParameters``, respectively. This change was made to simplify
-  the PEtab format.
-* The admissible values for ``estimate`` in the :ref:`v2_parameter_table`
+  :ref:`parameter table <v2_parameter_table>` are renamed to
+  ``priorDistribution`` and ``priorParameters``, respectively.
+  This change was made to simplify the PEtab format.
+* The admissible values for ``estimate`` in the
+  :ref:`parameter table <v2_parameter_table>`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
 * Support for new parameter prior distributions in the
   :ref:`v2_parameter_table`, and clarification that bounds truncate the
   prior distributions.
-* The ``observableTransformation`` column of the :ref:`v2_observable_table`
+* The ``observableTransformation`` column of the
+  :ref:`observable table <v2_observable_table>`
   has been combined with the ``noiseDistribution`` column to make its intent
   clearer. The ``log10`` transformation has been removed, since this was mostly
   relevant for visualization purposes, and the same effect can be achieved by
   rescaling the parameters of the respective (natural) log-distributions.
-* The ``observableFormula`` field in the :ref:`v2_observable_table` must not
+* The ``observableFormula`` field in the
+  :ref:`observable table <v2_observable_table>` must not
   contain any observable IDs. This was previously allowed, but it was not
   well-defined how to deal with placeholder parameters in this case.
   The ``noiseFormula`` field may contain only the observable ID of the
@@ -186,11 +207,11 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Placeholders for measurement-specific parameters in ``observableFormula``
   and ``noiseFormula`` are now declared using the
   ``observablePlaceholders`` and ``noisePlaceholders`` fields in the
-  :ref:`v2_observable_table`. This replaces the previous
+  :ref:`observable table <v2_observable_table>`. This replaces the previous
   ``observableParameter${n}_${observableId}`` syntax. The new approach is more
   explicit and allows for more descriptive and shorter names for the
   placeholders.
-* The visualization table has been removed. The PEtab v1 visualization table
+* The visualization table has been removed. The PEtab 1.0 visualization table
   was not well-defined and not widely used. Visualization is handled by the
   PEtab Python library which also provides documentation on the respective
   input format.
@@ -201,25 +222,26 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 Model definition
 ----------------
 
-PEtab 2.0.0 is **model format agnostic**, meaning it does not depend on a
+PEtab 2.0 is **model-format–agnostic**, meaning it does not depend on a
 specific model description. The model file is referenced in the :ref:`PEtab
-problem description (YAML) <v2_problem_yaml>` by its file name or a URL.
+problem configuration file <v2_problem_yaml>` by its file name or a URL.
 
 PEtab distinguishes between three types of entities:
 
-* **Differential entities**: Entities that are defined in terms of a
-  time-derivative, e.g., the targets of SBML rate rules or species that change
-  due to participation in reactions (reactants or products).
+* **Differential entities**: Entities whose time evolution is defined in terms
+  of a time-derivative, e.g., the targets of SBML rate rules or species
+  that change due to participation in reactions (reactants or products).
 
 * **Algebraic entities**: Entities that are defined in terms of algebraic
   assignments, rather than time derivatives, that are in effect throughout the
   simulation. They are not necessarily constant, for example,
   the targets of SBML assignment rules.
 
-* **Constant entities**: Entities are that not differential or algebraic
+* **Constant entities**: Entities that are not differential or algebraic
   entities. They are defined in terms of an at least piecewise constant
   value but may be subject to event assignments, e.g., parameters of an SBML
-  model that are not targets of rate rules or assignment rules.
+  model that are not targets of rate rules or assignment rules
+  or determined by algebraic rules.
 
 .. _v2_condition_table:
 
@@ -367,7 +389,7 @@ are applied in five consecutive phases:
 Experiment table
 ----------------
 
-The optional experiments table defines a sequence (Figure 3, lower) of
+The optional experiment table defines a sequence (Figure 3, lower) of
 experimental conditions (i.e., discrete changes; see
 :ref:`v2_condition_table`) applied to the model.
 
@@ -420,27 +442,25 @@ The experiment table has three mandatory columns ``experimentId``,
 
   .. note::
 
-     In PEtab, the steady state definition is that *all* differential entities
-     are at steady state, meaning that all differential entities have reached,
-     and will remain at, a constant value.
+     In PEtab, a steady state is defined as a state in which *all*
+     differential entities have reached, and will remain at, a constant value.
 
      Determining whether differential entities are at steady state is left to
-     the simulator and user. Reasonable numerical criteria should be used
-     to determine whether a steady state is reached. Users should
-     share their chosen numerical criteria when sharing their model, for
-     reproducibility.
+     the simulator and user. Reasonable numerical criteria should be used,
+     and users are encouraged to share their chosen criteria when sharing their
+     model to ensure reproducibility.
 
-     It can be difficult to determine whether the differential entities are
-     at steady state. For example, events and other discontinuities may
-     occur after an apparent steady state is reached. It is left to the user to
-     avoid situations where this issue is problematic.
+     Determining steady state can be nontrivial; for example, events or other
+     discontinuities may occur after an apparent steady state has been reached.
+     It is the user’s responsibility to avoid situations where this ambiguity
+     is problematic.
 
-  If the simulation of a condition with steady state fails to reach a steady state,
-  and the condition is required for the evaluation of simulation at
-  measurement points, the evaluation of the model is not well-defined.
+  If the simulation of an experiment requiring steady state fails to reach a
+  steady state, the evaluation of the model at measurement points is not
+  well-defined.
   In such cases, PEtab interpreters should notify the user, for example, by
   returning ``NaN`` or ``inf`` values for the objective function.
-  PEtab does not specify a numerical criterion for steady states.
+  PEtab does not prescribe a numerical criterion for steady state.
   Any event triggers defined in the model must also be checked during this
   pre-simulation.
 
@@ -469,7 +489,7 @@ The experiment table has three mandatory columns ``experimentId``,
 Measurement table
 -----------------
 
-A tab-separated values files containing all measurements to be used for
+A tab-separated values file containing all measurements to be used for
 model training or validation.
 
 Expected to have the following named columns in any (but preferably this)
@@ -542,7 +562,7 @@ Detailed field description
   the condition change is applied before the observable is evaluated
   (see :ref:`v2_reinitialization_semantics` for details).
 
-- ``observableParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
+- ``observableParameters`` [LIST[parameterId, NUMERIC], NULL, OPTIONAL]
 
   Measurement-specific overrides for placeholder parameters in the
   `observableFormula` declared in the
@@ -567,7 +587,7 @@ Detailed field description
   If none of the observables referenced in a given measurement table use any
   noise placeholders, this column may be omitted there.
 
-- ``noiseParameters`` [NUMERIC, STRING OR NULL, OPTIONAL]
+- ``noiseParameters`` [LIST[parameterId, NUMERIC], NULL, OPTIONAL]
 
   Measurement-specific overrides for placeholder parameters in the
   `noiseFormula` declared in the
@@ -640,24 +660,24 @@ The observable table has the following columns:
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 | e.g.                  |                                |                                                                             |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
-| relativeTotalProtein1 | Relative abundance of Protein1 | observableParameter1_relativeTotalProtein1 * (protein1 + phospho_protein1 ) |
+| relativeTotalProtein1 | Relative abundance of Protein1 | scale_relTotProt1 * (protein1 + phospho_protein1 )                          |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 | ...                   | ...                            | ...                                                                         |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 
 *(wrapped for readability)*
 
-+-----+---------------------------------------+-----------------------+
-| ... | noiseFormula                          | [noiseDistribution]   |
-+=====+=======================================+=======================+
-| ... | STRING\|NUMBER                        | *see below*           |
-+-----+---------------------------------------+-----------------------+
-| ... |                                       |                       |
-+-----+---------------------------------------+-----------------------+
-| ... | noiseParameter1_relativeTotalProtein1 | normal                |
-+-----+---------------------------------------+-----------------------+
-| ... | ...                                   | ...                   |
-+-----+---------------------------------------+-----------------------+
++-----+---------------------------------------+-----------------------+--------------------------+---------------------+
+| ... | noiseFormula                          | [noiseDistribution]   | [observablePlaceholders] | [noisePlaceholders] |
++=====+=======================================+=======================+==========================+=====================+
+| ... | STRING\|NUMBER                        | *see below*           | *see below*              | *see below*         |
++-----+---------------------------------------+-----------------------+--------------------------+---------------------+
+| ... |                                       |                       |                          |                     |
++-----+---------------------------------------+-----------------------+--------------------------+---------------------+
+| ... | sd_relTotProt1                        | normal                | scale_relTotProt1        | sd_relTotProt1      |
++-----+---------------------------------------+-----------------------+--------------------------+---------------------+
+| ... | ...                                   | ...                   | ...                      | ...                 |
++-----+---------------------------------------+-----------------------+--------------------------+---------------------+
 
 
 Detailed field description
@@ -818,7 +838,8 @@ and *must not* include:
 
 - Placeholder parameters (see ``observableParameters`` and ``noiseParameters``
   above)
-- Parameters occurring as ``targetId`` in the *condition table*
+- Parameters occurring as ``targetId`` in the
+  :ref:`condition table <v2_condition_table>`
 - "Parameters" that are not *constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
 - Any parameters that do not have valid PEtab IDs.
@@ -872,8 +893,7 @@ Detailed field description
 
 - ``parameterName`` [STRING, OPTIONAL]
 
-  Parameter name to be used e.g. for plotting etc. Can be chosen freely. May
-  or may not coincide with the SBML parameter name.
+  Parameter name to be used, e.g., for plotting etc. Can be chosen freely.
 
 - ``lowerBound`` [NUMERIC]
 
@@ -1080,20 +1100,20 @@ Detailed field description
 
 .. _v2_problem_yaml:
 
-YAML file for grouping files
-----------------------------
+Problem configuration file
+--------------------------
 
 To link the model, measurement table, condition table, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
-
-This file also allows specifying a PEtab version and employed PEtab extensions.
+This file also allows specifying a PEtab version and employed PEtab
+:ref:`extensions <v2_extensions>`.
 
 Furthermore, this can be used to describe parameter estimation problems
 comprising multiple models (more details below).
 
-The format is described in the
-`jsonschema <../_static/petab_schema_v2.yaml>`_, which allows for
-easy validation:
+The format is described by the following JSON
+`schema <../_static/petab_schema_v2.yaml>`_ :cite:p:`jsonschema-spec-2020-12`,
+which allows for easy validation:
 
 .. literalinclude:: _static/petab_schema_v2.yaml
    :language: yaml
@@ -1144,9 +1164,9 @@ This design has several implications:
 - The number of conditions to be simulated for a model-specific instance
   of an experiment may vary across models.
 - Each parameter defined in the :ref:`v2_parameter_table` has a shared value
-  across all models. Parameters not listed in the parameter table do not share
-  values, which can result in model-specific instantiations of model observables
-  referencing these parameters.
+  across all models. Parameters not listed in the parameter table(s) do not
+  share values, which can result in model-specific instantiations of model
+  observables referencing these parameters.
 
 Validation Rules
 ++++++++++++++++
@@ -1172,7 +1192,7 @@ defined in the PEtab problem.
 
 1. Pre-initialization
 
-   1. Parameters values for parameters that occur in the parameter table are
+   1. Parameter values for parameters that occur in the parameter table are
       applied to the uninitialized model.
       *Uninitialized* means that no model-internal initial values have been
       computed yet (e.g., in SBML models, no initial assignments have been
@@ -1392,7 +1412,7 @@ The supported operators are:
      - | float
    * - ``!``
      - 3
-     - not
+     - logical `not`
      -
      - bool
      - bool
@@ -1600,7 +1620,7 @@ the expression is interpreted as ``true && true = true``.
 Identifiers
 -----------
 
-* All identifiers in PEtab may only contain upper and lower case letters,
+* All identifiers in PEtab may only contain upper and lower case ASCII letters,
   digits and underscores, and must not start with a digit. In PCRE2 regex, they
   must match ``[a-zA-Z_][a-zA-Z_\d]*``.
 
@@ -1659,3 +1679,9 @@ Rules for extensions:
   support.
 * Toolboxes must reject PEtab problems that use extensions with
   ``required: true`` that they do not support.
+
+
+References
+----------
+
+.. bibliography::

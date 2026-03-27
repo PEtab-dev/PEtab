@@ -16,7 +16,7 @@
    :caption: PEtab v2
    :hidden:
 
-   PEtab v2 draft <v2/documentation_data_format.rst>
+   PEtab v2 specs <v2/documentation_data_format.rst>
    Tutorial <v2/tutorial/tutorial>
 
 .. toctree::

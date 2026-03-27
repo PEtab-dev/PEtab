@@ -41,6 +41,8 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx_markdown_tables',
     'sphinx_reredirects',
+    # bibtex references
+    "sphinxcontrib.bibtex",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -76,6 +78,8 @@ source_suffix = {
 redirects = {
     "documentation_data_format": "v1/documentation_data_format.html",
 }
+
+bibtex_bibfiles = ["references.bib"]
 
 # -- Options for HTML output -------------------------------------------------
 
