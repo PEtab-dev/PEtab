@@ -172,7 +172,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   (:ref:`v2_observable_table`).
 * The ``parameterScale`` column of the
   :ref:`parameter table <v2_parameter_table>` is removed.
-  This change is made to simplify the PEtab format.
+  This change was made to simplify the PEtab format.
   This feature was a constant source of confusion and the interaction with
   parameter priors was not well-defined.
   To obtain the same effect, the model parameters can be transformed in the
@@ -184,7 +184,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * ``objectivePriorType`` and ``objectivePriorParameters`` in the
   :ref:`parameter table <v2_parameter_table>` are renamed to
   ``priorDistribution`` and ``priorParameters``, respectively.
-  This change is made to simplify the PEtab format.
+  This change was made to simplify the PEtab format.
 * The admissible values for ``estimate`` in the
   :ref:`parameter table <v2_parameter_table>`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
@@ -255,8 +255,8 @@ referred to as (experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
 :ref:`experiment table <v2_experiment_table>`. This allows for the specification of time
-courses or experiments with an arbitrary number of sequential conditions (time periods). A time period is the
-interval between two consecutive time points in the experiment table
+courses or experiments with an arbitrary number of sequential conditions (time periods). 
+A time period is the interval between two consecutive time points in the experiment table
 (including the first, excluding the second) for a given experiment,
 or the time between the last time point of an experiment and
 the end of the simulation (usually, the time point of the last measurement
