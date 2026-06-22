@@ -8,7 +8,7 @@ Where PEtab 2.0 is supported (in alphabetical order):
   (`Example <https://amici.readthedocs.io/en/latest/examples/example_petab/petab_v2.html>`__)
 
 * `PEtab.jl <https://github.com/sebapersson/PEtab.jl>`__
-  (`HOWTO <https://sebapersson.github.io/PEtab.jl/stable/tutorials/define_problem/standard_format/>`__)
+  (`HOWTO <https://sebapersson.github.io/PEtab.jl/stable/tutorials/define_problem/standard_format>`__)
 
 Work in progress:
 
