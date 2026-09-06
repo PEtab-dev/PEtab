@@ -20,7 +20,7 @@ Scope
 -----
 
 The scope of PEtab is the complete specification of parameter estimation
-problems in typical systems biology applications. In practise, data-driven
+problems in typical systems biology applications. In practice, data-driven
 modeling often begins with either (i) a computational model of a biological
 system that requires calibration or (ii) experimental data that need
 integration and analysis through a computational model
@@ -63,11 +63,11 @@ A PEtab problem consists of the following types of files:
   :ref:`extensions <v2_extensions>` [YAML].
 
 - :ref:`Parameter file(s) <v2_parameter_table>` to set parameter values
-  globally(across all experiments), and to specify the parameters to be
+  globally (across all experiments), and to specify the parameters to be
   estimated as well as their parameter bounds and prior distributions [TSV].
 
 - :ref:`Model <v2_model>` file(s) specifying the base model(s)
-  [SBML :cite:p:`HuckaFin2003,KeatingWal2020`, CellLML :cite:p:`ClerxCoo2020`,
+  [SBML :cite:p:`HuckaFin2003,KeatingWal2020`, CellML :cite:p:`ClerxCoo2020`,
   BNGL :cite:p:`Faeder2009`, ...].
 
 - :ref:`Observable file(s) <v2_observable_table>` defining the observation
@@ -178,7 +178,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   To obtain the same effect, the model parameters can be transformed in the
   model file.
 * The ``initializationPriorType`` and ``initializationPriorParameters``
-  columns  of the :ref:`parameter table <v2_parameter_table>` are removed.
+  columns of the :ref:`parameter table <v2_parameter_table>` are removed.
   Initialization priors are outside the definition of the parameter estimation
   problem and were a source of confusion.
 * ``objectivePriorType`` and ``objectivePriorParameters`` in the
@@ -380,7 +380,7 @@ are applied in five consecutive phases:
 
 5. **Evaluation of observables**
 
-   If measurements exist for the current timepoint, the observables are
+   If measurements exist for the current time point, the observables are
    evaluated after all changes have been applied. The resulting values are
    then compared against the corresponding measurements in the measurement table.
 
@@ -452,7 +452,7 @@ The experiment table has three mandatory columns ``experimentId``,
 
      Determining steady state can be nontrivial; for example, events or other
      discontinuities may occur after an apparent steady state has been reached.
-     It is the user’s responsibility to avoid situations where this ambiguity
+     It is the user's responsibility to avoid situations where this ambiguity
      is problematic.
 
   If the simulation of an experiment requiring steady state fails to reach a
@@ -471,7 +471,7 @@ The experiment table has three mandatory columns ``experimentId``,
   applied to the model as if they were specified as a single condition.
 
   ``time`` will override any initial time specified in the model,
-  except in the case of ``time`` =  ``-ìnf``, in which case the model-specified
+  except in the case of ``time`` = ``-inf``, in which case the model-specified
   time will be used (or 0, if the model does not explicitly specify an initial
   time).
 
@@ -913,8 +913,8 @@ Detailed field description
 
 - ``estimate`` [``true`` | ``false``]
 
-  ``true`` or ``false`` (case-sensitive), depending on, if the parameter is
-  estimated (``true``) or set to a fixed value (``false``)
+  ``true`` or ``false`` (case-sensitive), depending on whether the parameter
+  is estimated (``true``) or set to a fixed value (``false``)
   (see ``nominalValue``).
 
 - ``priorDistribution`` [STRING, OPTIONAL]
@@ -929,7 +929,7 @@ Detailed field description
   `truncated <https://en.wikipedia.org/wiki/Truncated_distribution>`__
   by the ``lowerBound`` and ``upperBound`` if
   the prior's domain exceeds the parameter bounds. A non-truncated prior can
-  be created by setting the parameter bounds to  match the prior's domain
+  be created by setting the parameter bounds to match the prior's domain
   (e.g., ``0`` and ``inf`` for ``log-normal``). For supported prior distributions
   see :ref:`prior distributions <v2_prior_distributions>`.
 
@@ -962,7 +962,7 @@ where :math:`\pi(x)` is the PDF of the non-truncated distribution
 and :math:`\text{CDF}(\cdot)` its cumulative distribution function.
 
 Let :math:`x` denote the parameter value and :math:`\Gamma` the
-`Gamma function <https://en.wikipedia.org/wiki/Gamma_function>`__.,
+`Gamma function <https://en.wikipedia.org/wiki/Gamma_function>`__,
 then the following prior distributions are supported:
 
 .. list-table::
