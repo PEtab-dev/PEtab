@@ -66,7 +66,7 @@ A PEtab problem consists of the following types of files:
   globally (across all experiments), and to specify the parameters to be
   estimated as well as their parameter bounds and prior distributions [TSV].
 
-- :ref:`Model <v2_model>` file(s) specifying the base model(s)
+- :ref:`Model file(s) <v2_model>` specifying the base model(s)
   [SBML :cite:p:`HuckaFin2003,KeatingWal2020`, CellML :cite:p:`ClerxCoo2020`,
   BNGL :cite:p:`Faeder2009`, ...].
 
@@ -115,7 +115,7 @@ they are part of a :ref:`PEtab extension <v2_extensions>`.
   - ``STRING``: Any string.
   - ``NUMERIC``: Any number excluding ``NaN`` / ``inf`` / ``-inf``
   - ``MATH_EXPRESSION``: A mathematical expression according to the
-    `PEtab math expression syntax <math_expressions>`_.
+    `PEtab math expression syntax <v2_math_expressions>`_.
   - ``PETAB_ID``: A string that is a valid PEtab ID.
   - ``NON_PARAMETER_TABLE_ID``: A valid PEtab ID referring to a constant or
     differential entity (:ref:`v2_model_entities`), including PEtab output
@@ -189,7 +189,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
   :ref:`parameter table <v2_parameter_table>`
   are now ``true`` and ``false`` instead of ``1`` and ``0``.
 * Support for new parameter prior distributions in the
-  :ref:`v2_parameter_table`, and clarification that bounds truncate the
+  :ref:`parameter table <v2_parameter_table>`, and clarification that bounds truncate the
   prior distributions.
 * The ``observableTransformation`` column of the
   :ref:`observable table <v2_observable_table>`
@@ -254,13 +254,13 @@ changes in the environment of the system of interest. These modifications are
 referred to as (experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
-:ref:`v2_experiment_table`. This allows for the specification of time
+:ref:`experiment table <v2_experiment_table>`. This allows for the specification of time
 courses or experiments spanning multiple time periods. A time period is the
 interval between two consecutive time points in the experiment table
 (including the first, excluding the second) for a given experiment,
 or the time between the last time point of an experiment and
 the end of the simulation (usually, the time point of the last measurement
-for that experiment in the :ref:`v2_measurement_table`).
+for that experiment in the :ref:`measurement table <v2_measurement_table>`).
 
 The condition table only allows changes in the model state, not the model
 structure. That means that only constant or differential entities (e.g.,
@@ -299,13 +299,13 @@ Detailed field description
 - ``conditionId`` [PETAB_ID, REQUIRED]
 
   A unique identifier for the condition associated with the change. This ID
-  is referenced in the :ref:`v2_experiment_table`.
+  is referenced in the :ref:`experiment table <v2_experiment_table>`.
 
 - ``targetId`` [NON_PARAMETER_TABLE_ID, REQUIRED]
 
   The ID of the entity being modified. The target must be either a constant
   or differential entity and must not be listed in the
-  :ref:`v2_parameter_table`.
+  :ref:`parameter table <v2_parameter_table>`.
 
 - ``targetValue`` [MATH_EXPRESSION, REQUIRED]
 
@@ -432,7 +432,7 @@ The experiment table has three mandatory columns ``experimentId``,
 - ``experimentId`` [PETAB_ID, REQUIRED]
 
   A unique identifier for the experiment, referenced by the ``experimentId``
-  column in the :ref:`v2_measurement_table`.
+  column in the :ref:`measurement table <v2_measurement_table>`.
 
 - ``time``: [NUMERIC or ``-inf``, REQUIRED]
 
@@ -551,7 +551,7 @@ Detailed field description
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
   measurements (the same definition of steady state as in the
-  :ref:`v2_experiment_table` applies here, with the additional
+  :ref:`experiment table <v2_experiment_table>` applies here, with the additional
   sanity check that the steady state occurs during the final
   experiment period).
   This value must be greater than or equal to the first time point
@@ -1143,12 +1143,12 @@ Scope and application
 
 While multiple models are intended to be applied to different experiments, model
 selection is specified at the level of individual data points in the
-:ref:`v2_measurement_table`. This design enables:
+:ref:`measurement table <v2_measurement_table>`. This design enables:
 
 - Reuse of experiments across models.
 - Fine-grained model-to-data assignment.
 
-With the exception of the :ref:`v2_measurement_table`, all other PEtab tables apply
+With the exception of the :ref:`measurement table <v2_measurement_table>`, all other PEtab tables apply
 to all models. Parameters listed in the parameter table are defined globally and
 shared across all models. In contrast, entries in all other tables implicitly define
 model-specific instances of observables, conditions, experiments, etc., with their
@@ -1163,7 +1163,7 @@ This design has several implications:
 - Each model may be associated with a distinct subset of experiments.
 - The number of conditions to be simulated for a model-specific instance
   of an experiment may vary across models.
-- Each parameter defined in the :ref:`v2_parameter_table` has a shared value
+- Each parameter defined in the :ref:`parameter table <v2_parameter_table>` has a shared value
   across all models. Parameters not listed in the parameter table(s) do not
   share values, which can result in model-specific instantiations of model
   observables referencing these parameters.
@@ -1172,7 +1172,7 @@ Validation rules
 ++++++++++++++++
 
 For any given model, only those experiments and observables that appear in the
-same rows of the :ref:`v2_measurement_table` need to be valid. This means that all
+same rows of the :ref:`measurement table <v2_measurement_table>` need to be valid. This means that all
 symbols used in the corresponding ``observableFormula`` and all symbols assigned
 in the associated condition definitions must be defined in the model.
 
