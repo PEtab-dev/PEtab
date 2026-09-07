@@ -585,7 +585,7 @@ Detailed field description
   batch-specific parameters.
 
   If none of the observables referenced in a given measurement table use any
-  noise placeholders, this column may be omitted there.
+  observable placeholders, this column may be omitted there.
 
 - ``noiseParameters`` [LIST[parameterId, NUMERIC], NULL, OPTIONAL]
 
@@ -612,10 +612,10 @@ Detailed field description
   If none of the observables referenced in a given measurement table use any
   noise placeholders, this column may be omitted there.
 
-- ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.models.model_id)]
+- ``modelId`` [PETAB_ID, OPTIONAL, REFERENCES(yaml.model_files)]
 
   Which model to simulate for each data point. Model IDs are defined by the
-  keys of the `models` object in the PEtab problem YAML file.
+  keys of the `model_files` object in the PEtab problem YAML file.
   This column is required when multiple models are defined in the PEtab
   problem (see :ref:`v2_multiple_models`).
   For problems with a single model, this column is optional,
