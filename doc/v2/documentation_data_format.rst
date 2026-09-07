@@ -104,7 +104,7 @@ Additional non-standard columns are allowed in all PEtab tables.
 While such extra columns may, for example, contain metadata to enhance plotting,
 downstream analysis, or improve efficiency in parameter estimation, they
 must not alter the definition of the estimation problem itself, unless
-they are part of a :ref:`PEtab extension <petab_extensions>`.
+they are part of a :ref:`PEtab extension <v2_extensions>`.
 
 **General remarks**
 
@@ -167,7 +167,7 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 * Clarification and specification of various previously underspecified
   aspects, including overriding values via the condition table
   (:ref:`v2_initialization_semantics`, :ref:`v2_reinitialization_semantics`).
-* Support for format :ref:`extensions <petab_extensions>`.
+* Support for format :ref:`extensions <v2_extensions>`.
 * Observable IDs can now be used in observable and noise formulas
   (:ref:`v2_observable_table`).
 * The ``parameterScale`` column of the
@@ -319,8 +319,8 @@ Detailed field description
 
 .. _v2_reinitialization_semantics:
 
-Detailed semantics
-~~~~~~~~~~~~~~~~~~
+Reinitialization semantics
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See :ref:`v2_initialization_semantics` for how the changes for the initial
 period of an experiment are applied and how the model is initialized.
@@ -1138,7 +1138,7 @@ This approach offers several benefits:
 - Improved simulation performance for tool developers, as smaller models can be
   simulated more efficiently.
 
-Scope and Application
+Scope and application
 +++++++++++++++++++++
 
 While multiple models are intended to be applied to different experiments, model
@@ -1168,7 +1168,7 @@ This design has several implications:
   share values, which can result in model-specific instantiations of model
   observables referencing these parameters.
 
-Validation Rules
+Validation rules
 ++++++++++++++++
 
 For any given model, only those experiments and observables that appear in the
@@ -1631,7 +1631,7 @@ Identifiers
 * Identifiers must be globally unique within the PEtab problem.
   PEtab does not put any further restrictions on the use of
   identifiers within the model, which means modelers could potentially
-  use model-format--specific (e.g. SBML) function names as identifiers.
+  use model-format–specific (e.g. SBML) function names as identifiers.
   However, this is strongly discouraged.
 
 Reserved keywords
