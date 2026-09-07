@@ -2,10 +2,10 @@
 Software support
 ================
 
-Where PEtab is supported (in alphabetical order):
+Where PEtab 1.0 is supported (in alphabetical order):
 
-* `AMICI <https://github.com/ICB-DCM/AMICI/>`__
-  (`Example <https://github.com/ICB-DCM/AMICI/blob/master/python/examples/example_petab/petab.ipynb>`__)
+* `AMICI <https://github.com/AMICI-dev/AMICI>`__
+  (`Example <https://amici.readthedocs.io/en/latest/examples/example_petab/petab.html>`__)
 
 * A PEtab -> `COPASI <http://copasi.org/>`__
   `converter <https://github.com/copasi/python-petab-importer>`__

@@ -18,6 +18,7 @@
 
    PEtab v2 specs <v2/documentation_data_format.rst>
    Tutorial <v2/tutorial/tutorial>
+   v2/software_support
 
 .. toctree::
    :maxdepth: 2
