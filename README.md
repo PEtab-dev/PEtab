@@ -6,12 +6,20 @@
 systems biology. This repository contains the PEtab specifications and
 additional documentation.
 
+There are currently two versions of the format:
+
+* **PEtab 1.0** -- the widely supported version, built around
+  [SBML](http://sbml.org/) models.
+* **PEtab 2.0** -- a recently released major update that adds support for
+  model formats other than SBML, among other changes (see the
+  [changelog](https://petab.readthedocs.io/en/latest/v2/documentation_data_format.html#changes-from-petab-1-0-0)).
+
 ## About PEtab
 
-PEtab is built around [SBML](http://sbml.org/) and based on tab-separated values
-(TSV) files. It is meant as a standardized way to provide information for
-parameter estimation, which is out of the current scope of SBML. This includes,
-for example:
+PEtab is based on tab-separated values (TSV) files and a YAML file linking
+them together. It is meant as a standardized way to provide information for
+parameter estimation that is out of scope for the underlying model format
+(e.g., SBML). This includes, for example:
 
   - Specifying and linking measurements to models
 
@@ -49,18 +57,22 @@ A wide range of PEtab examples can be found in the systems biology parameter est
 
 ## PEtab support in systems biology tools
 
-For a list of tools supporting PEtab, see the
-[software support page](https://petab.readthedocs.io/en/latest/v1/software_support.html).
+For a list of tools supporting PEtab, see the software support pages for
+[PEtab 1.0](https://petab.readthedocs.io/en/latest/v1/software_support.html)
+and [PEtab 2.0](https://petab.readthedocs.io/en/latest/v2/software_support.html).
 
 
 ## Using PEtab
 
 If you would like to use PEtab yourself, please have a look at:
 
-* [a PEtab tutorial](https://petab.readthedocs.io/en/latest/v1/tutorial/tutorial.html)
-  going through the individual steps of setting up a parameter estimation
-  problem in PEtab, independently of any specific software
-* [the PEtab format reference](https://petab.readthedocs.io/en/latest/v1/documentation_data_format.html)
+* a PEtab tutorial going through the individual steps of setting up a
+  parameter estimation problem in PEtab, independently of any specific
+  software: [PEtab 1.0](https://petab.readthedocs.io/en/latest/v1/tutorial/tutorial.html) /
+  [PEtab 2.0](https://petab.readthedocs.io/en/latest/v2/tutorial/tutorial.html)
+* the PEtab format reference:
+  [PEtab 1.0](https://petab.readthedocs.io/en/latest/v1/documentation_data_format.html) /
+  [PEtab 2.0](https://petab.readthedocs.io/en/latest/v2/documentation_data_format.html)
 * the example models provided in the
   [benchmark collection](https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab).
 * the tutorials provided with each of the softwares supporting PEtab
@@ -68,7 +80,7 @@ If you would like to use PEtab yourself, please have a look at:
 To convert your existing parameter estimation problem to the PEtab format, you
 will have to:
 
-1. Specify your model in SBML.
+1. Specify your model (e.g., in SBML; PEtab 2.0 also supports other formats).
 
 1. Create a condition table.
 
@@ -124,8 +136,8 @@ Other standardization-related projects that extend or build on PEtab include:
 * [PEtab SciML](https://github.com/PEtab-dev/petab_sciml) (WIP)
   PEtab SciML brings Scientific Machine Learning (SciML) models that
   combine mechanistic and machine learning models to PEtab. It comprises
-  both a standardized way to define SciML problems, and a Python library 
-  to work with these problems. 
+  both a standardized way to define SciML problems, and a Python library
+  to work with these problems.
 
 ## Getting help
 
