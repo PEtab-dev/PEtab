@@ -657,7 +657,7 @@ The observable table has the following columns:
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 | observableId          | [observableName]               | observableFormula                                                           |
 +=======================+================================+=============================================================================+
-| STRING                | [STRING]                       | STRING                                                                      |
+| STRING                | [STRING]                       | MATH_EXPRESSION                                                             |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 | e.g.                  |                                |                                                                             |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
@@ -671,7 +671,7 @@ The observable table has the following columns:
 +-----+---------------------------------------+-----------------------+--------------------------+---------------------+
 | ... | noiseFormula                          | [noiseDistribution]   | [observablePlaceholders] | [noisePlaceholders] |
 +=====+=======================================+=======================+==========================+=====================+
-| ... | STRING\|NUMBER                        | *see below*           | *see below*              | *see below*         |
+| ... | MATH_EXPRESSION                       | *see below*           | *see below*              | *see below*         |
 +-----+---------------------------------------+-----------------------+--------------------------+---------------------+
 | ... |                                       |                       |                          |                     |
 +-----+---------------------------------------+-----------------------+--------------------------+---------------------+
@@ -694,7 +694,7 @@ Detailed field description
 
   Name of the observable. Only used for output, not for identification.
 
-* ``observableFormula`` [STRING]
+* ``observableFormula`` [MATH_EXPRESSION]
 
   Observation function as plain text formula expression.
   The expression may contain any symbol defined in a model,
@@ -714,7 +714,7 @@ Detailed field description
   ordering and number of placeholders in ``observablePlaceholders``.
   For an example, see the description of ``noisePlaceholders`` below.
 
-* ``noiseFormula`` [NUMERIC|STRING]
+* ``noiseFormula`` [MATH_EXPRESSION]
 
   The scale parameter of the noise distribution for the given observable.
 
