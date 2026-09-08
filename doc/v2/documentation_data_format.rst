@@ -1075,10 +1075,10 @@ Detailed field description
   This identifier may be referenced in condition, measurement, parameter and
   observable tables, but cannot be referenced in the model itself.
 
-  The ``petabEntityId`` may be the same as the ``modelEntityId``, but it must
-  not be used to alias an entity that already has a valid PEtab identifier.
-  This restriction is to avoid unnecessary complexity in the PEtab problem
-  files.
+  The mapping table must not be used to alias an entity that already has a
+  valid PEtab ID. However, the special case of
+  ``petabEntityId == modelEntityId`` is not considered an alias and can be
+  useful for annotations.
 
 - ``modelEntityId`` [STRING or empty, REQUIRED]
 
