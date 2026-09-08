@@ -241,7 +241,8 @@ PEtab distinguishes between three types of entities:
   entities. They are defined in terms of an at least piecewise constant
   value but may be subject to event assignments, e.g., parameters of an SBML
   model that are not targets of rate rules or assignment rules
-  or determined by algebraic rules.
+  or determined by algebraic rules. A constant entity that is never subject to
+  any event assignment is *truly constant*.
 
 .. _v2_condition_table:
 
@@ -840,7 +841,7 @@ and *must not* include:
   above)
 - Parameters occurring as ``targetId`` in the
   :ref:`condition table <v2_condition_table>`
-- "Parameters" that are not *constant* entities (e.g., in an SBML model,
+- "Parameters" that are not *truly constant* entities (e.g., in an SBML model,
   the targets of *AssignmentRules* or *EventAssignments*)
 - Any parameters that do not have valid PEtab IDs.
   (For example, *local parameters* in an SBML model, which are not globally
