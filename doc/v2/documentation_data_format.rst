@@ -76,13 +76,13 @@ A PEtab problem consists of the following types of files:
 - :ref:`Measurement file(s) <v2_measurement_table>` containing experimental
   data used for model calibration [TSV].
 
-- (optional) :ref:`Condition file(s) <v2_condition_table>` specifying model
+- (Optional) :ref:`Condition file(s) <v2_condition_table>` specifying model
   inputs and condition-specific parameters [TSV].
 
-- (optional) :ref:`Experiment file(s) <v2_experiment_table>` describing
+- (Optional) :ref:`Experiment file(s) <v2_experiment_table>` describing
   sequences of experimental conditions applied to the model [TSV].
 
-- (optional) :ref:`Mapping file(s) <v2_mapping_table>` assigning
+- (Optional) :ref:`Mapping file(s) <v2_mapping_table>` assigning
   PEtab-compatible IDs to model entities that do not have valid
   PEtab IDs themselves, and providing additional annotations [TSV].
 
@@ -222,11 +222,11 @@ PEtab 2.0.0 is a major update of the PEtab format. The main changes are:
 Model definition
 ----------------
 
-PEtab 2.0 is **model-format–agnostic**, meaning it does not depend on a
+PEtab 2.0 is **model-format–agnostic**, meaning it does not require a
 specific model description. The model file is referenced in the :ref:`PEtab
 problem configuration file <v2_problem_yaml>` by its file name or a URL.
 
-PEtab distinguishes between three types of entities:
+PEtab distinguishes between three types of model entities:
 
 * **Differential entities**: Entities whose time evolution is defined in terms
   of a time-derivative, e.g., the targets of SBML rate rules or species
@@ -250,14 +250,14 @@ Condition table
 ---------------
 
 The optional condition table defines discrete changes to the simulated model(s).
-These (sets of) changes typically represent interventions, perturbations, or
+These changes typically represent interventions, perturbations, or
 changes in the environment of the system of interest. These modifications are
 referred to as (experimental) *conditions*.
 
 Conditions are applied at specific time points, which are defined in the
 :ref:`experiment table <v2_experiment_table>`. This allows for the specification of time
-courses or experiments spanning multiple time periods. A time period is the
-interval between two consecutive time points in the experiment table
+courses or experiments with an arbitrary number of sequential conditions (time periods). 
+A time period is the interval between two consecutive time points in the experiment table
 (including the first, excluding the second) for a given experiment,
 or the time between the last time point of an experiment and
 the end of the simulation (usually, the time point of the last measurement
@@ -390,9 +390,9 @@ are applied in five consecutive phases:
 Experiment table
 ----------------
 
-The optional experiment table defines a sequence (Figure 3, lower) of
+The optional experiment table defines a sequence of
 experimental conditions (i.e., discrete changes; see
-:ref:`v2_condition_table`) applied to the model.
+:ref:`v2_condition_table`) applied to the model (Figure 3, lower).
 
 The experiment table is provided as a tab-separated values (TSV) file with
 the following structure:
@@ -531,12 +531,12 @@ Detailed field description
 - ``observableId``
   [PETAB_ID, REQUIRED, REFERENCES(observable.observableId)]
 
-  Observable ID as defined in the observable table described below.
+  Observable ID as defined in the :ref:`v2_observable_table`.
 
 - ``experimentId``
   [PETAB_ID or empty, REQUIRED, REFERENCES(experiment.experimentId)]
 
-  Experiment ID as defined in the experiment table described below. This
+  Experiment ID as defined in the :ref:`experiment table <v2_experiment_table>`. This
   column may have empty cells, which are interpreted as *use the model as is*.
   This avoids the need for "dummy" conditions and experiments if only a single
   condition is required. If no experiment is specified, the model simulation
@@ -551,10 +551,10 @@ Detailed field description
 
   Time point of the measurement in the time unit specified in the employed model,
   a finite numeric value, or ``inf`` (lower-case) for steady-state
-  measurements (the same definition of steady state as in the
+  measurements. The same definition of steady state as in the
   :ref:`experiment table <v2_experiment_table>` applies here, with the additional
   sanity check that the steady state occurs during the final
-  experiment period).
+  experiment period.
   This value must be greater than or equal to the first time point
   of the experiment referenced in the ``experimentId`` column
   that is not ``-inf``.
@@ -643,8 +643,8 @@ Observable table
 ----------------
 
 Parameter estimation requires linking experimental observations to the model
-of interest. Therefore, one needs to define observables (model outputs) and
-respective noise models, which represent the measurement process.
+of interest. Therefore, one needs to define observables (model outputs), which
+represent the measurement process, and respective noise models.
 Since parameter estimation is beyond the scope of SBML, there exists no
 standard way to specify observables (model outputs) and respective noise
 models. Therefore, in PEtab observables are specified in a separate table
@@ -657,7 +657,7 @@ The observable table has the following columns:
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 | observableId          | [observableName]               | observableFormula                                                           |
 +=======================+================================+=============================================================================+
-| STRING                | [STRING]                       | STRING                                                                      |
+| STRING                | [STRING]                       | MATH_EXPRESSION                                                             |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
 | e.g.                  |                                |                                                                             |
 +-----------------------+--------------------------------+-----------------------------------------------------------------------------+
@@ -671,7 +671,7 @@ The observable table has the following columns:
 +-----+---------------------------------------+-----------------------+--------------------------+---------------------+
 | ... | noiseFormula                          | [noiseDistribution]   | [observablePlaceholders] | [noisePlaceholders] |
 +=====+=======================================+=======================+==========================+=====================+
-| ... | STRING\|NUMBER                        | *see below*           | *see below*              | *see below*         |
+| ... | MATH_EXPRESSION                       | *see below*           | *see below*              | *see below*         |
 +-----+---------------------------------------+-----------------------+--------------------------+---------------------+
 | ... |                                       |                       |                          |                     |
 +-----+---------------------------------------+-----------------------+--------------------------+---------------------+
@@ -692,11 +692,11 @@ Detailed field description
 
 * [``observableName``] [STRING, OPTIONAL]
 
-  Name of the observable. Only used for output, not for identification.
+  Name of the observable. Can be used for e.g. plotting, not as an ID.
 
-* ``observableFormula`` [STRING]
+* ``observableFormula`` [MATH_EXPRESSION]
 
-  Observation function as plain text formula expression.
+  Observation function following :ref:`v2_math_expressions`.
   The expression may contain any symbol defined in a model,
   the mapping table or the parameter table.
   Often, this is just the ID of a state variable.
@@ -714,7 +714,7 @@ Detailed field description
   ordering and number of placeholders in ``observablePlaceholders``.
   For an example, see the description of ``noisePlaceholders`` below.
 
-* ``noiseFormula`` [NUMERIC|STRING]
+* ``noiseFormula`` [MATH_EXPRESSION]
 
   The scale parameter of the noise distribution for the given observable.
 
@@ -888,9 +888,9 @@ Detailed field description
 
   The ``parameterId`` of the parameter described in this row. This has to match
   the ID of a parameter specified in at least one model, a parameter introduced
-  as override in the condition table, or a parameter occurring in the
+  as override in the condition table, a parameter occurring in the
   ``observableParameters`` or ``noiseParameters`` column of the measurement table
-  (see above).
+  (see above), or a ``petabEntityId`` in the mapping table.
 
 - ``parameterName`` [STRING, OPTIONAL]
 
@@ -1070,15 +1070,9 @@ Detailed field description
 
 - ``petabEntityId`` [PETAB_ID, REQUIRED]
 
-  A valid PEtab identifier (see :ref:`v2_identifiers`) that is not defined in
-  any other part of the PEtab problem.
+  A valid PEtab identifier (see :ref:`v2_identifiers`) that is globally unique.
   This identifier may be referenced in condition, measurement, parameter and
   observable tables, but cannot be referenced in the model itself.
-
-  The ``petabEntityId`` may be the same as the ``modelEntityId``, but it must
-  not be used to alias an entity that already has a valid PEtab identifier.
-  This restriction is to avoid unnecessary complexity in the PEtab problem
-  files.
 
 - ``modelEntityId`` [STRING or empty, REQUIRED]
 
