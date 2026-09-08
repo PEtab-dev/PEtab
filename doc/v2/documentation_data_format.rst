@@ -383,7 +383,8 @@ are applied in five consecutive phases:
 
    If measurements exist for the current time point, the observables are
    evaluated after all changes have been applied. The resulting values are
-   then compared against the corresponding measurements in the measurement table.
+   then compared against the corresponding measurements in the
+   :ref:`measurement table <v2_measurement_table>`.
 
 .. _v2_experiment_table:
 
@@ -531,12 +532,12 @@ Detailed field description
 - ``observableId``
   [PETAB_ID, REQUIRED, REFERENCES(observable.observableId)]
 
-  Observable ID as defined in the observable table described below.
+  Observable ID as defined in the :ref:`v2_observable_table`.
 
 - ``experimentId``
   [PETAB_ID or empty, REQUIRED, REFERENCES(experiment.experimentId)]
 
-  Experiment ID as defined in the experiment table described below. This
+  Experiment ID as defined in the :ref:`experiment table <v2_experiment_table>`. This
   column may have empty cells, which are interpreted as *use the model as is*.
   This avoids the need for "dummy" conditions and experiments if only a single
   condition is required. If no experiment is specified, the model simulation
@@ -688,7 +689,8 @@ Detailed field description
 
   Unique identifier for the given observable. Must consist only of upper and
   lower case letters, digits and underscores, and must not start with a digit.
-  This is referenced by the ``observableId`` column in the measurement table.
+  This is referenced by the ``observableId`` column in the
+  :ref:`measurement table <v2_measurement_table>`.
 
 * [``observableName``] [STRING, OPTIONAL]
 
@@ -698,7 +700,8 @@ Detailed field description
 
   Observation function as plain text formula expression.
   The expression may contain any symbol defined in a model,
-  the mapping table or the parameter table.
+  the :ref:`mapping table <v2_mapping_table>` or the
+  :ref:`parameter table <v2_parameter_table>`.
   Often, this is just the ID of a state variable.
   Furthermore, any parameters introduced through the ``observablePlaceholders``
   field for the given observable may be used (see below).
@@ -829,11 +832,12 @@ A tab-separated value text file containing information on model parameters.
 This table *must* include the following parameters:
 
 - Named parameter overrides introduced in ``targetValue`` expressions
-  in the *condition table*, unless already defined in the model
+  in the :ref:`condition table <v2_condition_table>`, unless already defined
+  in the model
 - Named parameter overrides introduced in ``observableParameters``
-  or ``noiseParameters`` in the *measurement table*
+  or ``noiseParameters`` in the :ref:`measurement table <v2_measurement_table>`
 - Parameters introduced in the ``observableFormula`` or ``noiseFormula``
-  expressions in the *observable table*
+  expressions in the :ref:`observable table <v2_observable_table>`
 
 and *must not* include:
 
@@ -888,9 +892,9 @@ Detailed field description
 
   The ``parameterId`` of the parameter described in this row. This has to match
   the ID of a parameter specified in at least one model, a parameter introduced
-  as override in the condition table, or a parameter occurring in the
-  ``observableParameters`` or ``noiseParameters`` column of the measurement table
-  (see above).
+  as override in the :ref:`condition table <v2_condition_table>`, or a parameter
+  occurring in the ``observableParameters`` or ``noiseParameters`` column of the
+  :ref:`measurement table <v2_measurement_table>` (see above).
 
 - ``parameterName`` [STRING, OPTIONAL]
 
@@ -1072,8 +1076,10 @@ Detailed field description
 
   A valid PEtab identifier (see :ref:`v2_identifiers`) that is not defined in
   any other part of the PEtab problem.
-  This identifier may be referenced in condition, measurement, parameter and
-  observable tables, but cannot be referenced in the model itself.
+  This identifier may be referenced in the :ref:`condition <v2_condition_table>`,
+  :ref:`measurement <v2_measurement_table>`, :ref:`parameter <v2_parameter_table>`
+  and :ref:`observable <v2_observable_table>` tables, but cannot be referenced
+  in the model itself.
 
   The mapping table must not be used to alias an entity that already has a
   valid PEtab ID. However, the special case of
@@ -1104,7 +1110,8 @@ Detailed field description
 Problem configuration file
 --------------------------
 
-To link the model, measurement table, condition table, etc. in an
+To link the model, :ref:`measurement table <v2_measurement_table>`,
+:ref:`condition table <v2_condition_table>`, etc. in an
 unambiguous way, we use a `YAML <https://yaml.org/>`_ file.
 This file also allows specifying a PEtab version and employed PEtab
 :ref:`extensions <v2_extensions>`.
@@ -1193,7 +1200,8 @@ defined in the PEtab problem.
 
 1. Pre-initialization
 
-   1. Parameter values for parameters that occur in the parameter table are
+   1. Parameter values for parameters that occur in the
+      :ref:`parameter table <v2_parameter_table>` are
       applied to the uninitialized model.
       *Uninitialized* means that no model-internal initial values have been
       computed yet (e.g., in SBML models, no initial assignments have been
@@ -1213,7 +1221,8 @@ defined in the PEtab problem.
    This pre-initialization replaces any model-internal initial values
    (or initialization constructs such as SBML's *initialAssignments*)
    that would alter the initial time, the values of the parameters contained
-   in the parameter table or any target values from the condition table.
+   in the parameter table or any target values from the
+   :ref:`condition table <v2_condition_table>`.
 
 2. Model initialization
 
@@ -1242,7 +1251,7 @@ and `Bayesian inference <https://en.wikipedia.org/wiki/Bayesian_inference>`__.
 
 For MAP estimation and Bayesian inference, the prior
 distributions :math:`p(\theta)` of the model parameters :math:`\theta` are
-specified in the parameter table
+specified in the :ref:`parameter table <v2_parameter_table>`
 (``priorDistribution`` and ``priorParameters`` columns,
 as described above),
 while for maximum likelihood estimation, the prior distributions are not
@@ -1307,12 +1316,12 @@ Symbols
 
 * The supported identifiers are:
 
-  * parameter IDs from the parameter table
+  * parameter IDs from the :ref:`parameter table <v2_parameter_table>`
   * model entity IDs that are globally unique and have a clear interpretation
     in a math expression context
-  * observable IDs from the observable table
+  * observable IDs from the :ref:`observable table <v2_observable_table>`
   * PEtab placeholder IDs in the observable and noise formulas
-  * PEtab entity IDs in the mapping table
+  * PEtab entity IDs in the :ref:`mapping table <v2_mapping_table>`
   * ``time`` for the model time
   * PEtab function names listed below
 
