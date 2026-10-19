@@ -19,6 +19,7 @@
    PEtab v2 specs <v2/documentation_data_format.rst>
    PEtab v2 errata <v2/errata>
    Tutorial <v2/tutorial/tutorial>
+   Upgrading from PEtab v1 <v2/migration_guide>
    v2/software_support
 
 .. toctree::
