@@ -1,5 +1,6 @@
-import m2r2
+"""Prepare README.md for inclusion in the Sphinx documentation."""
 import re
+from pathlib import Path
 
 
 def read(fname):
@@ -9,8 +10,8 @@ def read(fname):
 
 def absolute_links(txt):
     """Replace relative petab github links by absolute links."""
-    raw_base = "(https://raw.githubusercontent.com/petab-dev/petab/master/"
-    embedded_base = "(https://github.com/petab-dev/petab/tree/master/"
+    raw_base = "(https://raw.githubusercontent.com/petab-dev/petab/main/"
+    embedded_base = "(https://github.com/petab-dev/petab/blob/main/"
     # iterate over links
     for var in re.findall(r'\[.*?\]\((?!http).*?\)', txt):
         if re.match(r'.*?.(png|svg)\)', var):
@@ -23,13 +24,12 @@ def absolute_links(txt):
     return txt
 
 
-def md2rst(source: str, target: str):
+def prepare_readme(source: str, target: str):
     txt = absolute_links(read(source))
-    txt = m2r2.convert(txt, anonymous_references=True)
+    Path(target).parent.mkdir(parents=True, exist_ok=True)
     with open(target, 'w') as f:
         f.write(txt)
 
 
 if __name__ == '__main__':
-    # parse readme
-    md2rst('../README.md', '_static/README.rst')
+    prepare_readme('../README.md', '_generated/README.md')

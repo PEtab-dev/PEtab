@@ -27,7 +27,11 @@ release = 'latest'
 
 import subprocess
 
-subprocess.run(['python', 'md2rst.py'])
+subprocess.run(
+    [sys.executable, 'prepare_readme.py'],
+    cwd=os.path.dirname(os.path.abspath(__file__)),
+    check=True,
+)
 
 # -- General configuration ---------------------------------------------------
 
@@ -39,7 +43,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'myst_parser',
     'sphinx.ext.autosummary',
-    'sphinx_markdown_tables',
     'sphinx_reredirects',
     # bibtex references
     "sphinxcontrib.bibtex",
@@ -51,7 +54,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['build/doctrees', 'build/html']
+exclude_patterns = ['build/doctrees', 'build/html', '_generated']
 
 master_doc = 'index'
 
