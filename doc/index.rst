@@ -17,6 +17,7 @@
    :hidden:
 
    PEtab v2 specs <v2/documentation_data_format.rst>
+   PEtab v2 errata <v2/errata>
    Tutorial <v2/tutorial/tutorial>
    v2/software_support
 

@@ -5,6 +5,9 @@ PEtab data format specification 2.0
 
 Format version: 2.0.0
 
+Corrections and clarifications to this version are listed in the
+:ref:`errata <v2_errata>`.
+
 This document explains the PEtab data format.
 
 
@@ -858,15 +861,15 @@ it *may* include:
 
 One row per parameter with arbitrary order of rows and columns:
 
-+-------------+-----------------+-------------+------------+--------------+-------------+-----+
-| parameterId | [parameterName] | lowerBound  | upperBound | nominalValue | estimate    | ... |
-+=============+=================+=============+============+==============+=============+=====+
-| PETAB_ID    | [STRING]        | NUMERIC     | NUMERIC    | NUMERIC      | true\|false | ... |
-+-------------+-----------------+-------------+------------+--------------+-------------+-----+
-| k1          |                 | 1e-5        | 1e5        | 100          | true        | ... |
-+-------------+-----------------+-------------+------------+--------------+-------------+-----+
-| ...         | ...             | ...         | ...        | ...          | ...         | ... |
-+-------------+-----------------+-------------+------------+--------------+-------------+-----+
++-------------+-----------------+---------------+--------------+--------------+-------------+-----+
+| parameterId | [parameterName] | lowerBound    | upperBound   | nominalValue | estimate    | ... |
++=============+=================+===============+==============+==============+=============+=====+
+| PETAB_ID    | [STRING]        | NUMERIC\|-inf | NUMERIC\|inf | NUMERIC      | true\|false | ... |
++-------------+-----------------+---------------+--------------+--------------+-------------+-----+
+| k1          |                 | 1e-5          | 1e5          | 100          | true        | ... |
++-------------+-----------------+---------------+--------------+--------------+-------------+-----+
+| ...         | ...             | ...           | ...          | ...          | ...         | ... |
++-------------+-----------------+---------------+--------------+--------------+-------------+-----+
 
 *(wrapped for readability)*
 
@@ -900,14 +903,20 @@ Detailed field description
 
   Parameter name to be used, e.g., for plotting etc. Can be chosen freely.
 
-- ``lowerBound`` [NUMERIC]
+- ``lowerBound`` [NUMERIC or ``-inf``]
 
   Lower bound of the parameter used for estimation.
+  ``-inf`` indicates that the parameter is not bounded from below.
   Optional, if ``estimate==false``.
 
-- ``upperBound`` [NUMERIC]
+  .. note::
+
+     Infinite bounds are valid as per :ref:`erratum E1 <v2_errata_e1>`.
+
+- ``upperBound`` [NUMERIC or ``inf``]
 
   Upper bound of the parameter used for estimation.
+  ``inf`` indicates that the parameter is not bounded from above.
   Optional, if ``estimate==false``.
 
 - ``nominalValue`` [NUMERIC]
@@ -929,6 +938,10 @@ Detailed field description
   It is valid to have no priors. However, if priors are specified for a subset
   of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
   set to ``lowerBound;upperBound``) for the other parameters.
+  Since this default prior is improper for infinite bounds, if priors are
+  specified for any parameter, a proper prior must be specified for
+  every estimated parameter with an infinite ``lowerBound`` or ``upperBound``
+  (see :ref:`erratum E1 <v2_errata_e1>`).
 
   Prior distributions are
   `truncated <https://en.wikipedia.org/wiki/Truncated_distribution>`__
@@ -1258,6 +1271,8 @@ while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
 for a subset of inferred parameters, the remaining parameters are assumed to have a
 uniform prior between their lower and upper bounds.
+In this case, parameters with infinite bounds must have a proper
+prior explicitly specified.
 
 For maximum likelihood estimation, the objective function is the negative
 log-likelihood of the data given the model :math:`\mathcal{M}` with
