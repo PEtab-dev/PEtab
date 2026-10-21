@@ -45,3 +45,29 @@ parameter bounds to the prior's domain (e.g., ``0`` and ``inf`` for
   ``uniform(lowerBound, upperBound)`` prior for the remaining parameters is
   improper for infinite bounds. Therefore, in this case, a proper prior
   must be specified for every estimated parameter with an infinite bound.
+
+.. _v2_errata_e2:
+
+E2: Priors of non-estimated parameters
+--------------------------------------
+
+:Type: clarification
+:Affects: :ref:`v2_parameter_table`, :ref:`v2_objective_function`
+
+**Problem:**
+The ``priorDistribution`` description did not specify whether priors of
+parameters with ``estimate==false`` are used. It stated that, if priors are
+specified for a subset of parameters, the other parameters default to a
+``uniform(lowerBound, upperBound)`` prior. For parameters with
+``estimate==false``, ``lowerBound`` and ``upperBound`` are optional, so this
+default prior may be undefined. The :ref:`v2_objective_function` section, in
+contrast, defines the prior only for the estimated parameters.
+
+**Resolution:**
+
+* Priors are only used for parameters with ``estimate==true``.
+  For parameters with ``estimate==false``, ``priorDistribution`` and
+  ``priorParameters`` are ignored.
+* The default ``uniform(lowerBound, upperBound)`` prior applies only to
+  estimated parameters, and only if priors are specified for any estimated
+  parameter.
