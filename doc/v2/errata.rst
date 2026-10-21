@@ -43,5 +43,5 @@ parameter bounds to the prior's domain (e.g., ``0`` and ``inf`` for
   ``nominalValue`` remains ``NUMERIC``, i.e., finite.
 * If priors are specified for any parameter, the default
   ``uniform(lowerBound, upperBound)`` prior for the remaining parameters is
-  improper for infinite bounds. Therefore, in this case, ``priorDistribution``
+  improper for infinite bounds. Therefore, in this case, a proper prior
   must be specified for every estimated parameter with an infinite bound.

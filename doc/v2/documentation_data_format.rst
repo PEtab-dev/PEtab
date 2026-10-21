@@ -909,15 +909,15 @@ Detailed field description
   ``-inf`` indicates that the parameter is not bounded from below.
   Optional, if ``estimate==false``.
 
+  .. note::
+
+     Infinite bounds are valid as per :ref:`erratum E1 <v2_errata_e1>`.
+
 - ``upperBound`` [NUMERIC or ``inf``]
 
   Upper bound of the parameter used for estimation.
   ``inf`` indicates that the parameter is not bounded from above.
   Optional, if ``estimate==false``.
-
-  .. note::
-
-     Infinite bounds were clarified to be valid by :ref:`erratum E1 <v2_errata_e1>`.
 
 - ``nominalValue`` [NUMERIC]
 
@@ -939,7 +939,7 @@ Detailed field description
   of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
   set to ``lowerBound;upperBound``) for the other parameters.
   Since this default prior is improper for infinite bounds, if priors are
-  specified for any parameter, ``priorDistribution`` must be specified for
+  specified for any parameter, a proper prior must be specified for
   every estimated parameter with an infinite ``lowerBound`` or ``upperBound``
   (see :ref:`erratum E1 <v2_errata_e1>`).
 
@@ -1271,8 +1271,8 @@ while for maximum likelihood estimation, the prior distributions are not
 specified. If priors are only specified
 for a subset of inferred parameters, the remaining parameters are assumed to have a
 uniform prior between their lower and upper bounds.
-In this case, parameters with infinite bounds must have an explicitly
-specified prior.
+In this case, parameters with infinite bounds must have a proper
+prior explicitly specified.
 
 For maximum likelihood estimation, the objective function is the negative
 log-likelihood of the data given the model :math:`\mathcal{M}` with
