@@ -53,6 +53,7 @@ E2: Priors of non-estimated parameters
 
 :Type: clarification
 :Affects: :ref:`v2_parameter_table`, :ref:`v2_objective_function`
+:Discussion: `#686 <https://github.com/PEtab-dev/PEtab/pull/686>`__
 
 **Problem:**
 The ``priorDistribution`` description did not specify whether priors of
