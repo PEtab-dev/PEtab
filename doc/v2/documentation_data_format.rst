@@ -861,15 +861,15 @@ it *may* include:
 
 One row per parameter with arbitrary order of rows and columns:
 
-+-------------+-----------------+---------------+--------------+--------------+-------------+-----+
-| parameterId | [parameterName] | lowerBound    | upperBound   | nominalValue | estimate    | ... |
-+=============+=================+===============+==============+==============+=============+=====+
-| PETAB_ID    | [STRING]        | NUMERIC\|-inf | NUMERIC\|inf | NUMERIC      | true\|false | ... |
-+-------------+-----------------+---------------+--------------+--------------+-------------+-----+
-| k1          |                 | 1e-5          | 1e5          | 100          | true        | ... |
-+-------------+-----------------+---------------+--------------+--------------+-------------+-----+
-| ...         | ...             | ...           | ...          | ...          | ...         | ... |
-+-------------+-----------------+---------------+--------------+--------------+-------------+-----+
++-------------+-----------------+---------------+--------------+--------------------+-------------+-----+
+| parameterId | [parameterName] | lowerBound    | upperBound   | nominalValue       | estimate    | ... |
++=============+=================+===============+==============+====================+=============+=====+
+| PETAB_ID    | [STRING]        | NUMERIC\|-inf | NUMERIC\|inf | NUMERIC\|inf\|-inf | true\|false | ... |
++-------------+-----------------+---------------+--------------+--------------------+-------------+-----+
+| k1          |                 | 1e-5          | 1e5          | 100                | true        | ... |
++-------------+-----------------+---------------+--------------+--------------------+-------------+-----+
+| ...         | ...             | ...           | ...          | ...                | ...         | ... |
++-------------+-----------------+---------------+--------------+--------------------+-------------+-----+
 
 *(wrapped for readability)*
 
@@ -919,11 +919,16 @@ Detailed field description
   ``inf`` indicates that the parameter is not bounded from above.
   Optional, if ``estimate==false``.
 
-- ``nominalValue`` [NUMERIC]
+- ``nominalValue`` [NUMERIC or ``inf`` or ``-inf``]
 
   Some parameter value to be used if
   the parameter is not subject to estimation (see ``estimate`` below).
   Optional, unless ``estimate==false``.
+
+  .. note::
+
+     Infinite nominal values are valid as per
+     :ref:`erratum E3 <v2_errata_e3>`.
 
 - ``estimate`` [``true`` | ``false``]
 
