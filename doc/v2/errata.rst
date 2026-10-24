@@ -40,7 +40,8 @@ parameter bounds to the prior's domain (e.g., ``0`` and ``inf`` for
 
 * ``lowerBound`` may be ``-inf``, ``upperBound`` may be ``inf``.
   ``inf`` as lower bound and ``-inf`` as upper bound remain invalid.
-  ``nominalValue`` remains ``NUMERIC``, i.e., finite.
+  ``nominalValue`` remains ``NUMERIC``, i.e., finite
+  (changed by :ref:`erratum E3 <v2_errata_e3>`).
 * If priors are specified for any parameter, the default
   ``uniform(lowerBound, upperBound)`` prior for the remaining parameters is
   improper for infinite bounds. Therefore, in this case, a proper prior
@@ -72,3 +73,30 @@ contrast, defines the prior only for the estimated parameters.
 * The default ``uniform(lowerBound, upperBound)`` prior applies only to
   estimated parameters, and only if priors are specified for any estimated
   parameter.
+
+.. _v2_errata_e3:
+
+E3: Infinite nominal values
+---------------------------
+
+:Type: technical
+:Affects: :ref:`v2_parameter_table`
+:Discussion: `#685 <https://github.com/PEtab-dev/PEtab/issues/685>`__
+
+**Problem:**
+``nominalValue`` was specified as ``NUMERIC``, which excludes infinite
+values. At the same time, the list of changes from PEtab 1 states that the
+effect of the removed ``parameterScale`` column can be obtained by
+transforming the model parameters in the model file. This does not hold for
+fixed parameters on the boundary of their domain: in PEtab 1, a parameter
+``k1`` with ``parameterScale=log`` can be fixed to ``nominalValue=0``
+(nominal values are on linear scale). For a model reparameterized in terms of
+``log_k1``, the corresponding nominal value is ``-inf``.
+
+**Resolution:**
+
+* ``nominalValue`` may be ``inf`` or ``-inf``. ``NaN`` remains invalid.
+* For parameters with ``estimate==false``, infinite nominal values are applied
+  as specified.
+* For parameters with ``estimate==true``, ``nominalValue`` does not affect the
+  problem definition, so infinite values have no further implications.
