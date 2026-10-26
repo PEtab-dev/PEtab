@@ -40,8 +40,7 @@ parameter bounds to the prior's domain (e.g., ``0`` and ``inf`` for
 
 * ``lowerBound`` may be ``-inf``, ``upperBound`` may be ``inf``.
   ``inf`` as lower bound and ``-inf`` as upper bound remain invalid.
-  ``nominalValue`` remains ``NUMERIC``, i.e., finite
-  (changed by :ref:`erratum E3 <v2_errata_e3>`).
+  ``nominalValue`` is addressed by :ref:`erratum E3 <v2_errata_e3>`.
 * If priors are specified for any parameter, the default
   ``uniform(lowerBound, upperBound)`` prior for the remaining parameters is
   improper for infinite bounds. Therefore, in this case, a proper prior
