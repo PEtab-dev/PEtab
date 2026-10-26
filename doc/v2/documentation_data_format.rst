@@ -935,13 +935,22 @@ Detailed field description
 
   Prior types used for the
   :ref:`MAP objective function and for Bayesian inference <v2_objective_function>`.
+  Priors are only used for parameters with ``estimate==true``.
+  For parameters with ``estimate==false``, ``priorDistribution`` and
+  ``priorParameters`` are ignored.
   It is valid to have no priors. However, if priors are specified for a subset
-  of parameters, this defaults to the ``uniform`` prior (with ``priorParameters``
-  set to ``lowerBound;upperBound``) for the other parameters.
+  of estimated parameters, the other estimated parameters default to the
+  ``uniform`` prior (with ``priorParameters`` set to
+  ``lowerBound;upperBound``).
   Since this default prior is improper for infinite bounds, if priors are
-  specified for any parameter, a proper prior must be specified for
+  specified for any estimated parameter, a proper prior must be specified for
   every estimated parameter with an infinite ``lowerBound`` or ``upperBound``
   (see :ref:`erratum E1 <v2_errata_e1>`).
+
+  .. note::
+
+     Priors of non-estimated parameters are ignored as per
+     :ref:`erratum E2 <v2_errata_e2>`.
 
   Prior distributions are
   `truncated <https://en.wikipedia.org/wiki/Truncated_distribution>`__
@@ -1273,6 +1282,8 @@ for a subset of inferred parameters, the remaining parameters are assumed to hav
 uniform prior between their lower and upper bounds.
 In this case, parameters with infinite bounds must have a proper
 prior explicitly specified.
+Priors of non-estimated parameters (``estimate==false``) are ignored
+(see :ref:`erratum E2 <v2_errata_e2>`).
 
 For maximum likelihood estimation, the objective function is the negative
 log-likelihood of the data given the model :math:`\mathcal{M}` with
