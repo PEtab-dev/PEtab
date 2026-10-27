@@ -75,12 +75,13 @@ contrast, defines the prior only for the estimated parameters.
 
 .. _v2_errata_e3:
 
-E3: Infinite nominal values
----------------------------
+E3: Infinite parameter values
+-----------------------------
 
 :Type: technical
-:Affects: :ref:`v2_parameter_table`
-:Discussion: `#685 <https://github.com/PEtab-dev/PEtab/issues/685>`__
+:Affects: :ref:`v2_parameter_table`, :ref:`v2_measurement_table`
+:Discussion: `#685 <https://github.com/PEtab-dev/PEtab/issues/685>`__,
+  `#687 <https://github.com/PEtab-dev/PEtab/pull/687>`__
 
 **Problem:**
 ``nominalValue`` was specified as ``NUMERIC``, which excludes infinite
@@ -92,9 +93,17 @@ fixed parameters on the boundary of their domain: in PEtab 1, a parameter
 (nominal values are on linear scale). For a model reparameterized in terms of
 ``log_k1``, the corresponding nominal value is ``-inf``.
 
+The same applies to numeric values in ``observableParameters`` and
+``noiseParameters`` in the measurement table, which were specified as
+``NUMERIC``. Since these entries may also reference parameters from the
+parameter table, an infinite value could be given via a parameter, but not
+directly.
+
 **Resolution:**
 
 * ``nominalValue`` may be ``inf`` or ``-inf``. ``NaN`` remains invalid.
+* Numeric values in ``observableParameters`` and ``noiseParameters`` may be
+  ``inf`` or ``-inf``. ``NaN`` remains invalid.
 * For parameters with ``estimate==false``, infinite nominal values are applied
   as specified.
 * For parameters with ``estimate==true``, ``nominalValue`` does not affect the

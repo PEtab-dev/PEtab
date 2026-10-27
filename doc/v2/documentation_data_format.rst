@@ -514,17 +514,17 @@ order:
 
 *(wrapped for readability)*
 
-+-----+----------------------------+----------------------------+
-| ... | [observableParameters]     | [noiseParameters]          |
-+=====+============================+============================+
-| ... | LIST[parameterId\|NUMERIC] | LIST[parameterId\|NUMERIC] |
-+-----+----------------------------+----------------------------+
-| ... |                            |                            |
-+-----+----------------------------+----------------------------+
-| ... |                            |                            |
-+-----+----------------------------+----------------------------+
-| ... | ...                        | ...                        |
-+-----+----------------------------+----------------------------+
++-----+----------------------------------------+----------------------------------------+
+| ... | [observableParameters]                 | [noiseParameters]                      |
++=====+========================================+========================================+
+| ... | LIST[parameterId\|NUMERIC\|inf\|-inf]  | LIST[parameterId\|NUMERIC\|inf\|-inf]  |
++-----+----------------------------------------+----------------------------------------+
+| ... |                                        |                                        |
++-----+----------------------------------------+----------------------------------------+
+| ... |                                        |                                        |
++-----+----------------------------------------+----------------------------------------+
+| ... | ...                                    | ...                                    |
++-----+----------------------------------------+----------------------------------------+
 
 Additional (non-standard) columns may be added.
 
@@ -567,7 +567,8 @@ Detailed field description
   the condition change is applied before the observable is evaluated
   (see :ref:`v2_reinitialization_semantics` for details).
 
-- ``observableParameters`` [LIST[parameterId, NUMERIC], NULL, OPTIONAL]
+- ``observableParameters`` [LIST[parameterId, NUMERIC, ``inf``, ``-inf``],
+  NULL, OPTIONAL]
 
   Measurement-specific overrides for placeholder parameters in the
   `observableFormula` declared in the
@@ -582,8 +583,12 @@ Detailed field description
   observable in the observable table. I.e., if the observable table contains
   no observable placeholders for the given observable, this field must be
   empty.
-  The values may be either numeric values or the IDs of parameters from the
-  :ref:`parameter table <v2_parameter_table>`.
+  The values may be either numeric values, ``inf``, ``-inf``, or the IDs of
+  parameters from the :ref:`parameter table <v2_parameter_table>`.
+
+  .. note::
+
+     Infinite values are valid as per :ref:`erratum E3 <v2_errata_e3>`.
 
   Different measurements for the same ``observableId`` may specify different
   values. This may be used to account for condition-specific or
@@ -592,7 +597,8 @@ Detailed field description
   If none of the observables referenced in a given measurement table use any
   observable placeholders, this column may be omitted there.
 
-- ``noiseParameters`` [LIST[parameterId, NUMERIC], NULL, OPTIONAL]
+- ``noiseParameters`` [LIST[parameterId, NUMERIC, ``inf``, ``-inf``],
+  NULL, OPTIONAL]
 
   Measurement-specific overrides for placeholder parameters in the
   `noiseFormula` declared in the
@@ -607,8 +613,12 @@ Detailed field description
   observable in the observable table. I.e., if the observable table contains
   no noise placeholders for the given observable, this field must be
   empty.
-  The values may be either numeric values or the IDs of parameters from the
-  :ref:`parameter table <v2_parameter_table>`.
+  The values may be either numeric values, ``inf``, ``-inf``, or the IDs of
+  parameters from the :ref:`parameter table <v2_parameter_table>`.
+
+  .. note::
+
+     Infinite values are valid as per :ref:`erratum E3 <v2_errata_e3>`.
 
   Different measurements for the same ``observableId`` may specify different
   values. This may be used to account for condition-specific or
